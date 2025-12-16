@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.0] - 2025-12-16
+
+### Added
+- **24 rack colors**: Expanded from 12 to 24 automatic colors for rack identification
+- **Device dropdown with rack colors**: Device selection dropdowns now show rack color indicators
+- **nextDeviceId in export/import**: Full preservation of device ID sequence across backups
+
+### Changed
+- **Notes display**: Simplified to gray italic text (removed amber icon)
+- **Edit field highlighting**: Lighter colors (#f8fafc background, #93c5fd border)
+- **IP display**: Line breaks between IPs instead of pipe separator
+- **Print ID column**: Hidden during printing for cleaner output
+
+### Fixed
+- **Export/Import cycle**: Complete data integrity including nextDeviceId field
+- **Port validation**: Proper handling of empty ports and disabled connections
+- **Data structure verification**: Full integrity checks for devices and connections
+
+---
+
 ## [2.1.1] - 2025-12-16
 
 ### Changed
@@ -92,6 +112,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 2.2.0 | 2025-12-16 | 24 rack colors, improved export/import, UI polish |
+| 2.1.0 | 2025-12-16 | Print support, notes column |
 | 2.0.0 | 2025-12-15 | Matrix view, tabs, enhanced UI |
 | 1.0.0 | 2025-12-14 | Initial release |
 

@@ -108,10 +108,10 @@ intranet/
 ### Connection
 ```javascript
 {
-  "from": 1,                      // Source device ID
-  "fromPort": "eth0",             // Source port name
-  "to": 2,                        // Destination device ID
-  "toPort": "eth1",               // Destination port name
+  "from": 1,                      // Source device ID (can be null for pending)
+  "fromPort": "eth0",             // Source port name (can be empty)
+  "to": 2,                        // Destination device ID (can be null for pending)
+  "toPort": "eth1",               // Destination port name (can be empty)
   "type": "lan",                  // Connection type (see below)
   "color": "#3b82f6",             // Visual color
   "status": "active",             // "active" | "disabled"
@@ -120,6 +120,8 @@ intranet/
   "notes": ""                     // Free text notes
 }
 ```
+
+> **Note**: Empty ports and null device IDs are allowed for pending/incomplete connections or disabled items.
 
 ### Connection Types
 | Type | Label | Default Color |
@@ -232,6 +234,27 @@ Application works but cannot save to server. Data persists only in browser Local
 |---------|---------|---------|
 | Tailwind CSS | 3.x (CDN) | UI Styling |
 | XLSX.js | 0.18.5 (CDN) | Excel export |
+
+---
+
+## Rack Colors (24 total)
+The system automatically assigns one of 24 distinct colors to each rack:
+
+| # | Color | Hex |
+|---|-------|-----|
+| 1 | Red | #ef4444 |
+| 2 | Orange | #f97316 |
+| 3 | Yellow | #eab308 |
+| 4 | Green | #22c55e |
+| 5 | Blue | #3b82f6 |
+| 6 | Violet | #8b5cf6 |
+| 7 | Pink | #ec4899 |
+| 8 | Cyan | #06b6d4 |
+| 9 | Teal | #14b8a6 |
+| 10 | Rose | #f43f5e |
+| 11 | Lime | #84cc16 |
+| 12 | Purple | #a855f7 |
+| 13-24 | ... | Additional variations |
 
 ---
 
