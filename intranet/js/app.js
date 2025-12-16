@@ -958,10 +958,50 @@ function clearAll() {
 // ============================================================================
 // PRINT FUNCTIONS
 // ============================================================================
+function getPrintStyles() {
+    return '<style>' +
+        '@media print {' +
+        '  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
+        '  .no-print, .print-hide-id { display: none !important; }' +
+        '  @page { size: landscape; margin: 6mm; }' +
+        '}' +
+        'body { font-family: Arial, sans-serif; padding: 10px; margin: 0; font-size: 11px; }' +
+        'h2 { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #1e293b; }' +
+        'table { width: 100%; border-collapse: collapse; font-size: 9px; }' +
+        'th, td { border: 1px solid #64748b; padding: 4px 6px; text-align: left; vertical-align: top; }' +
+        'thead th { background-color: #334155 !important; color: white !important; font-weight: bold; font-size: 8px; text-transform: uppercase; }' +
+        'tbody tr:nth-child(even) { background-color: #f1f5f9; }' +
+        'tbody tr:hover { background-color: #e2e8f0; }' +
+        '.font-mono { font-family: monospace; }' +
+        '.font-bold { font-weight: bold; }' +
+        '.font-semibold { font-weight: 600; }' +
+        '.text-center { text-align: center; }' +
+        '.text-xs { font-size: 9px; }' +
+        '.text-slate-600 { color: #475569; }' +
+        '.italic { font-style: italic; }' +
+        '.rounded-full { border-radius: 9999px; display: inline-block; padding: 2px 6px; }' +
+        '.bg-green-100 { background-color: #dcfce7; }' +
+        '.bg-red-100 { background-color: #fee2e2; }' +
+        '.bg-blue-100 { background-color: #dbeafe; }' +
+        '.text-green-800 { color: #166534; }' +
+        '.text-red-800 { color: #991b1b; }' +
+        '.text-blue-800 { color: #1e40af; }' +
+        '.px-1, .px-1\\.5 { padding-left: 4px; padding-right: 4px; }' +
+        '.py-0, .py-0\\.5 { padding-top: 2px; padding-bottom: 2px; }' +
+        '.mt-0, .mt-0\\.5 { margin-top: 2px; }' +
+        '.gap-1 { gap: 4px; }' +
+        '.flex { display: flex; }' +
+        '.flex-col { flex-direction: column; }' +
+        '.align-top { vertical-align: top; }' +
+        '.sticky-col { position: static !important; }' +
+        '.matrix-cell { min-width: 70px !important; width: 70px !important; max-width: 70px !important; height: 60px !important; }' +
+        '</style>';
+}
+
 function printMatrix() {
-    var printArea = document.getElementById('matrixPrintArea');
+    var printArea = document.getElementById('matrixContainer');
     if (!printArea) {
-        Toast.error('Print area not found');
+        Toast.error('Matrix not found');
         return;
     }
     
@@ -971,11 +1011,21 @@ function printMatrix() {
             Toast.error('Popup blocked. Please allow popups for this site.');
             return;
         }
-        printWindow.document.write('<html><head><title>Connection Matrix</title><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"><style>@media print{.no-print{display:none!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}body{padding:16px;}</style></head><body>' + printArea.innerHTML + '</body></html>');
+        
+        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Connection Matrix - Tiesse Network</title>';
+        html += getPrintStyles();
+        html += '</head><body>';
+        html += '<h2>🔗 Connection Matrix - ' + new Date().toLocaleDateString() + '</h2>';
+        html += '<p style="font-size:10px;color:#64748b;margin-bottom:10px;">Total devices: ' + appState.devices.length + ' | Total connections: ' + appState.connections.length + '</p>';
+        html += printArea.innerHTML;
+        html += '</body></html>';
+        
+        printWindow.document.write(html);
         printWindow.document.close();
+        
         setTimeout(function() {
             printWindow.print();
-        }, 500);
+        }, 300);
     } catch (e) {
         console.error('Print error:', e);
         Toast.error('Error printing: ' + e.message);
@@ -983,9 +1033,9 @@ function printMatrix() {
 }
 
 function printConnections() {
-    var printArea = document.getElementById('connectionsPrintArea');
+    var printArea = document.getElementById('connectionsListContainer');
     if (!printArea) {
-        Toast.error('Print area not found');
+        Toast.error('Connections list not found');
         return;
     }
     
@@ -995,11 +1045,22 @@ function printConnections() {
             Toast.error('Popup blocked. Please allow popups for this site.');
             return;
         }
-        printWindow.document.write('<html><head><title>Active Connections</title><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"><style>@media print{.no-print,.print-hide-id{display:none!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}body{padding:16px;}table{width:100%;border-collapse:collapse;font-size:10px;}th,td{border:1px solid #ccc;padding:4px;text-align:left;}</style></head><body>' + printArea.innerHTML + '</body></html>');
+        
+        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Active Connections - Tiesse Network</title>';
+        html += getPrintStyles();
+        html += '<style>.print-hide-id { display: none !important; }</style>';
+        html += '</head><body>';
+        html += '<h2>⚡ Active Connections - ' + new Date().toLocaleDateString() + '</h2>';
+        html += '<p style="font-size:10px;color:#64748b;margin-bottom:10px;">Total connections: ' + appState.connections.length + '</p>';
+        html += printArea.innerHTML;
+        html += '</body></html>';
+        
+        printWindow.document.write(html);
         printWindow.document.close();
+        
         setTimeout(function() {
             printWindow.print();
-        }, 500);
+        }, 300);
     } catch (e) {
         console.error('Print error:', e);
         Toast.error('Error printing: ' + e.message);
