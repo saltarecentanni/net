@@ -229,22 +229,41 @@ function serverLoad() {
 }
 
 function serverSave() {
+    var payload = JSON.stringify({
+        devices: appState.devices,
+        connections: appState.connections,
+        nextDeviceId: appState.nextDeviceId
+    });
+    
     function postUrl(url) {
         return fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                devices: appState.devices,
-                connections: appState.connections,
-                nextDeviceId: appState.nextDeviceId
-            })
-        }).then(function(r) { return r.json(); });
+            body: payload
+        }).then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        }).then(function(data) {
+            if (data.error) throw new Error(data.error);
+            return data;
+        });
     }
-    postUrl('data.php').catch(function() { 
-        postUrl('/data.php').catch(function(e) { 
-            console.warn('Server save failed:', e);
-        }); 
-    });
+    
+    postUrl('data.php')
+        .then(function() {
+            // Server save successful
+        })
+        .catch(function() {
+            // Try alternative URL
+            postUrl('/data.php')
+                .then(function() {
+                    // Alternative URL successful
+                })
+                .catch(function(e) {
+                    console.warn('Server save failed:', e);
+                    Toast.warning('Server sync failed. Data saved locally only.');
+                });
+        });
 }
 
 function loadFromStorage() {

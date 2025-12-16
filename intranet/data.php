@@ -61,6 +61,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
+    // ENHANCED: Validate content of devices array
+    foreach ($tmp['devices'] as $index => $device) {
+        if (!is_array($device)) {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid device at index $index: must be an object"]);
+            exit;
+        }
+        // Required fields for each device
+        $requiredFields = ['id', 'rackId', 'name', 'type', 'status', 'ports'];
+        foreach ($requiredFields as $field) {
+            if (!isset($device[$field])) {
+                http_response_code(400);
+                echo json_encode(["error"=>"Invalid device at index $index: missing required field '$field'"]);
+                exit;
+            }
+        }
+        if (!is_int($device['id']) || $device['id'] < 1) {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid device at index $index: 'id' must be a positive integer"]);
+            exit;
+        }
+        if (!is_array($device['ports'])) {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid device at index $index: 'ports' must be an array"]);
+            exit;
+        }
+    }
+    
+    // ENHANCED: Validate content of connections array
+    foreach ($tmp['connections'] as $index => $conn) {
+        if (!is_array($conn)) {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid connection at index $index: must be an object"]);
+            exit;
+        }
+        // Required fields for each connection
+        if (!isset($conn['from']) || !is_int($conn['from'])) {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid connection at index $index: 'from' must be an integer"]);
+            exit;
+        }
+        if (!isset($conn['type']) || !is_string($conn['type'])) {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid connection at index $index: 'type' must be a string"]);
+            exit;
+        }
+        if (!isset($conn['status']) || !is_string($conn['status'])) {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid connection at index $index: 'status' must be a string"]);
+            exit;
+        }
+    }
+    
     // safe write with temp file
     $tmpFile = $file . '.tmp';
     $w = file_put_contents($tmpFile, json_encode($tmp, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
