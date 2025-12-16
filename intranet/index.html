@@ -410,8 +410,8 @@
                 var el = document.getElementById(fields[i]);
                 if (el) {
                     if (enable) {
-                        el.style.backgroundColor = '#e2e8f0';
-                        el.style.borderColor = '#64748b';
+                        el.style.backgroundColor = '#f8fafc';
+                        el.style.borderColor = '#93c5fd';
                     } else {
                         el.style.backgroundColor = '';
                         el.style.borderColor = '';
@@ -1467,7 +1467,7 @@ function saveConnection() {
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + connLabels[c.type] + '</span></td>' +
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
-            '<td class="px-3 py-2 align-top">' + (c.notes ? '<div class="text-xs italic text-amber-700">' + c.notes + '</div>' : '') + '</td>' +
+            '<td class="px-3 py-2 align-top text-xs italic text-slate-600">' + (c.notes || '') + '</td>' +
             '<td class="px-3 py-2 align-top text-right no-print">' +
             '<button onclick="editConnection(' + i + ')" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>' +
             '<button onclick="removeConnection(' + i + ')" class="text-red-600 hover:text-red-900">Del</button>' +
