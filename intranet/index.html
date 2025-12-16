@@ -1418,38 +1418,54 @@ function saveConnection() {
         var fromIPs = '';
         var toIPs = '';
         if (fromDevice && fromDevice.addresses && fromDevice.addresses.length > 0) {
-            var ips = [];
+            var addrs = [];
             for (var ai = 0; ai < fromDevice.addresses.length; ai++) {
-                if (fromDevice.addresses[ai].ip) ips.push(fromDevice.addresses[ai].ip);
+                var addr = fromDevice.addresses[ai];
+                if (addr.network) addrs.push(addr.network);
+                if (addr.ip && addr.ip !== addr.network) addrs.push(addr.ip);
             }
-            fromIPs = ips.join(', ');
+            fromIPs = addrs.join(' | ');
         }
         if (toDevice && toDevice.addresses && toDevice.addresses.length > 0) {
-            var ips = [];
+            var addrs = [];
             for (var ai = 0; ai < toDevice.addresses.length; ai++) {
-                if (toDevice.addresses[ai].ip) ips.push(toDevice.addresses[ai].ip);
+                var addr = toDevice.addresses[ai];
+                if (addr.network) addrs.push(addr.network);
+                if (addr.ip && addr.ip !== addr.network) addrs.push(addr.ip);
             }
-            toIPs = ips.join(', ');
+            toIPs = addrs.join(' | ');
         }
 
-        var rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-100';
+        // Format notes for display
+        var notesHtml = '';
+        if (c.notes) {
+            notesHtml = '<div class="text-xs italic text-amber-700 mt-1 bg-amber-50 px-1 rounded">📝 ' + c.notes + '</div>';
+        }
 
-        html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50">' +
-            '<td class="px-3 py-2">' + (i + 1) + '</td>' +
-            '<td class="px-3 py-2 font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
-            '<td class="px-3 py-2"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
-            '<td class="px-3 py-2"><div class="font-semibold">' + (fromDevice ? fromDevice.name : 'N/A') + '</div>' + (fromIPs ? '<div class="text-xs text-slate-400 font-mono">' + fromIPs + '</div>' : '') + '</td>' +
-            '<td class="px-3 py-2 font-mono text-center">' + (c.fromPort || '-') + '</td>' +
-            '<td class="px-1 py-2 text-center"><span style="color:#000000;font-size:18px;font-weight:bold;">⟷</span></td>' +
-            '<td class="px-3 py-2 font-mono text-center">' + (c.toPort || '-') + '</td>' +
-            '<td class="px-3 py-2"><div class="font-semibold">' + (toDevice ? toDevice.name : 'N/A') + '</div>' + (toIPs ? '<div class="text-xs text-slate-400 font-mono">' + toIPs + '</div>' : '') + '</td>' +
-            '<td class="px-3 py-2"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (toDevice ? String(toDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
-            '<td class="px-3 py-2 font-bold" style="color:' + toRackColor + '">' + (toDevice ? toDevice.rackId : 'N/A') + '</td>' +
-            '<td class="px-3 py-2"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + connLabels[c.type] + '</span></td>' +
-            '<td class="px-3 py-2">' + markerHtml + '</td>' +
-            '<td class="px-3 py-2"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
-            '<td class="px-3 py-2 text-xs italic text-slate-500 max-w-[150px] truncate" title="' + (c.notes || '').replace(/"/g, '&quot;') + '">' + (c.notes ? c.notes : '-') + '</td>' +
-            '<td class="px-3 py-2 text-right no-print">' +
+        var rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
+
+        html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 border-b-2 border-slate-300">' +
+            '<td class="px-3 py-2 align-top">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
+            '<td class="px-3 py-2 align-top">' +
+                '<div class="font-semibold">' + (fromDevice ? fromDevice.name : 'N/A') + '</div>' +
+                (fromIPs ? '<div class="text-xs text-slate-500 font-mono bg-slate-100 px-1 rounded mt-0.5">' + fromIPs + '</div>' : '') +
+            '</td>' +
+            '<td class="px-3 py-2 align-top font-mono text-center">' + (c.fromPort || '-') + '</td>' +
+            '<td class="px-1 py-2 align-top text-center"><span style="color:#000000;font-size:18px;font-weight:bold;">⟷</span></td>' +
+            '<td class="px-3 py-2 align-top font-mono text-center">' + (c.toPort || '-') + '</td>' +
+            '<td class="px-3 py-2 align-top">' +
+                '<div class="font-semibold">' + (toDevice ? toDevice.name : 'N/A') + '</div>' +
+                (toIPs ? '<div class="text-xs text-slate-500 font-mono bg-slate-100 px-1 rounded mt-0.5">' + toIPs + '</div>' : '') +
+            '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (toDevice ? String(toDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
+            '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + (toDevice ? toDevice.rackId : 'N/A') + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + connLabels[c.type] + '</span></td>' +
+            '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
+            '<td class="px-3 py-2 align-top">' + notesHtml + '</td>' +
+            '<td class="px-3 py-2 align-top text-right no-print">' +
             '<button onclick="editConnection(' + i + ')" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>' +
             '<button onclick="removeConnection(' + i + ')" class="text-red-600 hover:text-red-900">Del</button>' +
             '</td>' +
