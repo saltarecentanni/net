@@ -269,16 +269,21 @@
                         </div>
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block">Destination Device</label>
-                            <select id="toDevice" onchange="updateToPorts()" 
+                            <select id="toDevice" onchange="updateToPorts(); toggleExternalDest()" 
                                 class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                                 <option value="">Select destination</option>
                             </select>
                         </div>
-                        <div class="col-span-1">
+                        <div class="col-span-1" id="toPortContainer">
                             <label class="text-xs text-slate-600 mb-1 block">Dest Port</label>
                             <select id="toPort" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                                 <option value="">Port</option>
                             </select>
+                        </div>
+                        <div class="col-span-3 hidden" id="externalDestContainer">
+                            <label class="text-xs text-slate-600 mb-1 block">External Destination</label>
+                            <input type="text" id="externalDest" placeholder="e.g. Fiber Optic TIM, Internet WAN, ISP Link"
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                         </div>
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Type</label>
@@ -814,6 +819,7 @@ function saveConnection() {
         var fromPort = document.getElementById('fromPort').value;
         var toDeviceVal = document.getElementById('toDevice').value;
         var toPort = document.getElementById('toPort').value;
+        var externalDest = document.getElementById('externalDest').value.trim();
         var type = document.getElementById('connType').value;
         var status = document.getElementById('connStatus').value;
         var cableMarker = document.getElementById('cableMarker').value.trim().toUpperCase();
@@ -821,11 +827,18 @@ function saveConnection() {
         var notes = document.getElementById('connNotes').value.trim();
 
         var from = fromDeviceVal ? parseInt(fromDeviceVal, 10) : null;
-        var to = toDeviceVal ? parseInt(toDeviceVal, 10) : null;
+        var to = (toDeviceVal && toDeviceVal !== 'external') ? parseInt(toDeviceVal, 10) : null;
+        var isExternal = (toDeviceVal === 'external');
 
-        // Check if at least one device was selected
-        if (!from && !to) {
-            alert('Please select at least one device (source or destination)');
+        // Check if at least source device was selected
+        if (!from) {
+            alert('Please select source device');
+            return;
+        }
+
+        // Validate external destination
+        if (isExternal && !externalDest) {
+            alert('Please enter external destination name');
             return;
         }
         
@@ -858,8 +871,8 @@ function saveConnection() {
             }
         }
 
-        // Validar destination port (opcional para ISP, Others e Disabled)
-        if (to) {
+        // Validar destination port (opcional para ISP, Others, Disabled ou External)
+        if (to && !isExternal) {
             var canSkipToPort = toDevice && (toDevice.status === 'disabled' || toDevice.type === 'isp' || toDevice.type === 'others');
             if (!canSkipToPort && !toPort) {
                 alert('Please select destination port');
@@ -899,7 +912,8 @@ function saveConnection() {
             from: from,
             fromPort: fromPort || '',
             to: to,
-            toPort: toPort || '',
+            toPort: isExternal ? '' : (toPort || ''),
+            externalDest: isExternal ? externalDest : '',
             type: type,
             color: connColors[type],
             status: status,
@@ -932,8 +946,18 @@ function saveConnection() {
             document.getElementById('connEditIndex').value = idx;
             document.getElementById('fromDevice').value = c.from;
             updateFromPorts(c.fromPort);
-            document.getElementById('toDevice').value = c.to;
-            updateToPorts(c.toPort);
+            
+            // Handle external destination
+            if (c.externalDest) {
+                document.getElementById('toDevice').value = 'external';
+                document.getElementById('externalDest').value = c.externalDest;
+                toggleExternalDest();
+            } else {
+                document.getElementById('toDevice').value = c.to;
+                updateToPorts(c.toPort);
+                toggleExternalDest();
+            }
+            
             document.getElementById('connType').value = c.type;
             document.getElementById('connStatus').value = c.status;
             document.getElementById('cableMarker').value = c.cableMarker || '';
@@ -966,6 +990,8 @@ function saveConnection() {
             document.getElementById('fromPort').innerHTML = '<option value="">Select source port</option>';
             document.getElementById('toDevice').value = '';
             document.getElementById('toPort').innerHTML = '<option value="">Select destination port</option>';
+            document.getElementById('externalDest').value = '';
+            toggleExternalDest();
             document.getElementById('connType').value = 'lan';
             document.getElementById('connStatus').value = 'active';
             document.getElementById('cableMarker').value = '';
@@ -1213,7 +1239,20 @@ function saveConnection() {
                 opts += '<option value="' + d.id + '" style="color:' + rackColor + ';font-weight:bold;">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + '</option>';
             }
             document.getElementById('fromDevice').innerHTML = opts.replace('Select device', 'Select source');
-            document.getElementById('toDevice').innerHTML = opts.replace('Select device', 'Select destination');
+            document.getElementById('toDevice').innerHTML = opts.replace('Select device', 'Select destination') + '<option value="external" style="color:#6b7280;font-style:italic;">📡 External (ISP, Fiber, WAN...)</option>';
+        }
+
+        function toggleExternalDest() {
+            var toDevice = document.getElementById('toDevice').value;
+            var toPortContainer = document.getElementById('toPortContainer');
+            var externalDestContainer = document.getElementById('externalDestContainer');
+            if (toDevice === 'external') {
+                toPortContainer.classList.add('hidden');
+                externalDestContainer.classList.remove('hidden');
+            } else {
+                toPortContainer.classList.remove('hidden');
+                externalDestContainer.classList.add('hidden');
+            }
         }
 
         function createMarkerHtml(marker, color, forMatrix) {
@@ -1374,9 +1413,9 @@ function saveConnection() {
                 case 'fromDevice': return fromDevice ? (fromDevice.name || '') : '';
                 case 'fromPort': return conn.fromPort || '';
                 case 'toPort': return conn.toPort || '';
-                case 'toDevice': return toDevice ? (toDevice.name || '') : '';
+                case 'toDevice': return toDevice ? (toDevice.name || '') : (conn.externalDest || '');
                 case 'toPos': return toDevice ? (toDevice.order || 0) : 0;
-                case 'toRack': return toDevice ? (toDevice.rackId || '') : '';
+                case 'toRack': return toDevice ? (toDevice.rackId || '') : (conn.externalDest ? 'External' : '');
                 case 'type': return connLabels[conn.type] || (conn.type || '');
                 case 'marker': return conn.cableMarker || '';
                 case 'status': return conn.status || '';
@@ -1448,6 +1487,11 @@ function saveConnection() {
 
         var rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
 
+        // Handle external destination display
+        var toDisplayName = toDevice ? toDevice.name : (c.externalDest ? '📡 ' + c.externalDest : 'N/A');
+        var toDisplayRack = toDevice ? toDevice.rackId : (c.externalDest ? 'External' : 'N/A');
+        var toDisplayPos = toDevice ? String(toDevice.order).padStart(2, '0') : (c.externalDest ? '-' : 'N/A');
+
         html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 border-b-2 border-slate-300">' +
             '<td class="px-3 py-2 align-top print-hide-id">' + (i + 1) + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
@@ -1460,11 +1504,11 @@ function saveConnection() {
             '<td class="px-1 py-2 align-top text-center"><span style="font-size:16px;font-weight:bold;">⟷</span></td>' +
             '<td class="px-3 py-2 align-top font-mono text-center">' + (c.toPort || '-') + '</td>' +
             '<td class="px-3 py-2 align-top">' +
-                '<div class="font-semibold">' + (toDevice ? toDevice.name : 'N/A') + '</div>' +
+                '<div class="font-semibold">' + toDisplayName + '</div>' +
                 (toIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + toIPs + '</div>' : '') +
             '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (toDevice ? String(toDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
-            '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + (toDevice ? toDevice.rackId : 'N/A') + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span></td>' +
+            '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + toDisplayRack + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + connLabels[c.type] + '</span></td>' +
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
@@ -1528,12 +1572,12 @@ function saveConnection() {
                         'Src Device': fromDevice ? fromDevice.name : '',
                         'Src Port': c.fromPort,
                         'Dst Port': c.toPort,
-                        'Dst Device': toDevice ? toDevice.name : '',
+                        'Dst Device': toDevice ? toDevice.name : (c.externalDest ? '📡 ' + c.externalDest : ''),
                         'Dst Pos': toDevice ? toDevice.order : '',
-                        'Dst Rack': toDevice ? toDevice.rackId : '',
+                        'Dst Rack': toDevice ? toDevice.rackId : (c.externalDest ? 'External' : ''),
                         'Type': connLabels[c.type],
-                        'Marker': c.cableMarker || '',
-                        'Marker Color': c.cableColor || '',
+                        'Cable ID': c.cableMarker || '',
+                        'Cable Color': c.cableColor || '',
                         'Status': c.status,
                         'Notes': c.notes || ''
                     });
