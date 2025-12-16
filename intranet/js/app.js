@@ -960,21 +960,49 @@ function clearAll() {
 // ============================================================================
 function printMatrix() {
     var printArea = document.getElementById('matrixPrintArea');
-    if (printArea) {
+    if (!printArea) {
+        Toast.error('Print area not found');
+        return;
+    }
+    
+    try {
         var printWindow = window.open('', '_blank');
-        printWindow.document.write('<html><head><title>Connection Matrix</title><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"><style>@media print{.no-print{display:none!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style></head><body class="p-4">' + printArea.innerHTML + '</body></html>');
+        if (!printWindow) {
+            Toast.error('Popup blocked. Please allow popups for this site.');
+            return;
+        }
+        printWindow.document.write('<html><head><title>Connection Matrix</title><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"><style>@media print{.no-print{display:none!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}body{padding:16px;}</style></head><body>' + printArea.innerHTML + '</body></html>');
         printWindow.document.close();
-        printWindow.print();
+        setTimeout(function() {
+            printWindow.print();
+        }, 500);
+    } catch (e) {
+        console.error('Print error:', e);
+        Toast.error('Error printing: ' + e.message);
     }
 }
 
 function printConnections() {
     var printArea = document.getElementById('connectionsPrintArea');
-    if (printArea) {
+    if (!printArea) {
+        Toast.error('Print area not found');
+        return;
+    }
+    
+    try {
         var printWindow = window.open('', '_blank');
-        printWindow.document.write('<html><head><title>Active Connections</title><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"><style>@media print{.no-print,.print-hide-id{display:none!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style></head><body class="p-4">' + printArea.innerHTML + '</body></html>');
+        if (!printWindow) {
+            Toast.error('Popup blocked. Please allow popups for this site.');
+            return;
+        }
+        printWindow.document.write('<html><head><title>Active Connections</title><link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"><style>@media print{.no-print,.print-hide-id{display:none!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}body{padding:16px;}table{width:100%;border-collapse:collapse;font-size:10px;}th,td{border:1px solid #ccc;padding:4px;text-align:left;}</style></head><body>' + printArea.innerHTML + '</body></html>');
         printWindow.document.close();
-        printWindow.print();
+        setTimeout(function() {
+            printWindow.print();
+        }, 500);
+    } catch (e) {
+        console.error('Print error:', e);
+        Toast.error('Error printing: ' + e.message);
     }
 }
 
