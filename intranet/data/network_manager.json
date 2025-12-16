@@ -3140,18 +3140,6 @@
       "notes": ""
     },
     {
-      "from": 3,
-      "fromPort": "WAN04",
-      "to": null,
-      "toPort": "",
-      "type": "wan",
-      "color": "#ef4444",
-      "status": "active",
-      "cableMarker": "",
-      "cableColor": "#3b82f6",
-      "notes": "Fiber TIM"
-    },
-    {
       "from": 1,
       "fromPort": "eth1",
       "to": 10,
@@ -3174,18 +3162,6 @@
       "cableMarker": "A4",
       "cableColor": "#3b82f6",
       "notes": ""
-    },
-    {
-      "from": 4,
-      "fromPort": "WAN01",
-      "to": null,
-      "toPort": "",
-      "type": "wan",
-      "color": "#ef4444",
-      "status": "active",
-      "cableMarker": "A5",
-      "cableColor": "#ef4444",
-      "notes": "POE WIND FWA"
     },
     {
       "from": 7,
@@ -3221,18 +3197,6 @@
       "status": "active",
       "cableMarker": "C02",
       "cableColor": "#3b82f6",
-      "notes": ""
-    },
-    {
-      "from": 9,
-      "fromPort": "",
-      "to": null,
-      "toPort": "",
-      "type": "lan",
-      "color": "#3b82f6",
-      "status": "disabled",
-      "cableMarker": "",
-      "cableColor": "",
       "notes": ""
     },
     {
