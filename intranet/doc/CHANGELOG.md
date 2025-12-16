@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.0] - 2025-12-16
+
+### Added
+- **External destinations**: Support for ISP, Fiber Optic, WAN and other external connection targets
+- **externalDest field**: New connection field for naming external destinations (e.g., "Fibra Óptica TIM")
+- **External option in dropdown**: "📡 External (ISP, Fiber, WAN...)" option in destination device selector
+- **Cable ID column**: Renamed from "Marker" to "Cable ID" for clarity
+
+### Changed
+- **Edit/Del buttons**: Now displayed vertically (stacked) instead of horizontally
+- **Destination display**: External destinations show with 📡 icon and "External" rack label
+- **Excel export**: Updated column names (Cable ID, Cable Color) and includes external destinations
+
+### Fixed
+- **Form validation**: Proper handling of external destinations with required field validation
+- **Sort function**: Correctly sorts by external destination names
+- **Edit connection**: Properly loads and displays external destinations when editing
+
+---
+
 ## [2.2.0] - 2025-12-16
 
 ### Added
@@ -112,6 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 2.3.0 | 2025-12-16 | External destinations, Cable ID, vertical Edit/Del |
 | 2.2.0 | 2025-12-16 | 24 rack colors, improved export/import, UI polish |
 | 2.1.0 | 2025-12-16 | Print support, notes column |
 | 2.0.0 | 2025-12-15 | Matrix view, tabs, enhanced UI |
@@ -120,6 +141,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Upgrade Notes
+
+### From 2.2.x to 2.3.0
+- New `externalDest` field added to connections (optional)
+- Existing connections without `externalDest` work normally (retrocompatible)
+- Export/Import fully preserves new field
 
 ### From 1.x to 2.0.0
 - No data migration required

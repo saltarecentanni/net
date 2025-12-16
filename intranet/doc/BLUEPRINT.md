@@ -108,20 +108,21 @@ intranet/
 ### Connection
 ```javascript
 {
-  "from": 1,                      // Source device ID (can be null for pending)
+  "from": 1,                      // Source device ID (required)
   "fromPort": "eth0",             // Source port name (can be empty)
-  "to": 2,                        // Destination device ID (can be null for pending)
-  "toPort": "eth1",               // Destination port name (can be empty)
+  "to": 2,                        // Destination device ID (null for external)
+  "toPort": "eth1",               // Destination port name (empty for external)
+  "externalDest": "",             // External destination name (e.g., "Fibra Óptica TIM")
   "type": "lan",                  // Connection type (see below)
   "color": "#3b82f6",             // Visual color
   "status": "active",             // "active" | "disabled"
-  "cableMarker": "A1",            // Physical cable label
+  "cableMarker": "A1",            // Physical cable label (Cable ID)
   "cableColor": "#ef4444",        // Physical cable color
   "notes": ""                     // Free text notes
 }
 ```
 
-> **Note**: Empty ports and null device IDs are allowed for pending/incomplete connections or disabled items.
+> **Note**: For external destinations (ISP, Fiber, WAN), set `to: null`, `toPort: ""`, and fill `externalDest` with the destination name.
 
 ### Connection Types
 | Type | Label | Default Color |
