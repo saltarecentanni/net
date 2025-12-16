@@ -75,16 +75,19 @@
             .print-area, .print-area * { visibility: visible; }
             .print-area { position: absolute; left: 0; top: 0; width: 100%; }
             .no-print { display: none !important; }
+            .print-hide-id { display: none !important; }
+            .print-hide-empty:empty { display: none !important; }
             .drag-scroll { overflow: visible !important; max-height: none !important; cursor: default; }
             table { font-size: 9px !important; border-collapse: collapse !important; }
             table th, table td { 
-                border: 1px solid #cbd5e1 !important; 
-                padding: 4px 6px !important;
+                border: 1px solid #94a3b8 !important; 
+                padding: 3px 5px !important;
+                background: white !important;
             }
-            table thead { background-color: #f1f5f9 !important; }
-            table tbody tr:nth-child(even) { background-color: #f8fafc !important; }
+            table thead th { background-color: #e2e8f0 !important; font-weight: bold !important; }
+            .bg-slate-100, .bg-slate-50, .bg-amber-50 { background: transparent !important; }
             span[style*="text-shadow"] { text-shadow: none !important; }
-            @page { size: landscape; margin: 8mm; }
+            @page { size: landscape; margin: 6mm; }
         }
     </style>
 </head>
@@ -1310,7 +1313,7 @@ function saveConnection() {
 
     // Prepare sortable headers (key -> field)
     var headers = [
-        { key: 'id', label: 'ID' },
+        { key: 'id', label: 'ID', printHide: true },
         { key: 'fromRack', label: 'Src Rack' },
         { key: 'fromPos', label: 'Rack Pos.' },
         { key: 'fromDevice', label: 'Src Device' },
@@ -1324,20 +1327,21 @@ function saveConnection() {
         { key: 'marker', label: 'Marker' },
         { key: 'status', label: 'Status' },
         { key: 'notes', label: 'Notes' },
-        { key: 'actions', label: '' }
+        { key: 'actions', label: '', noPrint: true }
     ];
 
     var html = '<div class="overflow-x-auto"><table class="min-w-full divide-y text-xs"><thead class="bg-slate-50"><tr>';
     for (var h = 0; h < headers.length; h++) {
         var hdr = headers[h];
         var sortIndicator = '';
+        var printClass = hdr.printHide ? ' print-hide-id' : (hdr.noPrint ? ' no-print' : '');
         if (hdr.key !== 'actions' && connSort.key === hdr.key) {
             sortIndicator = connSort.asc ? ' ▲' : ' ▼';
         }
         if (hdr.key === 'actions') {
-            html += '<th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">' + hdr.label + '</th>';
+            html += '<th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase no-print">' + hdr.label + '</th>';
         } else {
-            html += '<th onclick="toggleConnSort(\'' + hdr.key + '\')" class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer">' + hdr.label + sortIndicator + '</th>';
+            html += '<th onclick="toggleConnSort(\'' + hdr.key + '\')" class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer' + printClass + '">' + hdr.label + sortIndicator + '</th>';
         }
     }
     html += '</tr></thead><tbody class="bg-white divide-y">';
@@ -1424,7 +1428,7 @@ function saveConnection() {
                 if (addr.network) addrs.push(addr.network);
                 if (addr.ip && addr.ip !== addr.network) addrs.push(addr.ip);
             }
-            fromIPs = addrs.join(' | ');
+            fromIPs = addrs.join('<br>');
         }
         if (toDevice && toDevice.addresses && toDevice.addresses.length > 0) {
             var addrs = [];
@@ -1433,38 +1437,32 @@ function saveConnection() {
                 if (addr.network) addrs.push(addr.network);
                 if (addr.ip && addr.ip !== addr.network) addrs.push(addr.ip);
             }
-            toIPs = addrs.join(' | ');
-        }
-
-        // Format notes for display
-        var notesHtml = '';
-        if (c.notes) {
-            notesHtml = '<div class="text-xs italic text-amber-700 mt-1 bg-amber-50 px-1 rounded">📝 ' + c.notes + '</div>';
+            toIPs = addrs.join('<br>');
         }
 
         var rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
 
         html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 border-b-2 border-slate-300">' +
-            '<td class="px-3 py-2 align-top">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2 align-top print-hide-id">' + (i + 1) + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
             '<td class="px-3 py-2 align-top">' +
                 '<div class="font-semibold">' + (fromDevice ? fromDevice.name : 'N/A') + '</div>' +
-                (fromIPs ? '<div class="text-xs text-slate-500 font-mono bg-slate-100 px-1 rounded mt-0.5">' + fromIPs + '</div>' : '') +
+                (fromIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + fromIPs + '</div>' : '') +
             '</td>' +
             '<td class="px-3 py-2 align-top font-mono text-center">' + (c.fromPort || '-') + '</td>' +
-            '<td class="px-1 py-2 align-top text-center"><span style="color:#000000;font-size:18px;font-weight:bold;">⟷</span></td>' +
+            '<td class="px-1 py-2 align-top text-center"><span style="font-size:16px;font-weight:bold;">⟷</span></td>' +
             '<td class="px-3 py-2 align-top font-mono text-center">' + (c.toPort || '-') + '</td>' +
             '<td class="px-3 py-2 align-top">' +
                 '<div class="font-semibold">' + (toDevice ? toDevice.name : 'N/A') + '</div>' +
-                (toIPs ? '<div class="text-xs text-slate-500 font-mono bg-slate-100 px-1 rounded mt-0.5">' + toIPs + '</div>' : '') +
+                (toIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + toIPs + '</div>' : '') +
             '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (toDevice ? String(toDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + (toDevice ? toDevice.rackId : 'N/A') + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + connLabels[c.type] + '</span></td>' +
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
-            '<td class="px-3 py-2 align-top">' + notesHtml + '</td>' +
+            '<td class="px-3 py-2 align-top">' + (c.notes ? '<div class="text-xs italic text-amber-700">' + c.notes + '</div>' : '') + '</td>' +
             '<td class="px-3 py-2 align-top text-right no-print">' +
             '<button onclick="editConnection(' + i + ')" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>' +
             '<button onclick="removeConnection(' + i + ')" class="text-red-600 hover:text-red-900">Del</button>' +
