@@ -1050,7 +1050,12 @@ function saveConnection() {
         // Global color map for rack IDs - ensures unique colors
         var rackColorMap = {};
         var rackColorIndex = 0;
-        var rackColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4', '#14b8a6', '#f43f5e', '#84cc16', '#a855f7'];
+        var rackColors = [
+            '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6',  // vermelho, laranja, amarelo, verde, azul, roxo
+            '#ec4899', '#06b6d4', '#14b8a6', '#f43f5e', '#84cc16', '#a855f7',  // rosa, ciano, teal, rosa-vermelho, lima, violeta
+            '#0ea5e9', '#d946ef', '#10b981', '#f59e0b', '#6366f1', '#78716c',  // sky, fuchsia, emerald, amber, indigo, stone
+            '#dc2626', '#059669', '#7c3aed', '#db2777', '#0891b2', '#65a30d'   // red-600, emerald-600, violet-600, pink-600, cyan-600, lime-600
+        ];
         
         function getRackColor(rackId) {
             if (!rackId) return '#6b7280';
