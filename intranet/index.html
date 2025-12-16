@@ -301,7 +301,7 @@
                             </select>
                         </div>
                         <div class="col-span-1">
-                            <label class="text-xs text-slate-600 mb-1 block">Marker</label>
+                            <label class="text-xs text-slate-600 mb-1 block">Cable ID</label>
                             <input type="text" id="cableMarker" maxlength="5" placeholder="1, A"
                                 class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
                         </div>
@@ -1330,7 +1330,7 @@ function saveConnection() {
         { key: 'toPos', label: 'Dst Pos.' },
         { key: 'toRack', label: 'Dst Rack' },
         { key: 'type', label: 'Type' },
-        { key: 'marker', label: 'Marker' },
+        { key: 'marker', label: 'Cable ID' },
         { key: 'status', label: 'Status' },
         { key: 'notes', label: 'Notes' },
         { key: 'actions', label: '', noPrint: true }
@@ -1469,10 +1469,11 @@ function saveConnection() {
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
             '<td class="px-3 py-2 align-top text-xs italic text-slate-600">' + (c.notes || '') + '</td>' +
-            '<td class="px-3 py-2 align-top text-right no-print">' +
-            '<button onclick="editConnection(' + i + ')" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>' +
-            '<button onclick="removeConnection(' + i + ')" class="text-red-600 hover:text-red-900">Del</button>' +
-            '</td>' +
+            '<td class="px-3 py-2 align-top text-center no-print">' +
+            '<div class="flex flex-col gap-1">' +
+            '<button onclick="editConnection(' + i + ')" class="text-blue-600 hover:text-blue-900 text-xs">Edit</button>' +
+            '<button onclick="removeConnection(' + i + ')" class="text-red-600 hover:text-red-900 text-xs">Del</button>' +
+            '</div></td>' +
             '</tr>';
     }
     html += '</tbody></table></div>';
