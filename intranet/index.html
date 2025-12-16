@@ -1414,17 +1414,35 @@ function saveConnection() {
         var fromRackColor = getRackColor(fromDevice ? fromDevice.rackId : '');
         var toRackColor = getRackColor(toDevice ? toDevice.rackId : '');
 
+        // Get IPs for source and destination devices
+        var fromIPs = '';
+        var toIPs = '';
+        if (fromDevice && fromDevice.addresses && fromDevice.addresses.length > 0) {
+            var ips = [];
+            for (var ai = 0; ai < fromDevice.addresses.length; ai++) {
+                if (fromDevice.addresses[ai].ip) ips.push(fromDevice.addresses[ai].ip);
+            }
+            fromIPs = ips.join(', ');
+        }
+        if (toDevice && toDevice.addresses && toDevice.addresses.length > 0) {
+            var ips = [];
+            for (var ai = 0; ai < toDevice.addresses.length; ai++) {
+                if (toDevice.addresses[ai].ip) ips.push(toDevice.addresses[ai].ip);
+            }
+            toIPs = ips.join(', ');
+        }
+
         var rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-100';
 
         html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50">' +
             '<td class="px-3 py-2">' + (i + 1) + '</td>' +
             '<td class="px-3 py-2 font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
             '<td class="px-3 py-2"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
-            '<td class="px-3 py-2 font-semibold">' + (fromDevice ? fromDevice.name : 'N/A') + '</td>' +
+            '<td class="px-3 py-2"><div class="font-semibold">' + (fromDevice ? fromDevice.name : 'N/A') + '</div>' + (fromIPs ? '<div class="text-xs text-slate-400 font-mono">' + fromIPs + '</div>' : '') + '</td>' +
             '<td class="px-3 py-2 font-mono text-center">' + (c.fromPort || '-') + '</td>' +
             '<td class="px-1 py-2 text-center"><span style="color:#000000;font-size:18px;font-weight:bold;">⟷</span></td>' +
             '<td class="px-3 py-2 font-mono text-center">' + (c.toPort || '-') + '</td>' +
-            '<td class="px-3 py-2 font-semibold">' + (toDevice ? toDevice.name : 'N/A') + '</td>' +
+            '<td class="px-3 py-2"><div class="font-semibold">' + (toDevice ? toDevice.name : 'N/A') + '</div>' + (toIPs ? '<div class="text-xs text-slate-400 font-mono">' + toIPs + '</div>' : '') + '</td>' +
             '<td class="px-3 py-2"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (toDevice ? String(toDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
             '<td class="px-3 py-2 font-bold" style="color:' + toRackColor + '">' + (toDevice ? toDevice.rackId : 'N/A') + '</td>' +
             '<td class="px-3 py-2"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + connLabels[c.type] + '</span></td>' +
