@@ -8,7 +8,7 @@
 'use strict';
 
 // ============================================================================
-// DEVICES LIST UPDATE
+// DEVICES LIST UPDATE (Card Style)
 // ============================================================================
 function updateDevicesList() {
     var container = document.getElementById('devicesListContainer');
@@ -16,50 +16,98 @@ function updateDevicesList() {
 
     var sorted = getSorted();
     if (sorted.length === 0) {
-        container.innerHTML = '<div class="text-center text-slate-500 py-8">No devices registered. Add a device using the form above.</div>';
+        container.innerHTML = '<p class="text-slate-400 text-center py-6 col-span-5 text-sm">No devices added yet</p>';
         return;
     }
 
-    var html = '<table class="w-full text-sm"><thead><tr class="bg-slate-100"><th class="p-2 text-left">Rack</th><th class="p-2 text-left">Ord</th><th class="p-2 text-left">Device</th><th class="p-2 text-left">Brand/Model</th><th class="p-2 text-left">Type</th><th class="p-2 text-left">Status</th><th class="p-2 text-left">Addresses</th><th class="p-2 text-left">Service</th><th class="p-2 text-left">Ports</th><th class="p-2 text-left">Notes</th><th class="p-2 text-center">Actions</th></tr></thead><tbody>';
-
+    var html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">';
+    
     for (var i = 0; i < sorted.length; i++) {
         var d = sorted[i];
+        var usedPorts = 0;
+        for (var j = 0; j < d.ports.length; j++) {
+            if (isPortUsed(d.id, d.ports[j].name)) {
+                usedPorts++;
+            }
+        }
+        var disabled = d.status === 'disabled';
         var rackColor = getRackColor(d.rackId);
-        var statusColor = d.status === 'active' ? 'green' : (d.status === 'disabled' ? 'red' : 'slate');
-        var portsText = d.ports ? d.ports.map(function(p) { return p.name; }).join(', ') : '';
-        
-        var addrsHtml = '';
+        var statusClass = disabled ? 'bg-red-500' : 'bg-green-500';
+        var statusText = disabled ? 'OFF' : 'ON';
+        var opacityClass = disabled ? 'opacity-50' : '';
+
+        // Count total connections for this device
+        var totalConnections = 0;
+        for (var ci = 0; ci < appState.connections.length; ci++) {
+            if (appState.connections[ci].from === d.id || appState.connections[ci].to === d.id) {
+                totalConnections++;
+            }
+        }
+        var noConnectionsClass = totalConnections === 0 ? 'border-orange-400 border-2 bg-orange-50' : 'bg-white';
+        var noConnectionsWarning = totalConnections === 0 ? '<div class="text-xs mt-1 text-orange-600 font-semibold">⚠ No connections</div>' : '';
+
+        var addressText = '';
         if (d.addresses && d.addresses.length > 0) {
-            for (var j = 0; j < d.addresses.length; j++) {
-                var a = d.addresses[j];
-                var line = '';
-                if (a.network) line += a.network;
-                if (a.ip) line += (line ? ', ' : '') + a.ip;
-                if (a.vlan) line += (line ? ', VLAN ' : 'VLAN ') + a.vlan;
-                if (line) addrsHtml += '<div class="text-xs">' + line + '</div>';
+            var allAddrs = [];
+            for (var k = 0; k < d.addresses.length; k++) {
+                var a = d.addresses[k];
+                if (a.network) allAddrs.push('<strong>' + a.network + '</strong>');
+                if (a.ip) allAddrs.push('<strong>' + a.ip + '</strong>');
+            }
+            var vlanText = '';
+            for (var m = 0; m < d.addresses.length; m++) {
+                if (d.addresses[m].vlan) {
+                    vlanText = ' | VLAN <strong>' + d.addresses[m].vlan + '</strong>';
+                    break;
+                }
+            }
+            if (allAddrs.length > 0) {
+                addressText = '<div class="text-xs mt-1 text-slate-600">IP: ' + allAddrs.join(', ') + vlanText + '</div>';
             }
         }
 
-        html += '<tr class="border-b border-slate-100 hover:bg-slate-50">';
-        html += '<td class="p-2"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + rackColor + ';margin-right:6px;"></span>' + (d.rackId || '') + '</td>';
-        html += '<td class="p-2">' + String(d.order || 1).padStart(2, '0') + '</td>';
-        html += '<td class="p-2 font-medium">' + (d.name || '') + '</td>';
-        html += '<td class="p-2 text-xs text-slate-600">' + (d.brandModel || '') + '</td>';
-        html += '<td class="p-2">' + (d.type || '') + '</td>';
-        html += '<td class="p-2"><span class="px-2 py-1 rounded text-xs bg-' + statusColor + '-100 text-' + statusColor + '-700">' + (d.status || '') + '</span></td>';
-        html += '<td class="p-2">' + addrsHtml + '</td>';
-        html += '<td class="p-2 text-xs">' + (d.service || '') + '</td>';
-        html += '<td class="p-2 text-xs text-slate-500" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + portsText + '">' + portsText + '</td>';
-        html += '<td class="p-2 text-xs text-slate-500">' + (d.notes || '') + '</td>';
-        html += '<td class="p-2 text-center">';
-        html += '<div class="flex flex-col items-center gap-1">';
-        html += '<button onclick="editDevice(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-xs font-medium">Edit</button>';
-        html += '<button onclick="removeDevice(' + d.id + ')" class="text-red-500 hover:text-red-700 text-xs font-medium">Del</button>';
-        html += '</div></td>';
-        html += '</tr>';
+        var brandModelText = '';
+        if (d.brandModel) {
+            brandModelText = '<div class="text-xs text-slate-500 truncate">' + d.brandModel + '</div>';
+        }
+
+        var serviceText = '';
+        if (d.service) {
+            serviceText = '<div class="text-xs mt-1 text-slate-500">🔧 ' + d.service + '</div>';
+        }
+
+        var notesText = '';
+        if (d.notes) {
+            notesText = '<div class="text-xs mt-1 text-slate-400 italic truncate">📝 ' + d.notes + '</div>';
+        }
+
+        html += '<div class="border rounded-lg p-2 hover:shadow-md transition-shadow ' + opacityClass + ' ' + noConnectionsClass + '">' +
+            '<div class="flex justify-between items-start">' +
+            '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
+            '<span class="text-xs font-semibold px-1.5 py-0.5 rounded uppercase" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span>' +
+            '<span class="text-xs text-slate-500">Pos.</span>' +
+            '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' +
+            '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
+            '</div>' +
+            '<div class="font-bold text-base text-slate-800 truncate">' + d.name + '</div>' +
+            brandModelText +
+            '<div class="text-xs text-slate-400 uppercase">' + d.type + '</div>' +
+            addressText +
+            serviceText +
+            '<div class="text-xs mt-1 text-slate-500">📍 ' + d.ports.length + ' ports (' + usedPorts + ' used)</div>' +
+            notesText +
+            noConnectionsWarning +
+            '</div>' +
+            '<div class="flex flex-col gap-1 ml-2">' +
+            '<button onclick="editDevice(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-lg p-1" title="Edit">✏️</button>' +
+            '<button onclick="removeDevice(' + d.id + ')" class="text-red-500 hover:text-red-700 text-lg p-1" title="Delete">🗑️</button>' +
+            '</div>' +
+            '</div>' +
+            '</div>';
     }
 
-    html += '</tbody></table>';
+    html += '</div>';
     container.innerHTML = html;
 }
 
