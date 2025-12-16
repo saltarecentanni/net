@@ -7,28 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.4.0] - 2025-12-16
-
-### Changed - Major Refactoring
-- **Modular JavaScript architecture**: Extracted all JavaScript from index.html into external modules
-- **app.js**: Core application logic, state management, device/connection CRUD, persistence
-- **ui-updates.js**: Heavy UI rendering functions (matrix, devices list, connections list)
-- **Encapsulated state**: Global state now contained in `appState` object for better data management
-- **Toast notification system**: Replaced all `alert()` calls with non-blocking toast notifications
-- **Improved UX**: Users now see unobtrusive success/error/warning messages in corner
-
-### Added
-- **Toast module**: `Toast.success()`, `Toast.error()`, `Toast.warning()`, `Toast.info()` for notifications
-- **Smooth animations**: CSS keyframe animations for toast slide-in/slide-out
-
-### Technical Improvements
-- **Separation of concerns**: HTML structure, styles, and logic now properly separated
-- **Maintainability**: Easier to modify and extend individual modules
-- **Performance**: Faster page loads with cacheable external JS files
-- **Code organization**: 60+ functions organized into logical groups
-
----
-
 ## [2.3.1] - 2025-12-16
 
 ### Security

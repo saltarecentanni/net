@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="app-version" content="2.1.1">
+    <title>Tiesse Matrix Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .sticky-col { 
+            position: sticky; 
+            left: 0; 
+            z-index: 20; 
+        }
+        thead th.sticky-col {
+            z-index: 30;
+        }
+        .sync-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .sync-saved { background: #22c55e; color: white; }
+        .sync-info { background: #3b82f6; color: white; }
+        
+        /* Tab styles */
+        .tab-btn {
+            padding: 12px 24px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+        .tab-btn:hover {
+            color: #3b82f6;
+            background: #f1f5f9;
+        }
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Drag to scroll */
+        .drag-scroll {
+            cursor: grab;
+            user-select: none;
+        }
+        .drag-scroll:active, .drag-scroll.dragging {
+            cursor: grabbing;
+        }
+        /* Print styles */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .print-hide-id { display: none !important; }
+            .print-hide-empty:empty { display: none !important; }
+            .drag-scroll { overflow: visible !important; max-height: none !important; cursor: default; }
+            table { font-size: 9px !important; border-collapse: collapse !important; }
+            table th, table td { 
+                border: 1px solid #94a3b8 !important; 
+                padding: 3px 5px !important;
+                background: white !important;
+            }
+            table thead th { background-color: #e2e8f0 !important; font-weight: bold !important; }
+            .bg-slate-100, .bg-slate-50, .bg-amber-50 { background: transparent !important; }
+            span[style*="text-shadow"] { text-shadow: none !important; }
+            @page { size: landscape; margin: 6mm; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <div id="syncIndicator" class="sync-indicator" style="display:none;"></div>
+    
+    <div class="w-full px-4 py-4">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 mb-1">Tiesse Matrix Network</h1>
+                    <p class="text-slate-600 text-sm">Visual matrix of network devices, ports and connections</p>
+                </div>
+                <div class="text-right text-xs text-slate-500">
+                    <div>💾 Auto-save: LocalStorage + Server</div>
+                    <div class="text-slate-600 mt-1">Version: <span id="appVersion" class="font-semibold">v2.3.1</span></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function(){
+                var meta = document.querySelector('meta[name="app-version"]');
+                var ver = meta ? meta.getAttribute('content') : '';
+                var el = document.getElementById('appVersion');
+                if (el) el.textContent = ver ? ('v' + ver) : '';
+            })();
+        </script>
+
+        <!-- Actions Bar -->
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-4">
+            <div class="flex flex-wrap gap-2 items-center justify-between">
+                <h2 class="text-lg font-bold text-slate-800">Actions</h2>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="exportExcel()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                        📊 Export to Excel
+                    </button>
+                    <button onclick="exportJSON()" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                        💾 Export JSON
+                    </button>
+                    <input type="file" id="importFile" accept=".json" onchange="importData(event)" class="hidden">
+                    <button onclick="document.getElementById('importFile').click()" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                        📥 Import JSON
+                    </button>
+                    <button onclick="clearAll()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="bg-white rounded-t-xl shadow-lg">
+            <div class="flex border-b overflow-x-auto">
+                <button class="tab-btn active" onclick="switchTab('devices')" id="tab-devices">
+                    📱 Devices
+                </button>
+                <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
+                    🔗 Matrix & Connections
+                </button>
+                <button class="tab-btn" onclick="switchTab('active')" id="tab-active">
+                    ⚡ Active Connections
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="bg-white rounded-b-xl shadow-lg p-4 mb-4">
+            
+            <!-- Tab 1: Devices -->
+            <div id="content-devices" class="tab-content active">
+                <!-- Add Device Form -->
+                <div class="bg-slate-50 rounded-lg p-3 mb-4">
+                    <h2 class="text-lg font-bold text-slate-800 mb-3">Add Device</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 items-end">
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Rack ID *</label>
+                            <input type="text" id="rackId" list="rackIdList" placeholder="Rack1" 
+                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold text-center text-sm">
+                            <datalist id="rackIdList"></datalist>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Order *</label>
+                            <input type="number" id="deviceOrder" placeholder="01" min="1" 
+                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold text-center text-sm">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-xs text-slate-600 mb-1 block">Device Name *</label>
+                            <input type="text" id="deviceName" placeholder="e.g., Router-GW" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-xs text-slate-600 mb-1 block">Brand/Model</label>
+                            <input type="text" id="deviceBrandModel" placeholder="e.g., HPE Aruba 2930F" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Type</label>
+                            <select id="deviceType" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="router">Router</option>
+                                <option value="switch">Switch</option>
+                                <option value="patch">Patch Panel</option>
+                                <option value="firewall">Firewall</option>
+                                <option value="server">Server</option>
+                                <option value="wifi">WiFi AP</option>
+                                <option value="isp">ISP/Provider</option>
+                                <option value="router_wifi">Router Wifi</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Status</label>
+                            <select id="deviceStatus" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="active">Active</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-xs text-slate-600 mb-1 block">Service</label>
+                            <input type="text" id="deviceService" placeholder="DHCP, DNS, Gateway" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                        <div class="col-span-2 flex gap-2">
+                            <input type="hidden" id="deviceId" value="">
+                            <button onclick="saveDevice()" 
+                                class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" id="saveDeviceButton">
+                                Add Device
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+                        <div>
+                            <label class="text-xs text-slate-600 mb-1 block">Addresses (Network, IP, VLAN)</label>
+                            <textarea id="deviceAddresses" placeholder="192.168.1.0/24, 192.168.1.1, 10" rows="1"
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
+                        </div>
+                        <div class="border border-slate-200 rounded-lg p-2 bg-white">
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="text-xs font-bold text-slate-700">Port Configuration</h3>
+                                <button onclick="addPortTypeField()" type="button"
+                                    class="text-xs font-semibold text-blue-500 hover:text-blue-700">+ Add Port</button>
+                            </div>
+                            <div id="portTypeQuantityContainer" class="space-y-1"></div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-600 mb-1 block">Notes</label>
+                            <textarea id="deviceNotes" placeholder="Notes (optional)" rows="1"
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Devices List -->
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 mb-3">Devices List</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3" id="devicesList"></div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Connection Matrix -->
+            <div id="content-matrix" class="tab-content">
+                <!-- Connection Form - Top -->
+                <div class="bg-slate-50 rounded-lg p-3 mb-4">
+                    <h2 class="text-lg font-bold text-slate-800 mb-3" id="connectionFormTitle">Add Connection</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 items-end">
+                        <div class="col-span-2">
+                            <label class="text-xs text-slate-600 mb-1 block">Source Device</label>
+                            <select id="fromDevice" onchange="updateFromPorts()" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="">Select source</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Source Port</label>
+                            <select id="fromPort" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="">Port</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-xs text-slate-600 mb-1 block">Destination Device</label>
+                            <select id="toDevice" onchange="updateToPorts(); toggleExternalDest()" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="">Select destination</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1" id="toPortContainer">
+                            <label class="text-xs text-slate-600 mb-1 block">Dest Port</label>
+                            <select id="toPort" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="">Port</option>
+                            </select>
+                        </div>
+                        <div class="col-span-3 hidden" id="externalDestContainer">
+                            <label class="text-xs text-slate-600 mb-1 block">External Destination</label>
+                            <input type="text" id="externalDest" placeholder="e.g. Fiber Optic TIM, Internet WAN, ISP Link"
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Type</label>
+                            <select id="connType" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="lan">LAN</option>
+                                <option value="wan">WAN/Internet</option>
+                                <option value="dmz">DMZ</option>
+                                <option value="trunk">Trunk/Uplink</option>
+                                <option value="management">Management</option>
+                                <option value="backup">Backup</option>
+                                <option value="fiber">Fiber Optic</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Status</label>
+                            <select id="connStatus" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="active">Active</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Cable ID</label>
+                            <input type="text" id="cableMarker" maxlength="5" placeholder="1, A"
+                                class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="text-xs text-slate-600 mb-1 block">Color</label>
+                            <select id="cableColor" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="">None</option>
+                                <option value="#000000">Black</option>
+                                <option value="#ffffff">White</option>
+                                <option value="#ef4444">Red</option>
+                                <option value="#f97316">Orange</option>
+                                <option value="#eab308">Yellow</option>
+                                <option value="#8b4513">Brown</option>
+                                <option value="#22c55e">Green</option>
+                                <option value="#3b82f6">Blue</option>
+                                <option value="#ec4899">Pink</option>
+                                <option value="#6b7280">Gray</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2 flex gap-2">
+                            <input type="hidden" id="connEditIndex" value="">
+                            <button onclick="saveConnection()" 
+                                class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" id="saveConnectionButton">
+                                Add Connection
+                            </button>
+                            <button onclick="cancelConnectionEdit()" id="cancelConnectionButton"
+                                class="hidden bg-slate-400 hover:bg-slate-500 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <textarea id="connNotes" placeholder="Notes (optional)" rows="1"
+                            class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
+                    </div>
+                </div>
+                    
+                <!-- Matrix -->
+                <div id="matrixPrintArea">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-lg font-bold text-slate-800">Connection Matrix</h2>
+                        <button onclick="printMatrix()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
+                            🖨️ Print Matrix
+                        </button>
+                    </div>
+                    <div class="overflow-auto drag-scroll" id="matrixContainer" style="max-height:70vh;"></div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Active Connections -->
+            <div id="content-active" class="tab-content">
+                <div id="connectionsPrintArea">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">Active Connections</h2>
+                            <p class="text-xs text-slate-500">Only showing connections where both devices are active</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-bold text-slate-700">Total: <span id="connectionsCount">0</span> connections</span>
+                            <button onclick="printConnections()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
+                                🖨️ Print List
+                            </button>
+                        </div>
+                    </div>
+                    <div id="connectionsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching function
+        function switchTab(tabId) {
+            // Remove active from all tabs
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(function(content) {
+                content.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('content-' + tabId).classList.add('active');
+        }
+
+        // Auto-resize textarea to show all content
+        function autoResizeTextarea(el) {
+            if (!el) return;
+            el.style.height = 'auto';
+            var lines = (el.value.match(/\n/g) || []).length + 1;
+            var minRows = parseInt(el.getAttribute('rows') || '1', 10);
+            var rows = Math.max(minRows, lines);
+            el.rows = rows;
+        }
+
+        function highlightEditFields(formType, enable) {
+            var fields = [];
+            if (formType === 'connection') {
+                fields = ['fromDevice', 'fromPort', 'toDevice', 'toPort', 'connType', 'connStatus', 'cableMarker', 'cableColor', 'connNotes'];
+            } else if (formType === 'device') {
+                fields = ['rackId', 'deviceOrder', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceAddresses', 'deviceService', 'deviceNotes'];
+            }
+            
+            for (var i = 0; i < fields.length; i++) {
+                var el = document.getElementById(fields[i]);
+                if (el) {
+                    if (enable) {
+                        el.style.backgroundColor = '#f8fafc';
+                        el.style.borderColor = '#93c5fd';
+                    } else {
+                        el.style.backgroundColor = '';
+                        el.style.borderColor = '';
+                    }
+                }
+            }
+        }
+
+        var devices = [];
+        var connections = [];
+        var nextDeviceId = 1;
+
+        var connColors = {
+            lan: '#3b82f6',
+            wan: '#ef4444',
+            dmz: '#f97316',
+            trunk: '#22c55e',
+            management: '#8b5cf6',
+            backup: '#eab308',
+            fiber: '#06b6d4',
+            other: '#6b7280'
+        };
+
+        var connLabels = {
+            lan: 'LAN',
+            wan: 'WAN/Internet',
+            dmz: 'DMZ',
+            trunk: 'Trunk/Uplink',
+            management: 'Management',
+            backup: 'Backup',
+            fiber: 'Fiber Optic',
+            other: 'Other'
+        };
+
+        var portTypes = [
+            'Eth', 'GbE', 'SFP/SFP+', 'QSFP/QSFP+', 'TTY', 'MGMT', 'PoE',
+            'Fiber', 'USB', 'RJ11', 'WAN', 'Eth/Wan', 'others'
+        ];
+
+        // Sorting state for Active Connections
+        var connSort = { key: 'id', asc: true };
+
+        // Matrix display limit: show first N devices by default to avoid huge renders
+        var matrixLimit = 12;
+        var matrixExpanded = false;
+
+        function toggleMatrix() {
+            matrixExpanded = !matrixExpanded;
+            var btn = document.getElementById('toggleMatrixBtn');
+            if (btn) btn.textContent = matrixExpanded ? 'Mostrar resumido' : 'Mostrar tudo';
+            updateMatrix();
+        }
+
+        function toggleConnSort(key) {
+            if (connSort.key === key) {
+                connSort.asc = !connSort.asc;
+            } else {
+                connSort.key = key;
+                connSort.asc = true;
+            }
+            updateConnectionsList();
+        }
+
+        function showSyncIndicator(type, message) {
+            var indicator = document.getElementById('syncIndicator');
+            indicator.className = 'sync-indicator sync-' + type;
+            indicator.textContent = message;
+            indicator.style.display = 'block';
+            
+            setTimeout(function() {
+                indicator.style.display = 'none';
+            }, 2000);
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('networkDevices', JSON.stringify(devices));
+                localStorage.setItem('networkConnections', JSON.stringify(connections));
+                localStorage.setItem('nextDeviceId', String(nextDeviceId));
+                showSyncIndicator('saved', '✓ Saved');
+                // Also attempt to persist to server (if available)
+                try { serverSave(); } catch (ex) { /* ignore */ }
+            } catch (e) {
+                console.error('Error saving to storage:', e);
+                showSyncIndicator('info', '✗ Save error');
+            }
+        }
+
+        // Try loading from server (/data, /data.php, or static /data/network_manager.json), fallback to localStorage
+        function serverLoad() {
+            function tryUrl(url) {
+                return fetch(url).then(function(resp){ if (!resp.ok) throw new Error('no server'); return resp.json(); });
+            }
+            return tryUrl('/data')
+                .catch(function(){ return tryUrl('/data.php'); })
+                .catch(function(){ return tryUrl('/data/network_manager.json'); })
+                .then(function(data){
+                    if (data && data.devices && data.connections) {
+                        devices = data.devices || [];
+                        connections = data.connections || [];
+                        nextDeviceId = data.nextDeviceId || (devices.reduce(function(max,d){return Math.max(max, d.id||0);},0) + 1);
+                        showSyncIndicator('info', '✓ Loaded (server)');
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(function(){ return false; });
+        }
+
+        function serverSave() {
+            function postUrl(url) {
+                return fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ devices: devices, connections: connections, nextDeviceId: nextDeviceId })
+                });
+            }
+            try {
+                return postUrl('/data')
+                    .then(function(resp){ if (resp && resp.ok) { showSyncIndicator('saved','✓ Saved (server)'); return true; } throw new Error('no'); })
+                    .catch(function(){ return postUrl('/data.php').then(function(r){ if (r && r.ok) { showSyncIndicator('saved','✓ Saved (server)'); return true; } return false; }).catch(function(){ return false; }); });
+            } catch (e) { return Promise.resolve(false); }
+        }
+
+        function loadFromStorage() {
+            try {
+                var d = localStorage.getItem('networkDevices');
+                var c = localStorage.getItem('networkConnections');
+                var n = localStorage.getItem('nextDeviceId');
+                if (d) devices = JSON.parse(d);
+                if (c) connections = JSON.parse(c);
+                if (n) nextDeviceId = parseInt(n, 10);
+                showSyncIndicator('info', '✓ Loaded');
+            } catch (e) {
+                console.error('Error loading from storage:', e);
+                devices = [];
+                connections = [];
+                nextDeviceId = 1;
+            }
+        }
+
+        function saveDevice() {
+            try {
+                var id = document.getElementById('deviceId').value;
+                var rackId = document.getElementById('rackId').value.trim();
+                var order = parseInt(document.getElementById('deviceOrder').value, 10);
+                var name = document.getElementById('deviceName').value.trim();
+                var brandModel = document.getElementById('deviceBrandModel').value.trim();
+                var type = document.getElementById('deviceType').value;
+                var status = document.getElementById('deviceStatus').value;
+                var addressesText = document.getElementById('deviceAddresses').value.trim();
+                var service = document.getElementById('deviceService').value.trim();
+                var notes = document.getElementById('deviceNotes').value.trim();
+
+                if (!rackId) {
+                    alert('Please fill in the Rack ID field');
+                    return;
+                }
+                if (isNaN(order) || order < 1) {
+                    alert('Please fill in a valid Order number');
+                    return;
+                }
+                if (!name) {
+                    alert('Please fill in the Device Name field');
+                    return;
+                }
+
+                var addresses = parseAddresses(addressesText);
+                var portGroups = [];
+                var portGroupElements = document.querySelectorAll('#portTypeQuantityContainer .port-group');
+
+                for (var i = 0; i < portGroupElements.length; i++) {
+                    var el = portGroupElements[i];
+                    var typeSelect = el.querySelector('[name="portType"]');
+                    var qtyInput = el.querySelector('[name="portQty"]');
+                    var startAtZeroCheckbox = el.querySelector('[name="startAtZero"]');
+
+                    if (typeSelect && qtyInput) {
+                        var t = typeSelect.value;
+                        var q = parseInt(qtyInput.value, 10);
+                        var startAtZero = startAtZeroCheckbox ? startAtZeroCheckbox.checked : false;
+
+                        if (t && q > 0) {
+                            portGroups.push({
+                                type: t,
+                                quantity: q,
+                                startAtZero: startAtZero
+                            });
+                        }
+                    }
+                }
+
+                if (portGroups.length === 0) {
+                    alert('Please define at least one port type. Click "+ Add Port Type" button.');
+                    return;
+                }
+
+                var ports = [];
+                for (var g = 0; g < portGroups.length; g++) {
+                    var group = portGroups[g];
+                    var startIndex = group.startAtZero ? 0 : 1;
+                    for (var j = 0; j < group.quantity; j++) {
+                        var portIndex = startIndex + j;
+                        var portName;
+                        if (group.type === 'Eth' || group.type === 'Eth/Wan') {
+                            portName = 'eth' + portIndex;
+                        } else {
+                            portName = group.type + String(portIndex).padStart(2, '00');
+                        }
+                        ports.push({
+                            name: portName,
+                            type: group.type,
+                            status: 'active'
+                        });
+                    }
+                }
+
+                if (id) {
+                    var idx = -1;
+                    for (var k = 0; k < devices.length; k++) {
+                        if (devices[k].id === parseInt(id, 10)) {
+                            idx = k;
+                            break;
+                        }
+                    }
+                    if (idx !== -1) {
+                        devices[idx] = {
+                            id: devices[idx].id,
+                            rackId: rackId,
+                            order: order,
+                            name: name,
+                            brandModel: brandModel,
+                            type: type,
+                            status: status,
+                            addresses: addresses,
+                            service: service,
+                            ports: ports,
+                            notes: notes
+                        };
+                    }
+                } else {
+                    devices.push({
+                        id: nextDeviceId++,
+                        rackId: rackId,
+                        order: order,
+                        name: name,
+                        brandModel: brandModel,
+                        type: type,
+                        status: status,
+                        addresses: addresses,
+                        service: service,
+                        ports: ports,
+                        notes: notes
+                    });
+                }
+
+                clearDeviceForm();
+                updateUI();
+            } catch (e) {
+                console.error('Error saving device:', e);
+                alert('Error saving device: ' + e.message);
+            }
+        }
+
+        function clearDeviceForm() {
+            document.getElementById('deviceId').value = '';
+            document.getElementById('rackId').value = '';
+            document.getElementById('deviceOrder').value = '';
+            document.getElementById('deviceName').value = '';
+            document.getElementById('deviceBrandModel').value = '';
+            document.getElementById('deviceType').value = 'router';
+            document.getElementById('deviceStatus').value = 'active';
+            document.getElementById('deviceAddresses').value = '';
+            document.getElementById('deviceService').value = '';
+            document.getElementById('deviceNotes').value = '';
+            document.getElementById('saveDeviceButton').textContent = 'Add Device';
+            document.getElementById('portTypeQuantityContainer').innerHTML = '';
+
+            // Remove highlight from form fields
+            highlightEditFields('device', false);
+        }
+
+        function editDevice(id) {
+            var d = null;
+            for (var i = 0; i < devices.length; i++) {
+                if (devices[i].id === id) {
+                    d = devices[i];
+                    break;
+                }
+            }
+            if (!d) return;
+
+            document.getElementById('deviceId').value = d.id;
+            document.getElementById('rackId').value = d.rackId;
+            document.getElementById('deviceOrder').value = d.order;
+            document.getElementById('deviceName').value = d.name;
+            document.getElementById('deviceBrandModel').value = d.brandModel || '';
+            document.getElementById('deviceType').value = d.type;
+            document.getElementById('deviceStatus').value = d.status;
+            document.getElementById('deviceAddresses').value = formatAddresses(d.addresses);
+            document.getElementById('deviceService').value = d.service || '';
+            document.getElementById('deviceNotes').value = d.notes || '';
+            document.getElementById('saveDeviceButton').textContent = 'Update Device';
+
+            // Auto-resize textareas to show all content
+            autoResizeTextarea(document.getElementById('deviceAddresses'));
+            autoResizeTextarea(document.getElementById('deviceNotes'));
+
+            var container = document.getElementById('portTypeQuantityContainer');
+            container.innerHTML = '';
+
+            var counts = {};
+            for (var j = 0; j < d.ports.length; j++) {
+                var p = d.ports[j];
+                if (!counts[p.type]) {
+                    counts[p.type] = { qty: 0, startAtZero: false, firstPortNum: null };
+                }
+                var portNum = parseInt(p.name.replace(/\D/g, ''), 10);
+                if (counts[p.type].firstPortNum === null || portNum < counts[p.type].firstPortNum) {
+                    counts[p.type].firstPortNum = portNum;
+                    counts[p.type].startAtZero = (portNum === 0);
+                }
+                counts[p.type].qty++;
+            }
+
+            var types = Object.keys(counts);
+            for (var k = 0; k < types.length; k++) {
+                var t = types[k];
+                container.insertAdjacentHTML('beforeend', renderPortField(t, counts[t].qty, counts[t].startAtZero));
+            }
+
+            // Highlight form fields in edit mode
+            highlightEditFields('device', true);
+
+            document.getElementById('rackId').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function removeDevice(id) {
+            if (!confirm('Remove device and all its connections?')) return;
+            
+            var newDevices = [];
+            for (var i = 0; i < devices.length; i++) {
+                if (devices[i].id !== id) {
+                    newDevices.push(devices[i]);
+                }
+            }
+            devices = newDevices;
+
+            var newConnections = [];
+            for (var j = 0; j < connections.length; j++) {
+                if (connections[j].from !== id && connections[j].to !== id) {
+                    newConnections.push(connections[j]);
+                }
+            }
+            connections = newConnections;
+
+            updateUI();
+        }
+
+        function renderPortField(type, qty, startAtZero) {
+            type = type || 'Eth';
+            qty = qty || 1;
+            startAtZero = startAtZero || false;
+
+            var opts = '';
+            for (var i = 0; i < portTypes.length; i++) {
+                var t = portTypes[i];
+                var selected = (t === type) ? 'selected' : '';
+                opts += '<option value="' + t + '" ' + selected + '>' + t + '</option>';
+            }
+
+            var checked = startAtZero ? 'checked' : '';
+
+            return '<div class="flex gap-2 port-group items-center">' +
+                '<select name="portType" class="w-1/3 px-2 py-1.5 border rounded-lg text-xs">' + opts + '</select>' +
+                '<input type="number" name="portQty" value="' + qty + '" min="1" placeholder="Qty" class="w-1/6 px-2 py-1.5 border rounded-lg text-xs text-center">' +
+                '<label class="flex items-center gap-1 text-xs text-slate-600 whitespace-nowrap cursor-pointer">' +
+                '<input type="checkbox" name="startAtZero" ' + checked + ' class="w-3 h-3 accent-blue-500">' +
+                'Start at 0</label>' +
+                '<button type="button" onclick="removePortField(this)" class="text-red-500 hover:text-red-700 text-lg font-bold leading-none">&times;</button>' +
+                '</div>';
+        }
+
+        function removePortField(btn) {
+            var portGroup = btn.closest('.port-group');
+            if (portGroup) {
+                portGroup.remove();
+            }
+        }
+
+        function addPortTypeField() {
+            var container = document.getElementById('portTypeQuantityContainer');
+            container.insertAdjacentHTML('beforeend', renderPortField('Eth', 1, false));
+        }
+
+function saveConnection() {
+    try {
+        var editIndex = document.getElementById('connEditIndex').value;
+        var fromDeviceVal = document.getElementById('fromDevice').value;
+        var fromPort = document.getElementById('fromPort').value;
+        var toDeviceVal = document.getElementById('toDevice').value;
+        var toPort = document.getElementById('toPort').value;
+        var externalDest = document.getElementById('externalDest').value.trim();
+        var type = document.getElementById('connType').value;
+        var status = document.getElementById('connStatus').value;
+        var cableMarker = document.getElementById('cableMarker').value.trim().toUpperCase();
+        var cableColor = document.getElementById('cableColor').value;
+        var notes = document.getElementById('connNotes').value.trim();
+
+        var from = fromDeviceVal ? parseInt(fromDeviceVal, 10) : null;
+        var to = (toDeviceVal && toDeviceVal !== 'external') ? parseInt(toDeviceVal, 10) : null;
+        var isExternal = (toDeviceVal === 'external');
+
+        // Check if at least source device was selected
+        if (!from) {
+            alert('Please select source device');
+            return;
+        }
+
+        // Validate external destination
+        if (isExternal && !externalDest) {
+            alert('Please enter external destination name');
+            return;
+        }
+        
+        // Buscar dispositivos
+        var fromDevice = null;
+        var toDevice = null;
+        if (from) {
+            for (var i = 0; i < devices.length; i++) {
+                if (devices[i].id === from) {
+                    fromDevice = devices[i];
+                    break;
+                }
+            }
+        }
+        if (to) {
+            for (var i = 0; i < devices.length; i++) {
+                if (devices[i].id === to) {
+                    toDevice = devices[i];
+                    break;
+                }
+            }
+        }
+
+        // Validar source port (opcional para ISP, Others e Disabled)
+        if (from) {
+            var canSkipFromPort = fromDevice && (fromDevice.status === 'disabled' || fromDevice.type === 'isp' || fromDevice.type === 'others');
+            if (!canSkipFromPort && !fromPort) {
+                alert('Please select source port');
+                return;
+            }
+        }
+
+        // Validar destination port (opcional para ISP, Others, Disabled ou External)
+        if (to && !isExternal) {
+            var canSkipToPort = toDevice && (toDevice.status === 'disabled' || toDevice.type === 'isp' || toDevice.type === 'others');
+            if (!canSkipToPort && !toPort) {
+                alert('Please select destination port');
+                return;
+            }
+        }
+
+        if (from && to && from === to) {
+            alert('Source and destination cannot be the same device');
+            return;
+        }
+
+        // Check if ports are already in use (only if specified)
+        var fromPortUsed = false;
+        var toPortUsed = false;
+        for (var i = 0; i < connections.length; i++) {
+            if (editIndex !== '' && i === parseInt(editIndex, 10)) continue;
+            var c = connections[i];
+            if (from && fromPort && ((c.from === from && c.fromPort === fromPort) || (c.to === from && c.toPort === fromPort))) {
+                fromPortUsed = true;
+            }
+            if (to && toPort && ((c.from === to && c.fromPort === toPort) || (c.to === to && c.toPort === toPort))) {
+                toPortUsed = true;
+            }
+        }
+
+        if (fromPortUsed) {
+            alert('Source port is already in use');
+            return;
+        }
+        if (toPortUsed) {
+            alert('Destination port is already in use');
+            return;
+        }
+
+        var connData = {
+            from: from,
+            fromPort: fromPort || '',
+            to: to,
+            toPort: isExternal ? '' : (toPort || ''),
+            externalDest: isExternal ? externalDest : '',
+            type: type,
+            color: connColors[type],
+            status: status,
+            cableMarker: cableMarker,
+            cableColor: cableColor,
+            notes: notes
+        };
+
+        if (editIndex !== '') {
+            connections[parseInt(editIndex, 10)] = connData;
+        } else {
+            connections.push(connData);
+        }
+
+        clearConnectionForm();
+        updateUI();
+    } catch (e) {
+        console.error('Error saving connection:', e);
+        alert('Error saving connection: ' + e.message);
+    }
+}
+
+        function editConnection(idx) {
+            var c = connections[idx];
+            if (!c) return;
+
+            // Switch to Matrix tab first
+            switchTab('matrix');
+
+            document.getElementById('connEditIndex').value = idx;
+            document.getElementById('fromDevice').value = c.from;
+            updateFromPorts(c.fromPort);
+            
+            // Handle external destination
+            if (c.externalDest) {
+                document.getElementById('toDevice').value = 'external';
+                document.getElementById('externalDest').value = c.externalDest;
+                toggleExternalDest();
+            } else {
+                document.getElementById('toDevice').value = c.to;
+                updateToPorts(c.toPort);
+                toggleExternalDest();
+            }
+            
+            document.getElementById('connType').value = c.type;
+            document.getElementById('connStatus').value = c.status;
+            document.getElementById('cableMarker').value = c.cableMarker || '';
+            document.getElementById('cableColor').value = c.cableColor || '';
+            document.getElementById('connNotes').value = c.notes || '';
+
+            // Auto-resize textarea to show all content
+            autoResizeTextarea(document.getElementById('connNotes'));
+
+            document.getElementById('connectionFormTitle').textContent = 'Edit Connection';
+            document.getElementById('saveConnectionButton').textContent = 'Update Connection';
+            document.getElementById('cancelConnectionButton').classList.remove('hidden');
+
+            // Highlight form fields in edit mode
+            highlightEditFields('connection', true);
+
+            // Scroll to form after a small delay to ensure tab is visible
+            setTimeout(function() {
+                document.getElementById('connectionFormTitle').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        function cancelConnectionEdit() {
+            clearConnectionForm();
+        }
+
+        function clearConnectionForm() {
+            document.getElementById('connEditIndex').value = '';
+            document.getElementById('fromDevice').value = '';
+            document.getElementById('fromPort').innerHTML = '<option value="">Select source port</option>';
+            document.getElementById('toDevice').value = '';
+            document.getElementById('toPort').innerHTML = '<option value="">Select destination port</option>';
+            document.getElementById('externalDest').value = '';
+            toggleExternalDest();
+            document.getElementById('connType').value = 'lan';
+            document.getElementById('connStatus').value = 'active';
+            document.getElementById('cableMarker').value = '';
+            document.getElementById('cableColor').value = '';
+            document.getElementById('connNotes').value = '';
+
+            document.getElementById('connectionFormTitle').textContent = 'Add Connection';
+            document.getElementById('saveConnectionButton').textContent = 'Add Connection';
+            document.getElementById('cancelConnectionButton').classList.add('hidden');
+
+            // Remove highlight from form fields
+            highlightEditFields('connection', false);
+        }
+
+        function removeConnection(idx) {
+            if (!confirm('Remove this connection?')) return;
+            connections.splice(idx, 1);
+            clearConnectionForm();
+            updateUI();
+        }
+
+        function isPortUsed(deviceId, portName, excludeConnIdx) {
+            for (var i = 0; i < connections.length; i++) {
+                if (excludeConnIdx !== undefined && i === excludeConnIdx) continue;
+                var c = connections[i];
+                if ((c.from === deviceId && c.fromPort === portName) ||
+                    (c.to === deviceId && c.toPort === portName)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function updateFromPorts(selectedPort) {
+            var id = parseInt(document.getElementById('fromDevice').value, 10);
+            var d = null;
+            for (var i = 0; i < devices.length; i++) {
+                if (devices[i].id === id) {
+                    d = devices[i];
+                    break;
+                }
+            }
+            var sel = document.getElementById('fromPort');
+            sel.innerHTML = '<option value="">Select source port</option>';
+            if (d && d.ports) {
+                var editIdx = document.getElementById('connEditIndex').value;
+                var excludeIdx = editIdx !== '' ? parseInt(editIdx, 10) : undefined;
+                for (var j = 0; j < d.ports.length; j++) {
+                    var p = d.ports[j];
+                    var used = isPortUsed(id, p.name, excludeIdx);
+                    var label = p.name + ' ' + (used ? '(Used)' : '(Free)');
+                    var selected = (selectedPort === p.name) ? 'selected' : '';
+                    sel.innerHTML += '<option value="' + p.name + '" ' + selected + '>' + label + '</option>';
+                }
+            }
+        }
+
+        function updateToPorts(selectedPort) {
+            var id = parseInt(document.getElementById('toDevice').value, 10);
+            var d = null;
+            for (var i = 0; i < devices.length; i++) {
+                if (devices[i].id === id) {
+                    d = devices[i];
+                    break;
+                }
+            }
+            var sel = document.getElementById('toPort');
+            sel.innerHTML = '<option value="">Select destination port</option>';
+            if (d && d.ports) {
+                var editIdx = document.getElementById('connEditIndex').value;
+                var excludeIdx = editIdx !== '' ? parseInt(editIdx, 10) : undefined;
+                for (var j = 0; j < d.ports.length; j++) {
+                    var p = d.ports[j];
+                    var used = isPortUsed(id, p.name, excludeIdx);
+                    var label = p.name + ' ' + (used ? '(Used)' : '(Free)');
+                    var selected = (selectedPort === p.name) ? 'selected' : '';
+                    sel.innerHTML += '<option value="' + p.name + '" ' + selected + '>' + label + '</option>';
+                }
+            }
+        }
+
+        // Global color map for rack IDs - ensures unique colors
+        var rackColorMap = {};
+        var rackColorIndex = 0;
+        var rackColors = [
+            '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6',  // vermelho, laranja, amarelo, verde, azul, roxo
+            '#ec4899', '#06b6d4', '#14b8a6', '#f43f5e', '#84cc16', '#a855f7',  // rosa, ciano, teal, rosa-vermelho, lima, violeta
+            '#0ea5e9', '#d946ef', '#10b981', '#f59e0b', '#6366f1', '#78716c',  // sky, fuchsia, emerald, amber, indigo, stone
+            '#dc2626', '#059669', '#7c3aed', '#db2777', '#0891b2', '#65a30d'   // red-600, emerald-600, violet-600, pink-600, cyan-600, lime-600
+        ];
+        
+        function getRackColor(rackId) {
+            if (!rackId) return '#6b7280';
+            var normalizedId = rackId.toUpperCase();
+            if (!rackColorMap[normalizedId]) {
+                rackColorMap[normalizedId] = rackColors[rackColorIndex % rackColors.length];
+                rackColorIndex++;
+            }
+            return rackColorMap[normalizedId];
+        }
+        
+        function resetRackColors() {
+            rackColorMap = {};
+            rackColorIndex = 0;
+            // Rebuild color map based on sorted unique rack IDs
+            var uniqueRacks = [];
+            for (var i = 0; i < devices.length; i++) {
+                var rid = devices[i].rackId ? devices[i].rackId.toUpperCase() : '';
+                if (rid && uniqueRacks.indexOf(rid) === -1) {
+                    uniqueRacks.push(rid);
+                }
+            }
+            uniqueRacks.sort();
+            for (var j = 0; j < uniqueRacks.length; j++) {
+                rackColorMap[uniqueRacks[j]] = rackColors[j % rackColors.length];
+            }
+            rackColorIndex = uniqueRacks.length;
+        }
+
+        function getSorted() {
+            return devices.slice().sort(function(a, b) {
+                if (a.rackId < b.rackId) return -1;
+                if (a.rackId > b.rackId) return 1;
+                return a.order - b.order;
+            });
+        }
+
+        function updateUI() {
+            resetRackColors();
+            updateDevicesList();
+            updateDeviceSelects();
+            updateMatrix();
+            updateConnectionsList();
+            updateRackIdDatalist();
+            saveToStorage();
+        }
+
+        function updateRackIdDatalist() {
+            var list = document.getElementById('rackIdList');
+            var rackIds = [];
+            for (var i = 0; i < devices.length; i++) {
+                var rid = devices[i].rackId;
+                if (rackIds.indexOf(rid) === -1) {
+                    rackIds.push(rid);
+                }
+            }
+            rackIds.sort();
+            var html = '';
+            for (var j = 0; j < rackIds.length; j++) {
+                html += '<option value="' + rackIds[j] + '">';
+            }
+            list.innerHTML = html;
+        }
+
+        function updateDevicesList() {
+            var cont = document.getElementById('devicesList');
+            if (devices.length === 0) {
+                cont.innerHTML = '<p class="text-slate-400 text-center py-6 col-span-3 text-sm">No devices added yet</p>';
+                return;
+            }
+
+            var sorted = getSorted();
+            var html = '';
+            for (var i = 0; i < sorted.length; i++) {
+                var d = sorted[i];
+                var usedPorts = 0;
+                for (var j = 0; j < d.ports.length; j++) {
+                    if (isPortUsed(d.id, d.ports[j].name)) {
+                        usedPorts++;
+                    }
+                }
+                var disabled = d.status === 'disabled';
+                var rackColor = getRackColor(d.rackId);
+                var statusClass = disabled ? 'bg-red-500' : 'bg-green-500';
+                var statusText = disabled ? 'OFF' : 'ON';
+                var opacityClass = disabled ? 'opacity-50' : '';
+
+                // Count total connections for this device
+                var totalConnections = 0;
+                for (var ci = 0; ci < connections.length; ci++) {
+                    if (connections[ci].from === d.id || connections[ci].to === d.id) {
+                        totalConnections++;
+                    }
+                }
+                var noConnectionsClass = totalConnections === 0 ? 'border-orange-400 border-2 bg-orange-50' : 'bg-white';
+                var noConnectionsWarning = totalConnections === 0 ? '<div class="text-xs mt-1 text-orange-600 font-semibold">⚠ No connections</div>' : '';
+
+                var addressText = '';
+                if (d.addresses && d.addresses.length > 0) {
+                    var allAddrs = [];
+                    for (var k = 0; k < d.addresses.length; k++) {
+                        var a = d.addresses[k];
+                        if (a.network) allAddrs.push('<strong>' + a.network + '</strong>');
+                        if (a.ip) allAddrs.push('<strong>' + a.ip + '</strong>');
+                    }
+                    var vlanText = '';
+                    for (var k = 0; k < d.addresses.length; k++) {
+                        if (d.addresses[k].vlan) {
+                            vlanText = ' | VLAN <strong>' + d.addresses[k].vlan + '</strong>';
+                            break;
+                        }
+                    }
+                    if (allAddrs.length > 0) {
+                        addressText = '<div class="text-xs mt-1 text-slate-600">IP: ' + allAddrs.join(', ') + vlanText + '</div>';
+                    }
+                }
+
+                var brandModelText = '';
+                if (d.brandModel) {
+                    brandModelText = '<div class="text-xs text-slate-500 truncate">' + d.brandModel + '</div>';
+                }
+
+                html += '<div class="border rounded-lg p-2 hover:shadow-md ' + opacityClass + ' ' + noConnectionsClass + '">' +
+                    '<div class="flex justify-between items-start">' +
+                    '<div class="flex-1 min-w-0">' +
+                    '<div class="flex items-center gap-2 mb-1">' +
+                    '<span class="text-xs font-semibold px-1.5 py-0.5 rounded uppercase" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + d.rackId.toUpperCase() + '</span>' +
+                    '<span class="text-xs text-slate-500">Rack Pos.</span>' +
+                    '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' +
+                    '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
+                    '</div>' +
+                    '<div class="font-bold text-base text-slate-800 truncate">' + d.name + '</div>' +
+                    brandModelText +
+                    '<div class="text-xs text-slate-400 uppercase">' + d.type + '</div>' +
+                    addressText +
+                    '<div class="text-xs mt-1 text-slate-500">' + d.ports.length + ' ports (' + usedPorts + ' used)</div>' +
+                    noConnectionsWarning +
+                    '</div>' +
+                    '<div class="flex flex-col gap-1 ml-2">' +
+                    '<button onclick="editDevice(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-sm p-1">&#9998;</button>' +
+                    '<button onclick="removeDevice(' + d.id + ')" class="text-red-500 hover:text-red-700 text-sm p-1">&times;</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+            }
+            cont.innerHTML = html;
+        }
+
+        function updateDeviceSelects() {
+            var sorted = getSorted();
+            var opts = '<option value="">Select device</option>';
+            for (var i = 0; i < sorted.length; i++) {
+                var d = sorted[i];
+                var rackColor = getRackColor(d.rackId);
+                opts += '<option value="' + d.id + '" style="color:' + rackColor + ';font-weight:bold;">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + '</option>';
+            }
+            document.getElementById('fromDevice').innerHTML = opts.replace('Select device', 'Select source');
+            document.getElementById('toDevice').innerHTML = opts.replace('Select device', 'Select destination') + '<option value="external" style="color:#6b7280;font-style:italic;">📡 External (ISP, Fiber, WAN...)</option>';
+        }
+
+        function toggleExternalDest() {
+            var toDevice = document.getElementById('toDevice').value;
+            var toPortContainer = document.getElementById('toPortContainer');
+            var externalDestContainer = document.getElementById('externalDestContainer');
+            if (toDevice === 'external') {
+                toPortContainer.classList.add('hidden');
+                externalDestContainer.classList.remove('hidden');
+            } else {
+                toPortContainer.classList.remove('hidden');
+                externalDestContainer.classList.add('hidden');
+            }
+        }
+
+        function createMarkerHtml(marker, color, forMatrix) {
+            if (!marker) return '';
+            var markerBg = color || '#ffffff';
+            var markerTextColor = (markerBg === '#ffffff' || markerBg === '' || markerBg === '#eab308') ? '#000000' : '#ffffff';
+            var fontSize = forMatrix ? '9px' : '10px';
+            var padding = forMatrix ? '2px 4px' : '2px 6px';
+            var borderColor = '#000000';
+            return '<span style="display:inline-flex;align-items:center;justify-content:center;padding:' + padding + ';border-radius:10px;background-color:' + markerBg + ';color:' + markerTextColor + ';font-weight:bold;font-size:' + fontSize + ';border:2px solid ' + borderColor + ';text-transform:uppercase;line-height:1;box-sizing:border-box;white-space:nowrap;">' + marker.toUpperCase() + '</span>';
+        }
+
+        function getConnectionIndex(rowId, colId) {
+            for (var i = 0; i < connections.length; i++) {
+                var c = connections[i];
+                if ((c.from === rowId && c.to === colId) || (c.from === colId && c.to === rowId)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        function updateMatrix() {
+            var cont = document.getElementById('matrixContainer');
+            if (devices.length === 0) {
+                cont.innerHTML = '<p class="text-slate-400 text-center py-6 text-sm">Add devices to see the matrix</p>';
+                return;
+            }
+
+            var sortedAll = getSorted();
+            var sorted = sortedAll;
+
+            var html = '<table id="matrixTable" class="border-collapse text-xs"><thead><tr>';
+            html += '<th class="p-2 sticky-col font-bold text-left whitespace-nowrap" style="border:1px solid #64748b;background-color:#94a3b8;color:#1e293b;">Device</th>';
+
+            for (var i = 0; i < sorted.length; i++) {
+                var d = sorted[i];
+                var rackColor = getRackColor(d.rackId);
+                html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:90px;width:90px;border:1px solid #1e293b;background-color:#334155;">' +
+                    '<div class="font-semibold uppercase" style="color:' + rackColor + ';font-size:8px;">' + d.rackId.toUpperCase() + '</div>' +
+                    '<div class="font-bold" style="font-size:9px;color:#ffffff;">' + d.name + '</div>' +
+                    '</th>';
+            }
+            html += '</tr></thead><tbody>';
+
+            for (var r = 0; r < sorted.length; r++) {
+                var row = sorted[r];
+                var rowRackColor = getRackColor(row.rackId);
+                html += '<tr data-row="' + r + '"><td class="p-1 sticky-col" style="min-width:90px;width:90px;border:1px solid #94a3b8;background-color:#e2e8f0;">' +
+                    '<div class="font-semibold uppercase" style="color:' + rowRackColor + ';font-size:8px;">' + row.rackId.toUpperCase() + '</div>' +
+                    '<div class="font-bold" style="font-size:9px;color:#1e293b;">' + row.name + '</div>' +
+                    '</td>';
+
+                for (var c = 0; c < sorted.length; c++) {
+                    var col = sorted[c];
+                    var connIdx = getConnectionIndex(row.id, col.id);
+
+                    if (row.id === col.id) {
+                        html += '<td class="matrix-cell border p-1 text-center" data-row="' + r + '" data-col="' + c + '" style="width:90px;min-width:90px;max-width:90px;height:70px;background-color:#94a3b8;">-</td>';
+                    } else if (connIdx >= 0) {
+                        var conn = connections[connIdx];
+                        var shortType = conn.type ? (conn.type.substring(0,3).toUpperCase()) : '';
+                        var markerHtml = conn.cableMarker ? '<div class="mt-1">' + createMarkerHtml(conn.cableMarker, conn.cableColor, true) + '</div>' : '';
+                        var cableLineColor = conn.cableColor || conn.color;
+                        // Determine port display based on which device is in row vs column
+                        var portA = '';
+                        var portB = '';
+                        if (conn.from === row.id) {
+                            portA = conn.fromPort || '-';
+                            portB = conn.toPort || '-';
+                        } else {
+                            portA = conn.toPort || '-';
+                            portB = conn.fromPort || '-';
+                        }
+                        var markerHtml = conn.cableMarker ? '<div class="mt-1">' + createMarkerHtml(conn.cableMarker, conn.cableColor, true) + '</div>' : '';
+                        html += '<td class="matrix-cell border p-1 text-center cursor-pointer hover:opacity-80" data-row="' + r + '" data-col="' + c + '" data-conn="' + connIdx + '" data-cable-color="' + cableLineColor + '" style="width:90px;min-width:90px;max-width:90px;height:70px;" onclick="editConnection(' + connIdx + ')">' +
+                            '<div style="background-color:' + conn.color + ';padding:3px;border-radius:4px;overflow:hidden;" class="text-xs font-semibold text-white">' +
+                            '<div style="font-size:9px;">' + shortType + '</div>' +
+                            '<div style="font-weight:bold;white-space:nowrap;display:flex;justify-content:center;align-items:center;gap:2px;"><span style="font-size:10px;color:#e5e7eb;text-shadow:1px 1px 1px rgba(0,0,0,0.4);">' + portA + '</span><span style="font-size:8px;color:#fde047;text-shadow:1px 1px 1px rgba(0,0,0,0.5);">⟷</span><span style="font-size:10px;color:#374151;">' + portB + '</span></div>' +
+                            markerHtml +
+                            '</div>' +
+                            '</td>';
+                    } else {
+                        html += '<td class="matrix-cell border p-1 bg-white" data-row="' + r + '" data-col="' + c + '" style="width:90px;min-width:90px;max-width:90px;height:70px;"></td>';
+                    }
+                }
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+            cont.innerHTML = html;
+        }
+
+        function updateConnectionsList() {
+    var cont = document.getElementById('connectionsList');
+    var countEl = document.getElementById('connectionsCount');
+    
+    if (countEl) countEl.textContent = connections.length;
+
+    if (connections.length === 0) {
+        cont.innerHTML = '<p class="text-slate-400 text-center py-6 text-sm">No connections yet</p>';
+        return;
+    }
+
+    // Prepare sortable headers (key -> field)
+    var headers = [
+        { key: 'id', label: 'ID', printHide: true },
+        { key: 'fromRack', label: 'Src Rack' },
+        { key: 'fromPos', label: 'Rack Pos.' },
+        { key: 'fromDevice', label: 'Src Device' },
+        { key: 'fromPort', label: 'Src Port' },
+        { key: 'arrow', label: '' },
+        { key: 'toPort', label: 'Dst Port' },
+        { key: 'toDevice', label: 'Dst Device' },
+        { key: 'toPos', label: 'Dst Pos.' },
+        { key: 'toRack', label: 'Dst Rack' },
+        { key: 'type', label: 'Type' },
+        { key: 'marker', label: 'Cable ID' },
+        { key: 'status', label: 'Status' },
+        { key: 'notes', label: 'Notes' },
+        { key: 'actions', label: '', noPrint: true }
+    ];
+
+    var html = '<div class="overflow-x-auto"><table class="min-w-full divide-y text-xs"><thead class="bg-slate-50"><tr>';
+    for (var h = 0; h < headers.length; h++) {
+        var hdr = headers[h];
+        var sortIndicator = '';
+        var printClass = hdr.printHide ? ' print-hide-id' : (hdr.noPrint ? ' no-print' : '');
+        if (hdr.key !== 'actions' && connSort.key === hdr.key) {
+            sortIndicator = connSort.asc ? ' ▲' : ' ▼';
+        }
+        if (hdr.key === 'actions') {
+            html += '<th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase no-print">' + hdr.label + '</th>';
+        } else {
+            html += '<th onclick="toggleConnSort(\'' + hdr.key + '\')" class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer' + printClass + '">' + hdr.label + sortIndicator + '</th>';
+        }
+    }
+    html += '</tr></thead><tbody class="bg-white divide-y">';
+
+    // Create a sortable copy of connections
+    var sorted = connections.slice();
+    // capture original indexes to avoid relying on indexOf during comparisons
+    var originalIndexMap = new Map();
+    for (var oi = 0; oi < connections.length; oi++) {
+        originalIndexMap.set(connections[oi], oi);
+    }
+    sorted.sort(function(a, b) {
+        // helper to resolve values for comparison
+        function valueFor(conn, key, idx) {
+            var fromDevice = null, toDevice = null;
+            for (var j = 0; j < devices.length; j++) {
+                if (devices[j].id === conn.from) fromDevice = devices[j];
+                if (devices[j].id === conn.to) toDevice = devices[j];
+            }
+            switch (key) {
+                case 'id': return idx + 1;
+                case 'fromRack': return fromDevice ? (fromDevice.rackId || '') : '';
+                case 'fromPos': return fromDevice ? (fromDevice.order || 0) : 0;
+                case 'fromDevice': return fromDevice ? (fromDevice.name || '') : '';
+                case 'fromPort': return conn.fromPort || '';
+                case 'toPort': return conn.toPort || '';
+                case 'toDevice': return toDevice ? (toDevice.name || '') : (conn.externalDest || '');
+                case 'toPos': return toDevice ? (toDevice.order || 0) : 0;
+                case 'toRack': return toDevice ? (toDevice.rackId || '') : (conn.externalDest ? 'External' : '');
+                case 'type': return connLabels[conn.type] || (conn.type || '');
+                case 'marker': return conn.cableMarker || '';
+                case 'status': return conn.status || '';
+                default: return '';
+            }
+        }
+
+        var idxA = originalIndexMap.has(a) ? originalIndexMap.get(a) : connections.indexOf(a);
+        var idxB = originalIndexMap.has(b) ? originalIndexMap.get(b) : connections.indexOf(b);
+        var va = valueFor(a, connSort.key, idxA);
+        var vb = valueFor(b, connSort.key, idxB);
+
+        // numeric comparison when both are numbers
+        var na = parseFloat(va);
+        var nb = parseFloat(vb);
+        if (!isNaN(na) && !isNaN(nb)) {
+            return connSort.asc ? na - nb : nb - na;
+        }
+
+        va = (va || '').toString().toLowerCase();
+        vb = (vb || '').toString().toLowerCase();
+        if (va < vb) return connSort.asc ? -1 : 1;
+        if (va > vb) return connSort.asc ? 1 : -1;
+        return 0;
+    });
+
+    for (var i = 0; i < sorted.length; i++) {
+        var c = sorted[i];
+        var fromDevice = null;
+        var toDevice = null;
+        
+        for (var j = 0; j < devices.length; j++) {
+            if (devices[j].id === c.from) fromDevice = devices[j];
+            if (devices[j].id === c.to) toDevice = devices[j];
+        }
+        
+                var disabled = c.status === 'disabled' || (fromDevice && fromDevice.status === 'disabled') || (toDevice && toDevice.status === 'disabled');
+        var opacityClass = disabled ? 'opacity-50' : '';
+
+        var markerHtml = createMarkerHtml(c.cableMarker, c.cableColor, false);
+
+        var statusClass = disabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
+        var statusText = disabled ? 'Off' : 'On';
+
+        var fromRackColor = getRackColor(fromDevice ? fromDevice.rackId : '');
+        var toRackColor = getRackColor(toDevice ? toDevice.rackId : '');
+
+        // Get IPs for source and destination devices
+        var fromIPs = '';
+        var toIPs = '';
+        if (fromDevice && fromDevice.addresses && fromDevice.addresses.length > 0) {
+            var addrs = [];
+            for (var ai = 0; ai < fromDevice.addresses.length; ai++) {
+                var addr = fromDevice.addresses[ai];
+                if (addr.network) addrs.push(addr.network);
+                if (addr.ip && addr.ip !== addr.network) addrs.push(addr.ip);
+            }
+            fromIPs = addrs.join('<br>');
+        }
+        if (toDevice && toDevice.addresses && toDevice.addresses.length > 0) {
+            var addrs = [];
+            for (var ai = 0; ai < toDevice.addresses.length; ai++) {
+                var addr = toDevice.addresses[ai];
+                if (addr.network) addrs.push(addr.network);
+                if (addr.ip && addr.ip !== addr.network) addrs.push(addr.ip);
+            }
+            toIPs = addrs.join('<br>');
+        }
+
+        var rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
+
+        // Handle external destination display
+        var toDisplayName = toDevice ? toDevice.name : (c.externalDest ? '📡 ' + c.externalDest : 'N/A');
+        var toDisplayRack = toDevice ? toDevice.rackId : (c.externalDest ? 'External' : 'N/A');
+        var toDisplayPos = toDevice ? String(toDevice.order).padStart(2, '0') : (c.externalDest ? '-' : 'N/A');
+
+        html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 border-b-2 border-slate-300">' +
+            '<td class="px-3 py-2 align-top print-hide-id">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
+            '<td class="px-3 py-2 align-top">' +
+                '<div class="font-semibold">' + (fromDevice ? fromDevice.name : 'N/A') + '</div>' +
+                (fromIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + fromIPs + '</div>' : '') +
+            '</td>' +
+            '<td class="px-3 py-2 align-top font-mono text-center">' + (c.fromPort || '-') + '</td>' +
+            '<td class="px-1 py-2 align-top text-center"><span style="font-size:16px;font-weight:bold;">⟷</span></td>' +
+            '<td class="px-3 py-2 align-top font-mono text-center">' + (c.toPort || '-') + '</td>' +
+            '<td class="px-3 py-2 align-top">' +
+                '<div class="font-semibold">' + toDisplayName + '</div>' +
+                (toIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + toIPs + '</div>' : '') +
+            '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span></td>' +
+            '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + toDisplayRack + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + connLabels[c.type] + '</span></td>' +
+            '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
+            '<td class="px-3 py-2 align-top text-xs italic text-slate-600">' + (c.notes || '') + '</td>' +
+            '<td class="px-3 py-2 align-top text-center no-print">' +
+            '<div class="flex flex-col gap-1">' +
+            '<button onclick="editConnection(' + i + ')" class="text-blue-600 hover:text-blue-900 text-xs">Edit</button>' +
+            '<button onclick="removeConnection(' + i + ')" class="text-red-600 hover:text-red-900 text-xs">Del</button>' +
+            '</div></td>' +
+            '</tr>';
+    }
+    html += '</tbody></table></div>';
+    cont.innerHTML = html;
+}
+
+        function exportExcel() {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    alert('Excel library not loaded. Please check your internet connection.');
+                    return;
+                }
+
+                var wb = XLSX.utils.book_new();
+
+                var devData = [];
+                for (var i = 0; i < devices.length; i++) {
+                    var d = devices[i];
+                    devData.push({
+                        'Rack ID': d.rackId,
+                        'Order': d.order,
+                        'Name': d.name,
+                        'Type/Brand': d.brandModel || '',
+                        'Category': d.type,
+                        'Status': d.status,
+                        'Addresses': formatAddresses(d.addresses),
+                        'Service': d.service || '',
+                        'Ports': d.ports.length,
+                        'Notes': d.notes || ''
+                    });
+                }
+
+                if (devData.length > 0) {
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(devData), 'Devices');
+                } else {
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{Message: 'No devices'}]), 'Devices');
+                }
+
+                var connData = [];
+                for (var j = 0; j < connections.length; j++) {
+                    var c = connections[j];
+                    var fromDevice = null;
+                    var toDevice = null;
+                    for (var k = 0; k < devices.length; k++) {
+                        if (devices[k].id === c.from) fromDevice = devices[k];
+                        if (devices[k].id === c.to) toDevice = devices[k];
+                    }
+                    connData.push({
+                        'ID': j + 1,
+                        'Src Rack': fromDevice ? fromDevice.rackId : '',
+                        'Src Pos': fromDevice ? fromDevice.order : '',
+                        'Src Device': fromDevice ? fromDevice.name : '',
+                        'Src Port': c.fromPort,
+                        'Dst Port': c.toPort,
+                        'Dst Device': toDevice ? toDevice.name : (c.externalDest ? '📡 ' + c.externalDest : ''),
+                        'Dst Pos': toDevice ? toDevice.order : '',
+                        'Dst Rack': toDevice ? toDevice.rackId : (c.externalDest ? 'External' : ''),
+                        'Type': connLabels[c.type],
+                        'Cable ID': c.cableMarker || '',
+                        'Cable Color': c.cableColor || '',
+                        'Status': c.status,
+                        'Notes': c.notes || ''
+                    });
+                }
+
+                if (connData.length > 0) {
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(connData), 'Connections');
+                } else {
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{Message: 'No connections'}]), 'Connections');
+                }
+
+                var sorted = getSorted();
+                if (sorted.length > 0) {
+                    var matrixHeader = ['Device'];
+                    for (var m = 0; m < sorted.length; m++) {
+                        var dev = sorted[m];
+                        matrixHeader.push('[' + dev.rackId + '-' + String(dev.order).padStart(2, '0') + '] ' + dev.name);
+                    }
+                    var matrixData = [matrixHeader];
+
+                    for (var r = 0; r < sorted.length; r++) {
+                        var row = sorted[r];
+                        var rowData = ['[' + row.rackId + '-' + String(row.order).padStart(2, '0') + '] ' + row.name];
+                        for (var col = 0; col < sorted.length; col++) {
+                            var colDev = sorted[col];
+                            if (row.id === colDev.id) {
+                                rowData.push('-');
+                            } else {
+                                var connIdx = getConnectionIndex(row.id, colDev.id);
+                                if (connIdx >= 0) {
+                                    var conn = connections[connIdx];
+                                    var isSrc = conn.from === row.id;
+                                    var fromPort = isSrc ? conn.fromPort : conn.toPort;
+                                    var toPort = isSrc ? conn.toPort : conn.fromPort;
+                                    rowData.push(connLabels[conn.type] + ' (' + fromPort + ' <-> ' + toPort + ')');
+                                } else {
+                                    rowData.push('');
+                                }
+                            }
+                        }
+                        matrixData.push(rowData);
+                    }
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(matrixData), 'Matrix');
+                } else {
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{Message: 'No devices for matrix'}]), 'Matrix');
+                }
+
+                XLSX.writeFile(wb, 'network_manager.xlsx');
+
+            } catch (e) {
+                console.error('Error exporting Excel:', e);
+                alert('Error exporting Excel: ' + e.message);
+            }
+        }
+
+        function printMatrix() {
+            var area = document.getElementById('matrixPrintArea');
+            area.classList.add('print-area');
+            window.print();
+            area.classList.remove('print-area');
+        }
+
+        function printConnections() {
+            var area = document.getElementById('connectionsPrintArea');
+            area.classList.add('print-area');
+            window.print();
+            area.classList.remove('print-area');
+        }
+
+        function exportJSON() {
+            try {
+                var data = { devices: devices, connections: connections, nextDeviceId: nextDeviceId };
+                var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'network_manager.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error('Error exporting JSON:', e);
+                alert('Error exporting JSON: ' + e.message);
+            }
+        }
+
+        function importData(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    var data = JSON.parse(ev.target.result);
+                    if (data.devices && data.connections) {
+                        devices = data.devices;
+                        connections = data.connections;
+                        // Use nextDeviceId from file if available, otherwise calculate
+                        if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
+                            nextDeviceId = data.nextDeviceId;
+                        } else {
+                            var maxId = 0;
+                            for (var i = 0; i < devices.length; i++) {
+                                if (devices[i].id > maxId) maxId = devices[i].id;
+                            }
+                            nextDeviceId = maxId + 1;
+                        }
+                        updateUI();
+                        alert('Data imported successfully! (' + devices.length + ' devices, ' + connections.length + ' connections)');
+                    } else {
+                        alert('Invalid JSON format. Expected "devices" and "connections" arrays.');
+                    }
+                } catch (err) {
+                    console.error('Error importing data:', err);
+                    alert('Error importing data: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        function clearAll() {
+            if (!confirm('Are you sure you want to clear all data? This cannot be undone.')) return;
+            devices = [];
+            connections = [];
+            nextDeviceId = 1;
+            clearConnectionForm();
+            clearDeviceForm();
+            updateUI();
+        }
+
+        function parseAddresses(text) {
+            if (!text) return [];
+            var lines = text.split('\n');
+            var result = [];
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                var parts = line.split(',');
+                var trimmedParts = [];
+                for (var j = 0; j < parts.length; j++) {
+                    trimmedParts.push(parts[j].trim());
+                }
+                var hasContent = false;
+                for (var k = 0; k < trimmedParts.length; k++) {
+                    if (trimmedParts[k] !== '') {
+                        hasContent = true;
+                        break;
+                    }
+                }
+                if (hasContent) {
+                    result.push({
+                        network: trimmedParts[0] || '',
+                        ip: trimmedParts[1] || '',
+                        vlan: trimmedParts[2] ? parseInt(trimmedParts[2], 10) : null
+                    });
+                }
+            }
+            return result;
+        }
+
+        function formatAddresses(addrs) {
+            if (!addrs || addrs.length === 0) return '';
+            var result = [];
+            for (var i = 0; i < addrs.length; i++) {
+                var a = addrs[i];
+                result.push((a.network || '') + ', ' + (a.ip || '') + ', ' + (a.vlan || ''));
+            }
+            return result.join('\n');
+        }
+
+        // Drag to scroll functionality
+        (function() {
+            var container = document.getElementById('matrixContainer');
+            var isDown = false;
+            var startX, startY, scrollLeft, scrollTop;
+
+            container.addEventListener('mousedown', function(e) {
+                // Ignorar cliques em células clicáveis
+                if (e.target.closest('[onclick]')) return;
+                isDown = true;
+                container.classList.add('dragging');
+                startX = e.pageX - container.offsetLeft;
+                startY = e.pageY - container.offsetTop;
+                scrollLeft = container.scrollLeft;
+                scrollTop = container.scrollTop;
+            });
+
+            container.addEventListener('mouseleave', function() {
+                isDown = false;
+                container.classList.remove('dragging');
+            });
+
+            container.addEventListener('mouseup', function() {
+                isDown = false;
+                container.classList.remove('dragging');
+            });
+
+            container.addEventListener('mousemove', function(e) {
+                if (!isDown) return;
+                e.preventDefault();
+                var x = e.pageX - container.offsetLeft;
+                var y = e.pageY - container.offsetTop;
+                var walkX = (x - startX) * 1.5;
+                var walkY = (y - startY) * 1.5;
+                container.scrollLeft = scrollLeft - walkX;
+                container.scrollTop = scrollTop - walkY;
+            });
+        })();
+
+        // Load data on init: try server, otherwise use localStorage
+        serverLoad().then(function(ok) {
+            if (!ok) loadFromStorage();
+            updateUI();
+        }).catch(function() { loadFromStorage(); updateUI(); });
+    </script>
+</body>
+</html>

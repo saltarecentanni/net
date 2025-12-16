@@ -12,10 +12,11 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                     CLIENT (Browser)                        │
 ├─────────────────────────────────────────────────────────────┤
-│  index.html           - UI structure & styles (Tailwind)   │
-│  js/app.js            - Core logic, state, persistence     │
-│  js/ui-updates.js     - UI rendering (matrix, lists)       │
-│  XLSX.js (CDN)        - Excel export functionality         │
+│  index.html                                                 │
+│  ├── UI Layer (Tailwind CSS)                               │
+│  ├── Application Logic (Vanilla JavaScript)                │
+│  ├── Data Management (devices[], connections[])            │
+│  └── Export Engine (XLSX.js for Excel)                     │
 └─────────────────────────────────────────────────────────────┘
                               │
                               │ HTTP GET/POST (JSON)
@@ -25,8 +26,7 @@
 ├─────────────────────────────────────────────────────────────┤
 │  data.php                                                   │
 │  ├── GET  → Read /data/network_manager.json                │
-│  ├── POST → Validate & Write (structure check)             │
-│  └── Security: Validates devices[], connections[], nextId  │
+│  └── POST → Write /data/network_manager.json               │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -48,11 +48,8 @@
 
 ```
 intranet/
-├── index.html                 # Main HTML structure
+├── index.html                 # Main application (single-page)
 ├── data.php                   # Backend API for data persistence
-├── js/
-│   ├── app.js                 # Core application logic & state
-│   └── ui-updates.js          # UI rendering functions
 ├── data/
 │   └── network_manager.json   # Persistent data storage
 ├── doc/
