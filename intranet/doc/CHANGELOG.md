@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.1] - 2025-12-16
+
+### Security
+- **Critical fix in data.php**: Added strict validation for JSON data structure on POST requests
+- **Data integrity protection**: Server now validates presence of `devices` (array), `connections` (array), and `nextDeviceId` (integer) before saving
+- **Malformed data rejection**: Invalid or incomplete JSON structures are rejected with HTTP 400 error
+
+---
+
 ## [2.3.0] - 2025-12-16
 
 ### Added
@@ -132,6 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 2.3.1 | 2025-12-16 | **Security fix**: data.php structure validation |
 | 2.3.0 | 2025-12-16 | External destinations, Cable ID, vertical Edit/Del |
 | 2.2.0 | 2025-12-16 | 24 rack colors, improved export/import, UI polish |
 | 2.1.0 | 2025-12-16 | Print support, notes column |

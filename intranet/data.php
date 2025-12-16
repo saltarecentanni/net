@@ -43,6 +43,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(["error"=>"Invalid JSON"]);
         exit;
     }
+    
+    // CRITICAL: Validate data structure to prevent corruption
+    if (!isset($tmp['devices']) || !is_array($tmp['devices'])) {
+        http_response_code(400);
+        echo json_encode(["error"=>"Invalid data structure: missing or invalid 'devices' array"]);
+        exit;
+    }
+    if (!isset($tmp['connections']) || !is_array($tmp['connections'])) {
+        http_response_code(400);
+        echo json_encode(["error"=>"Invalid data structure: missing or invalid 'connections' array"]);
+        exit;
+    }
+    if (!isset($tmp['nextDeviceId']) || !is_int($tmp['nextDeviceId'])) {
+        http_response_code(400);
+        echo json_encode(["error"=>"Invalid data structure: missing or invalid 'nextDeviceId' integer"]);
+        exit;
+    }
+    
     // safe write with temp file
     $tmpFile = $file . '.tmp';
     $w = file_put_contents($tmpFile, json_encode($tmp, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
