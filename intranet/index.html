@@ -1209,7 +1209,8 @@ function saveConnection() {
             var opts = '<option value="">Select device</option>';
             for (var i = 0; i < sorted.length; i++) {
                 var d = sorted[i];
-                opts += '<option value="' + d.id + '">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + '</option>';
+                var rackColor = getRackColor(d.rackId);
+                opts += '<option value="' + d.id + '" style="color:' + rackColor + ';font-weight:bold;">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + '</option>';
             }
             document.getElementById('fromDevice').innerHTML = opts.replace('Select device', 'Select source');
             document.getElementById('toDevice').innerHTML = opts.replace('Select device', 'Select destination');
