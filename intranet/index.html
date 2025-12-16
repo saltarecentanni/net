@@ -1584,7 +1584,7 @@ function saveConnection() {
 
         function exportJSON() {
             try {
-                var data = { devices: devices, connections: connections };
+                var data = { devices: devices, connections: connections, nextDeviceId: nextDeviceId };
                 var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                 var url = URL.createObjectURL(blob);
                 var a = document.createElement('a');
@@ -1611,13 +1611,18 @@ function saveConnection() {
                     if (data.devices && data.connections) {
                         devices = data.devices;
                         connections = data.connections;
-                        var maxId = 0;
-                        for (var i = 0; i < devices.length; i++) {
-                            if (devices[i].id > maxId) maxId = devices[i].id;
+                        // Use nextDeviceId from file if available, otherwise calculate
+                        if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
+                            nextDeviceId = data.nextDeviceId;
+                        } else {
+                            var maxId = 0;
+                            for (var i = 0; i < devices.length; i++) {
+                                if (devices[i].id > maxId) maxId = devices[i].id;
+                            }
+                            nextDeviceId = maxId + 1;
                         }
-                        nextDeviceId = maxId + 1;
                         updateUI();
-                        alert('Data imported successfully!');
+                        alert('Data imported successfully! (' + devices.length + ' devices, ' + connections.length + ' connections)');
                     } else {
                         alert('Invalid JSON format. Expected "devices" and "connections" arrays.');
                     }
