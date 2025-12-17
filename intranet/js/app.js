@@ -225,7 +225,12 @@ function serverLoad() {
                 return false;
             });
     }
-    return tryUrl('data.php').catch(function() { return tryUrl('/data.php'); });
+    // Try multiple URLs: PHP, Node.js, or static JSON file
+    return tryUrl('data.php')
+        .catch(function() { return tryUrl('/data.php'); })
+        .catch(function() { return tryUrl('/data'); })
+        .catch(function() { return tryUrl('data/network_manager.json'); })
+        .catch(function() { return tryUrl('/data/network_manager.json'); });
 }
 
 function serverSave() {
@@ -249,20 +254,27 @@ function serverSave() {
         });
     }
     
+    // Try multiple server endpoints
     postUrl('data.php')
         .then(function() {
-            // Server save successful
+            showSyncIndicator('saved', '✓ Saved (server)');
         })
         .catch(function() {
-            // Try alternative URL
-            postUrl('/data.php')
-                .then(function() {
-                    // Alternative URL successful
-                })
-                .catch(function(e) {
-                    console.warn('Server save failed:', e);
-                    Toast.warning('Server sync failed. Data saved locally only.');
-                });
+            return postUrl('/data.php');
+        })
+        .then(function() {
+            showSyncIndicator('saved', '✓ Saved (server)');
+        })
+        .catch(function() {
+            return postUrl('/data');
+        })
+        .then(function() {
+            showSyncIndicator('saved', '✓ Saved (server)');
+        })
+        .catch(function() {
+            // Silent fail - data is saved in localStorage
+            // This is expected for static file servers
+            console.log('Server save not available, using localStorage only');
         });
 }
 
