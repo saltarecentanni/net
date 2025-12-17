@@ -133,7 +133,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v2.4.0            ║');
+    console.log('║     TIESSE Matrix Network Server v2.5.0            ║');
     console.log('╠════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                  ║`);
     console.log('║  Network:  http://<YOUR-IP>:' + PORT + '/                  ║');
