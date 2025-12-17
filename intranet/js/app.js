@@ -1028,6 +1028,8 @@ function getPrintStyles() {
         '  .no-print, .print-hide-id { display: none !important; }' +
         '  @page { size: landscape; margin: 6mm; }' +
         '}' +
+        '.no-print { display: none !important; }' +
+        '.print-hide-id { display: none !important; }' +
         'body { font-family: Arial, sans-serif; padding: 10px; margin: 0; font-size: 11px; }' +
         'h2 { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #1e293b; }' +
         'table { width: 100%; border-collapse: collapse; font-size: 9px; }' +
@@ -1058,6 +1060,7 @@ function getPrintStyles() {
         '.align-top { vertical-align: top; }' +
         '.sticky-col { position: static !important; }' +
         '.matrix-cell { min-width: 70px !important; width: 70px !important; max-width: 70px !important; height: 60px !important; }' +
+        'span[style*="background-color"] { color: white !important; }' +
         '</style>';
 }
 
