@@ -148,7 +148,7 @@ function updateMatrix() {
             var connIdx = getConnectionIndex(row.id, col.id);
 
             if (row.id === col.id) {
-                html += '<td class="matrix-cell border p-1 text-center" data-row="' + r + '" data-col="' + c + '" style="width:90px;min-width:90px;max-width:90px;height:70px;background-color:#94a3b8;">-</td>';
+                html += '<td class="matrix-cell border p-1 text-center" data-row="' + r + '" data-col="' + c + '" style="width:70px;min-width:70px;max-width:70px;height:60px;background-color:#94a3b8;">-</td>';
             } else if (connIdx >= 0) {
                 var conn = appState.connections[connIdx];
                 var shortType = conn.type ? (conn.type.substring(0,3).toUpperCase()) : '';
@@ -164,7 +164,7 @@ function updateMatrix() {
                     portA = conn.toPort || '-';
                     portB = conn.fromPort || '-';
                 }
-                html += '<td class="matrix-cell border p-1 text-center cursor-pointer hover:opacity-80" data-row="' + r + '" data-col="' + c + '" data-conn="' + connIdx + '" data-cable-color="' + cableLineColor + '" style="width:90px;min-width:90px;max-width:90px;height:70px;" onclick="editConnection(' + connIdx + ')">' +
+                html += '<td class="matrix-cell border p-1 text-center cursor-pointer hover:opacity-80" data-row="' + r + '" data-col="' + c + '" data-conn="' + connIdx + '" data-cable-color="' + cableLineColor + '" style="width:70px;min-width:70px;max-width:70px;height:60px;" onclick="editConnection(' + connIdx + ')">' +
                     '<div style="background-color:' + conn.color + ';padding:3px;border-radius:4px;overflow:hidden;" class="text-xs font-semibold text-white">' +
                     '<div style="font-size:9px;">' + shortType + '</div>' +
                     '<div style="font-weight:bold;white-space:nowrap;display:flex;justify-content:center;align-items:center;gap:2px;"><span style="font-size:10px;color:#e5e7eb;text-shadow:1px 1px 1px rgba(0,0,0,0.4);">' + portA + '</span><span style="font-size:8px;color:#fde047;text-shadow:1px 1px 1px rgba(0,0,0,0.5);">⟷</span><span style="font-size:10px;color:#374151;">' + portB + '</span></div>' +
@@ -172,7 +172,7 @@ function updateMatrix() {
                     '</div>' +
                     '</td>';
             } else {
-                html += '<td class="matrix-cell border p-1 bg-white" data-row="' + r + '" data-col="' + c + '" style="width:90px;min-width:90px;max-width:90px;height:70px;"></td>';
+                html += '<td class="matrix-cell border p-1 bg-white" data-row="' + r + '" data-col="' + c + '" style="width:70px;min-width:70px;max-width:70px;height:60px;"></td>';
             }
         }
         html += '</tr>';
