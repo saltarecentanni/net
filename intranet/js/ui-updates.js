@@ -1,9 +1,12 @@
 /**
  * Tiesse Matrix Network - UI Update Functions
- * Version: 2.4.0
+ * Version: 2.5.0
  * 
- * Contains heavy UI rendering functions for matrix, devices, and connections lists
- * Restored full visual styling from original version
+ * Contains UI rendering functions:
+ * - Device list (cards)
+ * - Connection matrix
+ * - Connections table
+ * - Excel export
  */
 
 'use strict';

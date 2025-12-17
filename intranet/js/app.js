@@ -1,11 +1,12 @@
 /**
  * Tiesse Matrix Network - Application Core
- * Version: 2.4.0
+ * Version: 2.5.0
  * 
- * Refactored with:
+ * Features:
  * - Encapsulated state (appState)
- * - Toast notification system (replaces alert())
+ * - Toast notification system
  * - Modular structure
+ * - Robust import/export with validation
  */
 
 'use strict';
@@ -254,26 +255,25 @@ function serverSave() {
         });
     }
     
-    // Try multiple server endpoints
+    // Try server endpoints in order: data.php, /data.php, /data
     postUrl('data.php')
         .then(function() {
-            showSyncIndicator('saved', '✓ Saved (server)');
+            showSyncIndicator('saved', '✓ Server');
         })
         .catch(function() {
-            return postUrl('/data.php');
-        })
-        .then(function() {
-            showSyncIndicator('saved', '✓ Saved (server)');
-        })
-        .catch(function() {
-            return postUrl('/data');
-        })
-        .then(function() {
-            showSyncIndicator('saved', '✓ Saved (server)');
+            return postUrl('/data.php')
+                .then(function() {
+                    showSyncIndicator('saved', '✓ Server');
+                });
         })
         .catch(function() {
-            // Silent fail - data is saved in localStorage
-            // This is expected for static file servers
+            return postUrl('/data')
+                .then(function() {
+                    showSyncIndicator('saved', '✓ Server');
+                });
+        })
+        .catch(function() {
+            // All endpoints failed - data is in localStorage only
             console.log('Server save not available, using localStorage only');
         });
 }
@@ -949,26 +949,58 @@ function importData(e) {
     reader.onload = function(ev) {
         try {
             var data = JSON.parse(ev.target.result);
-            if (data.devices && data.connections) {
-                appState.devices = data.devices;
-                appState.connections = data.connections;
-                if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
-                    appState.nextDeviceId = data.nextDeviceId;
-                } else {
-                    var maxId = 0;
-                    for (var i = 0; i < appState.devices.length; i++) {
-                        if (appState.devices[i].id > maxId) maxId = appState.devices[i].id;
-                    }
-                    appState.nextDeviceId = maxId + 1;
-                }
-                updateUI();
-                Toast.success('Data imported successfully! (' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections)');
-            } else {
-                Toast.error('Invalid JSON format. Expected "devices" and "connections" arrays.');
+            
+            // Validate structure
+            if (!data.devices || !Array.isArray(data.devices)) {
+                Toast.error('Invalid JSON: missing or invalid "devices" array');
+                return;
             }
+            if (!data.connections || !Array.isArray(data.connections)) {
+                Toast.error('Invalid JSON: missing or invalid "connections" array');
+                return;
+            }
+            
+            // Validate each device has required fields
+            for (var i = 0; i < data.devices.length; i++) {
+                var d = data.devices[i];
+                if (!d.id || !d.rackId || !d.name || !d.type || !d.status || !d.ports) {
+                    Toast.error('Invalid device at index ' + i + ': missing required fields');
+                    return;
+                }
+            }
+            
+            // Validate each connection has required fields
+            for (var j = 0; j < data.connections.length; j++) {
+                var c = data.connections[j];
+                if (typeof c.from !== 'number' || !c.type || !c.status) {
+                    Toast.error('Invalid connection at index ' + j + ': missing required fields');
+                    return;
+                }
+            }
+            
+            // All validations passed - import data
+            appState.devices = data.devices;
+            appState.connections = data.connections;
+            
+            // Calculate nextDeviceId
+            if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
+                appState.nextDeviceId = data.nextDeviceId;
+            } else {
+                var maxId = 0;
+                for (var k = 0; k < appState.devices.length; k++) {
+                    if (appState.devices[k].id > maxId) maxId = appState.devices[k].id;
+                }
+                appState.nextDeviceId = maxId + 1;
+            }
+            
+            // Save to storage and server
+            saveToStorage();
+            updateUI();
+            Toast.success('Imported: ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections');
+            
         } catch (err) {
             console.error('Error importing data:', err);
-            Toast.error('Error importing data: ' + err.message);
+            Toast.error('Error importing: ' + err.message);
         }
     };
     reader.readAsText(file);
