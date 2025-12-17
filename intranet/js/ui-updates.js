@@ -117,13 +117,14 @@ function updateMatrix() {
     var sorted = getSorted();
 
     var html = '<table id="matrixTable" class="border-collapse text-xs"><thead><tr>';
-    html += '<th class="p-2 sticky-col font-bold text-left whitespace-nowrap" style="border:1px solid #64748b;background-color:#94a3b8;color:#1e293b;">Device</th>';
+    html += '<th class="p-2 sticky-col font-bold text-left whitespace-nowrap" style="border:1px solid #64748b;background-color:#94a3b8;color:#1e293b;">Device (' + sorted.length + ')</th>';
 
     for (var i = 0; i < sorted.length; i++) {
         var d = sorted[i];
         var rackColor = getRackColor(d.rackId);
+        var posLabel = (d.rackId || '').toUpperCase() + '-' + String(d.order || 0).padStart(2, '0');
         html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:90px;width:90px;border:1px solid #1e293b;background-color:#334155;">' +
-            '<div class="font-semibold uppercase" style="color:' + rackColor + ';font-size:8px;">' + (d.rackId || '').toUpperCase() + '</div>' +
+            '<div class="font-semibold" style="color:' + rackColor + ';font-size:9px;">' + posLabel + '</div>' +
             '<div class="font-bold" style="font-size:9px;color:#ffffff;">' + d.name + '</div>' +
             '</th>';
     }
@@ -132,8 +133,9 @@ function updateMatrix() {
     for (var r = 0; r < sorted.length; r++) {
         var row = sorted[r];
         var rowRackColor = getRackColor(row.rackId);
+        var rowPosLabel = (row.rackId || '').toUpperCase() + '-' + String(row.order || 0).padStart(2, '0');
         html += '<tr data-row="' + r + '"><td class="p-1 sticky-col" style="min-width:90px;width:90px;border:1px solid #94a3b8;background-color:#e2e8f0;">' +
-            '<div class="font-semibold uppercase" style="color:' + rowRackColor + ';font-size:8px;">' + (row.rackId || '').toUpperCase() + '</div>' +
+            '<div class="font-semibold" style="color:' + rowRackColor + ';font-size:9px;">' + rowPosLabel + '</div>' +
             '<div class="font-bold" style="font-size:9px;color:#1e293b;">' + row.name + '</div>' +
             '</td>';
 
