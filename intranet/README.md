@@ -2,126 +2,76 @@
 
 Aplicação web de gerenciamento de rede para deploy em intranet corporativa.
 
+**Versão:** 2.5.0
+
 ## 🚀 Deploy Rápido
 
-### Opção 1: Servidor Web com PHP (Recomendado)
+### Opção 1: PHP no Windows (Recomendado)
 
-1. Copie todos os arquivos da pasta `intranet/` para o diretório raiz do seu servidor web
-2. Certifique-se que `data.php` e `index.html` estão na mesma pasta
-3. A pasta `data/` deve ter permissão de escrita
-4. Acesse via navegador:
-   - `http://10.121.10.101:8080/`
-   - `http://seu-servidor/intranet/`
+1. Baixe PHP: https://windows.php.net/download/ (VS16 x64 Non Thread Safe)
+2. Extraia para `C:\php`
+3. Execute na pasta do projeto:
+   ```cmd
+   cd C:\caminho\para\intranet
+   C:\php\php.exe -S 0.0.0.0:8080
+   ```
+4. Acesse: http://localhost:8080/ ou http://SEU-IP:8080/
 
 ### Opção 2: Node.js
 
 ```bash
 cd intranet
-npm install
-npm start
+node server.js
 ```
 
-Acesse: `http://localhost:3000/`
+Acesse: http://localhost:3000/
 
 ## 📁 Estrutura de Arquivos
 
 ```
 intranet/
-├── index.html              # Página principal (HTML + CSS)
-├── data.php                # API REST para persistência
+├── index.html              # Página principal
+├── data.php                # API PHP para persistência
+├── server.js               # Servidor Node.js (alternativo)
 ├── README.md               # Este arquivo
-├── package.json            # Dependências Node.js (opcional)
 ├── js/
 │   ├── app.js              # Lógica principal
-│   │                       # - Estado (appState)
-│   │                       # - CRUD dispositivos/conexões
-│   │                       # - Persistência (localStorage + servidor)
-│   │                       # - Toast notifications
-│   │                       # - Import/Export (JSON, Excel)
-│   │                       # - Impressão
 │   └── ui-updates.js       # Renderização da interface
-│                           # - Lista de dispositivos (cards)
-│                           # - Matriz visual
-│                           # - Tabela de conexões
-│                           # - Export Excel
 └── data/
-    └── network_manager.json  # Dados persistidos (criado automaticamente)
+    └── network_manager.json  # Dados (criado automaticamente)
 ```
 
 ## 🔧 Requisitos
 
-### Com PHP (Recomendado)
-- Apache, Nginx ou qualquer servidor com PHP 7+
-- Permissão de escrita na pasta `data/`
+### Com PHP
+- PHP 7+ (baixar ZIP, não precisa instalar)
 
 ### Com Node.js
 - Node.js 14+
-- npm
 
-### Sem servidor (Modo Local)
+### Sem servidor
 - Basta abrir `index.html` no navegador
-- Dados salvos apenas no localStorage do navegador
-
-## 🔒 Segurança da API (data.php)
-
-O `data.php` implementa validação robusta:
-
-### Estrutura Obrigatória
-```json
-{
-  "devices": [...],
-  "connections": [...],
-  "nextDeviceId": 1
-}
-```
-
-### Validação de Dispositivos
-Cada dispositivo deve ter:
-- `id` (inteiro positivo)
-- `rackId` (string)
-- `name` (string)
-- `type` (string)
-- `status` (string)
-- `ports` (array)
-
-### Validação de Conexões
-Cada conexão deve ter:
-- `from` (inteiro)
-- `type` (string)
-- `status` (string)
-
-### Respostas de Erro
-```json
-{"error": "Invalid device at index 2: missing required field 'name'"}
-{"error": "Invalid connection at index 5: 'type' must be a string"}
-```
+- Dados salvos apenas no localStorage
 
 ## 📡 API REST
 
-### GET /data ou GET /data.php
-Retorna os dados atuais ou estrutura vazia:
+### GET /data.php
+Retorna os dados:
 ```json
 {"devices": [], "connections": [], "nextDeviceId": 1}
 ```
 
-### POST /data ou POST /data.php
-Salva os dados. Body deve ser JSON válido com estrutura acima.
-
-Resposta sucesso:
+### POST /data.php
+Salva os dados. Retorna:
 ```json
 {"ok": true}
 ```
 
 ## 💾 Persistência
 
-O cliente tenta salvar em duas URLs:
-1. `/data` (Node.js server)
-2. `/data.php` (PHP)
-
-Se ambas falharem:
-- Dados salvos no `localStorage`
-- Toast de aviso exibido ao usuário
-- Na próxima vez que o servidor estiver disponível, sincroniza
+- Tenta salvar no servidor (PHP ou Node.js)
+- Se falhar, salva no localStorage
+- Carrega do servidor ou do arquivo JSON estático
 
 ## 🖥️ Compatibilidade
 
@@ -132,16 +82,4 @@ Se ambas falharem:
 
 ## 📌 Versão
 
-**v2.4.0** - Dezembro 2025
-
-### Arquitetura
-- JavaScript modular (app.js + ui-updates.js)
-- Estado encapsulado em `appState`
-- Toast notifications (substitui alert())
-- Validação robusta no servidor
-
-## 🔗 Links Úteis
-
-- [Documentação Principal](../README.md)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [SheetJS (XLSX)](https://sheetjs.com/)
+**v2.5.0** - Dezembro 2025

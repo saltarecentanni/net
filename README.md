@@ -2,9 +2,11 @@
 
 Sistema web de gerenciamento de infraestrutura de rede para ambientes corporativos.
 
+**Versão atual:** 2.5.0
+
 ## 📋 Visão Geral
 
-O **Tiesse Matrix Network** é uma aplicação web completa para gerenciar dispositivos de rede, conexões e racks. Oferece visualização em matriz, exportação de dados e interface moderna com Tailwind CSS.
+O **Tiesse Matrix Network** é uma aplicação web para gerenciar dispositivos de rede, conexões e racks. Oferece visualização em matriz, exportação de dados e interface moderna.
 
 ## 🚀 Funcionalidades
 
@@ -38,7 +40,7 @@ O **Tiesse Matrix Network** é uma aplicação web completa para gerenciar dispo
 |------------|------------|
 | Frontend | HTML5, Tailwind CSS (CDN) |
 | JavaScript | ES6, Modular (app.js + ui-updates.js) |
-| Backend | PHP 7+ (opcional) |
+| Backend | PHP 7+ |
 | Persistência | LocalStorage + Servidor |
 | Excel | SheetJS (XLSX 0.18.5) |
 
@@ -47,65 +49,58 @@ O **Tiesse Matrix Network** é uma aplicação web completa para gerenciar dispo
 ```
 net/
 ├── README.md                 # Este arquivo
-├── intranet/
-│   ├── index.html            # Página principal
-│   ├── data.php              # API de persistência (validação robusta)
-│   ├── README.md             # Documentação de deploy
-│   ├── js/
-│   │   ├── app.js            # Lógica principal (~1100 linhas)
-│   │   └── ui-updates.js     # Renderização UI (~450 linhas)
-│   └── data/
-│       └── network_manager.json  # Dados persistidos
-└── backups/                  # Backups de versões anteriores
+└── intranet/
+    ├── index.html            # Página principal
+    ├── data.php              # API de persistência
+    ├── server.js             # Servidor Node.js (alternativo)
+    ├── README.md             # Documentação de deploy
+    ├── js/
+    │   ├── app.js            # Lógica principal
+    │   └── ui-updates.js     # Renderização UI
+    └── data/
+        └── network_manager.json  # Dados persistidos
 ```
-
-## 🔒 Segurança
-
-O sistema implementa validação robusta no servidor:
-
-### Validação PHP (data.php)
-- ✅ Estrutura JSON válida
-- ✅ Arrays `devices` e `connections` obrigatórios
-- ✅ `nextDeviceId` como inteiro
-- ✅ Cada dispositivo: `id`, `rackId`, `name`, `type`, `status`, `ports`
-- ✅ Cada conexão: `from`, `type`, `status`
-- ✅ Mensagens de erro detalhadas com índice
-
-### Tratamento de Erros
-- ✅ Toast notifications para feedback visual
-- ✅ Fallback para LocalStorage quando servidor indisponível
-- ✅ Aviso quando sincronização falha
 
 ## 📦 Instalação
 
-Consulte [intranet/README.md](intranet/README.md) para instruções detalhadas de deploy.
+### Opção 1: PHP no Windows (Recomendado)
 
-### Rápido (com PHP)
-```bash
-# Copie a pasta intranet/ para seu servidor web
-# Acesse: http://seu-servidor/intranet/
-```
+1. Baixe PHP: https://windows.php.net/download/ (VS16 x64 Non Thread Safe)
+2. Extraia para `C:\php`
+3. Execute na pasta do projeto:
+   ```cmd
+   cd C:\caminho\para\intranet
+   C:\php\php.exe -S 0.0.0.0:8080
+   ```
+4. Acesse: http://localhost:8080/ ou http://SEU-IP:8080/
 
-### Com Node.js
+### Opção 2: Node.js
+
 ```bash
 cd intranet
-npm install
-npm start
-# Acesse: http://localhost:3000/
+node server.js
 ```
+Acesse: http://localhost:3000/
 
-## 📌 Versão
+## 🔒 Segurança
 
-**v2.4.0** - Dezembro 2025
+- ✅ Validação de estrutura JSON
+- ✅ Validação de campos obrigatórios
+- ✅ Mensagens de erro detalhadas
+- ✅ Fallback para LocalStorage
 
-### Changelog Recente
+## 📌 Changelog
+
+### v2.5.0 (Dezembro 2025)
+- 🧹 Limpeza de arquivos desnecessários
+- 📚 Documentação atualizada
+- ✅ Compatibilidade com PHP built-in server
+
+### v2.4.0
 - ✨ Arquitetura modular (app.js + ui-updates.js)
 - ✨ Sistema de Toast notifications
-- ✨ Estado encapsulado (appState)
-- 🔒 Validação de conteúdo no PHP
-- 🔒 Tratamento de erros de rede
-- 🖨️ Impressão melhorada com CSS inline
-- 📊 24 cores de rack
+- 🔒 Validação robusta no PHP
+- 🖨️ Impressão melhorada
 
 ## 📄 Licença
 
