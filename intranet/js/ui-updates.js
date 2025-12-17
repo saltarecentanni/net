@@ -124,8 +124,7 @@ function updateMatrix() {
         var rackColor = getRackColor(d.rackId);
         var posNum = String(d.order || 0).padStart(2, '0');
         html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:90px;width:90px;border:1px solid #1e293b;background-color:#334155;">' +
-            '<div class="font-semibold" style="color:' + rackColor + ';font-size:9px;">' + posNum + '</div>' +
-            '<div class="font-bold" style="font-size:9px;color:#ffffff;">' + d.name + '</div>' +
+            '<div class="font-bold" style="color:' + rackColor + ';font-size:11px;">' + posNum + '</div>' +
             '</th>';
     }
     html += '</tr></thead><tbody>';
@@ -135,8 +134,7 @@ function updateMatrix() {
         var rowRackColor = getRackColor(row.rackId);
         var rowPosNum = String(row.order || 0).padStart(2, '0');
         html += '<tr data-row="' + r + '"><td class="p-1 sticky-col" style="min-width:90px;width:90px;border:1px solid #94a3b8;background-color:#e2e8f0;">' +
-            '<div class="font-semibold" style="color:' + rowRackColor + ';font-size:9px;">' + rowPosNum + '</div>' +
-            '<div class="font-bold" style="font-size:9px;color:#1e293b;">' + row.name + '</div>' +
+            '<div class="font-bold" style="color:' + rowRackColor + ';font-size:11px;">' + rowPosNum + '</div>' +
             '</td>';
 
         for (var c = 0; c < sorted.length; c++) {
