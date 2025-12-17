@@ -125,9 +125,9 @@ function updateMatrix() {
         var posNum = String(d.order || 0).padStart(2, '0');
         var rackName = (d.rackId || '').toUpperCase();
         html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:85px;width:85px;border:1px solid #1e293b;background-color:#334155;">' +
-            '<div class="font-semibold" style="color:' + rackColor + ';font-size:7px;line-height:1.2;">' + rackName + '</div>' +
-            '<div class="font-bold" style="font-size:8px;color:#ffffff;line-height:1.2;">' + d.name + '</div>' +
-            '<span class="px-1 py-0.5 font-semibold rounded-full bg-blue-100 text-blue-800" style="font-size:9px;">' + posNum + '</span>' +
+            '<div class="font-semibold" style="color:' + rackColor + ';font-size:8px;line-height:1.3;">' + rackName + '</div>' +
+            '<div class="font-bold" style="font-size:9px;color:#ffffff;line-height:1.3;">' + d.name + '</div>' +
+            '<span class="px-1 py-0.5 font-semibold rounded-full bg-blue-100 text-blue-800" style="font-size:9px;display:inline-block;margin-top:3px;">' + posNum + '</span>' +
             '</th>';
     }
     html += '</tr></thead><tbody>';
@@ -138,9 +138,9 @@ function updateMatrix() {
         var rowPosNum = String(row.order || 0).padStart(2, '0');
         var rowRackName = (row.rackId || '').toUpperCase();
         html += '<tr data-row="' + r + '"><td class="p-1 sticky-col text-center" style="min-width:85px;width:85px;border:1px solid #94a3b8;background-color:#e2e8f0;">' +
-            '<div class="font-semibold" style="color:' + rowRackColor + ';font-size:7px;line-height:1.2;">' + rowRackName + '</div>' +
-            '<div class="font-bold" style="font-size:8px;color:#1e293b;line-height:1.2;">' + row.name + '</div>' +
-            '<span class="px-1 py-0.5 font-semibold rounded-full bg-blue-100 text-blue-800" style="font-size:9px;">' + rowPosNum + '</span>' +
+            '<div class="font-semibold" style="color:' + rowRackColor + ';font-size:8px;line-height:1.3;">' + rowRackName + '</div>' +
+            '<div class="font-bold" style="font-size:9px;color:#1e293b;line-height:1.3;">' + row.name + '</div>' +
+            '<span class="px-1 py-0.5 font-semibold rounded-full bg-blue-100 text-blue-800" style="font-size:9px;display:inline-block;margin-top:3px;">' + rowPosNum + '</span>' +
             '</td>';
 
         for (var c = 0; c < sorted.length; c++) {
