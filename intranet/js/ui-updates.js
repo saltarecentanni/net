@@ -127,7 +127,7 @@ function updateMatrix() {
         html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:90px;width:90px;border:1px solid #1e293b;background-color:#334155;">' +
             '<div class="font-semibold" style="color:' + rackColor + ';font-size:8px;">' + rackName + '</div>' +
             '<div class="font-bold" style="font-size:10px;color:#ffffff;">' + d.name + '</div>' +
-            '<div class="font-bold" style="color:' + rackColor + ';font-size:11px;">' + posNum + '</div>' +
+            '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + posNum + '</span>' +
             '</th>';
     }
     html += '</tr></thead><tbody>';
@@ -140,7 +140,7 @@ function updateMatrix() {
         html += '<tr data-row="' + r + '"><td class="p-1 sticky-col" style="min-width:90px;width:90px;border:1px solid #94a3b8;background-color:#e2e8f0;">' +
             '<div class="font-semibold" style="color:' + rowRackColor + ';font-size:8px;">' + rowRackName + '</div>' +
             '<div class="font-bold" style="font-size:10px;color:#1e293b;">' + row.name + '</div>' +
-            '<div class="font-bold" style="color:' + rowRackColor + ';font-size:11px;">' + rowPosNum + '</div>' +
+            '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + rowPosNum + '</span>' +
             '</td>';
 
         for (var c = 0; c < sorted.length; c++) {
