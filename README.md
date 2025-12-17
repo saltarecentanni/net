@@ -47,34 +47,39 @@ O **Tiesse Matrix Network** é uma aplicação web para gerenciar dispositivos d
 ## 📁 Estrutura do Projeto
 
 ```
-net/
-├── README.md                 # Este arquivo
+Tiesse-network-manager/        # Pasta raiz
+├── start-server.bat           # ⭐ Duplo-clique para iniciar
+├── php/                       # PHP extraído aqui
 └── intranet/
-    ├── index.html            # Página principal
-    ├── data.php              # API de persistência
-    ├── server.js             # Servidor Node.js (alternativo)
-    ├── README.md             # Documentação de deploy
+    ├── index.html             # Página principal
+    ├── data.php               # API de persistência
+    ├── server.js              # Servidor Node.js (alternativo)
+    ├── BLUEPRINT.md           # Documentação técnica
+    ├── README.md              # Guia de deploy
     ├── js/
-    │   ├── app.js            # Lógica principal
-    │   └── ui-updates.js     # Renderização UI
+    │   ├── app.js             # Lógica principal
+    │   └── ui-updates.js      # Renderização UI
     └── data/
         └── network_manager.json  # Dados persistidos
 ```
 
 ## 📦 Instalação
 
-### Opção 1: PHP no Windows (Recomendado)
+### Opção 1: Windows (Recomendado) ⭐
 
 1. Baixe PHP: https://windows.php.net/download/ (VS16 x64 Non Thread Safe)
-2. Extraia para `C:\php`
-3. Execute na pasta do projeto:
-   ```cmd
-   cd C:\caminho\para\intranet
-   C:\php\php.exe -S 0.0.0.0:8080
-   ```
+2. Extraia para a pasta `php/` dentro de `Tiesse-network-manager/`
+3. **Duplo-clique em `start-server.bat`**
 4. Acesse: http://localhost:8080/ ou http://SEU-IP:8080/
 
-### Opção 2: Node.js
+### Opção 2: PHP Manual
+
+```cmd
+cd C:\caminho\para\intranet
+C:\php\php.exe -S 0.0.0.0:8080
+```
+
+### Opção 3: Node.js
 
 ```bash
 cd intranet

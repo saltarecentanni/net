@@ -6,18 +6,29 @@ Aplicação web de gerenciamento de rede para deploy em intranet corporativa.
 
 ## 🚀 Deploy Rápido
 
-### Opção 1: PHP no Windows (Recomendado)
+### Opção 1: Script Automático (Recomendado) ⭐
 
 1. Baixe PHP: https://windows.php.net/download/ (VS16 x64 Non Thread Safe)
-2. Extraia para `C:\php`
-3. Execute na pasta do projeto:
-   ```cmd
-   cd C:\caminho\para\intranet
-   C:\php\php.exe -S 0.0.0.0:8080
-   ```
+2. Extraia para a pasta `php/` (ao lado de `intranet/`)
+3. **Duplo-clique em `start-server.bat`**
 4. Acesse: http://localhost:8080/ ou http://SEU-IP:8080/
 
-### Opção 2: Node.js
+Estrutura esperada:
+```
+Tiesse-network-manager/
+├── start-server.bat   ← Duplo-clique aqui
+├── php/               ← PHP extraído aqui
+└── intranet/          ← Arquivos do sistema
+```
+
+### Opção 2: PHP Manual
+
+```cmd
+cd C:\caminho\para\intranet
+C:\php\php.exe -S 0.0.0.0:8080
+```
+
+### Opção 3: Node.js
 
 ```bash
 cd intranet
@@ -33,6 +44,7 @@ intranet/
 ├── index.html              # Página principal
 ├── data.php                # API PHP para persistência
 ├── server.js               # Servidor Node.js (alternativo)
+├── BLUEPRINT.md            # Documentação técnica completa
 ├── README.md               # Este arquivo
 ├── js/
 │   ├── app.js              # Lógica principal
