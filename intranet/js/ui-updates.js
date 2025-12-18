@@ -119,16 +119,16 @@ function updateMatrix() {
     var html = '<table id="matrixTable" class="border-collapse text-xs"><thead><tr>';
     html += '<th class="p-2 sticky-col font-bold text-center whitespace-nowrap" style="border:1px solid #64748b;background-color:#334155;color:#ffffff;"><div style="font-size:11px;">Devices</div><div style="font-size:10px;color:#94a3b8;">Total ' + sorted.length + '</div></th>';
 
-    // HEADER HORIZONTAL - Fundo ESCURO com borda colorida
+    // HEADER HORIZONTAL - Fundo ESCURO preenchido com cor do rack
     for (var i = 0; i < sorted.length; i++) {
         var d = sorted[i];
         var rackColor = getRackColor(d.rackId);
         var posNum = String(d.order || 0).padStart(2, '0');
         var rackName = (d.rackId || '').toUpperCase();
-        html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:95px;width:95px;border:1px solid #475569;background-color:#334155;border-left:4px solid ' + rackColor + ';">' +
+        html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:95px;width:95px;border:2px solid ' + rackColor + ';background-color:#334155;">' +
             '<div style="font-size:8px;font-weight:600;color:' + rackColor + ';line-height:1.4;">' + rackName + '</div>' +
-            '<div style="font-size:9px;font-weight:700;color:#ffffff;line-height:1.3;">' + d.name + '</div>' +
-            '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800" style="display:inline-block;margin-top:3px;">' + posNum + '</span>' +
+            '<div style="font-size:9px;font-weight:700;color:#ffffff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + d.name + '</div>' +
+            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:9px;font-weight:700;border-radius:50%;background-color:#dbeafe;color:#1e40af;">' + posNum + '</span>' +
             '</th>';
     }
     html += '</tr></thead><tbody>';
@@ -140,11 +140,11 @@ function updateMatrix() {
         var rowPosNum = String(row.order || 0).padStart(2, '0');
         var rowRackName = (row.rackId || '').toUpperCase();
         
-        // HEADER VERTICAL - Fundo CLARO com borda colorida no topo
-        html += '<tr data-row="' + r + '"><td class="p-1 sticky-col text-center" style="min-width:95px;width:95px;border:1px solid #cbd5e1;background-color:#f1f5f9;border-top:4px solid ' + rowRackColor + ';">' +
+        // HEADER VERTICAL - Fundo CLARO preenchido com cor do rack
+        html += '<tr data-row="' + r + '"><td class="p-1 sticky-col text-center" style="min-width:95px;width:95px;border:2px solid ' + rowRackColor + ';background-color:#f1f5f9;">' +
             '<div style="font-size:8px;font-weight:600;color:' + rowRackColor + ';line-height:1.4;">' + rowRackName + '</div>' +
-            '<div style="font-size:9px;font-weight:700;color:#1e293b;line-height:1.3;">' + row.name + '</div>' +
-            '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800" style="display:inline-block;margin-top:3px;">' + rowPosNum + '</span>' +
+            '<div style="font-size:9px;font-weight:700;color:#1e293b;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + row.name + '</div>' +
+            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:9px;font-weight:700;border-radius:50%;background-color:#dbeafe;color:#1e40af;">' + rowPosNum + '</span>' +
             '</td>';
 
         for (var c = 0; c < sorted.length; c++) {
@@ -175,13 +175,13 @@ function updateMatrix() {
                 // Cable marker usando createMarkerHtml (mesmo estilo do Active Connections)
                 var markerHtml = conn.cableMarker ? '<div style="margin-top:3px;">' + createMarkerHtml(conn.cableMarker, cableColor, true) + '</div>' : '';
                 
-                html += '<td class="matrix-cell border p-0 text-center cursor-pointer hover:opacity-90" data-row="' + r + '" data-col="' + c + '" data-conn="' + connIdx + '" data-cable-color="' + cableColor + '" style="width:95px;min-width:95px;max-width:95px;height:75px;" onclick="editConnection(' + connIdx + ')">' +
-                    '<div style="background-color:' + conn.color + ';padding:4px 3px;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;">' +
-                    '<div style="font-size:9px;font-weight:700;color:#fff;text-shadow:1px 1px 1px rgba(0,0,0,0.3);">' + shortType + '</div>' +
-                    '<div style="font-weight:bold;white-space:nowrap;display:flex;justify-content:center;align-items:center;gap:3px;margin-top:2px;">' +
-                    '<span style="font-size:10px;color:#1e293b;background-color:#f1f5f9;padding:1px 4px;border-radius:3px;font-weight:700;">' + portA + '</span>' +
-                    '<span style="font-size:10px;color:#fde047;text-shadow:1px 1px 1px rgba(0,0,0,0.5);">⟷</span>' +
-                    '<span style="font-size:10px;color:#ffffff;background-color:#334155;padding:1px 4px;border-radius:3px;font-weight:700;">' + portB + '</span>' +
+                html += '<td class="matrix-cell border p-0 text-center cursor-pointer hover:opacity-90" data-row="' + r + '" data-col="' + c + '" data-conn="' + connIdx + '" data-cable-color="' + cableColor + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#ffffff;padding:3px;" onclick="editConnection(' + connIdx + ')">' +
+                    '<div style="background-color:' + conn.color + ';padding:4px 3px;border-radius:6px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;border:2px solid #ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.2);overflow:hidden;">' +
+                    '<div style="font-size:9px;font-weight:700;color:#fff;text-shadow:1px 1px 1px rgba(0,0,0,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;">' + shortType + '</div>' +
+                    '<div style="font-weight:bold;white-space:nowrap;display:flex;justify-content:center;align-items:center;gap:2px;margin-top:2px;max-width:85px;">' +
+                    '<span style="font-size:9px;color:#1e293b;background-color:#f1f5f9;padding:2px 4px;border-radius:6px;font-weight:700;max-width:35px;overflow:hidden;text-overflow:ellipsis;">' + portA + '</span>' +
+                    '<span style="font-size:9px;color:#fde047;text-shadow:1px 1px 1px rgba(0,0,0,0.5);">⟷</span>' +
+                    '<span style="font-size:9px;color:#ffffff;background-color:#334155;padding:2px 4px;border-radius:6px;font-weight:700;max-width:35px;overflow:hidden;text-overflow:ellipsis;">' + portB + '</span>' +
                     '</div>' +
                     markerHtml +
                     '</div>' +
