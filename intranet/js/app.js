@@ -258,17 +258,35 @@ function serverLoad() {
                     appState.devices = data.devices;
                     appState.connections = data.connections;
                     appState.nextDeviceId = data.nextDeviceId || 1;
+                    console.log('Server load OK from:', url);
                     return true;
                 }
-                return false;
+                throw new Error('Invalid data structure');
             });
     }
-    // Try multiple URLs: PHP, Node.js, or static JSON file
+    
+    // FIXED: Proper promise chaining for fallback
     return tryUrl('data.php')
-        .catch(function() { return tryUrl('/data.php'); })
-        .catch(function() { return tryUrl('/data'); })
-        .catch(function() { return tryUrl('data/network_manager.json'); })
-        .catch(function() { return tryUrl('/data/network_manager.json'); });
+        .catch(function(err1) {
+            console.log('data.php failed:', err1.message);
+            return tryUrl('/data.php')
+                .catch(function(err2) {
+                    console.log('/data.php failed:', err2.message);
+                    return tryUrl('/data')
+                        .catch(function(err3) {
+                            console.log('/data failed:', err3.message);
+                            return tryUrl('data/network_manager.json')
+                                .catch(function(err4) {
+                                    console.log('data/network_manager.json failed:', err4.message);
+                                    return tryUrl('/data/network_manager.json')
+                                        .catch(function(err5) {
+                                            console.warn('All server load endpoints failed');
+                                            return false;
+                                        });
+                                });
+                        });
+                });
+        });
 }
 
 function serverSave() {
@@ -293,25 +311,33 @@ function serverSave() {
     }
     
     // Try server endpoints in order: data.php, /data.php, /data
+    // FIXED: Proper promise chaining for fallback
     postUrl('data.php')
         .then(function() {
             showSyncIndicator('saved', '✓ Server');
+            console.log('Server save OK: data.php');
         })
-        .catch(function() {
+        .catch(function(err1) {
+            console.log('data.php failed:', err1.message, '- trying /data.php');
             return postUrl('/data.php')
                 .then(function() {
                     showSyncIndicator('saved', '✓ Server');
+                    console.log('Server save OK: /data.php');
+                })
+                .catch(function(err2) {
+                    console.log('/data.php failed:', err2.message, '- trying /data');
+                    return postUrl('/data')
+                        .then(function() {
+                            showSyncIndicator('saved', '✓ Server');
+                            console.log('Server save OK: /data');
+                        })
+                        .catch(function(err3) {
+                            // All endpoints failed - data is in localStorage only
+                            console.warn('All server endpoints failed. Data saved to localStorage only.');
+                            console.warn('Errors:', err1.message, err2.message, err3.message);
+                            showSyncIndicator('error', '⚠ Local only');
+                        });
                 });
-        })
-        .catch(function() {
-            return postUrl('/data')
-                .then(function() {
-                    showSyncIndicator('saved', '✓ Server');
-                });
-        })
-        .catch(function() {
-            // All endpoints failed - data is in localStorage only
-            console.log('Server save not available, using localStorage only');
         });
 }
 
