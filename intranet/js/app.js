@@ -1059,7 +1059,7 @@ function getPrintStyles() {
         '.flex-col { flex-direction: column; }' +
         '.align-top { vertical-align: top; }' +
         '.sticky-col { position: static !important; }' +
-        '.matrix-cell { min-width: 85px !important; width: 85px !important; max-width: 85px !important; height: 70px !important; }' +
+        '.matrix-cell { min-width: 95px !important; width: 95px !important; max-width: 95px !important; height: 75px !important; }' +
         'span[style*="background-color"] { color: white !important; }' +
         '</style>';
 }
