@@ -3276,10 +3276,11 @@
             "fromPort": "eth24",
             "to": 16,
             "toPort": "eth23",
+            "externalDest": "",
             "type": "lan",
             "color": "#3b82f6",
             "status": "active",
-            "cableMarker": "AB",
+            "cableMarker": "ABCDE",
             "cableColor": "#3b82f6",
             "notes": "LAN 10.10.0.0\/16 - Connessione per Rack-Network-01 >< Rack-Network-02"
         },
