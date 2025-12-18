@@ -2,7 +2,7 @@
 
 Aplicação web de gerenciamento de rede para deploy em intranet corporativa.
 
-**Versão:** 2.5.0
+**Versão:** 2.5.1
 
 ## 🚀 Deploy Rápido
 
@@ -94,4 +94,10 @@ Salva os dados. Retorna:
 
 ## 📌 Versão
 
-**v2.5.0** - Dezembro 2025
+**v2.5.1** - Dezembro 2025
+
+### Novidades v2.5.1
+- Matriz visual melhorada (headers com rack, nome, posição)
+- Células 85x70px uniformes
+- Badge azul com espaçamento correto
+- Fontes otimizadas para legibilidade

@@ -2,7 +2,7 @@
 
 Sistema web de gerenciamento de infraestrutura de rede para ambientes corporativos.
 
-**Versão atual:** 2.5.0
+**Versão atual:** 2.5.1
 
 ## 📋 Visão Geral
 
@@ -95,6 +95,15 @@ Acesse: http://localhost:3000/
 - ✅ Fallback para LocalStorage
 
 ## 📌 Changelog
+
+### v2.5.1 (Dezembro 2025)
+- 🎨 Melhorias na matriz visual:
+  - Headers mostram: Rack (cor) + Nome + Posição (badge azul)
+  - Células uniformes 85x70px
+  - Fontes ajustadas para legibilidade
+  - Badge com espaçamento adequado
+- ✅ Correção de alinhamento da matriz
+- 🔍 Verificação de código (sem erros, sem duplicações)
 
 ### v2.5.0 (Dezembro 2025)
 - 🧹 Limpeza de arquivos desnecessários
