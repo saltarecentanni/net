@@ -1045,12 +1045,12 @@ function getPrintStyles() {
         '.text-slate-600 { color: #475569; }' +
         '.italic { font-style: italic; }' +
         '.rounded-full { border-radius: 9999px; display: inline-block; padding: 2px 6px; }' +
-        '.bg-green-100 { background-color: #dcfce7; }' +
-        '.bg-red-100 { background-color: #fee2e2; }' +
-        '.bg-blue-100 { background-color: #dbeafe; }' +
-        '.text-green-800 { color: #166534; }' +
-        '.text-red-800 { color: #991b1b; }' +
-        '.text-blue-800 { color: #1e40af; }' +
+        '.bg-green-100 { background-color: #dcfce7 !important; }' +
+        '.bg-red-100 { background-color: #fee2e2 !important; }' +
+        '.bg-blue-100 { background-color: #dbeafe !important; }' +
+        '.text-green-800 { color: #166534 !important; }' +
+        '.text-red-800 { color: #991b1b !important; }' +
+        '.text-blue-800 { color: #1e40af !important; }' +
         '.px-1, .px-1\\.5 { padding-left: 4px; padding-right: 4px; }' +
         '.py-0, .py-0\\.5 { padding-top: 2px; padding-bottom: 2px; }' +
         '.mt-0, .mt-0\\.5 { margin-top: 2px; }' +
@@ -1060,7 +1060,18 @@ function getPrintStyles() {
         '.align-top { vertical-align: top; }' +
         '.sticky-col { position: static !important; }' +
         '.matrix-cell { min-width: 95px !important; width: 95px !important; max-width: 95px !important; height: 75px !important; }' +
-        'span[style*="background-color"] { color: white !important; }' +
+        /* Print-specific: position badges (circles) */
+        'span[style*="border-radius: 50%"], span[style*="border-radius:50%"] { background-color: #1e40af !important; color: #ffffff !important; border: 1px solid #1e3a8a !important; }' +
+        /* Print-specific: port badges light background */
+        'span[style*="background-color:#f1f5f9"], span[style*="background-color: #f1f5f9"] { background-color: #e2e8f0 !important; color: #000000 !important; border: 1px solid #64748b !important; }' +
+        /* Print-specific: port badges dark background */
+        'span[style*="background-color:#334155"], span[style*="background-color: #334155"] { background-color: #1e293b !important; color: #ffffff !important; border: 1px solid #0f172a !important; }' +
+        /* Print-specific: cable marker */
+        'span[style*="border-radius: 10px"], span[style*="border-radius:10px"] { border: 1px solid #000000 !important; }' +
+        /* Print-specific: ensure text shadows removed */
+        '[style*="text-shadow"] { text-shadow: none !important; }' +
+        /* Print-specific: white text on colored backgrounds */
+        'div[style*="background-color:"][style*="color:#fff"] { color: #ffffff !important; }' +
         '</style>';
 }
 
