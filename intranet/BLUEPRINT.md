@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.9.0  
+**Versão:** 2.9.1  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
@@ -471,12 +471,26 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Projeto:** Tiesse Matrix Network  
-**Versão:** 2.9.0  
+**Versão:** 2.9.1  
 **Repositório:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
+
+### v2.9.1 (Dezembro 2025)
+- **Wall Jack como Destino Especial:**
+  - Nova opção "🔌 Wall Jack" no dropdown de destino
+  - Opções especiais (Wall Jack, External) em negrito com cores
+  - Separador visual "Special Destinations"
+  - Label dinâmico: "Wall Jack Location" vs "External Destination"
+  - Placeholder contextual para cada tipo
+  - Flag `isWallJack` para identificação correta
+- **Validações Completas (20 testes):**
+  - 10 verificações diretas (sintaxe, estrutura, consistência)
+  - 10 verificações reversas (API, persistência, ciclos)
+  - Import/Export 100% funcional
+  - Gravação pela rede verificada
 
 ### v2.9.0 (Dezembro 2025)
 - **Auto-Save:**
