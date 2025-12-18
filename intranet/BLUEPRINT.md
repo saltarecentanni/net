@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.6.0  
+**Versão:** 2.7.0  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
@@ -452,12 +452,20 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Projeto:** Tiesse Matrix Network  
-**Versão:** 2.6.0  
+**Versão:** 2.7.0  
 **Repositório:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
+
+### v2.7.0 (Dezembro 2025)
+- **Nova Aba Help:**
+  - Guia completo passo a passo em inglês
+  - Seções: Adding Devices, Creating Connections, Matrix, Edit/Delete, Export/Import
+  - Explicação de cores e símbolos
+  - FAQ com perguntas frequentes
+  - Design responsivo e amigável
 
 ### v2.6.0 (Dezembro 2025)
 - **Reorganização das Abas:**

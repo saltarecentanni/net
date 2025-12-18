@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2.6.0">
+    <meta name="app-version" content="2.7.0">
     <title>Tiesse Matrix Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -151,6 +151,9 @@
                 </button>
                 <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
                     🔗 Matrix
+                </button>
+                <button class="tab-btn" onclick="switchTab('help')" id="tab-help">
+                    ❓ Help
                 </button>
             </div>
         </div>
@@ -389,6 +392,350 @@
                     </div>
                     <div class="overflow-auto drag-scroll" id="matrixContainer" style="max-height:70vh;">
                         <div class="text-center text-slate-500 py-8">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Help -->
+            <div id="content-help" class="tab-content">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-6">
+                        <h1 class="text-2xl font-bold text-slate-800 mb-2">📚 User Guide</h1>
+                        <p class="text-slate-600">Complete step-by-step guide to manage your network infrastructure</p>
+                    </div>
+
+                    <!-- Quick Start -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+                        <h2 class="text-lg font-bold text-blue-800 mb-2">🚀 Quick Start</h2>
+                        <p class="text-blue-700">This system helps you document your network infrastructure. You can add devices (routers, switches, servers), define their ports, and create connections between them. Everything is saved automatically!</p>
+                    </div>
+
+                    <!-- Section 1: Adding Devices -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">1</span>
+                            Adding a New Device
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">a</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Go to the "Devices" tab</p>
+                                    <p class="text-slate-600 text-sm">Click on the <span class="bg-slate-100 px-2 py-0.5 rounded">📱 Devices</span> button at the top of the page.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">b</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Fill in the Rack ID</p>
+                                    <p class="text-slate-600 text-sm">This is the location identifier. Example: <code class="bg-amber-100 px-1 rounded">Rack-Network-01</code> or <code class="bg-amber-100 px-1 rounded">Server-Room-A</code>. Devices in the same rack will be grouped together.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">c</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Set the Order number</p>
+                                    <p class="text-slate-600 text-sm">This is the position of the device within the rack. Use <code class="bg-amber-100 px-1 rounded">1</code> for the first device, <code class="bg-amber-100 px-1 rounded">2</code> for the second, etc.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">d</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Enter the Device Name</p>
+                                    <p class="text-slate-600 text-sm">Give your device a unique, descriptive name. Examples: <code class="bg-amber-100 px-1 rounded">Tiesse-Wifi</code>, <code class="bg-amber-100 px-1 rounded">Main-Switch</code>, <code class="bg-amber-100 px-1 rounded">Huawei TIM</code></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">e</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Add Port Configuration (Important!)</p>
+                                    <p class="text-slate-600 text-sm">Click <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">+ Add Port</span> to define the device's ports. For each port type:</p>
+                                    <ul class="text-slate-600 text-sm mt-2 ml-4 list-disc space-y-1">
+                                        <li>Select the port type (Eth, GbE, SFP, etc.)</li>
+                                        <li>Enter how many ports of this type</li>
+                                        <li>Example: A switch with 24 Ethernet ports → Type: <code class="bg-amber-100 px-1 rounded">Eth</code>, Qty: <code class="bg-amber-100 px-1 rounded">24</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">f</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Click "Add Device"</p>
+                                    <p class="text-slate-600 text-sm">Press the blue <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">Add Device</span> button. Your device will appear in the list below!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
+                            <p class="text-green-800 text-sm"><strong>💡 Tip:</strong> You can also add Brand/Model, IP Addresses, Service description, and Notes for better documentation.</p>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Creating Connections -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">2</span>
+                            Creating a Connection Between Devices
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">a</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Go to the "Active Connections" tab</p>
+                                    <p class="text-slate-600 text-sm">Click on <span class="bg-slate-100 px-2 py-0.5 rounded">⚡ Active Connections</span>. This is where you create and manage all connections.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">b</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Select the Source Device</p>
+                                    <p class="text-slate-600 text-sm">Choose the device where the cable starts. Example: <code class="bg-amber-100 px-1 rounded">Tiesse-Wifi</code></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">c</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Select the Source Port</p>
+                                    <p class="text-slate-600 text-sm">Choose which port the cable is connected to. Example: <code class="bg-amber-100 px-1 rounded">eth1</code></p>
+                                    <p class="text-slate-500 text-xs mt-1">⚠️ Only available (unused) ports will be shown!</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">d</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Select the Destination Device</p>
+                                    <p class="text-slate-600 text-sm">Choose where the cable goes. Example: <code class="bg-amber-100 px-1 rounded">Main-Switch</code></p>
+                                    <p class="text-slate-500 text-xs mt-1">💡 For external connections (like ISP), select "External/Internet" and enter a description.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">e</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Select the Destination Port</p>
+                                    <p class="text-slate-600 text-sm">Choose which port on the destination device. Example: <code class="bg-amber-100 px-1 rounded">eth13</code></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">f</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Choose the Connection Type</p>
+                                    <p class="text-slate-600 text-sm">Select what kind of connection this is:</p>
+                                    <ul class="text-slate-600 text-sm mt-2 ml-4 list-disc space-y-1">
+                                        <li><strong>LAN</strong> - Local network connection</li>
+                                        <li><strong>WAN/Internet</strong> - Internet or external network</li>
+                                        <li><strong>Trunk/Uplink</strong> - Connection between switches</li>
+                                        <li><strong>Management</strong> - Administrative access</li>
+                                        <li><strong>Fiber Optic</strong> - Fiber connections</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">g</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Add Cable ID and Color (Optional but Recommended)</p>
+                                    <p class="text-slate-600 text-sm">If your cables have labels, enter the ID (e.g., <code class="bg-amber-100 px-1 rounded">A1</code>, <code class="bg-amber-100 px-1 rounded">15</code>). Select the cable color to help identify it physically.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">h</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Click "Add Connection"</p>
+                                    <p class="text-slate-600 text-sm">Press the green <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">Add Connection</span> button. Done! ✅</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Using the Matrix -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">3</span>
+                            Understanding the Connection Matrix
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <p class="text-slate-600">The Matrix tab shows a visual grid of all your connections. Think of it like a spreadsheet where:</p>
+                            
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <ul class="text-slate-700 space-y-2">
+                                    <li>📊 <strong>Rows</strong> = Source devices (where cables come FROM)</li>
+                                    <li>📊 <strong>Columns</strong> = Destination devices (where cables go TO)</li>
+                                    <li>🔵 <strong>Colored cells</strong> = There is a connection between those two devices</li>
+                                    <li>⬜ <strong>Empty cells</strong> = No connection exists</li>
+                                </ul>
+                            </div>
+
+                            <div class="flex items-start gap-3 mt-4">
+                                <span class="text-2xl">👆</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Click on any colored cell to edit that connection!</p>
+                                    <p class="text-slate-600 text-sm">The cell shows: connection type, port names, and cable ID if defined.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Editing and Deleting -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">4</span>
+                            Editing and Deleting
+                        </h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h3 class="font-bold text-blue-800 mb-2">✏️ To Edit a Device:</h3>
+                                <ol class="text-blue-700 text-sm space-y-1 list-decimal ml-4">
+                                    <li>Go to <strong>Devices</strong> tab</li>
+                                    <li>Find the device in the list</li>
+                                    <li>Click the <strong>Edit</strong> button</li>
+                                    <li>Make your changes</li>
+                                    <li>Click <strong>Update Device</strong></li>
+                                </ol>
+                            </div>
+
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h3 class="font-bold text-green-800 mb-2">✏️ To Edit a Connection:</h3>
+                                <ol class="text-green-700 text-sm space-y-1 list-decimal ml-4">
+                                    <li>Go to <strong>Active Connections</strong> tab</li>
+                                    <li>Find the connection in the list</li>
+                                    <li>Click the <strong>Edit</strong> button</li>
+                                    <li>Make your changes</li>
+                                    <li>Click <strong>Update Connection</strong></li>
+                                </ol>
+                            </div>
+
+                            <div class="bg-red-50 p-4 rounded-lg md:col-span-2">
+                                <h3 class="font-bold text-red-800 mb-2">🗑️ To Delete:</h3>
+                                <p class="text-red-700 text-sm">Click the <strong>Del</strong> button next to any device or connection. You will be asked to confirm before deletion.</p>
+                                <p class="text-red-600 text-xs mt-2">⚠️ Warning: Deleting a device will also delete ALL its connections!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Export and Import -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">5</span>
+                            Exporting and Importing Data
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">📊</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Export to Excel</p>
+                                    <p class="text-slate-600 text-sm">Click <span class="bg-indigo-500 text-white px-2 py-0.5 rounded text-xs">📊 Export to Excel</span> in the Actions bar. Creates a spreadsheet with 3 sheets: Devices, Connections, and Matrix.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">💾</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Export to JSON</p>
+                                    <p class="text-slate-600 text-sm">Click <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">💾 Export JSON</span> to download a backup file. Use this to restore your data later or transfer to another computer.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">📥</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Import from JSON</p>
+                                    <p class="text-slate-600 text-sm">Click <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">📥 Import JSON</span> and select a previously exported JSON file. This will replace all current data!</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">🖨️</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Printing</p>
+                                    <p class="text-slate-600 text-sm">Use the <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print</span> buttons in Matrix or Active Connections tabs to print documentation.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Understanding the Interface -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">6</span>
+                            Understanding Colors and Symbols
+                        </h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <h3 class="font-bold text-slate-700 mb-2">Connection Types:</h3>
+                                <div class="space-y-1 text-sm">
+                                    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded" style="background:#3b82f6"></span> LAN (Blue)</div>
+                                    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded" style="background:#ef4444"></span> WAN/Internet (Red)</div>
+                                    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded" style="background:#f97316"></span> DMZ (Orange)</div>
+                                    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded" style="background:#22c55e"></span> Trunk/Uplink (Green)</div>
+                                    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded" style="background:#8b5cf6"></span> Management (Purple)</div>
+                                    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded" style="background:#eab308"></span> Backup (Yellow)</div>
+                                    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded" style="background:#06b6d4"></span> Fiber Optic (Cyan)</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-slate-700 mb-2">Status Indicators:</h3>
+                                <div class="space-y-1 text-sm">
+                                    <div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-green-100 text-green-800 text-xs">Active</span> Device/connection is working</div>
+                                    <div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-xs">Disabled</span> Device/connection is off</div>
+                                </div>
+                                
+                                <h3 class="font-bold text-slate-700 mb-2 mt-4">Matrix Headers:</h3>
+                                <div class="space-y-1 text-sm">
+                                    <div>🏷️ Colored border = Rack identifier</div>
+                                    <div>🔢 Number in circle = Position in rack</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Section -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-4">
+                        <h2 class="text-xl font-bold text-amber-800 mb-4">❓ Frequently Asked Questions</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <p class="font-semibold text-amber-900">Q: Is my data saved automatically?</p>
+                                <p class="text-amber-800 text-sm">A: Yes! Data is saved to your browser (LocalStorage) and to the server automatically every time you make a change.</p>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-amber-900">Q: Can multiple people use this at the same time?</p>
+                                <p class="text-amber-800 text-sm">A: Yes, if you're running the PHP server. All users on the network can access it. Note: The last person to save will overwrite previous changes.</p>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-amber-900">Q: I don't see a port I need. What do I do?</p>
+                                <p class="text-amber-800 text-sm">A: Go to Devices tab, find your device, click Edit, and add more ports using the "+ Add Port" button.</p>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-amber-900">Q: How do I backup my data?</p>
+                                <p class="text-amber-800 text-sm">A: Click "Export JSON" regularly. Store the downloaded file in a safe place. You can restore it anytime using "Import JSON".</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="text-center text-slate-500 text-sm py-4">
+                        <p>Tiesse Matrix Network v2.7.0 | Need more help? Contact your system administrator.</p>
                     </div>
                 </div>
             </div>
