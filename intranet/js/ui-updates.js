@@ -431,7 +431,7 @@ function updateConnectionsList() {
                 case 'toPort': return conn.toPort || '';
                 case 'toDevice': return toDevice ? (toDevice.name || '') : (conn.externalDest || '');
                 case 'toPos': return toDevice ? (toDevice.order || 0) : 0;
-                case 'toRack': return toDevice ? (toDevice.rackId || '') : (conn.externalDest ? 'External' : '');
+                case 'toRack': return toDevice ? (toDevice.rackId || '') : (conn.isWallJack ? 'Wall Jack' : (conn.externalDest ? 'External' : ''));
                 case 'type': return config.connLabels[conn.type] || (conn.type || '');
                 case 'marker': return conn.cableMarker || '';
                 case 'status': return conn.status || '';
@@ -503,10 +503,25 @@ function updateConnectionsList() {
 
         var rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
 
-        // Handle external destination display
-        var toDisplayName = toDevice ? toDevice.name : (c.externalDest ? '📡 ' + c.externalDest : 'N/A');
-        var toDisplayRack = toDevice ? toDevice.rackId : (c.externalDest ? 'External' : 'N/A');
-        var toDisplayPos = toDevice ? String(toDevice.order).padStart(2, '0') : (c.externalDest ? '-' : 'N/A');
+        // Handle external destination and wall jack display
+        var toDisplayName, toDisplayRack, toDisplayPos;
+        if (toDevice) {
+            toDisplayName = toDevice.name;
+            toDisplayRack = toDevice.rackId;
+            toDisplayPos = String(toDevice.order).padStart(2, '0');
+        } else if (c.isWallJack) {
+            toDisplayName = '🔌 ' + (c.externalDest || 'Wall Jack');
+            toDisplayRack = 'Wall Jack';
+            toDisplayPos = '-';
+        } else if (c.externalDest) {
+            toDisplayName = '📡 ' + c.externalDest;
+            toDisplayRack = 'External';
+            toDisplayPos = '-';
+        } else {
+            toDisplayName = 'N/A';
+            toDisplayRack = 'N/A';
+            toDisplayPos = 'N/A';
+        }
 
         // Get the original index for edit/remove operations
         var origIdx = originalIndexMap.get(c);
@@ -594,9 +609,9 @@ function exportExcel() {
                 'Src Device': fromDevice ? fromDevice.name : '',
                 'Src Port': c.fromPort,
                 'Dst Port': c.toPort,
-                'Dst Device': toDevice ? toDevice.name : (c.externalDest ? '📡 ' + c.externalDest : ''),
+                'Dst Device': toDevice ? toDevice.name : (c.isWallJack ? '🔌 ' + c.externalDest : (c.externalDest ? '📡 ' + c.externalDest : '')),
                 'Dst Pos': toDevice ? toDevice.order : '',
-                'Dst Rack': toDevice ? toDevice.rackId : (c.externalDest ? 'External' : ''),
+                'Dst Rack': toDevice ? toDevice.rackId : (c.isWallJack ? 'Wall Jack' : (c.externalDest ? 'External' : '')),
                 'Type': config.connLabels[c.type],
                 'Cable ID': c.cableMarker || '',
                 'Cable Color': c.cableColor || '',

@@ -609,8 +609,9 @@ function saveConnection() {
         var notes = document.getElementById('connNotes').value.trim();
 
         var from = fromDeviceVal ? parseInt(fromDeviceVal, 10) : null;
-        var to = (toDeviceVal && toDeviceVal !== 'external') ? parseInt(toDeviceVal, 10) : null;
         var isExternal = (toDeviceVal === 'external');
+        var isWallJack = (toDeviceVal === 'walljack');
+        var to = (toDeviceVal && !isExternal && !isWallJack) ? parseInt(toDeviceVal, 10) : null;
 
         // Validation
         if (!from) {
@@ -619,15 +620,16 @@ function saveConnection() {
             return;
         }
 
-        // Must have either a destination device or an external destination
-        if (!to && !isExternal) {
-            Toast.warning('Please select destination device or External');
+        // Must have either a destination device, wall jack, or external
+        if (!to && !isExternal && !isWallJack) {
+            Toast.warning('Please select destination device, Wall Jack, or External');
             document.getElementById('toDevice').focus();
             return;
         }
 
-        if (isExternal && !externalDest) {
-            Toast.warning('Please enter external destination name');
+        if ((isExternal || isWallJack) && !externalDest) {
+            var destType = isWallJack ? 'Wall Jack location (e.g., Room 101, Reception)' : 'external destination name';
+            Toast.warning('Please enter ' + destType);
             document.getElementById('externalDest').focus();
             return;
         }
@@ -689,10 +691,11 @@ function saveConnection() {
             from: from,
             fromPort: fromPort || '',
             to: to,
-            toPort: isExternal ? '' : (toPort || ''),
-            externalDest: isExternal ? externalDest : '',
-            type: type,
-            color: config.connColors[type],
+            toPort: (isExternal || isWallJack) ? '' : (toPort || ''),
+            externalDest: (isExternal || isWallJack) ? externalDest : '',
+            isWallJack: isWallJack,
+            type: isWallJack ? 'wallport' : type,
+            color: config.connColors[isWallJack ? 'wallport' : type],
             status: status,
             cableMarker: cableMarker,
             cableColor: cableColor,
@@ -725,7 +728,11 @@ function editConnection(idx) {
     document.getElementById('fromDevice').value = c.from;
     updateFromPorts(c.fromPort);
     
-    if (c.externalDest) {
+    if (c.isWallJack) {
+        document.getElementById('toDevice').value = 'walljack';
+        document.getElementById('externalDest').value = c.externalDest;
+        toggleExternalDest();
+    } else if (c.externalDest && !c.to) {
         document.getElementById('toDevice').value = 'external';
         document.getElementById('externalDest').value = c.externalDest;
         toggleExternalDest();
@@ -791,9 +798,19 @@ function toggleExternalDest() {
     var toDevice = document.getElementById('toDevice').value;
     var toPortContainer = document.getElementById('toPortContainer');
     var externalDestContainer = document.getElementById('externalDestContainer');
+    var externalDestLabel = document.querySelector('#externalDestContainer label');
+    var externalDestInput = document.getElementById('externalDest');
+    
     if (toDevice === 'external') {
         toPortContainer.classList.add('hidden');
         externalDestContainer.classList.remove('hidden');
+        if (externalDestLabel) externalDestLabel.textContent = 'External Destination';
+        if (externalDestInput) externalDestInput.placeholder = 'ISP Name, Fiber Provider...';
+    } else if (toDevice === 'walljack') {
+        toPortContainer.classList.add('hidden');
+        externalDestContainer.classList.remove('hidden');
+        if (externalDestLabel) externalDestLabel.textContent = 'Wall Jack Location';
+        if (externalDestInput) externalDestInput.placeholder = 'Room 101, Reception, Office A...';
     } else {
         toPortContainer.classList.remove('hidden');
         externalDestContainer.classList.add('hidden');
@@ -905,8 +922,13 @@ function updateDeviceSelects() {
         var rackColor = getRackColor(d.rackId);
         opts += '<option value="' + d.id + '" style="color:' + rackColor + ';font-weight:bold;">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + '</option>';
     }
+    // Special destinations: Wall Jack and External - highlighted in bold
+    var specialOpts = '<option disabled style="font-size:10px;color:#94a3b8;">───── Special Destinations ─────</option>' +
+        '<option value="walljack" style="color:#7c3aed;font-weight:900;background-color:#f5f3ff;">🔌 Wall Jack (Patch → Outlet)</option>' +
+        '<option value="external" style="color:#dc2626;font-weight:900;background-color:#fef2f2;">📡 External (ISP, Fiber, WAN)</option>';
+    
     document.getElementById('fromDevice').innerHTML = opts.replace('Select device', 'Select source');
-    document.getElementById('toDevice').innerHTML = opts.replace('Select device', 'Select destination') + '<option value="external" style="color:#6b7280;font-style:italic;">📡 External (ISP, Fiber, WAN...)</option>';
+    document.getElementById('toDevice').innerHTML = opts.replace('Select device', 'Select destination') + specialOpts;
 }
 
 // ============================================================================
