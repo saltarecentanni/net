@@ -30,6 +30,7 @@ var appState = {
 // CONFIGURATION
 // ============================================================================
 var config = {
+    autoSaveInterval: 5 * 60 * 1000, // 5 minutes in milliseconds
     connColors: {
         lan: '#3b82f6',
         wan: '#ef4444',
@@ -38,6 +39,8 @@ var config = {
         management: '#8b5cf6',
         backup: '#eab308',
         fiber: '#06b6d4',
+        wallport: '#a78bfa',
+        external: '#64748b',
         other: '#6b7280'
     },
     connLabels: {
@@ -48,6 +51,8 @@ var config = {
         management: 'Management',
         backup: 'Backup',
         fiber: 'Fiber Optic',
+        wallport: 'Wall Jack',
+        external: 'External',
         other: 'Other'
     },
     portTypes: [
@@ -1208,16 +1213,42 @@ function printConnections() {
 }
 
 // ============================================================================
+// AUTO-SAVE SYSTEM
+// ============================================================================
+var autoSaveTimer = null;
+
+function startAutoSave() {
+    if (autoSaveTimer) {
+        clearInterval(autoSaveTimer);
+    }
+    autoSaveTimer = setInterval(function() {
+        console.log('Auto-save triggered');
+        saveToStorage();
+        Toast.info('Auto-saved', 1500);
+    }, config.autoSaveInterval);
+    console.log('Auto-save started: every ' + (config.autoSaveInterval / 60000) + ' minutes');
+}
+
+function stopAutoSave() {
+    if (autoSaveTimer) {
+        clearInterval(autoSaveTimer);
+        autoSaveTimer = null;
+    }
+}
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 function initApp() {
     serverLoad().then(function(ok) {
         if (!ok) loadFromStorage();
         updateUI();
+        startAutoSave();
         Toast.info('Tiesse Matrix Network loaded');
     }).catch(function() {
         loadFromStorage();
         updateUI();
+        startAutoSave();
     });
 }
 
