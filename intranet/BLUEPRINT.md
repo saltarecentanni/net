@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.5.1  
+**Versão:** 2.5.2  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
@@ -452,12 +452,28 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Projeto:** Tiesse Matrix Network  
-**Versão:** 2.5.1  
+**Versão:** 2.5.2  
 **Repositório:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
+
+### v2.5.2 (Dezembro 2025)
+- **Matriz - Overhaul Visual:**
+  - Headers horizontais: fundo escuro (#334155), borda colorida do rack
+  - Headers verticais: fundo claro (#f1f5f9), borda colorida do rack
+  - Número de posição em círculo (sem parênteses)
+  - Portas estilizadas: portA (claro) ⟷ portB (escuro)
+  - Cable ID usando createMarkerHtml() (consistente com Active Connections)
+  - Células de conexão com sombra e bordas arredondadas
+  - Controle de overflow para conteúdos extensos
+- **Impressão corrigida:**
+  - Badges de posição: fundo azul escuro (#1e40af) + texto branco
+  - Portas claras: borda cinza + texto preto para visibilidade
+  - Portas escuras: mantido fundo escuro + texto branco
+  - Cable markers: borda preta garantida
+  - Text-shadows removidos na impressão
 
 ### v2.5.1 (Dezembro 2025)
 - Matriz visual melhorada:

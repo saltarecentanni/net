@@ -3280,7 +3280,7 @@
             "type": "lan",
             "color": "#3b82f6",
             "status": "active",
-            "cableMarker": "ABCDE",
+            "cableMarker": "AB",
             "cableColor": "#3b82f6",
             "notes": "LAN 10.10.0.0\/16 - Connessione per Rack-Network-01 >< Rack-Network-02"
         },
