@@ -643,7 +643,7 @@ function editConnection(idx) {
     var c = appState.connections[idx];
     if (!c) return;
 
-    switchTab('matrix');
+    switchTab('active');
 
     document.getElementById('connEditIndex').value = idx;
     document.getElementById('fromDevice').value = c.from;

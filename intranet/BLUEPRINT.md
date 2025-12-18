@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.5.2  
+**Versão:** 2.6.0  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
@@ -452,12 +452,22 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Projeto:** Tiesse Matrix Network  
-**Versão:** 2.5.2  
+**Versão:** 2.6.0  
 **Repositório:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
+
+### v2.6.0 (Dezembro 2025)
+- **Reorganização das Abas:**
+  - Tab 1: Devices (mantido)
+  - Tab 2: Active Connections (com formulário de conexões + lista)
+  - Tab 3: Matrix (apenas matriz de conexões)
+- Formulário de conexões movido para aba Active Connections
+- Edit connection agora navega para aba Active Connections
+- Links edit/delete funcionais em todas as abas
+- Import/Export verificados e funcionais
 
 ### v2.5.2 (Dezembro 2025)
 - **Matriz - Overhaul Visual:**

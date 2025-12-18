@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2.5.2">
+    <meta name="app-version" content="2.6.0">
     <title>Tiesse Matrix Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -146,11 +146,11 @@
                 <button class="tab-btn active" onclick="switchTab('devices')" id="tab-devices">
                     📱 Devices
                 </button>
-                <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
-                    🔗 Matrix & Connections
-                </button>
                 <button class="tab-btn" onclick="switchTab('active')" id="tab-active">
                     ⚡ Active Connections
+                </button>
+                <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
+                    🔗 Matrix
                 </button>
             </div>
         </div>
@@ -256,9 +256,9 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Connection Matrix -->
-            <div id="content-matrix" class="tab-content">
-                <!-- Connection Form - Top -->
+            <!-- Tab 2: Active Connections (with connection form) -->
+            <div id="content-active" class="tab-content">
+                <!-- Connection Form -->
                 <div class="bg-slate-50 rounded-lg p-3 mb-4">
                     <h2 class="text-lg font-bold text-slate-800 mb-3" id="connectionFormTitle">Add Connection</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 items-end">
@@ -352,28 +352,8 @@
                             class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
                     </div>
                 </div>
-                    
-                <!-- Matrix -->
-                <div id="matrixPrintArea">
-                    <div class="flex items-center justify-between mb-2">
-                        <h2 class="text-lg font-bold text-slate-800">Connection Matrix</h2>
-                        <div class="flex gap-2">
-                            <button onclick="toggleMatrix()" id="toggleMatrixBtn" class="no-print bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-lg text-xs" style="display:none;">
-                                Show All
-                            </button>
-                            <button onclick="printMatrix()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
-                                🖨️ Print Matrix
-                            </button>
-                        </div>
-                    </div>
-                    <div class="overflow-auto drag-scroll" id="matrixContainer" style="max-height:70vh;">
-                        <div class="text-center text-slate-500 py-8">Loading...</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Tab 3: Active Connections -->
-            <div id="content-active" class="tab-content">
+                <!-- Connections List -->
                 <div id="connectionsPrintArea">
                     <div class="flex items-center justify-between mb-3">
                         <div>
@@ -388,6 +368,26 @@
                         </div>
                     </div>
                     <div id="connectionsListContainer">
+                        <div class="text-center text-slate-500 py-8">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Matrix (only) -->
+            <div id="content-matrix" class="tab-content">
+                <div id="matrixPrintArea">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-lg font-bold text-slate-800">Connection Matrix</h2>
+                        <div class="flex gap-2">
+                            <button onclick="toggleMatrix()" id="toggleMatrixBtn" class="no-print bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-lg text-xs" style="display:none;">
+                                Show All
+                            </button>
+                            <button onclick="printMatrix()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
+                                🖨️ Print Matrix
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-auto drag-scroll" id="matrixContainer" style="max-height:70vh;">
                         <div class="text-center text-slate-500 py-8">Loading...</div>
                     </div>
                 </div>
