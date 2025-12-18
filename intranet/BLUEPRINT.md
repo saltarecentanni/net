@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.7.0  
+**Versão:** 2.8.0  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
@@ -452,12 +452,28 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Projeto:** Tiesse Matrix Network  
-**Versão:** 2.7.0  
+**Versão:** 2.8.0  
 **Repositório:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
+
+### v2.8.0 (Dezembro 2025)
+- **Lista de Dispositivos Aprimorada:**
+  - Toggle Cards/Table view (botões no header)
+  - Visualização em tabela estilo Excel (como Active Connections)
+  - Ordenação clicável em todas as colunas (Rack, Pos, Name, Type, Status, Ports, Connections)
+  - Indicador de direção ▲ ▼ ↕ nos headers
+  - Botão "+Conn" para adicionar conexão a partir do device
+  - Pre-seleção automática do device no formulário de conexões
+  - Contagem de conexões visível em ambas as views
+  - Aviso visual (laranja) para devices sem conexões
+- **Novas Funções JavaScript:**
+  - `setDeviceView(view)` - alterna entre cards e table
+  - `toggleDeviceSort(key)` - ordena por coluna
+  - `addConnectionFromDevice(deviceId)` - navega para conexões com device pré-selecionado
+  - `getDevicesSortedBy(key, asc)` - função de ordenação genérica
 
 ### v2.7.0 (Dezembro 2025)
 - **Nova Aba Help:**

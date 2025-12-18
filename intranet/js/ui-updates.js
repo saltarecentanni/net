@@ -1,9 +1,9 @@
 /**
  * Tiesse Matrix Network - UI Update Functions
- * Version: 2.5.1
+ * Version: 2.7.0
  * 
  * Contains UI rendering functions:
- * - Device list (cards)
+ * - Device list (cards and table views)
  * - Connection matrix
  * - Connections table
  * - Excel export
@@ -12,7 +12,7 @@
 'use strict';
 
 // ============================================================================
-// DEVICES LIST UPDATE (Card Style with all effects)
+// DEVICES LIST UPDATE (Cards and Table Views)
 // ============================================================================
 function updateDevicesList() {
     var cont = document.getElementById('devicesListContainer');
@@ -23,6 +23,14 @@ function updateDevicesList() {
         return;
     }
 
+    if (appState.deviceView === 'table') {
+        updateDevicesListTable(cont);
+    } else {
+        updateDevicesListCards(cont);
+    }
+}
+
+function updateDevicesListCards(cont) {
     var sorted = getSorted();
     var html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">';
     
@@ -88,18 +96,172 @@ function updateDevicesList() {
             brandModelText +
             '<div class="text-xs text-slate-400 uppercase">' + d.type + '</div>' +
             addressText +
-            '<div class="text-xs mt-1 text-slate-500">' + d.ports.length + ' ports (' + usedPorts + ' used)</div>' +
+            '<div class="text-xs mt-1 text-slate-500">' + d.ports.length + ' ports (' + usedPorts + ' used) | ' + totalConnections + ' conn.</div>' +
             noConnectionsWarning +
             '</div>' +
             '<div class="flex flex-col gap-1 ml-2">' +
-            '<button onclick="editDevice(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-sm p-1">&#9998;</button>' +
-            '<button onclick="removeDevice(' + d.id + ')" class="text-red-500 hover:text-red-700 text-sm p-1">&times;</button>' +
+            '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-500 hover:text-green-700 text-sm p-1" title="Add Connection">&#x2795;</button>' +
+            '<button onclick="editDevice(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-sm p-1" title="Edit Device">&#9998;</button>' +
+            '<button onclick="removeDevice(' + d.id + ')" class="text-red-500 hover:text-red-700 text-sm p-1" title="Delete Device">&times;</button>' +
             '</div>' +
             '</div>' +
             '</div>';
     }
     html += '</div>';
     cont.innerHTML = html;
+}
+
+function updateDevicesListTable(cont) {
+    var sorted = getDevicesSortedBy(appState.deviceSort.key, appState.deviceSort.asc);
+    
+    var sortIcon = function(key) {
+        if (appState.deviceSort.key === key) {
+            return appState.deviceSort.asc ? ' ▲' : ' ▼';
+        }
+        return ' ↕';
+    };
+
+    var html = '<table class="w-full text-xs border-collapse">';
+    html += '<thead><tr class="bg-slate-700 text-white">';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'rack\')">Rack' + sortIcon('rack') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'order\')">Pos' + sortIcon('order') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'name\')">Name' + sortIcon('name') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'brandModel\')">Brand/Model' + sortIcon('brandModel') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'type\')">Type' + sortIcon('type') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'status\')">Status' + sortIcon('status') + '</th>';
+    html += '<th class="p-2 text-left">IP/Network</th>';
+    html += '<th class="p-2 text-left">Service</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'ports\')">Ports' + sortIcon('ports') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'connections\')">Conn' + sortIcon('connections') + '</th>';
+    html += '<th class="p-2 text-center">Actions</th>';
+    html += '</tr></thead><tbody>';
+
+    for (var i = 0; i < sorted.length; i++) {
+        var d = sorted[i];
+        var usedPorts = 0;
+        for (var j = 0; j < d.ports.length; j++) {
+            if (isPortUsed(d.id, d.ports[j].name)) {
+                usedPorts++;
+            }
+        }
+
+        var totalConnections = 0;
+        for (var ci = 0; ci < appState.connections.length; ci++) {
+            if (appState.connections[ci].from === d.id || appState.connections[ci].to === d.id) {
+                totalConnections++;
+            }
+        }
+
+        var rackColor = getRackColor(d.rackId);
+        var disabled = d.status === 'disabled';
+        var statusBadge = disabled 
+            ? '<span class="px-1.5 py-0.5 text-xs rounded-full bg-red-100 text-red-800">OFF</span>'
+            : '<span class="px-1.5 py-0.5 text-xs rounded-full bg-green-100 text-green-800">ON</span>';
+
+        var addressText = '';
+        if (d.addresses && d.addresses.length > 0) {
+            var allAddrs = [];
+            for (var k = 0; k < d.addresses.length; k++) {
+                var a = d.addresses[k];
+                if (a.network) allAddrs.push(a.network);
+                if (a.ip) allAddrs.push(a.ip);
+            }
+            addressText = allAddrs.join(', ');
+        }
+
+        var rowClass = i % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+        var warningClass = totalConnections === 0 ? 'bg-orange-50' : rowClass;
+
+        html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200">';
+        html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span></td>';
+        html += '<td class="p-2 text-center"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span></td>';
+        html += '<td class="p-2 font-semibold text-slate-800">' + d.name + '</td>';
+        html += '<td class="p-2 text-slate-600">' + (d.brandModel || '-') + '</td>';
+        html += '<td class="p-2 text-slate-500 uppercase">' + d.type + '</td>';
+        html += '<td class="p-2 text-center">' + statusBadge + '</td>';
+        html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + addressText + '">' + (addressText || '-') + '</td>';
+        html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + (d.service || '') + '">' + (d.service || '-') + '</td>';
+        html += '<td class="p-2 text-center"><span class="text-slate-700">' + d.ports.length + '</span> <span class="text-slate-400">(' + usedPorts + ')</span></td>';
+        html += '<td class="p-2 text-center">' + (totalConnections === 0 ? '<span class="text-orange-600 font-semibold">0 ⚠</span>' : '<span class="text-slate-700">' + totalConnections + '</span>') + '</td>';
+        html += '<td class="p-2 text-center whitespace-nowrap">';
+        html += '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-600 hover:text-green-900 text-xs mr-1" title="Add Connection">+Conn</button>';
+        html += '<button onclick="editDevice(' + d.id + ')" class="text-blue-600 hover:text-blue-900 text-xs mr-1">Edit</button>';
+        html += '<button onclick="removeDevice(' + d.id + ')" class="text-red-600 hover:text-red-900 text-xs">Del</button>';
+        html += '</td>';
+        html += '</tr>';
+    }
+
+    html += '</tbody></table>';
+    cont.innerHTML = html;
+}
+
+function getDevicesSortedBy(key, asc) {
+    var devices = appState.devices.slice();
+    
+    devices.sort(function(a, b) {
+        var valA, valB;
+        
+        switch(key) {
+            case 'rack':
+                valA = (a.rackId || '').toLowerCase();
+                valB = (b.rackId || '').toLowerCase();
+                if (valA === valB) {
+                    return (a.order || 0) - (b.order || 0);
+                }
+                break;
+            case 'order':
+                valA = a.order || 0;
+                valB = b.order || 0;
+                break;
+            case 'name':
+                valA = (a.name || '').toLowerCase();
+                valB = (b.name || '').toLowerCase();
+                break;
+            case 'brandModel':
+                valA = (a.brandModel || '').toLowerCase();
+                valB = (b.brandModel || '').toLowerCase();
+                break;
+            case 'type':
+                valA = (a.type || '').toLowerCase();
+                valB = (b.type || '').toLowerCase();
+                break;
+            case 'status':
+                valA = a.status || '';
+                valB = b.status || '';
+                break;
+            case 'ports':
+                valA = a.ports ? a.ports.length : 0;
+                valB = b.ports ? b.ports.length : 0;
+                break;
+            case 'connections':
+                valA = 0;
+                valB = 0;
+                for (var i = 0; i < appState.connections.length; i++) {
+                    if (appState.connections[i].from === a.id || appState.connections[i].to === a.id) valA++;
+                    if (appState.connections[i].from === b.id || appState.connections[i].to === b.id) valB++;
+                }
+                break;
+            default:
+                valA = (a.rackId || '').toLowerCase();
+                valB = (b.rackId || '').toLowerCase();
+        }
+
+        if (typeof valA === 'string') {
+            if (asc) {
+                return valA.localeCompare(valB);
+            } else {
+                return valB.localeCompare(valA);
+            }
+        } else {
+            if (asc) {
+                return valA - valB;
+            } else {
+                return valB - valA;
+            }
+        }
+    });
+    
+    return devices;
 }
 
 // ============================================================================

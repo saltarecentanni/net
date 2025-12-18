@@ -19,6 +19,8 @@ var appState = {
     connections: [],
     nextDeviceId: 1,
     connSort: { key: 'id', asc: true },
+    deviceSort: { key: 'rack', asc: true },
+    deviceView: 'cards',
     matrixLimit: 12,
     matrixExpanded: false,
     rackColorMap: {}
@@ -149,6 +151,41 @@ function switchTab(tabId) {
     });
     document.getElementById('tab-' + tabId).classList.add('active');
     document.getElementById('content-' + tabId).classList.add('active');
+}
+
+function setDeviceView(view) {
+    appState.deviceView = view;
+    var cardsBtn = document.getElementById('deviceViewCards');
+    var tableBtn = document.getElementById('deviceViewTable');
+    if (cardsBtn && tableBtn) {
+        if (view === 'cards') {
+            cardsBtn.className = 'px-2 py-1 text-xs font-semibold rounded bg-blue-500 text-white';
+            tableBtn.className = 'px-2 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300';
+        } else {
+            cardsBtn.className = 'px-2 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300';
+            tableBtn.className = 'px-2 py-1 text-xs font-semibold rounded bg-blue-500 text-white';
+        }
+    }
+    updateDevicesList();
+}
+
+function toggleDeviceSort(key) {
+    if (appState.deviceSort.key === key) {
+        appState.deviceSort.asc = !appState.deviceSort.asc;
+    } else {
+        appState.deviceSort.key = key;
+        appState.deviceSort.asc = true;
+    }
+    updateDevicesList();
+}
+
+function addConnectionFromDevice(deviceId) {
+    switchTab('active');
+    clearConnectionForm();
+    document.getElementById('fromDevice').value = deviceId;
+    updateFromPorts();
+    highlightEditFields('connection', true);
+    Toast.info('Select destination device and port');
 }
 
 function autoResizeTextarea(el) {

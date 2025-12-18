@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2.7.0">
+    <meta name="app-version" content="2.8.0">
     <title>Tiesse Matrix Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -252,7 +252,18 @@
 
                 <!-- Devices List -->
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800 mb-3">Devices List</h2>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-lg font-bold text-slate-800">Devices List</h2>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-slate-500">View:</span>
+                            <button onclick="setDeviceView('cards')" id="deviceViewCards" class="px-2 py-1 text-xs font-semibold rounded bg-blue-500 text-white">
+                                🃏 Cards
+                            </button>
+                            <button onclick="setDeviceView('table')" id="deviceViewTable" class="px-2 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300">
+                                📋 Table
+                            </button>
+                        </div>
+                    </div>
                     <div class="overflow-x-auto" id="devicesListContainer">
                         <div class="text-center text-slate-500 py-8">Loading...</div>
                     </div>
