@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.5.0  
+**Versão:** 2.5.1  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
@@ -51,7 +51,7 @@ intranet/
 │                           # - Porta 3000
 │
 ├── js/
-│   ├── app.js              # Lógica principal (1120 linhas)
+│   ├── app.js              # Lógica principal (~1156 linhas)
 │   │                       # - Estado global (appState)
 │   │                       # - CRUD dispositivos/conexões
 │   │                       # - Persistência (localStorage + servidor)
@@ -59,9 +59,9 @@ intranet/
 │   │                       # - Import/Export JSON
 │   │                       # - Funções de impressão
 │   │
-│   └── ui-updates.js       # Renderização UI (526 linhas)
+│   └── ui-updates.js       # Renderização UI (~535 linhas)
 │                           # - Lista de dispositivos (cards)
-│                           # - Matriz de conexões
+│                           # - Matriz de conexões (85x70px)
 │                           # - Tabela de conexões
 │                           # - Export Excel
 │                           # - Drag-to-scroll
@@ -452,5 +452,30 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Projeto:** Tiesse Matrix Network  
-**Versão:** 2.5.0  
+**Versão:** 2.5.1  
 **Repositório:** github.com/saltarecentanni/net
+
+---
+
+## 15. CHANGELOG
+
+### v2.5.1 (Dezembro 2025)
+- Matriz visual melhorada:
+  - Headers mostram: Rack (cor) + Nome + Posição (badge azul)
+  - Células uniformes 85x70px
+  - Fontes otimizadas (8px rack, 9px nome)
+  - Badge com espaçamento adequado (margin-top: 5px, padding: 2px 6px)
+- Correção de alinhamento entre headers e células
+- Verificação de código (sem erros, sem duplicações)
+
+### v2.5.0 (Dezembro 2025)
+- Limpeza de arquivos desnecessários
+- Documentação atualizada
+- start-server.bat para Windows
+- Validação robusta no import/export
+
+### v2.4.0 (Dezembro 2025)
+- Arquitetura modular (app.js + ui-updates.js)
+- Sistema de Toast notifications
+- Validação robusta no PHP
+- Impressão melhorada
