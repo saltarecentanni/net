@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2.9.2">
+    <meta name="app-version" content="2.9.3">
     <title>Tiesse Matrix Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -726,12 +726,12 @@
                         <div class="space-y-4">
                             <div>
                                 <p class="font-semibold text-amber-900">Q: Is my data saved automatically?</p>
-                                <p class="text-amber-800 text-sm">A: Yes! Data is saved to your browser (LocalStorage) and to the server automatically every time you make a change.</p>
+                                <p class="text-amber-800 text-sm">A: Yes! Data is saved to your browser (LocalStorage) and to the server automatically every time you make a change. The system tries the Node.js endpoint first (/data), then falls back to /data.php.</p>
                             </div>
                             
                             <div>
                                 <p class="font-semibold text-amber-900">Q: Can multiple people use this at the same time?</p>
-                                <p class="text-amber-800 text-sm">A: Yes, if you're running the PHP server. All users on the network can access it. Note: The last person to save will overwrite previous changes.</p>
+                                <p class="text-amber-800 text-sm">A: Yes, if you're running the PHP or Node.js server. All users on the network can access it. Note: The last person to save will overwrite previous changes.</p>
                             </div>
                             
                             <div>
@@ -748,7 +748,7 @@
 
                     <!-- Footer -->
                     <div class="text-center text-slate-500 text-sm py-4">
-                        <p>Tiesse Matrix Network v2.7.0 | Need more help? Contact your system administrator.</p>
+                        <p>Tiesse Matrix Network v2.9.3 | Need more help? Contact your system administrator.</p>
                     </div>
                 </div>
             </div>
@@ -756,8 +756,8 @@
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/app.js?v=2.9.2"></script>
-    <script src="js/ui-updates.js?v=2.9.2"></script>
+    <script src="js/app.js?v=2.9.3"></script>
+    <script src="js/ui-updates.js?v=2.9.3"></script>
     
     <!-- Update connections count when list updates -->
     <script>

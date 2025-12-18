@@ -316,33 +316,25 @@ function serverSave() {
         });
     }
     
-    // Try server endpoints in order: data.php, /data.php, /data
-    // FIXED: Proper promise chaining for fallback
-    postUrl('data.php')
+    // Try server endpoints in order: /data (Node.js), /data.php (fallback)
+    // FIXED: Use correct endpoints that the Node.js server recognizes
+    postUrl('/data')
         .then(function() {
             showSyncIndicator('saved', '✓ Server');
-            console.log('Server save OK: data.php');
+            console.log('Server save OK: /data');
         })
         .catch(function(err1) {
-            console.log('data.php failed:', err1.message, '- trying /data.php');
+            console.log('/data failed:', err1.message, '- trying /data.php');
             return postUrl('/data.php')
                 .then(function() {
                     showSyncIndicator('saved', '✓ Server');
                     console.log('Server save OK: /data.php');
                 })
                 .catch(function(err2) {
-                    console.log('/data.php failed:', err2.message, '- trying /data');
-                    return postUrl('/data')
-                        .then(function() {
-                            showSyncIndicator('saved', '✓ Server');
-                            console.log('Server save OK: /data');
-                        })
-                        .catch(function(err3) {
-                            // All endpoints failed - data is in localStorage only
-                            console.warn('All server endpoints failed. Data saved to localStorage only.');
-                            console.warn('Errors:', err1.message, err2.message, err3.message);
-                            showSyncIndicator('error', '⚠ Local only');
-                        });
+                    // All endpoints failed - data is in localStorage only
+                    console.warn('All server endpoints failed. Data saved to localStorage only.');
+                    console.warn('Errors:', err1.message, err2.message);
+                    showSyncIndicator('error', '⚠ Local only');
                 });
         });
 }
@@ -924,8 +916,8 @@ function updateDeviceSelects() {
     }
     // Special destinations: Wall Jack and External - highlighted in bold
     var specialOpts = '<option disabled style="font-size:10px;color:#94a3b8;">───── Special Destinations ─────</option>' +
-        '<option value="walljack" style="color:#7c3aed;font-weight:900;background-color:#f5f3ff;">🔌 Wall Jack (Patch → Outlet)</option>' +
-        '<option value="external" style="color:#dc2626;font-weight:900;background-color:#fef2f2;">📡 External (ISP, Fiber, WAN)</option>';
+        '<option value="walljack" style="color:#000000;font-weight:900;background-color:#f5f3ff;">🔌 Internal Wall Jack, Presa Lan, others conections</option>' +
+        '<option value="external" style="color:#000000;font-weight:900;background-color:#fef2f2;">📡 External (ISP, Fiber, WAN)</option>';
     
     document.getElementById('fromDevice').innerHTML = opts.replace('Select device', 'Select source');
     document.getElementById('toDevice').innerHTML = opts.replace('Select device', 'Select destination') + specialOpts;

@@ -113,8 +113,8 @@ function serveStaticFile(req, res, filePath) {
 const server = http.createServer((req, res) => {
     const url = req.url.split('?')[0];
     
-    // Data API
-    if (url === '/data' || url === '/data.php') {
+    // Data API - support multiple endpoint variations
+    if (url === '/data' || url === '/data.php' || url === 'data.php') {
         return handleDataRequest(req, res);
     }
     

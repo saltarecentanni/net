@@ -277,6 +277,25 @@ function updateMatrix() {
     }
 
     var sorted = getSorted();
+    
+    // Check if there are special destination connections (wallport/external with to=null)
+    var hasWallJackConnections = false;
+    var hasExternalConnections = false;
+    var wallJackConnections = [];
+    var externalConnections = [];
+    
+    for (var sc = 0; sc < appState.connections.length; sc++) {
+        var sconn = appState.connections[sc];
+        if (sconn.to === null || sconn.to === undefined) {
+            if (sconn.isWallJack || sconn.type === 'wallport') {
+                hasWallJackConnections = true;
+                wallJackConnections.push({ conn: sconn, idx: sc });
+            } else if (sconn.externalDest || sconn.type === 'wan' || sconn.type === 'external') {
+                hasExternalConnections = true;
+                externalConnections.push({ conn: sconn, idx: sc });
+            }
+        }
+    }
 
     var html = '<table id="matrixTable" class="border-collapse text-xs"><thead><tr>';
     html += '<th class="p-2 sticky-col font-bold text-center whitespace-nowrap" style="border:1px solid #64748b;background-color:#334155;color:#ffffff;"><div style="font-size:11px;">Devices</div><div style="font-size:10px;color:#94a3b8;">Total ' + sorted.length + '</div></th>';
@@ -293,6 +312,23 @@ function updateMatrix() {
             '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:9px;font-weight:700;border-radius:50%;background-color:#dbeafe;color:#1e40af;">' + posNum + '</span>' +
             '</th>';
     }
+    
+    // Add special destination columns if there are such connections
+    if (hasWallJackConnections) {
+        html += '<th class="p-1 text-center" style="min-width:95px;width:95px;border:2px solid #a78bfa;background-color:#334155;">' +
+            '<div style="font-size:8px;font-weight:600;color:#a78bfa;line-height:1.4;">SPECIAL</div>' +
+            '<div style="font-size:9px;font-weight:700;color:#ffffff;line-height:1.3;">🔌 Wall Jack</div>' +
+            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:12px;">🏠</span>' +
+            '</th>';
+    }
+    if (hasExternalConnections) {
+        html += '<th class="p-1 text-center" style="min-width:95px;width:95px;border:2px solid #ef4444;background-color:#334155;">' +
+            '<div style="font-size:8px;font-weight:600;color:#ef4444;line-height:1.4;">SPECIAL</div>' +
+            '<div style="font-size:9px;font-weight:700;color:#ffffff;line-height:1.3;">📡 External</div>' +
+            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:12px;">🌐</span>' +
+            '</th>';
+    }
+    
     html += '</tr></thead><tbody>';
 
     // ROWS
@@ -352,6 +388,67 @@ function updateMatrix() {
                 html += '<td class="matrix-cell border p-1" data-row="' + r + '" data-col="' + c + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#fff;border:1px solid #e2e8f0;"></td>';
             }
         }
+        
+        // Add Wall Jack column cell for this row
+        if (hasWallJackConnections) {
+            var wjConn = null;
+            var wjConnIdx = -1;
+            for (var wj = 0; wj < wallJackConnections.length; wj++) {
+                if (wallJackConnections[wj].conn.from === row.id) {
+                    wjConn = wallJackConnections[wj].conn;
+                    wjConnIdx = wallJackConnections[wj].idx;
+                    break;
+                }
+            }
+            if (wjConn) {
+                var wjShortType = wjConn.type ? (wjConn.type.substring(0,3).toUpperCase()) : 'WJ';
+                var wjCableColor = wjConn.cableColor || '#a78bfa';
+                var wjMarkerHtml = wjConn.cableMarker ? '<div style="margin-top:3px;">' + createMarkerHtml(wjConn.cableMarker, wjCableColor, true) + '</div>' : '';
+                var wjDestLabel = wjConn.externalDest || 'Wall Jack';
+                
+                html += '<td class="matrix-cell border p-0 text-center cursor-pointer hover:opacity-90" data-conn="' + wjConnIdx + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#faf5ff;padding:3px;border:2px solid #a78bfa;" onclick="editConnection(' + wjConnIdx + ')">' +
+                    '<div style="background-color:' + (wjConn.color || '#a78bfa') + ';padding:4px 3px;border-radius:6px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.25);overflow:hidden;">' +
+                    '<div style="font-size:8px;font-weight:700;color:#fff;text-shadow:1px 1px 1px rgba(0,0,0,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;">' + wjShortType + '</div>' +
+                    '<div style="font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:2px;">' + (wjConn.fromPort || '-') + '</div>' +
+                    '<div style="font-size:7px;color:#fde047;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:1px;">→ ' + wjDestLabel + '</div>' +
+                    wjMarkerHtml +
+                    '</div>' +
+                    '</td>';
+            } else {
+                html += '<td class="matrix-cell border p-1" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#faf5ff;border:1px solid #e9d5ff;"></td>';
+            }
+        }
+        
+        // Add External column cell for this row
+        if (hasExternalConnections) {
+            var extConn = null;
+            var extConnIdx = -1;
+            for (var ex = 0; ex < externalConnections.length; ex++) {
+                if (externalConnections[ex].conn.from === row.id) {
+                    extConn = externalConnections[ex].conn;
+                    extConnIdx = externalConnections[ex].idx;
+                    break;
+                }
+            }
+            if (extConn) {
+                var extShortType = extConn.type ? (extConn.type.substring(0,3).toUpperCase()) : 'EXT';
+                var extCableColor = extConn.cableColor || '#ef4444';
+                var extMarkerHtml = extConn.cableMarker ? '<div style="margin-top:3px;">' + createMarkerHtml(extConn.cableMarker, extCableColor, true) + '</div>' : '';
+                var extDestLabel = extConn.externalDest || 'External/WAN';
+                
+                html += '<td class="matrix-cell border p-0 text-center cursor-pointer hover:opacity-90" data-conn="' + extConnIdx + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#fef2f2;padding:3px;border:2px solid #ef4444;" onclick="editConnection(' + extConnIdx + ')">' +
+                    '<div style="background-color:' + (extConn.color || '#ef4444') + ';padding:4px 3px;border-radius:6px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.25);overflow:hidden;">' +
+                    '<div style="font-size:8px;font-weight:700;color:#fff;text-shadow:1px 1px 1px rgba(0,0,0,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;">' + extShortType + '</div>' +
+                    '<div style="font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:2px;">' + (extConn.fromPort || '-') + '</div>' +
+                    '<div style="font-size:7px;color:#fde047;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:1px;">→ ' + extDestLabel + '</div>' +
+                    extMarkerHtml +
+                    '</div>' +
+                    '</td>';
+            } else {
+                html += '<td class="matrix-cell border p-1" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#fef2f2;border:1px solid #fecaca;"></td>';
+            }
+        }
+        
         html += '</tr>';
     }
     html += '</tbody></table>';

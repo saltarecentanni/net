@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.9.1  
+**Versão:** 2.9.3  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
