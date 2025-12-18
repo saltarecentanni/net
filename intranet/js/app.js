@@ -1,10 +1,11 @@
 /**
  * Tiesse Matrix Network - Application Core
- * Version: 2.5.1
+ * Version: 2.9.0
  * 
  * Features:
  * - Encapsulated state (appState)
  * - Toast notification system
+ * - Auto-save every 5 minutes
  * - Modular structure
  * - Robust import/export with validation
  */
@@ -615,6 +616,13 @@ function saveConnection() {
         if (!from) {
             Toast.warning('Please select source device');
             document.getElementById('fromDevice').focus();
+            return;
+        }
+
+        // Must have either a destination device or an external destination
+        if (!to && !isExternal) {
+            Toast.warning('Please select destination device or External');
+            document.getElementById('toDevice').focus();
             return;
         }
 

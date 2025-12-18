@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Técnico
 
-**Versão:** 2.8.0  
+**Versão:** 2.9.0  
 **Data:** Dezembro 2025  
 **Autor:** TIESSE
 
@@ -262,10 +262,15 @@ var appState = {
     devices: [],              // Array de dispositivos
     connections: [],          // Array de conexões
     nextDeviceId: 1,          // Próximo ID disponível
-    connSort: {               // Ordenação da tabela
+    connSort: {               // Ordenação da tabela de conexões
         key: 'id',
         asc: true
     },
+    deviceSort: {             // Ordenação da tabela de dispositivos
+        key: 'rack',
+        asc: true
+    },
+    deviceView: 'cards',      // View mode: 'cards' ou 'table'
     matrixLimit: 12,          // Limite de dispositivos na matriz
     matrixExpanded: false,    // Matriz expandida?
     rackColorMap: {}          // Cache de cores por rack
@@ -278,17 +283,31 @@ var appState = {
 
 ```javascript
 var config = {
+    autoSaveInterval: 300000, // Auto-save a cada 5 minutos (ms)
     connColors: {             // Cores por tipo de conexão
-        lan: '#3b82f6',
-        wan: '#ef4444',
-        dmz: '#f97316',
-        trunk: '#22c55e',
-        management: '#8b5cf6',
-        backup: '#eab308',
-        fiber: '#06b6d4',
-        other: '#6b7280'
+        lan: '#3b82f6',       // Azul
+        wan: '#ef4444',       // Vermelho
+        dmz: '#f97316',       // Laranja
+        trunk: '#22c55e',     // Verde
+        management: '#8b5cf6',// Roxo
+        backup: '#eab308',    // Amarelo
+        fiber: '#06b6d4',     // Ciano
+        wallport: '#a78bfa',  // Roxo claro (tomadas de parede)
+        external: '#64748b',  // Cinza (conexões externas)
+        other: '#6b7280'      // Cinza escuro
     },
-    connLabels: {...},        // Labels por tipo
+    connLabels: {
+        lan: 'LAN',
+        wan: 'WAN/Internet',
+        dmz: 'DMZ',
+        trunk: 'Trunk/Uplink',
+        management: 'Management',
+        backup: 'Backup',
+        fiber: 'Fiber Optic',
+        wallport: 'Wall Jack',
+        external: 'External',
+        other: 'Other'
+    },
     portTypes: [              // Tipos de porta disponíveis
         'Eth', 'GbE', 'SFP/SFP+', 'QSFP/QSFP+', 
         'TTY', 'MGMT', 'PoE', 'Fiber', 'USB', 
@@ -452,12 +471,29 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Projeto:** Tiesse Matrix Network  
-**Versão:** 2.8.0  
+**Versão:** 2.9.0  
 **Repositório:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
+
+### v2.9.0 (Dezembro 2025)
+- **Auto-Save:**
+  - Salvamento automático a cada 5 minutos
+  - Toast notification quando auto-save ocorre
+  - Configurável via `config.autoSaveInterval`
+- **Novos Tipos de Conexão:**
+  - `wallport` (Wall Jack) - para tomadas de parede/patch panel
+  - `external` - para conexões externas (ISP, WAN)
+- **Validação Aprimorada:**
+  - Conexões devem ter destino (device ou external)
+  - Dados corrigidos: conexões externas agora têm `externalDest`
+  - Promise chain corrigida em `serverSave()`
+- **Correções de Bugs:**
+  - Fix: encadeamento de Promises em serverSave()
+  - Fix: conexões com `to: null` sem `externalDest`
+  - Indicador visual "⚠ Local only" quando servidor indisponível
 
 ### v2.8.0 (Dezembro 2025)
 - **Lista de Dispositivos Aprimorada:**
