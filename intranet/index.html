@@ -384,17 +384,13 @@
                             </button>
                         </div>
                     </div>
-                    <div class="flex gap-4 items-start mt-2">
-                        <div class="flex-1">
-                            <textarea id="connNotes" placeholder="Notes (optional)" rows="1"
-                                oninput="autoResizeTextarea(this)"
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
-                        </div>
-                        <!-- Legend for dropdown format -->
-                        <div class="text-xs text-slate-400 whitespace-nowrap pt-2">
-                            ℹ️ Format: [SOURCE][POS] Device — <strong class="text-red-500">*</strong> = disabled — <strong class="text-amber-600">(R)</strong> = rear
-                        </div>
+                    <div class="mt-2">
+                        <textarea id="connNotes" placeholder="Notes (optional)" rows="1"
+                            oninput="autoResizeTextarea(this)"
+                            class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
                     </div>
+                    <!-- Legend for dropdown format -->
+                    <p class="text-xs text-slate-400 mt-1">ℹ️ Format: [SOURCE][POS] Device — <span class="text-red-500 font-bold">*</span> disabled — <span class="text-amber-600 text-[10px] font-semibold">(R)</span> rear</p>
                 </div>
 
                 <!-- Connections List -->

@@ -91,7 +91,7 @@ function updateDevicesListCards(cont) {
             '<span class="text-xs font-semibold px-1.5 py-0.5 rounded uppercase" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span>' +
             '<span class="text-xs text-slate-500">Pos.</span>' +
             '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' +
-            (d.isRear ? '<span class="px-1 py-0.5 text-xs font-semibold rounded bg-amber-100 text-amber-700">REAR</span>' : '') +
+            (d.isRear ? '<span class="px-1 py-0.5 text-[9px] font-bold rounded bg-amber-100 text-amber-700">R</span>' : '') +
             '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
             '</div>' +
             '<div class="font-bold text-base text-slate-800 truncate">' + d.name + '</div>' +
@@ -625,10 +625,14 @@ function updateConnectionsList() {
         // Get the original index for edit/remove operations
         var origIdx = originalIndexMap.get(c);
 
+        // Rear indicators
+        var fromRearIndicator = (fromDevice && fromDevice.isRear) ? '<span class="text-[9px] text-amber-600 font-bold ml-0.5">R</span>' : '';
+        var toRearIndicator = (toDevice && toDevice.isRear) ? '<span class="text-[9px] text-amber-600 font-bold ml-0.5">R</span>' : '';
+
         html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 border-b-2 border-slate-300">' +
             '<td class="px-3 py-2 align-top print-hide-id">' + (origIdx + 1) + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span>' + fromRearIndicator + '</td>' +
             '<td class="px-3 py-2 align-top">' +
                 '<div class="font-semibold">' + (fromDevice ? fromDevice.name : 'N/A') + '</div>' +
                 (fromIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + fromIPs + '</div>' : '') +
@@ -640,7 +644,7 @@ function updateConnectionsList() {
                 '<div class="font-semibold">' + toDisplayName + '</div>' +
                 (toIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + toIPs + '</div>' : '') +
             '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span></td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span>' + toRearIndicator + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + toDisplayRack + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + config.connLabels[c.type] + '</span></td>' +
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
