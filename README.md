@@ -2,7 +2,7 @@
 
 Sistema web di gestione dell'infrastruttura di rete per ambienti aziendali.
 
-**Versione attuale:** 2.9.4
+**Versione attuale:** 2.9.5
 
 ## 📋 Panoramica
 
@@ -11,9 +11,12 @@ Sistema web di gestione dell'infrastruttura di rete per ambienti aziendali.
 ## 🚀 Funzionalità
 
 ### Dispositivi
-- Registrazione completa (nome, rack, tipo, stato, descrizione)
+- Registrazione completa (nome, source, tipo, stato, descrizione)
+- Campo **Source**: identifica rack, location o gruppo
+- Campo **Order**: posizione nel rack (0 = dispositivo sparso)
+- Checkbox **Rear**: indica se il dispositivo è nella parte posteriore
 - Gestione porte per dispositivo
-- 24 colori automatici per rack
+- 24 colori automatici per source
 - Vista Cards e Tabella
 
 ### Connessioni

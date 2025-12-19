@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Blueprint Tecnico
 
-**Versione:** 2.9.4  
+**Versione:** 2.9.5  
 **Data:** Dicembre 2025  
 **Autore:** TIESSE
 
@@ -17,11 +17,13 @@ Sistema web di gestione dell'infrastruttura di rete per ambienti aziendali. Perm
 - Esportare dati in Excel/JSON per documentazione
 - Permettere accesso multi-utente via rete locale
 
-### 1.3 Novità v2.9.4
-- **Pulsante "Salva Ora":** Salvataggio manuale immediato
-- **Patch Panel doppia connessione:** Ogni porta può avere 2 connessioni (fronte/retro)
-- **Guida utente in italiano:** Help tradotto completamente
-- **Stampa migliorata:** Colori e allineamenti corretti
+### 1.3 Novità v2.9.5
+- **Campo Source:** Rinominato da "Rack ID" per supportare dispositivi sparsi
+- **Order = 0:** Per dispositivi non montati in rack
+- **Checkbox Rear:** Indica dispositivi nella parte posteriore del rack
+- **Indicatori dropdown:** * = disabled, (R) = rear
+- **Export Excel:** Nuova colonna Position (Front/Rear)
+- **Help aggiornato:** Nuove FAQ su Order 0, Rear, indicatori
 
 ---
 
@@ -98,7 +100,8 @@ intranet/
 {
   "id": 1,                          // Intero positivo, auto-incremento
   "rackId": "RACK01",               // Source/Origem (rack, location, group)
-  "order": 1,                       // Posizione nel rack
+  "order": 1,                       // Posizione nel rack (0 = dispositivo sparso)
+  "isRear": false,                  // true = dispositivo nella parte posteriore
   "name": "SW-CORE-01",             // Nome del dispositivo
   "brandModel": "Cisco Catalyst",   // Marca/modello (opzionale)
   "type": "switch",                 // Tipo: router|switch|patch|firewall|server|wifi|isp|router_wifi|others
@@ -479,12 +482,34 @@ Permissões: data/ writable pelo webserver
 ## 14. CONTATO
 
 **Progetto:** Tiesse Matrix Network  
-**Versione:** 2.9.4  
+**Versione:** 2.9.5  
 **Repository:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
+
+### v2.9.5 (Dicembre 2025)
+- **Campo Source:**
+  - Rinominato da "Rack ID" per maggiore flessibilità
+  - Supporta rack, location, gruppi o dispositivi sparsi
+- **Order = 0:**
+  - Valore 0 indica dispositivo sparso/isolato
+  - Non montato in un rack fisico
+- **Checkbox Rear:**
+  - Nuovo campo per indicare posizione posteriore
+  - Badge REAR nei cards, (R) nelle tabelle
+  - Esportato in Excel come colonna Position
+- **Indicatori Dropdown:**
+  - * = dispositivo disabilitato
+  - (R) = dispositivo nella parte posteriore
+  - Rimosso stile italico per disabled
+- **Help Aggiornato:**
+  - Nuove FAQ su Order 0, Rear, indicatori
+  - Quick Start con avviso salvataggio manuale
+- **Import/Export:**
+  - Campo isRear opzionale (compatibile con dati esistenti)
+  - Nuova colonna Position in Excel
 
 ### v2.9.4 (Dicembre 2025)
 - **Pulsante "Salva Ora":**

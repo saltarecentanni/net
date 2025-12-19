@@ -2,7 +2,7 @@
 
 Applicazione web di gestione della rete per deploy in intranet aziendale.
 
-**Versione:** 2.9.4
+**Versione:** 2.9.5
 
 ## 🚀 Deploy Rapido
 
@@ -95,9 +95,12 @@ Salva i dati. Restituisce:
 ## ✨ Funzionalità Principali
 
 ### Dispositivi
-- Cadastro completo (nome, rack, tipo, stato, descrizione)
+- Cadastro completo (nome, source, tipo, stato, descrizione)
+- Campo **Source**: identifica rack, location o gruppo
+- Campo **Order**: posizione nel rack (0 = dispositivo sparso)
+- Checkbox **Rear**: indica se il dispositivo è nella parte posteriore
 - Gestione porte per dispositivo
-- 24 colori automatici per rack
+- 24 colori automatici per source
 - Vista Cards e Tabella
 
 ### Connessioni
@@ -108,18 +111,27 @@ Salva i dati. Restituisce:
 - **Patch Panel: supporto doppia connessione (fronte/retro)**
 
 ### Matrice Visuale
-- Visualizzazione a griglia colorata per rack
+- Visualizzazione a griglia colorata per source
 - Clic per modificare connessione
 - Colonne speciali per Wall Jack ed External
 
 ### Stampa & Esportazione
-- 📊 Esporta in Excel (XLSX)
+- 📊 Esporta in Excel (XLSX) con colonna Position (Front/Rear)
 - 📄 Esporta/Importa JSON
 - 🖨️ Stampa Matrice
 - 🖨️ Stampa Lista Connessioni
 - 💾 **Pulsante "Salva Ora" per salvataggio manuale immediato**
 
 ## 📌 Changelog
+
+### v2.9.5 (Dicembre 2025)
+- ✨ **Campo Source**: rinominato da "Rack ID" per supportare dispositivi sparsi
+- ✨ **Order = 0**: per dispositivi non montati in rack
+- ✨ **Checkbox Rear**: indica dispositivi nella parte posteriore del rack
+- ✨ **Indicatori visivi**: * = disabled, (R) = rear nelle liste dropdown
+- 📄 **Export Excel migliorato**: nuova colonna Position (Front/Rear)
+- 📚 Help completamente aggiornato con nuove FAQ
+- ⚠️ Salvataggio solo manuale (evita conflitti tra sessioni)
 
 ### v2.9.4 (Dicembre 2025)
 - ✨ **Nuovo pulsante "Salva Ora":** Salva manualmente tutti i dati in qualsiasi momento
