@@ -1,12 +1,13 @@
 /**
  * Tiesse Matrix Network - UI Update Functions
- * Version: 2.9.1
+ * Version: 2.9.5
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
  * - Connection matrix
  * - Connections table
  * - Excel export
+ * - Improved print styles
  */
 
 'use strict';
@@ -671,7 +672,7 @@ function exportExcel() {
         for (var i = 0; i < appState.devices.length; i++) {
             var d = appState.devices[i];
             devData.push({
-                'Rack ID': d.rackId,
+                'Source': d.rackId,
                 'Order': d.order,
                 'Name': d.name,
                 'Type/Brand': d.brandModel || '',

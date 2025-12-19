@@ -1,13 +1,14 @@
 /**
  * Tiesse Matrix Network - Application Core
- * Version: 2.9.1
+ * Version: 2.9.5
  * 
  * Features:
  * - Encapsulated state (appState)
  * - Toast notification system
- * - Auto-save every 5 minutes
+ * - Manual "Save Now" button (auto-save disabled to prevent race conditions)
  * - Modular structure
  * - Robust import/export with validation
+ * - Patch panel dual-connection support (front/back)
  */
 
 'use strict';
@@ -31,7 +32,7 @@ var appState = {
 // CONFIGURATION
 // ============================================================================
 var config = {
-    autoSaveInterval: 5 * 60 * 1000, // 5 minutes in milliseconds
+    // autoSaveInterval removed - auto-save disabled to prevent race conditions
     connColors: {
         lan: '#3b82f6',
         wan: '#ef4444',
@@ -252,6 +253,24 @@ function saveToStorage() {
     }
 }
 
+/**
+ * Manual save function - triggered by "Salva Ora" button
+ * Saves immediately to localStorage and server
+ */
+function saveNow() {
+    try {
+        localStorage.setItem('networkDevices', JSON.stringify(appState.devices));
+        localStorage.setItem('networkConnections', JSON.stringify(appState.connections));
+        localStorage.setItem('nextDeviceId', String(appState.nextDeviceId));
+        showSyncIndicator('saved', '✓ Salvato!');
+        serverSave();
+        Toast.success('Dati salvati con successo!');
+    } catch (e) {
+        console.error('Error saving:', e);
+        Toast.error('Errore nel salvataggio: ' + e.message);
+    }
+}
+
 function serverLoad() {
     function tryUrl(url) {
         return fetch(url)
@@ -398,7 +417,7 @@ function saveDevice() {
 
         // Validation
         if (!rackId) {
-            Toast.warning('Please enter Rack ID');
+            Toast.warning('Please enter Source');
             document.getElementById('rackId').focus();
             return;
         }
@@ -656,26 +675,27 @@ function saveConnection() {
             return;
         }
 
-        // Check port usage
-        var fromPortUsed = false;
-        var toPortUsed = false;
-        for (var j = 0; j < appState.connections.length; j++) {
-            if (editIndex !== '' && j === parseInt(editIndex, 10)) continue;
-            var c = appState.connections[j];
-            if (from && fromPort && ((c.from === from && c.fromPort === fromPort) || (c.to === from && c.toPort === fromPort))) {
-                fromPortUsed = true;
+        // Check port usage - using isPortUsed function which handles patch panel logic
+        var excludeIdx = editIndex !== '' ? parseInt(editIndex, 10) : undefined;
+        
+        if (from && fromPort && isPortUsed(from, fromPort, excludeIdx)) {
+            // Check if it's a patch panel that already has 2 connections
+            var fromDeviceType = fromDevice ? fromDevice.type : '';
+            if (fromDeviceType === 'patch') {
+                Toast.error('Porta del patch panel già ha 2 connessioni (fronte e retro)');
+            } else {
+                Toast.error('Porta sorgente già in uso');
             }
-            if (to && toPort && ((c.from === to && c.fromPort === toPort) || (c.to === to && c.toPort === toPort))) {
-                toPortUsed = true;
-            }
-        }
-
-        if (fromPortUsed) {
-            Toast.error('Source port is already in use');
             return;
         }
-        if (toPortUsed) {
-            Toast.error('Destination port is already in use');
+        
+        if (to && toPort && isPortUsed(to, toPort, excludeIdx)) {
+            var toDeviceType = toDevice ? toDevice.type : '';
+            if (toDeviceType === 'patch') {
+                Toast.error('Porta del patch panel già ha 2 connessioni (fronte e retro)');
+            } else {
+                Toast.error('Porta destinazione già in uso');
+            }
             return;
         }
 
@@ -810,14 +830,31 @@ function toggleExternalDest() {
 }
 
 function isPortUsed(deviceId, portName, excludeConnIdx) {
+    // Get device to check if it's a patch panel
+    var device = null;
+    for (var d = 0; d < appState.devices.length; d++) {
+        if (appState.devices[d].id === deviceId) {
+            device = appState.devices[d];
+            break;
+        }
+    }
+    
+    // Patch panels can have 2 connections per port (front and back)
+    // Example: Wall jack connects to patch panel port 19 (back)
+    //          Switch connects to patch panel port 19 (front)
+    var isPatchPanel = device && device.type === 'patch';
+    var maxConnections = isPatchPanel ? 2 : 1;
+    var connectionCount = 0;
+    
     for (var i = 0; i < appState.connections.length; i++) {
         if (typeof excludeConnIdx !== 'undefined' && i === excludeConnIdx) continue;
         var c = appState.connections[i];
         if ((c.from === deviceId && c.fromPort === portName) || (c.to === deviceId && c.toPort === portName)) {
-            return true;
+            connectionCount++;
         }
     }
-    return false;
+    
+    return connectionCount >= maxConnections;
 }
 
 function updateFromPorts(selectedPort) {
@@ -830,14 +867,31 @@ function updateFromPorts(selectedPort) {
         }
     }
     var sel = document.getElementById('fromPort');
-    sel.innerHTML = '<option value="">Select source port</option>';
+    sel.innerHTML = '<option value="">Seleziona porta sorgente</option>';
     if (d && d.ports) {
         var editIdx = document.getElementById('connEditIndex').value;
         var excludeIdx = editIdx !== '' ? parseInt(editIdx, 10) : undefined;
+        var isPatchPanel = d.type === 'patch';
+        
         for (var j = 0; j < d.ports.length; j++) {
             var p = d.ports[j];
             var used = isPortUsed(id, p.name, excludeIdx);
-            var label = p.name + ' ' + (used ? '(Used)' : '(Free)');
+            var label;
+            
+            if (isPatchPanel) {
+                // Count current connections for patch panel port
+                var connCount = getPortConnectionCount(id, p.name, excludeIdx);
+                if (connCount === 0) {
+                    label = p.name + ' (Libera)';
+                } else if (connCount === 1) {
+                    label = p.name + ' (1/2 - disponibile)';
+                } else {
+                    label = p.name + ' (2/2 - completa)';
+                }
+            } else {
+                label = p.name + ' ' + (used ? '(In uso)' : '(Libera)');
+            }
+            
             var selected = (selectedPort === p.name) ? 'selected' : '';
             sel.innerHTML += '<option value="' + p.name + '" ' + selected + '>' + label + '</option>';
         }
@@ -854,18 +908,49 @@ function updateToPorts(selectedPort) {
         }
     }
     var sel = document.getElementById('toPort');
-    sel.innerHTML = '<option value="">Select destination port</option>';
+    sel.innerHTML = '<option value="">Seleziona porta destinazione</option>';
     if (d && d.ports) {
         var editIdx = document.getElementById('connEditIndex').value;
         var excludeIdx = editIdx !== '' ? parseInt(editIdx, 10) : undefined;
+        var isPatchPanel = d.type === 'patch';
+        
         for (var j = 0; j < d.ports.length; j++) {
             var p = d.ports[j];
             var used = isPortUsed(id, p.name, excludeIdx);
-            var label = p.name + ' ' + (used ? '(Used)' : '(Free)');
+            var label;
+            
+            if (isPatchPanel) {
+                var connCount = getPortConnectionCount(id, p.name, excludeIdx);
+                if (connCount === 0) {
+                    label = p.name + ' (Libera)';
+                } else if (connCount === 1) {
+                    label = p.name + ' (1/2 - disponibile)';
+                } else {
+                    label = p.name + ' (2/2 - completa)';
+                }
+            } else {
+                label = p.name + ' ' + (used ? '(In uso)' : '(Libera)');
+            }
+            
             var selected = (selectedPort === p.name) ? 'selected' : '';
             sel.innerHTML += '<option value="' + p.name + '" ' + selected + '>' + label + '</option>';
         }
     }
+}
+
+/**
+ * Helper function to count connections on a specific port
+ */
+function getPortConnectionCount(deviceId, portName, excludeConnIdx) {
+    var count = 0;
+    for (var i = 0; i < appState.connections.length; i++) {
+        if (typeof excludeConnIdx !== 'undefined' && i === excludeConnIdx) continue;
+        var c = appState.connections[i];
+        if ((c.from === deviceId && c.fromPort === portName) || (c.to === deviceId && c.toPort === portName)) {
+            count++;
+        }
+    }
+    return count;
 }
 
 // ============================================================================
@@ -912,7 +997,9 @@ function updateDeviceSelects() {
     for (var i = 0; i < sorted.length; i++) {
         var d = sorted[i];
         var rackColor = getRackColor(d.rackId);
-        opts += '<option value="' + d.id + '" style="color:' + rackColor + ';font-weight:bold;">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + '</option>';
+        var statusOff = (d.status === 'disabled') ? ' [STATUS OFF]' : '';
+        var statusStyle = (d.status === 'disabled') ? 'color:' + rackColor + ';font-weight:bold;font-style:italic;' : 'color:' + rackColor + ';font-weight:bold;';
+        opts += '<option value="' + d.id + '" style="' + statusStyle + '">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + statusOff + '</option>';
     }
     // Special destinations: Wall Jack and External - highlighted in bold
     var specialOpts = '<option disabled style="font-size:10px;color:#94a3b8;">───── Special Destinations ─────</option>' +
@@ -1113,55 +1200,86 @@ function clearAll() {
 // ============================================================================
 function getPrintStyles() {
     return '<style>' +
+        /* Global print settings */
         '@media print {' +
         '  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
         '  .no-print, .print-hide-id { display: none !important; }' +
-        '  @page { size: landscape; margin: 6mm; }' +
+        '  @page { size: landscape; margin: 8mm; }' +
         '}' +
+        /* Hide elements */
         '.no-print { display: none !important; }' +
         '.print-hide-id { display: none !important; }' +
-        'body { font-family: Arial, sans-serif; padding: 10px; margin: 0; font-size: 11px; }' +
-        'h2 { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #1e293b; }' +
-        'table { width: 100%; border-collapse: collapse; font-size: 9px; }' +
-        'th, td { border: 1px solid #64748b; padding: 4px 6px; text-align: left; vertical-align: top; }' +
-        'thead th { background-color: #334155 !important; color: white !important; font-weight: bold; font-size: 8px; text-transform: uppercase; }' +
-        'tbody tr:nth-child(even) { background-color: #f1f5f9; }' +
-        'tbody tr:hover { background-color: #e2e8f0; }' +
-        '.font-mono { font-family: monospace; }' +
+        /* Body and headers */
+        'body { font-family: Arial, sans-serif; padding: 12px; margin: 0; font-size: 11px; background: white; }' +
+        'h2 { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #1e293b; }' +
+        /* Table base styles */
+        'table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }' +
+        'th, td { border: 1px solid #475569; padding: 5px 8px; text-align: left; vertical-align: middle; }' +
+        'thead th { background-color: #1e293b !important; color: #ffffff !important; font-weight: bold; font-size: 9px; text-transform: uppercase; }' +
+        'tbody tr:nth-child(odd) { background-color: #ffffff !important; }' +
+        'tbody tr:nth-child(even) { background-color: #f1f5f9 !important; }' +
+        /* Text utilities */
+        '.font-mono { font-family: "Courier New", monospace; }' +
         '.font-bold { font-weight: bold; }' +
         '.font-semibold { font-weight: 600; }' +
         '.text-center { text-align: center; }' +
         '.text-xs { font-size: 9px; }' +
         '.text-slate-600 { color: #475569; }' +
         '.italic { font-style: italic; }' +
-        '.rounded-full { border-radius: 9999px; display: inline-block; padding: 2px 6px; }' +
-        '.bg-green-100 { background-color: #dcfce7 !important; }' +
-        '.bg-red-100 { background-color: #fee2e2 !important; }' +
-        '.bg-blue-100 { background-color: #dbeafe !important; }' +
+        /* Badge styles */
+        '.rounded-full { border-radius: 9999px; display: inline-block; padding: 3px 8px; }' +
+        '.bg-green-100 { background-color: #dcfce7 !important; color: #166534 !important; }' +
+        '.bg-red-100 { background-color: #fee2e2 !important; color: #991b1b !important; }' +
+        '.bg-blue-100 { background-color: #dbeafe !important; color: #1e40af !important; }' +
         '.text-green-800 { color: #166534 !important; }' +
         '.text-red-800 { color: #991b1b !important; }' +
         '.text-blue-800 { color: #1e40af !important; }' +
+        /* Spacing */
         '.px-1, .px-1\\.5 { padding-left: 4px; padding-right: 4px; }' +
         '.py-0, .py-0\\.5 { padding-top: 2px; padding-bottom: 2px; }' +
         '.mt-0, .mt-0\\.5 { margin-top: 2px; }' +
         '.gap-1 { gap: 4px; }' +
+        /* Flexbox */
         '.flex { display: flex; }' +
         '.flex-col { flex-direction: column; }' +
         '.align-top { vertical-align: top; }' +
+        /* Matrix specific */
         '.sticky-col { position: static !important; }' +
-        '.matrix-cell { min-width: 95px !important; width: 95px !important; max-width: 95px !important; height: 75px !important; }' +
-        /* Print-specific: position badges (circles) */
-        'span[style*="border-radius: 50%"], span[style*="border-radius:50%"] { background-color: #1e40af !important; color: #ffffff !important; border: 1px solid #1e3a8a !important; }' +
-        /* Print-specific: port badges light background */
-        'span[style*="background-color:#f1f5f9"], span[style*="background-color: #f1f5f9"] { background-color: #e2e8f0 !important; color: #000000 !important; border: 1px solid #64748b !important; }' +
-        /* Print-specific: port badges dark background */
-        'span[style*="background-color:#334155"], span[style*="background-color: #334155"] { background-color: #1e293b !important; color: #ffffff !important; border: 1px solid #0f172a !important; }' +
-        /* Print-specific: cable marker */
-        'span[style*="border-radius: 10px"], span[style*="border-radius:10px"] { border: 1px solid #000000 !important; }' +
-        /* Print-specific: ensure text shadows removed */
+        '.matrix-cell { min-width: 90px !important; width: 90px !important; max-width: 90px !important; height: 70px !important; padding: 3px !important; }' +
+        /* Position badges - blue circles */
+        'span[style*="border-radius: 50%"], span[style*="border-radius:50%"] { ' +
+        '  background-color: #1e40af !important; color: #ffffff !important; ' +
+        '  border: 2px solid #1e3a8a !important; font-weight: bold !important; ' +
+        '}' +
+        /* Port badges - light background */
+        'span[style*="background-color:#f1f5f9"], span[style*="background-color: #f1f5f9"] { ' +
+        '  background-color: #e2e8f0 !important; color: #1e293b !important; ' +
+        '  border: 1px solid #475569 !important; font-weight: bold !important; ' +
+        '}' +
+        /* Port badges - dark background */
+        'span[style*="background-color:#334155"], span[style*="background-color: #334155"] { ' +
+        '  background-color: #1e293b !important; color: #ffffff !important; ' +
+        '  border: 1px solid #0f172a !important; font-weight: bold !important; ' +
+        '}' +
+        /* Cable marker badges */
+        'span[style*="border-radius: 10px"], span[style*="border-radius:10px"] { ' +
+        '  border: 2px solid #000000 !important; font-weight: bold !important; ' +
+        '}' +
+        /* Connection type badges - preserve colors */
+        'span[style*="background-color:#3b82f6"] { background-color: #3b82f6 !important; color: #ffffff !important; }' +
+        'span[style*="background-color:#ef4444"] { background-color: #ef4444 !important; color: #ffffff !important; }' +
+        'span[style*="background-color:#22c55e"] { background-color: #22c55e !important; color: #ffffff !important; }' +
+        'span[style*="background-color:#f97316"] { background-color: #f97316 !important; color: #ffffff !important; }' +
+        'span[style*="background-color:#8b5cf6"] { background-color: #8b5cf6 !important; color: #ffffff !important; }' +
+        'span[style*="background-color:#eab308"] { background-color: #eab308 !important; color: #000000 !important; }' +
+        'span[style*="background-color:#06b6d4"] { background-color: #06b6d4 !important; color: #ffffff !important; }' +
+        'span[style*="background-color:#a78bfa"] { background-color: #a78bfa !important; color: #ffffff !important; }' +
+        /* Remove text shadows for print */
         '[style*="text-shadow"] { text-shadow: none !important; }' +
-        /* Print-specific: white text on colored backgrounds */
-        'div[style*="background-color:"][style*="color:#fff"] { color: #ffffff !important; }' +
+        /* Matrix cell colors - preserve on print */
+        'div[style*="background-color:"][style*="border-radius:6px"] { ' +
+        '  box-shadow: none !important; border: 1px solid #475569 !important; ' +
+        '}' +
         '</style>';
 }
 
@@ -1235,28 +1353,12 @@ function printConnections() {
 }
 
 // ============================================================================
-// AUTO-SAVE SYSTEM
+// AUTO-SAVE DISABLED - Risk of data loss with multiple sessions
 // ============================================================================
-var autoSaveTimer = null;
-
-function startAutoSave() {
-    if (autoSaveTimer) {
-        clearInterval(autoSaveTimer);
-    }
-    autoSaveTimer = setInterval(function() {
-        console.log('Auto-save triggered');
-        saveToStorage();
-        Toast.info('Auto-saved', 1500);
-    }, config.autoSaveInterval);
-    console.log('Auto-save started: every ' + (config.autoSaveInterval / 60000) + ' minutes');
-}
-
-function stopAutoSave() {
-    if (autoSaveTimer) {
-        clearInterval(autoSaveTimer);
-        autoSaveTimer = null;
-    }
-}
+// Auto-save was removed because when two browsers/tabs are open simultaneously,
+// they compete with each other and overwrite data, causing information loss.
+// Use the "Salva Ora" (Save Now) button for manual saves.
+// Changes are NOT saved automatically - always click "Salva Ora" to persist data.
 
 // ============================================================================
 // INITIALIZATION
@@ -1265,12 +1367,12 @@ function initApp() {
     serverLoad().then(function(ok) {
         if (!ok) loadFromStorage();
         updateUI();
-        startAutoSave();
+        // Auto-save disabled to prevent data loss with multiple sessions
         Toast.info('Tiesse Matrix Network loaded');
     }).catch(function() {
         loadFromStorage();
         updateUI();
-        startAutoSave();
+        // Auto-save disabled to prevent data loss with multiple sessions
     });
 }
 

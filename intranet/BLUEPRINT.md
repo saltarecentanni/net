@@ -1,80 +1,88 @@
-# TIESSE Matrix Network - Blueprint Técnico
+# TIESSE Matrix Network - Blueprint Tecnico
 
-**Versão:** 2.9.3  
-**Data:** Dezembro 2025  
-**Autor:** TIESSE
-
----
-
-## 1. VISÃO GERAL
-
-### 1.1 Descrição
-Sistema web de gerenciamento de infraestrutura de rede para ambientes corporativos. Permite cadastrar dispositivos de rede, mapear conexões entre eles e visualizar a topologia em formato de matriz.
-
-### 1.2 Objetivos
-- Documentar a infraestrutura de rede de forma centralizada
-- Visualizar conexões entre dispositivos em matriz
-- Exportar dados para Excel/JSON para documentação
-- Permitir acesso multi-usuário via rede local
+**Versione:** 2.9.4  
+**Data:** Dicembre 2025  
+**Autore:** TIESSE
 
 ---
 
-## 2. ARQUITETURA
+## 1. PANORAMICA
 
-### 2.1 Stack Tecnológica
+### 1.1 Descrizione
+Sistema web di gestione dell'infrastruttura di rete per ambienti aziendali. Permette di registrare dispositivi di rete, mappare connessioni tra loro e visualizzare la topologia in formato matrice.
 
-| Camada | Tecnologia | Versão |
-|--------|------------|--------|
+### 1.2 Obiettivi
+- Documentare l'infrastruttura di rete in modo centralizzato
+- Visualizzare connessioni tra dispositivi in matrice
+- Esportare dati in Excel/JSON per documentazione
+- Permettere accesso multi-utente via rete locale
+
+### 1.3 Novità v2.9.4
+- **Pulsante "Salva Ora":** Salvataggio manuale immediato
+- **Patch Panel doppia connessione:** Ogni porta può avere 2 connessioni (fronte/retro)
+- **Guida utente in italiano:** Help tradotto completamente
+- **Stampa migliorata:** Colori e allineamenti corretti
+
+---
+
+## 2. ARCHITETTURA
+
+### 2.1 Stack Tecnologico
+
+| Layer | Tecnologia | Versione |
+|-------|------------|----------|
 | Frontend | HTML5 + Tailwind CSS | CDN |
 | JavaScript | ES6 (Vanilla) | - |
-| Backend | PHP | 7+ |
-| Persistência | JSON file | - |
+| Backend | PHP o Node.js | 7+ / 14+ |
+| Persistenza | JSON file | - |
 | Fallback | LocalStorage | - |
 | Excel | SheetJS (XLSX) | 0.18.5 |
 
-### 2.2 Estrutura de Arquivos
+### 2.2 Struttura File
 
 ```
 intranet/
-├── index.html              # Página principal (417 linhas)
-│                           # - HTML estrutural
+├── index.html              # Pagina principale
+│                           # - HTML strutturale
 │                           # - CSS inline (Tailwind)
-│                           # - Meta tags de versão
+│                           # - Meta tag versione
 │
-├── data.php                # API REST (136 linhas)
-│                           # - GET: retorna dados
-│                           # - POST: salva dados com validação
-│                           # - Escrita atômica (temp file)
+├── data.php                # API REST
+│                           # - GET: restituisce dati
+│                           # - POST: salva dati con validazione
+│                           # - Scrittura atomica (temp file)
 │
-├── server.js               # Servidor Node.js alternativo
-│                           # - Sem dependências externas
+├── server.js               # Server Node.js alternativo
+│                           # - Senza dipendenze esterne
 │                           # - Porta 3000
 │
 ├── js/
-│   ├── app.js              # Lógica principal (~1156 linhas)
-│   │                       # - Estado global (appState)
-│   │                       # - CRUD dispositivos/conexões
-│   │                       # - Persistência (localStorage + servidor)
+│   ├── app.js              # Logica principale (~1400 righe)
+│   │                       # - Stato globale (appState)
+│   │                       # - CRUD dispositivi/connessioni
+│   │                       # - Persistenza (localStorage + server)
 │   │                       # - Toast notifications
 │   │                       # - Import/Export JSON
-│   │                       # - Funções de impressão
+│   │                       # - Funzione saveNow()
+│   │                       # - Supporto Patch Panel (2 conn/porta)
+│   │                       # - Funzioni di stampa migliorate
 │   │
-│   └── ui-updates.js       # Renderização UI (~535 linhas)
-│                           # - Lista de dispositivos (cards)
-│                           # - Matriz de conexões (85x70px)
-│                           # - Tabela de conexões
+│   └── ui-updates.js       # Rendering UI (~824 righe)
+│                           # - Lista dispositivi (cards/table)
+│                           # - Matrice connessioni
+│                           # - Tabella connessioni
 │                           # - Export Excel
 │                           # - Drag-to-scroll
 │
 └── data/
-    └── network_manager.json  # Dados persistidos
+    └── network_manager.json  # Dati persistiti
 ```
 
 ---
 
-## 3. MODELO DE DADOS
+## 3. MODELLO DATI
 
-### 3.1 Estrutura Principal
+### 3.1 Struttura Principale
 
 ```json
 {
@@ -84,18 +92,18 @@ intranet/
 }
 ```
 
-### 3.2 Objeto Device
+### 3.2 Oggetto Device
 
 ```json
 {
-  "id": 1,                          // Inteiro positivo, auto-incremento
-  "rackId": "RACK01",               // Identificador do rack
-  "order": 1,                       // Posição no rack
-  "name": "SW-CORE-01",             // Nome do dispositivo
-  "brandModel": "Cisco Catalyst",   // Marca/modelo (opcional)
+  "id": 1,                          // Intero positivo, auto-incremento
+  "rackId": "RACK01",               // Source/Origem (rack, location, group)
+  "order": 1,                       // Posizione nel rack
+  "name": "SW-CORE-01",             // Nome del dispositivo
+  "brandModel": "Cisco Catalyst",   // Marca/modello (opzionale)
   "type": "switch",                 // Tipo: router|switch|patch|firewall|server|wifi|isp|router_wifi|others
-  "status": "active",               // Status: active|disabled
-  "addresses": [                    // Endereços (opcional)
+  "status": "active",               // Stato: active|disabled
+  "addresses": [                    // Indirizzi (opzionale)
     {
       "network": "192.168.1.0/24",
       "ip": "192.168.1.1",
@@ -186,7 +194,7 @@ Salva os dados com validação completa.
 
 #### Cada Device:
 - `id` - inteiro positivo obrigatório
-- `rackId` - obrigatório
+- `rackId` - obrigatório (campo Source na UI)
 - `name` - obrigatório
 - `type` - obrigatório
 - `status` - obrigatório
@@ -283,7 +291,7 @@ var appState = {
 
 ```javascript
 var config = {
-    autoSaveInterval: 300000, // Auto-save a cada 5 minutos (ms)
+    // autoSaveInterval removed - manual save only (prevents race conditions)
     connColors: {             // Cores por tipo de conexão
         lan: '#3b82f6',       // Azul
         wan: '#ef4444',       // Vermelho
@@ -470,112 +478,110 @@ Permissões: data/ writable pelo webserver
 
 ## 14. CONTATO
 
-**Projeto:** Tiesse Matrix Network  
-**Versão:** 2.9.1  
-**Repositório:** github.com/saltarecentanni/net
+**Progetto:** Tiesse Matrix Network  
+**Versione:** 2.9.4  
+**Repository:** github.com/saltarecentanni/net
 
 ---
 
 ## 15. CHANGELOG
 
-### v2.9.1 (Dezembro 2025)
-- **Wall Jack como Destino Especial:**
-  - Nova opção "🔌 Wall Jack" no dropdown de destino
-  - Opções especiais (Wall Jack, External) em negrito com cores
-  - Separador visual "Special Destinations"
-  - Label dinâmico: "Wall Jack Location" vs "External Destination"
-  - Placeholder contextual para cada tipo
-  - Flag `isWallJack` para identificação correta
-- **Validações Completas (20 testes):**
-  - 10 verificações diretas (sintaxe, estrutura, consistência)
-  - 10 verificações reversas (API, persistência, ciclos)
-  - Import/Export 100% funcional
-  - Gravação pela rede verificada
+### v2.9.4 (Dicembre 2025)
+- **Pulsante "Salva Ora":**
+  - Nuovo pulsante verde nella barra Azioni
+  - Salvataggio manuale immediato su localStorage e server
+  - Funzione `saveNow()` con feedback Toast
+- **Patch Panel Doppia Connessione:**
+  - Ogni porta del patch panel può avere 2 connessioni (fronte/retro)
+  - Esempio: Wall jack → Porta 19 (retro) + Switch → Porta 19 (fronte)
+  - Indicatori porta: (Libera), (1/2 - disponibile), (2/2 - completa)
+  - Funzione `isPortUsed()` aggiornata con logica maxConnections
+  - Funzione helper `getPortConnectionCount()`
+- **Guida Utente in Italiano:**
+  - Sezione Help completamente tradotta
+  - Nuova sezione speciale "Patch Panel"
+  - FAQ aggiornate con domanda su patch panel
+- **Stampa Migliorata:**
+  - Stili CSS ottimizzati per stampa
+  - Colori dei badge preservati
+  - Allineamento tabelle corretto
+  - Bordi e spaziature uniformi
+- **Validazione Connessioni:**
+  - Messaggi errore in italiano
+  - Gestione speciale per porte patch panel
 
-### v2.9.0 (Dezembro 2025)
-- **Auto-Save:**
-  - Salvamento automático a cada 5 minutos
-  - Toast notification quando auto-save ocorre
-  - Configurável via `config.autoSaveInterval`
-- **Novos Tipos de Conexão:**
-  - `wallport` (Wall Jack) - para tomadas de parede/patch panel
-  - `external` - para conexões externas (ISP, WAN)
-- **Validação Aprimorada:**
-  - Conexões devem ter destino (device ou external)
-  - Dados corrigidos: conexões externas agora têm `externalDest`
-  - Promise chain corrigida em `serverSave()`
-- **Correções de Bugs:**
-  - Fix: encadeamento de Promises em serverSave()
-  - Fix: conexões com `to: null` sem `externalDest`
-  - Indicador visual "⚠ Local only" quando servidor indisponível
+### v2.9.1 (Dicembre 2025)
+- **Wall Jack come Destinazione Speciale:**
+  - Nuova opzione "🔌 Wall Jack" nel dropdown destinazione
+  - Opzioni speciali (Wall Jack, External) in grassetto con colori
+  - Separatore visivo "Special Destinations"
+  - Label dinamica: "Wall Jack Location" vs "External Destination"
+  - Placeholder contestuale per ogni tipo
+  - Flag `isWallJack` per identificazione corretta
+- **Validazioni Complete (20 test):**
+  - 10 verifiche dirette (sintassi, struttura, consistenza)
+  - 10 verifiche inverse (API, persistenza, cicli)
+  - Import/Export 100% funzionale
+  - Salvataggio via rete verificato
 
-### v2.8.0 (Dezembro 2025)
-- **Lista de Dispositivos Aprimorada:**
-  - Toggle Cards/Table view (botões no header)
-  - Visualização em tabela estilo Excel (como Active Connections)
-  - Ordenação clicável em todas as colunas (Rack, Pos, Name, Type, Status, Ports, Connections)
-  - Indicador de direção ▲ ▼ ↕ nos headers
-  - Botão "+Conn" para adicionar conexão a partir do device
-  - Pre-seleção automática do device no formulário de conexões
-  - Contagem de conexões visível em ambas as views
-  - Aviso visual (laranja) para devices sem conexões
-- **Novas Funções JavaScript:**
-  - `setDeviceView(view)` - alterna entre cards e table
-  - `toggleDeviceSort(key)` - ordena por coluna
-  - `addConnectionFromDevice(deviceId)` - navega para conexões com device pré-selecionado
-  - `getDevicesSortedBy(key, asc)` - função de ordenação genérica
+### v2.9.0 (Dicembre 2025)
+- **Manual Save Only:**
+  - Auto-save rimosso per evitare conflitti tra sessioni multiple
+  - Usa il pulsante "Salva Ora" per salvare manualmente
+- **Nuovi Tipi di Connessione:**
+  - `wallport` (Wall Jack) - per prese a muro/patch panel
+  - `external` - per connessioni esterne (ISP, WAN)
+- **Validazione Migliorata:**
+  - Connessioni devono avere destinazione (device o external)
+  - Dati corretti: connessioni esterne ora hanno `externalDest`
+  - Promise chain corretta in `serverSave()`
 
-### v2.7.0 (Dezembro 2025)
-- **Nova Aba Help:**
-  - Guia completo passo a passo em inglês
-  - Seções: Adding Devices, Creating Connections, Matrix, Edit/Delete, Export/Import
-  - Explicação de cores e símbolos
-  - FAQ com perguntas frequentes
-  - Design responsivo e amigável
+### v2.8.0 (Dicembre 2025)
+- **Lista Dispositivi Migliorata:**
+  - Toggle Cards/Table view (pulsanti nell'header)
+  - Visualizzazione tabella stile Excel
+  - Ordinamento cliccabile su tutte le colonne
+  - Indicatore direzione ▲ ▼ ↕ negli header
+  - Pulsante "+Conn" per aggiungere connessione dal device
+  - Pre-selezione automatica del device nel form connessioni
+  - Conteggio connessioni visibile in entrambe le viste
+  - Avviso visivo (arancione) per device senza connessioni
+- **Nuove Funzioni JavaScript:**
+  - `setDeviceView(view)` - alterna tra cards e table
+  - `toggleDeviceSort(key)` - ordina per colonna
+  - `addConnectionFromDevice(deviceId)` - naviga a connessioni con device pre-selezionato
+  - `getDevicesSortedBy(key, asc)` - funzione ordinamento generica
 
-### v2.6.0 (Dezembro 2025)
-- **Reorganização das Abas:**
-  - Tab 1: Devices (mantido)
-  - Tab 2: Active Connections (com formulário de conexões + lista)
-  - Tab 3: Matrix (apenas matriz de conexões)
-- Formulário de conexões movido para aba Active Connections
-- Edit connection agora navega para aba Active Connections
-- Links edit/delete funcionais em todas as abas
-- Import/Export verificados e funcionais
+### v2.7.0 (Dicembre 2025)
+- **Nuova Tab Help:**
+  - Guida completa passo-passo
+  - Sezioni: Dispositivi, Connessioni, Matrice, Modifica/Elimina, Export/Import
+  - Spiegazione colori e simboli
+  - FAQ con domande frequenti
 
-### v2.5.2 (Dezembro 2025)
-- **Matriz - Overhaul Visual:**
-  - Headers horizontais: fundo escuro (#334155), borda colorida do rack
-  - Headers verticais: fundo claro (#f1f5f9), borda colorida do rack
-  - Número de posição em círculo (sem parênteses)
-  - Portas estilizadas: portA (claro) ⟷ portB (escuro)
-  - Cable ID usando createMarkerHtml() (consistente com Active Connections)
-  - Células de conexão com sombra e bordas arredondadas
-  - Controle de overflow para conteúdos extensos
-- **Impressão corrigida:**
-  - Badges de posição: fundo azul escuro (#1e40af) + texto branco
-  - Portas claras: borda cinza + texto preto para visibilidade
-  - Portas escuras: mantido fundo escuro + texto branco
-  - Cable markers: borda preta garantida
-  - Text-shadows removidos na impressão
+### v2.6.0 (Dicembre 2025)
+- **Riorganizzazione Tab:**
+  - Tab 1: Devices
+  - Tab 2: Active Connections (con form connessioni + lista)
+  - Tab 3: Matrix (solo matrice connessioni)
 
-### v2.5.1 (Dezembro 2025)
-- Matriz visual melhorada:
-  - Headers mostram: Rack (cor) + Nome + Posição (badge azul)
-  - Células uniformes 85x70px
-  - Fontes otimizadas (8px rack, 9px nome)
-  - Badge com espaçamento adequado (margin-top: 5px, padding: 2px 6px)
-- Correção de alinhamento entre headers e células
-- Verificação de código (sem erros, sem duplicações)
+### v2.5.2 (Dicembre 2025)
+- **Matrice - Overhaul Visivo:**
+  - Header orizzontali: sfondo scuro, bordo colorato rack
+  - Header verticali: sfondo chiaro, bordo colorato rack
+  - Celle connessione con ombra e bordi arrotondati
+- **Stampa corretta:**
+  - Badge posizione: sfondo blu scuro + testo bianco
+  - Text-shadow rimossi nella stampa
 
-### v2.5.0 (Dezembro 2025)
-- Limpeza de arquivos desnecessários
-- Documentação atualizada
-- start-server.bat para Windows
-- Validação robusta no import/export
+### v2.5.0 (Dicembre 2025)
+- Pulizia file non necessari
+- Documentazione aggiornata
+- start-server.bat per Windows
+- Validazione robusta in import/export
 
-### v2.4.0 (Dezembro 2025)
-- Arquitetura modular (app.js + ui-updates.js)
-- Sistema de Toast notifications
-- Validação robusta no PHP
-- Impressão melhorada
+### v2.4.0 (Dicembre 2025)
+- Architettura modulare (app.js + ui-updates.js)
+- Sistema Toast notifications
+- Validazione robusta in PHP
+- Stampa migliorata

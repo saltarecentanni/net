@@ -1,103 +1,142 @@
 # TIESSE Intranet Web App
 
-Aplicação web de gerenciamento de rede para deploy em intranet corporativa.
+Applicazione web di gestione della rete per deploy in intranet aziendale.
 
-**Versão:** 2.9.3
+**Versione:** 2.9.4
 
-## 🚀 Deploy Rápido
+## 🚀 Deploy Rapido
 
-### Opção 1: Script Automático (Recomendado) ⭐
+### Opzione 1: Script Automatico (Consigliato) ⭐
 
-1. Baixe PHP: https://windows.php.net/download/ (VS16 x64 Non Thread Safe)
-2. Extraia para a pasta `php/` (ao lado de `intranet/`)
-3. **Duplo-clique em `start-server.bat`**
-4. Acesse: http://localhost:8080/ ou http://SEU-IP:8080/
+1. Scarica PHP: https://windows.php.net/download/ (VS16 x64 Non Thread Safe)
+2. Estrai nella cartella `php/` (accanto a `intranet/`)
+3. **Doppio clic su `start-server.bat`**
+4. Accedi a: http://localhost:8080/ o http://TUO-IP:8080/
 
-Estrutura esperada:
+Struttura prevista:
 ```
 Tiesse-network-manager/
-├── start-server.bat   ← Duplo-clique aqui
-├── php/               ← PHP extraído aqui
-└── intranet/          ← Arquivos do sistema
+├── start-server.bat   ← Doppio clic qui
+├── php/               ← PHP estratto qui
+└── intranet/          ← File del sistema
 ```
 
-### Opção 2: PHP Manual
+### Opzione 2: PHP Manuale
 
 ```cmd
-cd C:\caminho\para\intranet
+cd C:\percorso\verso\intranet
 C:\php\php.exe -S 0.0.0.0:8080
 ```
 
-### Opção 3: Node.js
+### Opzione 3: Node.js
 
 ```bash
 cd intranet
 node server.js
 ```
 
-Acesse: http://localhost:3000/
+Accedi a: http://localhost:3000/
 
-## 📁 Estrutura de Arquivos
+## 📁 Struttura File
 
 ```
 intranet/
-├── index.html              # Página principal
-├── data.php                # API PHP para persistência
-├── server.js               # Servidor Node.js (alternativo)
-├── BLUEPRINT.md            # Documentação técnica completa
-├── README.md               # Este arquivo
+├── index.html              # Pagina principale
+├── data.php                # API PHP per persistenza
+├── server.js               # Server Node.js (alternativo)
+├── BLUEPRINT.md            # Documentazione tecnica completa
+├── README.md               # Questo file
 ├── js/
-│   ├── app.js              # Lógica principal
-│   └── ui-updates.js       # Renderização da interface
+│   ├── app.js              # Logica principale
+│   └── ui-updates.js       # Rendering dell'interfaccia
 └── data/
-    └── network_manager.json  # Dados (criado automaticamente)
+    └── network_manager.json  # Dati (creato automaticamente)
 ```
 
-## 🔧 Requisitos
+## 🔧 Requisiti
 
-### Com PHP
-- PHP 7+ (baixar ZIP, não precisa instalar)
+### Con PHP
+- PHP 7+ (scarica ZIP, non serve installare)
 
-### Com Node.js
+### Con Node.js
 - Node.js 14+
 
-### Sem servidor
-- Basta abrir `index.html` no navegador
-- Dados salvos apenas no localStorage
+### Senza server
+- Basta aprire `index.html` nel browser
+- Dati salvati solo in localStorage
 
 ## 📡 API REST
 
 ### GET /data.php
-Retorna os dados:
+Restituisce i dati:
 ```json
 {"devices": [], "connections": [], "nextDeviceId": 1}
 ```
 
 ### POST /data.php
-Salva os dados. Retorna:
+Salva i dati. Restituisce:
 ```json
 {"ok": true}
 ```
 
-## 💾 Persistência
+## 💾 Persistenza
 
-- Tenta salvar no servidor (PHP ou Node.js)
-- Se falhar, salva no localStorage
-- Carrega do servidor ou do arquivo JSON estático
+- Prova a salvare sul server (PHP o Node.js)
+- Se fallisce, salva in localStorage
+- Carica dal server o dal file JSON statico
 
-## 🖥️ Compatibilidade
+## 🖥️ Compatibilità
 
 - ✅ Chrome 80+
 - ✅ Firefox 75+
 - ✅ Edge 80+
 - ✅ Safari 13+
 
-## 📌 Versão
+## ✨ Funzionalità Principali
 
-**v2.9.3** - Dezembro 2025
+### Dispositivi
+- Cadastro completo (nome, rack, tipo, stato, descrizione)
+- Gestione porte per dispositivo
+- 24 colori automatici per rack
+- Vista Cards e Tabella
 
-### Novidades v2.9.3
-- Correção crítica: endpoint de salvamento corrigido para Node.js
+### Connessioni
+- Registrazione connessioni tra dispositivi
+- Tipi: LAN, WAN, Trunk, DMZ, Management, Fiber, Wall Jack, External
+- Stato: Attivo, Disabilitato
+- ID cavo, colore, note
+- **Patch Panel: supporto doppia connessione (fronte/retro)**
+
+### Matrice Visuale
+- Visualizzazione a griglia colorata per rack
+- Clic per modificare connessione
+- Colonne speciali per Wall Jack ed External
+
+### Stampa & Esportazione
+- 📊 Esporta in Excel (XLSX)
+- 📄 Esporta/Importa JSON
+- 🖨️ Stampa Matrice
+- 🖨️ Stampa Lista Connessioni
+- 💾 **Pulsante "Salva Ora" per salvataggio manuale immediato**
+
+## 📌 Changelog
+
+### v2.9.4 (Dicembre 2025)
+- ✨ **Nuovo pulsante "Salva Ora":** Salva manualmente tutti i dati in qualsiasi momento
+- ✨ **Patch Panel doppia connessione:** Le porte dei patch panel possono avere 2 connessioni (fronte e retro)
+  - Esempio: Wall jack → Porta 19 (retro) e Porta 19 → Switch porta 33 (fronte)
+  - Indicatori visivi: (Libera), (1/2 - disponibile), (2/2 - completa)
+- 🌍 **Guida utente in italiano:** Sezione Help completamente tradotta in italiano
+- 🖨️ **Stampa migliorata:** Colori preservati, allineamento corretto, badge visibili
+- 📚 Documentazione aggiornata
+
+### v2.9.3 (Dicembre 2025)
+- Correzione critica: endpoint di salvataggio corretto per Node.js
+
+### v2.9.1 (Dicembre 2025)
+- Wall Jack come Destinazione Speciale
+- Validazioni Complete (20 test)
+- Import/Export 100% funzionale
 - Frontend agora usa `/data` como endpoint principal
 - Servidor Node.js aceita múltiplas variações de endpoint
 - Persistência de dados funcionando corretamente
