@@ -19,6 +19,12 @@ Sistema web di gestione dell'infrastruttura di rete per ambienti aziendali.
 - 24 colori automatici per source
 - Vista Cards e Tabella
 
+#### Convenzione Numerazione Posizioni
+| Posizione | Direzione | Numerazione |
+|-----------|-----------|-------------|
+| **FRONTE** | Alto → Basso | 01, 02, 03... |
+| **RETRO (R)** | Basso → Alto | 99, 98, 97... |
+
 ### Connessioni
 - Registrazione connessioni tra dispositivi
 - Tipi: LAN, WAN, Trunk, DMZ, Management, Fiber, Wall Jack, External

@@ -124,6 +124,18 @@ intranet/
 }
 ```
 
+#### Convenzione Numerazione Posizioni
+
+| Posizione | Direzione | Numerazione | Esempio |
+|-----------|-----------|-------------|--------|
+| **FRONTE** | Alto → Basso | Crescente | 01, 02, 03, 04, 05... |
+| **RETRO (R)** | Basso → Alto | Decrescente | 99, 98, 97, 96... |
+| **Sparso** | N/A | 0 | 00 (non in rack) |
+
+> **Esempio:** Un rack con 5 dispositivi davanti e 3 dietro:
+> - Fronte: 01, 02, 03, 04, 05
+> - Retro: 99, 98, 97
+
 ### 3.3 Objeto Connection
 
 ```json
