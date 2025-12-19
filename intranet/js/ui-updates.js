@@ -89,8 +89,9 @@ function updateDevicesListCards(cont) {
             '<div class="flex-1 min-w-0">' +
             '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
             '<span class="text-xs font-semibold px-1.5 py-0.5 rounded uppercase" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span>' +
-            '<span class="text-xs text-slate-500">Rack Pos.</span>' +
+            '<span class="text-xs text-slate-500">Pos.</span>' +
             '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' +
+            (d.isRear ? '<span class="px-1 py-0.5 text-xs font-semibold rounded bg-amber-100 text-amber-700">REAR</span>' : '') +
             '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
             '</div>' +
             '<div class="font-bold text-base text-slate-800 truncate">' + d.name + '</div>' +
@@ -175,7 +176,7 @@ function updateDevicesListTable(cont) {
 
         html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200">';
         html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span></td>';
-        html += '<td class="p-2 text-center"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span></td>';
+        html += '<td class="p-2 text-center"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + (d.isRear ? ' <span class="text-xs text-amber-600 font-bold">R</span>' : '') + '</td>';
         html += '<td class="p-2 font-semibold text-slate-800">' + d.name + '</td>';
         html += '<td class="p-2 text-slate-600">' + (d.brandModel || '-') + '</td>';
         html += '<td class="p-2 text-slate-500 uppercase">' + d.type + '</td>';
@@ -674,6 +675,7 @@ function exportExcel() {
             devData.push({
                 'Source': d.rackId,
                 'Order': d.order,
+                'Position': d.isRear ? 'Rear' : 'Front',
                 'Name': d.name,
                 'Type/Brand': d.brandModel || '',
                 'Category': d.type,

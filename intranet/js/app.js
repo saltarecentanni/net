@@ -208,7 +208,7 @@ function highlightEditFields(formType, enable) {
     if (formType === 'connection') {
         fields = ['fromDevice', 'fromPort', 'toDevice', 'toPort', 'connType', 'connStatus', 'cableMarker', 'cableColor', 'connNotes'];
     } else if (formType === 'device') {
-        fields = ['rackId', 'deviceOrder', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceAddresses', 'deviceService', 'deviceNotes'];
+        fields = ['rackId', 'deviceOrder', 'deviceRear', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceAddresses', 'deviceService', 'deviceNotes'];
     }
     
     for (var i = 0; i < fields.length; i++) {
@@ -406,7 +406,9 @@ function saveDevice() {
     try {
         var editId = document.getElementById('deviceEditId').value;
         var rackId = document.getElementById('rackId').value.trim();
-        var order = parseInt(document.getElementById('deviceOrder').value, 10) || 1;
+        var orderVal = document.getElementById('deviceOrder').value;
+        var order = orderVal === '' ? 1 : parseInt(orderVal, 10);
+        var isRear = document.getElementById('deviceRear').checked;
         var name = document.getElementById('deviceName').value.trim();
         var brandModel = document.getElementById('deviceBrandModel').value.trim();
         var type = document.getElementById('deviceType').value;
@@ -452,6 +454,7 @@ function saveDevice() {
             id: editId ? parseInt(editId, 10) : appState.nextDeviceId++,
             rackId: rackId,
             order: order,
+            isRear: isRear,
             name: name,
             brandModel: brandModel,
             type: type,
@@ -491,6 +494,7 @@ function clearDeviceForm() {
     document.getElementById('deviceEditId').value = '';
     document.getElementById('rackId').value = '';
     document.getElementById('deviceOrder').value = '1';
+    document.getElementById('deviceRear').checked = false;
     document.getElementById('deviceName').value = '';
     document.getElementById('deviceBrandModel').value = '';
     document.getElementById('deviceType').value = 'router';
@@ -517,7 +521,8 @@ function editDevice(id) {
 
     document.getElementById('deviceEditId').value = d.id;
     document.getElementById('rackId').value = d.rackId || '';
-    document.getElementById('deviceOrder').value = d.order || 1;
+    document.getElementById('deviceOrder').value = d.order !== undefined ? d.order : 1;
+    document.getElementById('deviceRear').checked = d.isRear || false;
     document.getElementById('deviceName').value = d.name || '';
     document.getElementById('deviceBrandModel').value = d.brandModel || '';
     document.getElementById('deviceType').value = d.type || 'router';
@@ -997,9 +1002,10 @@ function updateDeviceSelects() {
     for (var i = 0; i < sorted.length; i++) {
         var d = sorted[i];
         var rackColor = getRackColor(d.rackId);
-        var statusOff = (d.status === 'disabled') ? ' [STATUS OFF]' : '';
-        var statusStyle = (d.status === 'disabled') ? 'color:' + rackColor + ';font-weight:bold;font-style:italic;' : 'color:' + rackColor + ';font-weight:bold;';
-        opts += '<option value="' + d.id + '" style="' + statusStyle + '">[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + statusOff + '</option>';
+        var statusPrefix = (d.status === 'disabled') ? '* ' : '';
+        var rearIndicator = d.isRear ? ' (R)' : '';
+        var statusStyle = 'color:' + rackColor + ';font-weight:bold;';
+        opts += '<option value="' + d.id + '" style="' + statusStyle + '">' + statusPrefix + '[' + d.rackId + '][' + String(d.order).padStart(2, '0') + '] ' + d.name + rearIndicator + '</option>';
     }
     // Special destinations: Wall Jack and External - highlighted in bold
     var specialOpts = '<option disabled style="font-size:10px;color:#94a3b8;">───── Special Destinations ─────</option>' +
