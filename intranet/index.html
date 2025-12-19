@@ -183,7 +183,7 @@
                 <div class="bg-slate-50 rounded-lg p-3 mb-4">
                     <h2 class="text-lg font-bold text-slate-800 mb-3">Add Device</h2>
                     <input type="hidden" id="deviceEditId" value="">
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 items-end">
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 xl:grid-cols-12 gap-2 items-end">
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Source *</label>
                             <input type="text" id="rackId" list="rackIdList" placeholder="Rack1" 
@@ -192,15 +192,13 @@
                         </div>
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Order *</label>
-                            <input type="number" id="deviceOrder" placeholder="01" min="0" value="1"
-                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold text-center text-sm">
-                            <p class="text-xs text-slate-400 mt-0.5">0 = loose device</p>
-                        </div>
-                        <div class="col-span-1">
-                            <label class="text-xs text-slate-600 mb-1 block">Position</label>
-                            <div class="flex items-center gap-2 h-9">
-                                <input type="checkbox" id="deviceRear" class="w-4 h-4 rounded border-slate-300">
-                                <label for="deviceRear" class="text-xs text-slate-600">Rear</label>
+                            <div class="flex gap-1 items-center">
+                                <input type="number" id="deviceOrder" placeholder="01" min="0" value="1"
+                                    class="w-16 px-2 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold text-center text-sm">
+                                <label class="flex items-center gap-1 px-2 py-1.5 bg-amber-50 border border-amber-300 rounded-lg cursor-pointer hover:bg-amber-100" title="Check if device is on back/rear of rack">
+                                    <input type="checkbox" id="deviceRear" class="w-3.5 h-3.5 rounded border-amber-400 text-amber-600">
+                                    <span class="text-xs font-semibold text-amber-700">Rear</span>
+                                </label>
                             </div>
                         </div>
                         <div class="col-span-2">
@@ -386,14 +384,16 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Legend for dropdown format -->
-                    <div class="mb-1 px-1">
-                        <p class="text-xs text-slate-500">ℹ️ [SOURCE] [POS] Device — <strong>*</strong> = disabled</p>
-                    </div>
-                    <div class="mt-2">
-                        <textarea id="connNotes" placeholder="Notes (optional)" rows="1"
-                            oninput="autoResizeTextarea(this)"
-                            class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
+                    <div class="flex gap-4 items-start mt-2">
+                        <div class="flex-1">
+                            <textarea id="connNotes" placeholder="Notes (optional)" rows="1"
+                                oninput="autoResizeTextarea(this)"
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
+                        </div>
+                        <!-- Legend for dropdown format -->
+                        <div class="text-xs text-slate-400 whitespace-nowrap pt-2">
+                            ℹ️ Format: [SOURCE][POS] Device — <strong class="text-red-500">*</strong> = disabled — <strong class="text-amber-600">(R)</strong> = rear
+                        </div>
                     </div>
                 </div>
 
@@ -448,7 +448,8 @@
                     <!-- Quick Start -->
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
                         <h2 class="text-lg font-bold text-blue-800 mb-2">🚀 Guida Rapida</h2>
-                        <p class="text-blue-700">Questo sistema ti aiuta a documentare la tua infrastruttura di rete. Puoi aggiungere dispositivi (router, switch, server), definire le loro porte e creare connessioni tra di essi. Usa il pulsante "Salva Ora" per salvare le modifiche.</p>
+                        <p class="text-blue-700">Questo sistema ti aiuta a documentare la tua infrastruttura di rete. Puoi aggiungere dispositivi (router, switch, server, dispositivi sparsi), definire le loro porte e creare connessioni tra di essi.</p>
+                        <p class="text-blue-600 text-sm mt-2"><strong>⚠️ Importante:</strong> Clicca sempre <span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs">💾 Salva Ora</span> per salvare le modifiche!</p>
                     </div>
 
                     <!-- Section 1: Adding Devices -->
@@ -478,8 +479,13 @@
                             <div class="flex items-start gap-3">
                                 <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">c</span>
                                 <div>
-                                    <p class="font-semibold text-slate-700">Imposta il numero di Ordine</p>
-                                    <p class="text-slate-600 text-sm">Questa è la posizione del dispositivo all'interno del rack. Usa <code class="bg-amber-100 px-1 rounded">1</code> per il primo dispositivo, <code class="bg-amber-100 px-1 rounded">2</code> per il secondo, ecc.</p>
+                                    <p class="font-semibold text-slate-700">Imposta Order e Posizione</p>
+                                    <p class="text-slate-600 text-sm">Il campo <strong>Order</strong> indica la posizione fisica nel rack:</p>
+                                    <ul class="text-slate-600 text-sm mt-2 ml-4 list-disc space-y-1">
+                                        <li><code class="bg-amber-100 px-1 rounded">1, 2, 3...</code> = Posizione nel rack (dall'alto o dal basso)</li>
+                                        <li><code class="bg-amber-100 px-1 rounded">0</code> = Dispositivo sparso/isolato (non in un rack)</li>
+                                    </ul>
+                                    <p class="text-slate-600 text-sm mt-2"><strong>Checkbox "Rear":</strong> Seleziona se il dispositivo è montato nella parte <strong>posteriore</strong> del rack. Apparirà con l'indicatore <span class="bg-amber-100 text-amber-700 px-1 rounded font-bold">REAR</span> o <span class="text-amber-600 font-bold">(R)</span>.</p>
                                 </div>
                             </div>
 
@@ -787,12 +793,32 @@
                         <div class="space-y-4">
                             <div>
                                 <p class="font-semibold text-amber-900">D: I miei dati vengono salvati automaticamente?</p>
-                                <p class="text-amber-800 text-sm">R: No, usa il pulsante "Salva Ora" per salvare manualmente. I dati vengono salvati nel browser (LocalStorage) e sul server. Il sistema prova prima l'endpoint Node.js (/data), poi ricade su /data.php.</p>
+                                <p class="text-amber-800 text-sm">R: <strong>No!</strong> Devi cliccare il pulsante verde "Salva Ora" per salvare. I dati vengono salvati nel browser e sul server.</p>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Cosa significa Order = 0?</p>
+                                <p class="text-amber-800 text-sm">R: Order 0 è per dispositivi "sparsi" o isolati che non sono montati in un rack. Ad esempio: un access point sul soffitto, un router in un'altra stanza.</p>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Quando devo usare il checkbox "Rear"?</p>
+                                <p class="text-amber-800 text-sm">R: Usa "Rear" quando un dispositivo è montato nella parte <strong>posteriore</strong> del rack. Esempio: hai 5 dispositivi davanti (1-5) e 2 dietro. Quelli dietro avranno "Rear" selezionato.</p>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Cosa significa * nelle liste?</p>
+                                <p class="text-amber-800 text-sm">R: Un asterisco <strong class="text-red-600">*</strong> prima del nome indica che il dispositivo è <strong>disabilitato</strong> (Status = Disabled).</p>
+                            </div>
+                            
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Cosa significa (R) nelle liste?</p>
+                                <p class="text-amber-800 text-sm">R: <strong class="text-amber-600">(R)</strong> indica che il dispositivo è montato nella parte posteriore (Rear) del rack.</p>
                             </div>
                             
                             <div>
                                 <p class="font-semibold text-amber-900">D: Più persone possono usarlo contemporaneamente?</p>
-                                <p class="text-amber-800 text-sm">R: Sì, se stai eseguendo il server PHP o Node.js. Tutti gli utenti nella rete possono accedervi. Nota: L'ultima persona a salvare sovrascriverà le modifiche precedenti.</p>
+                                <p class="text-amber-800 text-sm">R: Sì, ma attenzione: l'ultima persona a salvare sovrascriverà le modifiche degli altri!</p>
                             </div>
                             
                             <div>
@@ -802,7 +828,7 @@
                             
                             <div>
                                 <p class="font-semibold text-amber-900">D: Come faccio il backup dei miei dati?</p>
-                                <p class="text-amber-800 text-sm">R: Clicca "Export JSON" regolarmente. Conserva il file scaricato in un posto sicuro. Puoi ripristinarlo in qualsiasi momento usando "Import JSON".</p>
+                                <p class="text-amber-800 text-sm">R: Clicca "Export JSON" regolarmente. Conserva il file scaricato in un posto sicuro. Puoi ripristinarlo usando "Import JSON".</p>
                             </div>
 
                             <div>
