@@ -1,6 +1,6 @@
 /**
  * Tiesse Matrix Network - UI Update Functions
- * Version: 2.9.5
+ * Version: 1.9.9
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -125,16 +125,16 @@ function updateDevicesListTable(cont) {
 
     var html = '<table class="w-full text-xs border-collapse">';
     html += '<thead><tr class="bg-slate-700 text-white">';
-    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'rack\')">Rack' + sortIcon('rack') + '</th>';
-    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'order\')">Pos' + sortIcon('order') + '</th>';
-    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'name\')">Name' + sortIcon('name') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'rack\')">Source' + sortIcon('rack') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'order\')">Pos.' + sortIcon('order') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'name\')">Device Name' + sortIcon('name') + '</th>';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'brandModel\')">Brand/Model' + sortIcon('brandModel') + '</th>';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'type\')">Type' + sortIcon('type') + '</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'status\')">Status' + sortIcon('status') + '</th>';
     html += '<th class="p-2 text-left">IP/Network</th>';
     html += '<th class="p-2 text-left">Service</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'ports\')">Ports' + sortIcon('ports') + '</th>';
-    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'connections\')">Conn' + sortIcon('connections') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'connections\')">Connections' + sortIcon('connections') + '</th>';
     html += '<th class="p-2 text-center">Actions</th>';
     html += '</tr></thead><tbody>';
 
@@ -176,7 +176,7 @@ function updateDevicesListTable(cont) {
 
         html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200">';
         html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span></td>';
-        html += '<td class="p-2 text-center"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + (d.isRear ? ' <span class="text-xs text-amber-600 font-bold">R</span>' : '') + '</td>';
+        html += '<td class="p-2 text-center"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + (d.isRear ? '<span class="text-[9px] text-amber-600 font-bold ml-0.5">R</span>' : '') + '</td>';
         html += '<td class="p-2 font-semibold text-slate-800">' + d.name + '</td>';
         html += '<td class="p-2 text-slate-600">' + (d.brandModel || '-') + '</td>';
         html += '<td class="p-2 text-slate-500 uppercase">' + d.type + '</td>';
@@ -267,20 +267,167 @@ function getDevicesSortedBy(key, asc) {
 }
 
 // ============================================================================
-// MATRIX UPDATE (Full styling with colors and effects)
+// MATRIX UPDATE (Refactored - Clean, Modern Design)
 // ============================================================================
+
+// Matrix view state
+var matrixViewMode = 'compact'; // 'compact' or 'detailed'
+var matrixLegendVisible = true;
+
+function setMatrixView(mode) {
+    matrixViewMode = mode;
+    var compactBtn = document.getElementById('matrixViewCompact');
+    var detailedBtn = document.getElementById('matrixViewDetailed');
+    if (compactBtn && detailedBtn) {
+        if (mode === 'compact') {
+            compactBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-700 shadow-sm';
+            detailedBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-100';
+        } else {
+            compactBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-100';
+            detailedBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-700 shadow-sm';
+        }
+    }
+    updateMatrix();
+}
+
+function toggleMatrixLegend() {
+    matrixLegendVisible = !matrixLegendVisible;
+    var legend = document.getElementById('matrixLegend');
+    var icon = document.getElementById('legendToggleIcon');
+    if (legend) {
+        legend.style.display = matrixLegendVisible ? 'flex' : 'none';
+    }
+    if (icon) {
+        icon.textContent = matrixLegendVisible ? '▼' : '▶';
+    }
+}
+
+function updateMatrixStats() {
+    var statsContainer = document.getElementById('matrixStats');
+    if (!statsContainer) return;
+    
+    var totalDevices = appState.devices.length;
+    var totalConnections = appState.connections.length;
+    var activeConnections = 0;
+    var disabledConnections = 0;
+    var connectionsByType = {};
+    var racks = {};
+    
+    for (var i = 0; i < appState.connections.length; i++) {
+        var conn = appState.connections[i];
+        if (conn.status === 'active') activeConnections++;
+        else disabledConnections++;
+        
+        var type = conn.type || 'other';
+        connectionsByType[type] = (connectionsByType[type] || 0) + 1;
+    }
+    
+    for (var j = 0; j < appState.devices.length; j++) {
+        var rack = appState.devices[j].rackId || 'Unassigned';
+        racks[rack] = (racks[rack] || 0) + 1;
+    }
+    
+    var html = '';
+    html += '<div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 text-white">' +
+        '<div class="text-2xl font-bold">' + totalDevices + '</div>' +
+        '<div class="text-xs opacity-80">Devices</div></div>';
+    
+    html += '<div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-3 text-white">' +
+        '<div class="text-2xl font-bold">' + totalConnections + '</div>' +
+        '<div class="text-xs opacity-80">Connections</div></div>';
+    
+    html += '<div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-3 text-white">' +
+        '<div class="text-2xl font-bold">' + activeConnections + '</div>' +
+        '<div class="text-xs opacity-80">Active</div></div>';
+    
+    html += '<div class="bg-gradient-to-br from-red-400 to-red-500 rounded-lg p-3 text-white">' +
+        '<div class="text-2xl font-bold">' + disabledConnections + '</div>' +
+        '<div class="text-xs opacity-80">Disabled</div></div>';
+    
+    html += '<div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-3 text-white">' +
+        '<div class="text-2xl font-bold">' + Object.keys(racks).length + '</div>' +
+        '<div class="text-xs opacity-80">Racks/Sources</div></div>';
+    
+    // Most common connection type
+    var topType = 'N/A';
+    var topCount = 0;
+    for (var t in connectionsByType) {
+        if (connectionsByType[t] > topCount) {
+            topCount = connectionsByType[t];
+            topType = config.connLabels[t] || t;
+        }
+    }
+    html += '<div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-3 text-white">' +
+        '<div class="text-lg font-bold truncate">' + topType + '</div>' +
+        '<div class="text-xs opacity-80">Most Used (' + topCount + ')</div></div>';
+    
+    statsContainer.innerHTML = html;
+}
+
+function showMatrixTooltip(event, connIdx) {
+    var tooltip = document.getElementById('matrixTooltip');
+    if (!tooltip || connIdx < 0 || connIdx >= appState.connections.length) return;
+    
+    var conn = appState.connections[connIdx];
+    var fromDevice = null;
+    var toDevice = null;
+    
+    for (var i = 0; i < appState.devices.length; i++) {
+        if (appState.devices[i].id === conn.from) fromDevice = appState.devices[i];
+        if (appState.devices[i].id === conn.to) toDevice = appState.devices[i];
+    }
+    
+    var fromName = fromDevice ? fromDevice.name : 'Unknown';
+    var toName = toDevice ? toDevice.name : (conn.externalDest || 'External');
+    var typeName = config.connLabels[conn.type] || conn.type;
+    var connColor = conn.color || config.connColors[conn.type] || '#6b7280';
+    
+    var html = '<div class="font-bold text-sm mb-2" style="color:' + connColor + '">' + typeName + '</div>';
+    html += '<div class="space-y-1">';
+    html += '<div><span class="text-slate-400">From:</span> ' + fromName + ' <span class="text-blue-300">[' + (conn.fromPort || '-') + ']</span></div>';
+    html += '<div><span class="text-slate-400">To:</span> ' + toName + ' <span class="text-blue-300">[' + (conn.toPort || '-') + ']</span></div>';
+    if (conn.cableMarker) {
+        html += '<div><span class="text-slate-400">Cable:</span> ' + conn.cableMarker + '</div>';
+    }
+    if (conn.notes) {
+        html += '<div class="text-slate-300 italic mt-1 text-[10px]">' + conn.notes + '</div>';
+    }
+    html += '</div>';
+    html += '<div class="text-[10px] text-slate-400 mt-2 border-t border-slate-600 pt-1">Click to edit</div>';
+    
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (event.pageX + 15) + 'px';
+    tooltip.style.top = (event.pageY + 10) + 'px';
+}
+
+function hideMatrixTooltip() {
+    var tooltip = document.getElementById('matrixTooltip');
+    if (tooltip) tooltip.style.display = 'none';
+}
+
 function updateMatrix() {
     var cont = document.getElementById('matrixContainer');
     if (!cont) return;
     
+    // Update stats
+    updateMatrixStats();
+    
     if (appState.devices.length === 0) {
-        cont.innerHTML = '<p class="text-slate-400 text-center py-6 text-sm">Add devices to see the matrix</p>';
+        cont.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-slate-400">' +
+            '<div class="text-6xl mb-4">📡</div>' +
+            '<div class="text-lg font-medium">No devices yet</div>' +
+            '<div class="text-sm">Add devices in the Devices tab to see the connection matrix</div>' +
+            '</div>';
         return;
     }
 
     var sorted = getSorted();
+    var isCompact = matrixViewMode === 'compact';
+    var cellSize = isCompact ? 60 : 90;
+    var cellHeight = isCompact ? 50 : 75;
     
-    // Check if there are special destination connections (wallport/external with to=null)
+    // Check for special connections
     var hasWallJackConnections = false;
     var hasExternalConnections = false;
     var wallJackConnections = [];
@@ -299,99 +446,130 @@ function updateMatrix() {
         }
     }
 
-    var html = '<table id="matrixTable" class="border-collapse text-xs"><thead><tr>';
-    html += '<th class="p-2 sticky-col font-bold text-center whitespace-nowrap" style="border:1px solid #64748b;background-color:#334155;color:#ffffff;"><div style="font-size:11px;">Devices</div><div style="font-size:10px;color:#94a3b8;">Total ' + sorted.length + '</div></th>';
+    var html = '<table id="matrixTable" class="border-collapse" style="border-spacing:0;">';
+    
+    // HEADER ROW
+    html += '<thead><tr>';
+    
+    // Corner cell with summary
+    html += '<th class="sticky left-0 z-20 p-2 text-center align-middle" style="min-width:' + (cellSize + 20) + 'px;background:linear-gradient(135deg,#1e293b 0%,#334155 100%);border:none;border-radius:8px 0 0 0;">' +
+        '<div class="text-white font-bold text-xs">MATRIX</div>' +
+        '<div class="text-slate-400 text-[10px]">' + sorted.length + ' devices</div>' +
+        '</th>';
 
-    // HEADER HORIZONTAL - Fundo ESCURO preenchido com cor do rack
+    // Column headers (destination devices)
     for (var i = 0; i < sorted.length; i++) {
         var d = sorted[i];
         var rackColor = getRackColor(d.rackId);
         var posNum = String(d.order || 0).padStart(2, '0');
-        var rackName = (d.rackId || '').toUpperCase();
-        html += '<th class="p-1 text-center" data-col="' + i + '" style="min-width:95px;width:95px;border:2px solid ' + rackColor + ';background-color:#334155;">' +
-            '<div style="font-size:8px;font-weight:600;color:' + rackColor + ';line-height:1.4;">' + rackName + '</div>' +
-            '<div style="font-size:9px;font-weight:700;color:#ffffff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + d.name + '</div>' +
-            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:9px;font-weight:700;border-radius:50%;background-color:#dbeafe;color:#1e40af;">' + posNum + '</span>' +
-            '</th>';
+        var isDisabled = d.status === 'disabled';
+        
+        html += '<th class="p-1 text-center align-middle relative group" style="min-width:' + cellSize + 'px;width:' + cellSize + 'px;background-color:#1e293b;border-left:3px solid ' + rackColor + ';">' +
+            '<div class="flex flex-col items-center justify-center h-full py-1">' +
+            // Position badge
+            '<span class="inline-flex items-center justify-center w-5 h-5 text-[9px] font-bold rounded-full mb-1" style="background-color:' + rackColor + '22;color:' + rackColor + ';border:1px solid ' + rackColor + ';">' + posNum + '</span>' +
+            // Device name
+            '<div class="text-[9px] font-semibold text-white leading-tight text-center max-w-full px-0.5" style="word-break:break-word;' + (isDisabled ? 'opacity:0.5;' : '') + '" title="' + d.name + '">' + 
+            (d.name.length > 10 ? d.name.substring(0,9) + '…' : d.name) + 
+            '</div>' +
+            // Rack name
+            '<div class="text-[8px] font-medium mt-0.5" style="color:' + rackColor + ';">' + (d.rackId || '').toUpperCase() + '</div>' +
+            '</div></th>';
     }
     
-    // Add special destination columns if there are such connections
+    // Special columns
     if (hasWallJackConnections) {
-        html += '<th class="p-1 text-center" style="min-width:95px;width:95px;border:2px solid #a78bfa;background-color:#334155;">' +
-            '<div style="font-size:8px;font-weight:600;color:#a78bfa;line-height:1.4;">SPECIAL</div>' +
-            '<div style="font-size:9px;font-weight:700;color:#ffffff;line-height:1.3;">🔌 Wall Jack</div>' +
-            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:12px;">🏠</span>' +
-            '</th>';
+        html += '<th class="p-1 text-center align-middle" style="min-width:' + cellSize + 'px;width:' + cellSize + 'px;background-color:#1e293b;border-left:3px solid #a78bfa;">' +
+            '<div class="flex flex-col items-center justify-center py-1">' +
+            '<span class="text-xl">🔌</span>' +
+            '<div class="text-[9px] font-semibold text-white">Wall Jack</div>' +
+            '</div></th>';
     }
     if (hasExternalConnections) {
-        html += '<th class="p-1 text-center" style="min-width:95px;width:95px;border:2px solid #ef4444;background-color:#334155;">' +
-            '<div style="font-size:8px;font-weight:600;color:#ef4444;line-height:1.4;">SPECIAL</div>' +
-            '<div style="font-size:9px;font-weight:700;color:#ffffff;line-height:1.3;">📡 External</div>' +
-            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:12px;">🌐</span>' +
-            '</th>';
+        html += '<th class="p-1 text-center align-middle" style="min-width:' + cellSize + 'px;width:' + cellSize + 'px;background-color:#1e293b;border-left:3px solid #ef4444;">' +
+            '<div class="flex flex-col items-center justify-center py-1">' +
+            '<span class="text-xl">🌐</span>' +
+            '<div class="text-[9px] font-semibold text-white">External</div>' +
+            '</div></th>';
     }
     
     html += '</tr></thead><tbody>';
 
-    // ROWS
+    // DATA ROWS
     for (var r = 0; r < sorted.length; r++) {
         var row = sorted[r];
         var rowRackColor = getRackColor(row.rackId);
         var rowPosNum = String(row.order || 0).padStart(2, '0');
-        var rowRackName = (row.rackId || '').toUpperCase();
+        var rowDisabled = row.status === 'disabled';
+        var rowBg = r % 2 === 0 ? '#ffffff' : '#f8fafc';
         
-        // HEADER VERTICAL - Fundo CLARO preenchido com cor do rack
-        html += '<tr data-row="' + r + '"><td class="p-1 sticky-col text-center" style="min-width:95px;width:95px;border:2px solid ' + rowRackColor + ';background-color:#f1f5f9;">' +
-            '<div style="font-size:8px;font-weight:600;color:' + rowRackColor + ';line-height:1.4;">' + rowRackName + '</div>' +
-            '<div style="font-size:9px;font-weight:700;color:#1e293b;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + row.name + '</div>' +
-            '<span style="display:inline-flex;align-items:center;justify-content:center;margin-top:3px;width:20px;height:20px;font-size:9px;font-weight:700;border-radius:50%;background-color:#dbeafe;color:#1e40af;">' + rowPosNum + '</span>' +
-            '</td>';
+        html += '<tr>';
+        
+        // Row header (source device)
+        html += '<td class="sticky left-0 z-10 p-1 text-center align-middle" style="min-width:' + (cellSize + 20) + 'px;background-color:#f1f5f9;border-top:2px solid ' + rowRackColor + ';border-bottom:1px solid #e2e8f0;">' +
+            '<div class="flex items-center gap-2 px-1">' +
+            '<span class="inline-flex items-center justify-center w-5 h-5 text-[9px] font-bold rounded-full flex-shrink-0" style="background-color:' + rowRackColor + '22;color:' + rowRackColor + ';border:1px solid ' + rowRackColor + ';">' + rowPosNum + '</span>' +
+            '<div class="text-left flex-1 min-w-0">' +
+            '<div class="text-[10px] font-bold text-slate-800 truncate' + (rowDisabled ? ' opacity-50' : '') + '" title="' + row.name + '">' + row.name + '</div>' +
+            '<div class="text-[8px] font-medium" style="color:' + rowRackColor + ';">' + (row.rackId || '').toUpperCase() + '</div>' +
+            '</div></div></td>';
 
+        // Data cells
         for (var c = 0; c < sorted.length; c++) {
             var col = sorted[c];
-            var colRackColor = getRackColor(col.rackId);
             var connIdx = getConnectionIndex(row.id, col.id);
 
-            // DIAGONAL - Célula transparente/mínima
             if (row.id === col.id) {
-                html += '<td class="matrix-cell" data-row="' + r + '" data-col="' + c + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background:linear-gradient(135deg, #f1f5f9 50%, #e2e8f0 50%);border:1px solid #e2e8f0;"></td>';
+                // Diagonal - self reference
+                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background:repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 4px,#e2e8f0 4px,#e2e8f0 8px);border:1px solid #e2e8f0;">' +
+                    '<div class="w-full h-full flex items-center justify-center text-slate-300 text-lg">—</div></td>';
             } else if (connIdx >= 0) {
+                // Connection exists
                 var conn = appState.connections[connIdx];
-                var shortType = conn.type ? (conn.type.substring(0,3).toUpperCase()) : '';
-                var cableColor = conn.cableColor || '#ffffff';
+                var connColor = conn.color || config.connColors[conn.type] || '#6b7280';
+                var isConnDisabled = conn.status === 'disabled';
                 
-                // Determine port display based on which device is in row vs column
-                // portA = vertical (row) = fundo claro, portB = horizontal (col) = fundo escuro
-                var portA = '';
-                var portB = '';
-                if (conn.from === row.id) {
-                    portA = conn.fromPort || '-';
-                    portB = conn.toPort || '-';
+                // Determine ports
+                var portA = conn.from === row.id ? conn.fromPort : conn.toPort;
+                var portB = conn.from === row.id ? conn.toPort : conn.fromPort;
+                
+                if (isCompact) {
+                    // Compact view - just colored cell with type indicator
+                    html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105 hover:z-10" ' +
+                        'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;padding:3px;" ' +
+                        'onclick="editConnection(' + connIdx + ')" ' +
+                        'onmouseenter="showMatrixTooltip(event,' + connIdx + ')" ' +
+                        'onmouseleave="hideMatrixTooltip()">' +
+                        '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md transition-shadow hover:shadow-lg' + (isConnDisabled ? ' opacity-50' : '') + '" style="background-color:' + connColor + ';">' +
+                        '<div class="text-[10px] font-bold text-white uppercase">' + (conn.type || '').substring(0,3) + '</div>' +
+                        (conn.cableMarker ? '<div class="text-[8px] text-white/80 font-medium mt-0.5">' + conn.cableMarker + '</div>' : '') +
+                        '</div></td>';
                 } else {
-                    portA = conn.toPort || '-';
-                    portB = conn.fromPort || '-';
+                    // Detailed view - full info
+                    var markerHtml = conn.cableMarker ? '<div class="mt-1">' + createMarkerHtml(conn.cableMarker, conn.cableColor || '#ffffff', true) + '</div>' : '';
+                    
+                    html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105 hover:z-10" ' +
+                        'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;padding:3px;" ' +
+                        'onclick="editConnection(' + connIdx + ')" ' +
+                        'onmouseenter="showMatrixTooltip(event,' + connIdx + ')" ' +
+                        'onmouseleave="hideMatrixTooltip()">' +
+                        '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md p-1' + (isConnDisabled ? ' opacity-50' : '') + '" style="background-color:' + connColor + ';">' +
+                        '<div class="text-[9px] font-bold text-white">' + (config.connLabels[conn.type] || conn.type || 'N/A').substring(0,6) + '</div>' +
+                        '<div class="flex items-center gap-1 mt-1">' +
+                        '<span class="text-[8px] px-1 py-0.5 bg-white/20 rounded text-white font-mono">' + (portA || '-') + '</span>' +
+                        '<span class="text-[10px] text-white/70">↔</span>' +
+                        '<span class="text-[8px] px-1 py-0.5 bg-black/20 rounded text-white font-mono">' + (portB || '-') + '</span>' +
+                        '</div>' +
+                        markerHtml +
+                        '</div></td>';
                 }
-                
-                // Cable marker usando createMarkerHtml (mesmo estilo do Active Connections)
-                var markerHtml = conn.cableMarker ? '<div style="margin-top:3px;">' + createMarkerHtml(conn.cableMarker, cableColor, true) + '</div>' : '';
-                
-                html += '<td class="matrix-cell border p-0 text-center cursor-pointer hover:opacity-90" data-row="' + r + '" data-col="' + c + '" data-conn="' + connIdx + '" data-cable-color="' + cableColor + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#f8fafc;padding:3px;" onclick="editConnection(' + connIdx + ')">' +
-                    '<div style="background-color:' + conn.color + ';padding:4px 3px;border-radius:6px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.1);overflow:hidden;">' +
-                    '<div style="font-size:9px;font-weight:700;color:#fff;text-shadow:1px 1px 1px rgba(0,0,0,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;">' + shortType + '</div>' +
-                    '<div style="font-weight:bold;white-space:nowrap;display:flex;justify-content:center;align-items:center;gap:2px;margin-top:2px;max-width:85px;">' +
-                    '<span style="font-size:9px;color:#1e293b;background-color:#f1f5f9;padding:2px 4px;border-radius:6px;font-weight:700;max-width:35px;overflow:hidden;text-overflow:ellipsis;">' + portA + '</span>' +
-                    '<span style="font-size:9px;color:#fde047;text-shadow:1px 1px 1px rgba(0,0,0,0.5);">⟷</span>' +
-                    '<span style="font-size:9px;color:#ffffff;background-color:#334155;padding:2px 4px;border-radius:6px;font-weight:700;max-width:35px;overflow:hidden;text-overflow:ellipsis;">' + portB + '</span>' +
-                    '</div>' +
-                    markerHtml +
-                    '</div>' +
-                    '</td>';
             } else {
-                html += '<td class="matrix-cell border p-1" data-row="' + r + '" data-col="' + c + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#fff;border:1px solid #e2e8f0;"></td>';
+                // No connection - empty cell
+                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;"></td>';
             }
         }
         
-        // Add Wall Jack column cell for this row
+        // Wall Jack column
         if (hasWallJackConnections) {
             var wjConn = null;
             var wjConnIdx = -1;
@@ -403,25 +581,19 @@ function updateMatrix() {
                 }
             }
             if (wjConn) {
-                var wjShortType = wjConn.type ? (wjConn.type.substring(0,3).toUpperCase()) : 'WJ';
-                var wjCableColor = wjConn.cableColor || '#a78bfa';
-                var wjMarkerHtml = wjConn.cableMarker ? '<div style="margin-top:3px;">' + createMarkerHtml(wjConn.cableMarker, wjCableColor, true) + '</div>' : '';
-                var wjDestLabel = wjConn.externalDest || 'Wall Jack';
-                
-                html += '<td class="matrix-cell border p-0 text-center cursor-pointer hover:opacity-90" data-conn="' + wjConnIdx + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#faf5ff;padding:3px;border:2px solid #a78bfa;" onclick="editConnection(' + wjConnIdx + ')">' +
-                    '<div style="background-color:' + (wjConn.color || '#a78bfa') + ';padding:4px 3px;border-radius:6px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.25);overflow:hidden;">' +
-                    '<div style="font-size:8px;font-weight:700;color:#fff;text-shadow:1px 1px 1px rgba(0,0,0,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;">' + wjShortType + '</div>' +
-                    '<div style="font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:2px;">' + (wjConn.fromPort || '-') + '</div>' +
-                    '<div style="font-size:7px;color:#fde047;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:1px;">→ ' + wjDestLabel + '</div>' +
-                    wjMarkerHtml +
-                    '</div>' +
-                    '</td>';
+                html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105" ' +
+                    'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#faf5ff;border:1px solid #e9d5ff;padding:3px;" ' +
+                    'onclick="editConnection(' + wjConnIdx + ')">' +
+                    '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md" style="background-color:#a78bfa;">' +
+                    '<div class="text-[9px] font-bold text-white">' + (wjConn.fromPort || '-') + '</div>' +
+                    '<div class="text-[8px] text-white/80 truncate max-w-full px-1">→ ' + (wjConn.externalDest || 'WJ') + '</div>' +
+                    '</div></td>';
             } else {
-                html += '<td class="matrix-cell border p-1" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#faf5ff;border:1px solid #e9d5ff;"></td>';
+                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#faf5ff;border:1px solid #e9d5ff;"></td>';
             }
         }
         
-        // Add External column cell for this row
+        // External column
         if (hasExternalConnections) {
             var extConn = null;
             var extConnIdx = -1;
@@ -433,26 +605,21 @@ function updateMatrix() {
                 }
             }
             if (extConn) {
-                var extShortType = extConn.type ? (extConn.type.substring(0,3).toUpperCase()) : 'EXT';
-                var extCableColor = extConn.cableColor || '#ef4444';
-                var extMarkerHtml = extConn.cableMarker ? '<div style="margin-top:3px;">' + createMarkerHtml(extConn.cableMarker, extCableColor, true) + '</div>' : '';
-                var extDestLabel = extConn.externalDest || 'External/WAN';
-                
-                html += '<td class="matrix-cell border p-0 text-center cursor-pointer hover:opacity-90" data-conn="' + extConnIdx + '" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#fef2f2;padding:3px;border:2px solid #ef4444;" onclick="editConnection(' + extConnIdx + ')">' +
-                    '<div style="background-color:' + (extConn.color || '#ef4444') + ';padding:4px 3px;border-radius:6px;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.25);overflow:hidden;">' +
-                    '<div style="font-size:8px;font-weight:700;color:#fff;text-shadow:1px 1px 1px rgba(0,0,0,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;">' + extShortType + '</div>' +
-                    '<div style="font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:2px;">' + (extConn.fromPort || '-') + '</div>' +
-                    '<div style="font-size:7px;color:#fde047;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;margin-top:1px;">→ ' + extDestLabel + '</div>' +
-                    extMarkerHtml +
-                    '</div>' +
-                    '</td>';
+                html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105" ' +
+                    'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#fef2f2;border:1px solid #fecaca;padding:3px;" ' +
+                    'onclick="editConnection(' + extConnIdx + ')">' +
+                    '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md" style="background-color:#ef4444;">' +
+                    '<div class="text-[9px] font-bold text-white">' + (extConn.fromPort || '-') + '</div>' +
+                    '<div class="text-[8px] text-white/80 truncate max-w-full px-1">→ ' + (extConn.externalDest || 'EXT') + '</div>' +
+                    '</div></td>';
             } else {
-                html += '<td class="matrix-cell border p-1" style="width:95px;min-width:95px;max-width:95px;height:75px;background-color:#fef2f2;border:1px solid #fecaca;"></td>';
+                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#fef2f2;border:1px solid #fecaca;"></td>';
             }
         }
         
         html += '</tr>';
     }
+    
     html += '</tbody></table>';
     cont.innerHTML = html;
 }
@@ -473,18 +640,18 @@ function updateConnectionsList() {
 
     // Prepare sortable headers (key -> field)
     var headers = [
-        { key: 'id', label: 'ID', printHide: true },
-        { key: 'fromRack', label: 'Src Rack' },
-        { key: 'fromPos', label: 'Rack Pos.' },
-        { key: 'fromDevice', label: 'Src Device' },
+        { key: 'id', label: '#', printHide: true },
+        { key: 'fromRack', label: 'Source' },
+        { key: 'fromPos', label: 'Pos.' },
+        { key: 'fromDevice', label: 'From Device' },
         { key: 'fromPort', label: 'Src Port' },
         { key: 'arrow', label: '' },
         { key: 'toPort', label: 'Dst Port' },
-        { key: 'toDevice', label: 'Dst Device' },
-        { key: 'toPos', label: 'Dst Pos.' },
-        { key: 'toRack', label: 'Dst Rack' },
+        { key: 'toDevice', label: 'To Device' },
+        { key: 'toPos', label: 'Pos.' },
+        { key: 'toRack', label: 'Destination' },
         { key: 'type', label: 'Type' },
-        { key: 'marker', label: 'Cable ID' },
+        { key: 'marker', label: 'Cable' },
         { key: 'status', label: 'Status' },
         { key: 'notes', label: 'Notes' },
         { key: 'actions', label: '', noPrint: true }
@@ -547,13 +714,28 @@ function updateConnectionsList() {
         var na = parseFloat(va);
         var nb = parseFloat(vb);
         if (!isNaN(na) && !isNaN(nb)) {
-            return appState.connSort.asc ? na - nb : nb - na;
+            var diff = appState.connSort.asc ? na - nb : nb - na;
+            // Secondary sort by position when sorting by rack
+            if (diff === 0 && (appState.connSort.key === 'fromRack' || appState.connSort.key === 'toRack')) {
+                var posKey = appState.connSort.key === 'fromRack' ? 'fromPos' : 'toPos';
+                var posA = valueFor(a, posKey, idxA);
+                var posB = valueFor(b, posKey, idxB);
+                return appState.connSort.asc ? posA - posB : posB - posA;
+            }
+            return diff;
         }
 
         va = (va || '').toString().toLowerCase();
         vb = (vb || '').toString().toLowerCase();
         if (va < vb) return appState.connSort.asc ? -1 : 1;
         if (va > vb) return appState.connSort.asc ? 1 : -1;
+        // Secondary sort by position when primary values are equal (string comparison)
+        if (appState.connSort.key === 'fromRack' || appState.connSort.key === 'toRack') {
+            var posKey2 = appState.connSort.key === 'fromRack' ? 'fromPos' : 'toPos';
+            var posA2 = valueFor(a, posKey2, idxA);
+            var posB2 = valueFor(b, posKey2, idxB);
+            return appState.connSort.asc ? posA2 - posB2 : posB2 - posA2;
+        }
         return 0;
     });
 

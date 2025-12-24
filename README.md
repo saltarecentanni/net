@@ -2,7 +2,7 @@
 
 Sistema web di gestione dell'infrastruttura di rete per ambienti aziendali.
 
-**Versione attuale:** 2.9.5
+**Versione attuale:** 1.9.9
 
 ## 📋 Panoramica
 

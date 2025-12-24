@@ -2,7 +2,7 @@
 
 Applicazione web di gestione della rete per deploy in intranet aziendale.
 
-**Versione:** 2.9.5
+**Versione:** 1.9.9
 
 ## 🚀 Deploy Rapido
 
@@ -129,6 +129,15 @@ Salva i dati. Restituisce:
 - 💾 **Pulsante "Salva Ora" per salvataggio manuale immediato**
 
 ## 📌 Changelog
+
+### v1.9.9 (Dicembre 2025)
+- 🎨 **Branding Tiesse S.P.A.**: Logo e nome azienda nell'header
+- 🖨️ **Stampa Professionale**: Report completamente ridisegnati con header/footer aziendali
+- 🔗 **Matrice Ridisegnata**: Vista compatta/dettagliata, statistiche, legenda collassabile
+- ✨ **Pulsante Annulla**: Possibilità di annullare modifiche dispositivo
+- 🏷️ **Etichette Migliorate**: "Source" invece di "Src Rack", "From Device"/"To Device"
+- 🔧 **Fix Ordinamento**: Ordinamento secondario per posizione quando si ordina per rack
+- 📏 **Indicatore "R" ridotto**: Migliore allineamento nelle tabelle
 
 ### v2.9.5 (Dicembre 2025)
 - ✨ **Campo Source**: rinominato da "Rack ID" per supportare dispositivi sparsi

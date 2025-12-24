@@ -1,8 +1,8 @@
 # TIESSE Matrix Network - Blueprint Tecnico
 
-**Versione:** 2.9.5  
+**Versione:** 1.9.9  
 **Data:** Dicembre 2025  
-**Autore:** TIESSE
+**Autore:** Tiesse S.P.A.
 
 ---
 
@@ -17,13 +17,19 @@ Sistema web di gestione dell'infrastruttura di rete per ambienti aziendali. Perm
 - Esportare dati in Excel/JSON per documentazione
 - Permettere accesso multi-utente via rete locale
 
-### 1.3 Novità v2.9.5
+### 1.3 Novità v1.9.9
+- **Branding Tiesse S.P.A.:** Logo e nome azienda nell'header principale
+- **Stampa Professionale:** Report con header/footer aziendali, statistiche, allineamento migliorato
+- **Matrice Ridisegnata:** Vista compatta/dettagliata, barra statistiche, legenda collassabile
+- **Pulsante Annulla Modifica:** Per annullare modifiche dispositivo in corso
+- **Etichette UI Migliorate:** "Source" invece di "Src Rack", "From Device"/"To Device"
+- **Fix Ordinamento Connessioni:** Ordinamento secondario per posizione
+- **Indicatore "R" Compatto:** Allineamento migliorato nelle tabelle
 - **Campo Source:** Rinominato da "Rack ID" per supportare dispositivi sparsi
 - **Order = 0:** Per dispositivi non montati in rack
 - **Checkbox Rear:** Indica dispositivi nella parte posteriore del rack
 - **Indicatori dropdown:** * = disabled, (R) = rear
 - **Export Excel:** Nuova colonna Position (Front/Rear)
-- **Help aggiornato:** Nuove FAQ su Order 0, Rear, indicatori
 
 ---
 

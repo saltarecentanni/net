@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2.9.5">
+    <meta name="app-version" content="1.9.9">
     <title>Tiesse Matrix Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -111,13 +111,21 @@
         <!-- Header -->
         <div class="bg-white rounded-xl shadow-lg p-4 mb-4">
             <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800 mb-1">Tiesse Matrix Network</h1>
-                    <p class="text-slate-600 text-sm">Visual matrix of network devices, ports and connections</p>
+                <div class="flex items-center gap-4">
+                    <!-- Logo Tiesse -->
+                    <img src="logoTiesse.png" alt="Tiesse S.P.A." class="h-10 w-auto">
+                    <div>
+                        <div class="flex items-baseline gap-2">
+                            <h1 class="text-2xl font-bold text-slate-800">Tiesse Matrix Network</h1>
+                            <span class="text-xs text-slate-400 font-medium">by Tiesse S.P.A.</span>
+                        </div>
+                        <p class="text-slate-600 text-sm">Gestione visuale di dispositivi di rete, porte e connessioni</p>
+                    </div>
                 </div>
                 <div class="text-right text-xs text-slate-500">
-                    <div>💾 Manual Save: LocalStorage + Server</div>
-                    <div class="text-slate-600 mt-1">Version: <span id="appVersion" class="font-semibold">v2.5.0</span></div>
+                    <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
+                    <div>💾 Salvataggio: LocalStorage + Server</div>
+                    <div class="text-slate-600 mt-1">Versione: <span id="appVersion" class="font-semibold">v2.5.0</span></div>
                 </div>
             </div>
         </div>
@@ -241,6 +249,10 @@
                             <button onclick="saveDevice()" 
                                 class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" id="saveDeviceButton">
                                 Add Device
+                            </button>
+                            <button onclick="cancelDeviceEdit()" id="cancelDeviceButton"
+                                class="hidden bg-orange-400 hover:bg-orange-500 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                                Cancel
                             </button>
                             <button onclick="clearDeviceForm()" 
                                 class="bg-slate-400 hover:bg-slate-500 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
@@ -413,22 +425,65 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Matrix (only) -->
+            <!-- Tab 3: Matrix (Refactored) -->
             <div id="content-matrix" class="tab-content">
                 <div id="matrixPrintArea">
-                    <div class="flex items-center justify-between mb-2">
-                        <h2 class="text-lg font-bold text-slate-800">Connection Matrix</h2>
-                        <div class="flex gap-2">
-                            <button onclick="toggleMatrix()" id="toggleMatrixBtn" class="no-print bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-lg text-xs" style="display:none;">
+                    <!-- Header com título e controles -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">🔗 Connection Matrix</h2>
+                            <p class="text-xs text-slate-500">Visual map of all network connections</p>
+                        </div>
+                        <div class="flex items-center gap-3 no-print">
+                            <!-- View Mode Toggle -->
+                            <div class="flex bg-slate-200 rounded-lg p-0.5">
+                                <button onclick="setMatrixView('compact')" id="matrixViewCompact" class="px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-700 shadow-sm">
+                                    Compact
+                                </button>
+                                <button onclick="setMatrixView('detailed')" id="matrixViewDetailed" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-100">
+                                    Detailed
+                                </button>
+                            </div>
+                            <button onclick="toggleMatrix()" id="toggleMatrixBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-lg text-xs" style="display:none;">
                                 Show All
                             </button>
-                            <button onclick="printMatrix()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
-                                🖨️ Print Matrix
+                            <button onclick="printMatrix()" class="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-1.5 px-3 rounded-lg text-xs">
+                                🖨️ Print
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-auto drag-scroll" id="matrixContainer" style="max-height:70vh;">
+
+                    <!-- Stats Bar -->
+                    <div id="matrixStats" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4 no-print">
+                        <!-- Stats will be populated by JS -->
+                    </div>
+
+                    <!-- Legend Bar (collapsible) -->
+                    <div class="mb-4 no-print">
+                        <button onclick="toggleMatrixLegend()" class="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1 mb-2">
+                            <span id="legendToggleIcon">▼</span> Connection Types Legend
+                        </button>
+                        <div id="matrixLegend" class="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#3b82f6">● LAN</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#ef4444">● WAN</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#f97316">● DMZ</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#22c55e">● Trunk</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#8b5cf6">● Mgmt</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#eab308">● Backup</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#06b6d4">● Fiber</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#a78bfa">● Wall Jack</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#64748b">● External</span>
+                        </div>
+                    </div>
+
+                    <!-- Matrix Container -->
+                    <div class="overflow-auto drag-scroll rounded-xl border border-slate-200 bg-white shadow-sm" id="matrixContainer" style="max-height:65vh;">
                         <div class="text-center text-slate-500 py-8">Loading...</div>
+                    </div>
+
+                    <!-- Tooltip container for hover details -->
+                    <div id="matrixTooltip" class="fixed hidden z-50 bg-slate-800 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs pointer-events-none">
+                        <!-- Tooltip content populated by JS -->
                     </div>
                 </div>
             </div>
@@ -712,15 +767,7 @@
                         
                         <div class="space-y-4">
                             <div class="flex items-start gap-3">
-                                <span class="text-2xl">💾</span>
-                                <div>
-                                    <p class="font-semibold text-slate-700">Salva Ora</p>
-                                    <p class="text-slate-600 text-sm">Clicca <span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs">💾 Salva Ora</span> nella barra Azioni per salvare immediatamente tutti i dati nel browser e sul server.</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start gap-3">
-                                <span class="text-2xl">📊</span>
+                                <span class="text-2xl"></span>
                                 <div>
                                     <p class="font-semibold text-slate-700">Esporta in Excel</p>
                                     <p class="text-slate-600 text-sm">Clicca <span class="bg-indigo-500 text-white px-2 py-0.5 rounded text-xs">📊 Export to Excel</span> nella barra Azioni. Crea un foglio di calcolo con 3 schede: Dispositivi, Connessioni e Matrice.</p>
@@ -797,11 +844,6 @@
                         
                         <div class="space-y-4">
                             <div>
-                                <p class="font-semibold text-amber-900">D: I miei dati vengono salvati automaticamente?</p>
-                                <p class="text-amber-800 text-sm">R: <strong>No!</strong> Devi cliccare il pulsante verde "Salva Ora" per salvare. I dati vengono salvati nel browser e sul server.</p>
-                            </div>
-                            
-                            <div>
                                 <p class="font-semibold text-amber-900">D: Cosa significa Order = 0?</p>
                                 <p class="text-amber-800 text-sm">R: Order 0 è per dispositivi "sparsi" o isolati che non sono montati in un rack. Ad esempio: un access point sul soffitto, un router in un'altra stanza.</p>
                             </div>
@@ -844,8 +886,10 @@
                     </div>
 
                     <!-- Footer -->
-                    <div class="text-center text-slate-500 text-sm py-4">
-                        <p>Tiesse Matrix Network v2.9.5 | Hai bisogno di aiuto? Contatta l'amministratore di sistema.</p>
+                    <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
+                        <p class="font-semibold text-slate-600">© 2025 Tiesse S.P.A. — Tutti i diritti riservati</p>
+                        <p class="mt-1">Tiesse Matrix Network v1.9.9</p>
+                        <p class="mt-2 text-red-500 font-medium">⚠️ Documento riservato — Riproduzione vietata — Solo per uso interno aziendale</p>
                     </div>
                 </div>
             </div>
@@ -853,8 +897,8 @@
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/app.js?v=2.9.5"></script>
-    <script src="js/ui-updates.js?v=2.9.5"></script>
+    <script src="js/app.js?v=1.9.9"></script>
+    <script src="js/ui-updates.js?v=1.9.9"></script>
     
     <!-- Update connections count when list updates -->
     <script>

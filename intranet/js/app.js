@@ -1,6 +1,6 @@
 /**
  * Tiesse Matrix Network - Application Core
- * Version: 2.9.5
+ * Version: 1.9.9
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -215,11 +215,14 @@ function highlightEditFields(formType, enable) {
         var el = document.getElementById(fields[i]);
         if (el) {
             if (enable) {
-                el.style.backgroundColor = '#f8fafc';
-                el.style.borderColor = '#93c5fd';
+                // Orange/amber border only - clean white background
+                el.style.borderColor = '#f59e0b'; // amber-500
+                el.style.borderWidth = '2px';
+                el.style.boxShadow = '0 0 0 2px rgba(245, 158, 11, 0.15)';
             } else {
-                el.style.backgroundColor = '';
                 el.style.borderColor = '';
+                el.style.borderWidth = '';
+                el.style.boxShadow = '';
             }
         }
     }
@@ -504,7 +507,17 @@ function clearDeviceForm() {
     document.getElementById('deviceNotes').value = '';
     document.getElementById('portTypeQuantityContainer').innerHTML = '';
     document.getElementById('saveDeviceButton').textContent = 'Add Device';
+    var cancelBtn = document.getElementById('cancelDeviceButton');
+    if (cancelBtn) cancelBtn.classList.add('hidden');
     highlightEditFields('device', false);
+}
+
+/**
+ * Cancel device edit - returns to add mode
+ */
+function cancelDeviceEdit() {
+    clearDeviceForm();
+    Toast.info('Modifica annullata');
 }
 
 function editDevice(id) {
@@ -559,6 +572,9 @@ function editDevice(id) {
     }
 
     highlightEditFields('device', true);
+    // Show cancel button when editing
+    var cancelBtn = document.getElementById('cancelDeviceButton');
+    if (cancelBtn) cancelBtn.classList.remove('hidden');
     document.getElementById('rackId').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -1202,96 +1218,100 @@ function clearAll() {
 }
 
 // ============================================================================
-// PRINT FUNCTIONS
+// PRINT FUNCTIONS - Professional Reports
 // ============================================================================
 function getPrintStyles() {
     return '<style>' +
         /* Global print settings */
         '@media print {' +
-        '  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
-        '  .no-print, .print-hide-id { display: none !important; }' +
-        '  @page { size: landscape; margin: 8mm; }' +
+        '  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }' +
+        '  .no-print { display: none !important; }' +
+        '  @page { size: landscape; margin: 10mm; }' +
         '}' +
-        /* Hide elements */
+        /* Base styles */
+        'body { font-family: "Segoe UI", Arial, sans-serif; padding: 20px; margin: 0; font-size: 11px; background: white; color: #1e293b; }' +
+        /* Report header */
+        '.report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e40af; padding-bottom: 15px; margin-bottom: 20px; }' +
+        '.report-title { font-size: 22px; font-weight: bold; color: #1e293b; margin: 0; }' +
+        '.report-subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }' +
+        '.report-info { text-align: right; font-size: 10px; color: #64748b; }' +
+        '.report-info strong { color: #1e293b; }' +
+        /* Stats bar */
+        '.stats-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }' +
+        '.stat-item { background: #f1f5f9; border-radius: 8px; padding: 10px 15px; min-width: 100px; }' +
+        '.stat-value { font-size: 20px; font-weight: bold; color: #1e40af; }' +
+        '.stat-label { font-size: 9px; color: #64748b; text-transform: uppercase; }' +
+        /* Table styles */
+        'table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 15px; }' +
+        'th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; vertical-align: middle; }' +
+        'thead th { background: linear-gradient(180deg, #1e293b 0%, #334155 100%); color: #ffffff; font-weight: 600; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }' +
+        'tbody tr:nth-child(odd) { background-color: #ffffff; }' +
+        'tbody tr:nth-child(even) { background-color: #f8fafc; }' +
+        'tbody tr:hover { background-color: #e0f2fe; }' +
+        /* Typography */
+        '.font-mono { font-family: "Consolas", "Courier New", monospace; }' +
+        '.font-bold { font-weight: bold; }' +
+        '.text-center { text-align: center; }' +
+        '.text-muted { color: #94a3b8; }' +
+        /* Badges */
+        '.badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 9px; font-weight: 600; }' +
+        '.badge-success { background: #dcfce7; color: #166534; }' +
+        '.badge-danger { background: #fee2e2; color: #991b1b; }' +
+        '.badge-primary { background: #dbeafe; color: #1e40af; }' +
+        '.badge-position { background: #1e40af; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: bold; }' +
+        /* Connection type colors */
+        '.conn-lan { background: #3b82f6; color: white; }' +
+        '.conn-wan { background: #ef4444; color: white; }' +
+        '.conn-trunk { background: #22c55e; color: white; }' +
+        '.conn-dmz { background: #f97316; color: white; }' +
+        '.conn-mgmt { background: #8b5cf6; color: white; }' +
+        '.conn-fiber { background: #06b6d4; color: white; }' +
+        '.conn-backup { background: #eab308; color: #1e293b; }' +
+        '.conn-wallport { background: #a78bfa; color: white; }' +
+        '.conn-external { background: #64748b; color: white; }' +
+        /* Cable marker */
+        '.cable-marker { display: inline-block; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: bold; border: 2px solid; }' +
+        /* Footer */
+        '.report-footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; text-align: center; }' +
+        '.report-footer strong { color: #64748b; }' +
+        /* Arrows */
+        '.arrow { font-size: 14px; color: #3b82f6; }' +
+        /* Hide print elements */
         '.no-print { display: none !important; }' +
         '.print-hide-id { display: none !important; }' +
-        /* Body and headers */
-        'body { font-family: Arial, sans-serif; padding: 12px; margin: 0; font-size: 11px; background: white; }' +
-        'h2 { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #1e293b; }' +
-        /* Table base styles */
-        'table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }' +
-        'th, td { border: 1px solid #475569; padding: 5px 8px; text-align: left; vertical-align: middle; }' +
-        'thead th { background-color: #1e293b !important; color: #ffffff !important; font-weight: bold; font-size: 9px; text-transform: uppercase; }' +
-        'tbody tr:nth-child(odd) { background-color: #ffffff !important; }' +
-        'tbody tr:nth-child(even) { background-color: #f1f5f9 !important; }' +
-        /* Text utilities */
-        '.font-mono { font-family: "Courier New", monospace; }' +
-        '.font-bold { font-weight: bold; }' +
-        '.font-semibold { font-weight: 600; }' +
-        '.text-center { text-align: center; }' +
-        '.text-xs { font-size: 9px; }' +
-        '.text-slate-600 { color: #475569; }' +
-        '.italic { font-style: italic; }' +
-        /* Badge styles */
-        '.rounded-full { border-radius: 9999px; display: inline-block; padding: 3px 8px; }' +
-        '.bg-green-100 { background-color: #dcfce7 !important; color: #166534 !important; }' +
-        '.bg-red-100 { background-color: #fee2e2 !important; color: #991b1b !important; }' +
-        '.bg-blue-100 { background-color: #dbeafe !important; color: #1e40af !important; }' +
-        '.text-green-800 { color: #166534 !important; }' +
-        '.text-red-800 { color: #991b1b !important; }' +
-        '.text-blue-800 { color: #1e40af !important; }' +
-        /* Spacing */
-        '.px-1, .px-1\\.5 { padding-left: 4px; padding-right: 4px; }' +
-        '.py-0, .py-0\\.5 { padding-top: 2px; padding-bottom: 2px; }' +
-        '.mt-0, .mt-0\\.5 { margin-top: 2px; }' +
-        '.gap-1 { gap: 4px; }' +
-        /* Flexbox */
-        '.flex { display: flex; }' +
-        '.flex-col { flex-direction: column; }' +
-        '.align-top { vertical-align: top; }' +
         /* Matrix specific */
-        '.sticky-col { position: static !important; }' +
-        '.matrix-cell { min-width: 90px !important; width: 90px !important; max-width: 90px !important; height: 70px !important; padding: 3px !important; }' +
-        /* Position badges - blue circles */
-        'span[style*="border-radius: 50%"], span[style*="border-radius:50%"] { ' +
-        '  background-color: #1e40af !important; color: #ffffff !important; ' +
-        '  border: 2px solid #1e3a8a !important; font-weight: bold !important; ' +
-        '}' +
-        /* Port badges - light background */
-        'span[style*="background-color:#f1f5f9"], span[style*="background-color: #f1f5f9"] { ' +
-        '  background-color: #e2e8f0 !important; color: #1e293b !important; ' +
-        '  border: 1px solid #475569 !important; font-weight: bold !important; ' +
-        '}' +
-        /* Port badges - dark background */
-        'span[style*="background-color:#334155"], span[style*="background-color: #334155"] { ' +
-        '  background-color: #1e293b !important; color: #ffffff !important; ' +
-        '  border: 1px solid #0f172a !important; font-weight: bold !important; ' +
-        '}' +
-        /* Cable marker badges */
-        'span[style*="border-radius: 10px"], span[style*="border-radius:10px"] { ' +
-        '  border: 2px solid #000000 !important; font-weight: bold !important; ' +
-        '}' +
-        /* Connection type badges - preserve colors */
-        'span[style*="background-color:#3b82f6"] { background-color: #3b82f6 !important; color: #ffffff !important; }' +
-        'span[style*="background-color:#ef4444"] { background-color: #ef4444 !important; color: #ffffff !important; }' +
-        'span[style*="background-color:#22c55e"] { background-color: #22c55e !important; color: #ffffff !important; }' +
-        'span[style*="background-color:#f97316"] { background-color: #f97316 !important; color: #ffffff !important; }' +
-        'span[style*="background-color:#8b5cf6"] { background-color: #8b5cf6 !important; color: #ffffff !important; }' +
-        'span[style*="background-color:#eab308"] { background-color: #eab308 !important; color: #000000 !important; }' +
-        'span[style*="background-color:#06b6d4"] { background-color: #06b6d4 !important; color: #ffffff !important; }' +
-        'span[style*="background-color:#a78bfa"] { background-color: #a78bfa !important; color: #ffffff !important; }' +
-        /* Remove text shadows for print */
-        '[style*="text-shadow"] { text-shadow: none !important; }' +
-        /* Matrix cell colors - preserve on print */
-        'div[style*="background-color:"][style*="border-radius:6px"] { ' +
-        '  box-shadow: none !important; border: 1px solid #475569 !important; ' +
-        '}' +
+        '.sticky-col, .sticky { position: static !important; }' +
         '</style>';
 }
 
+function getReportHeader(title, icon) {
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    var timeStr = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    
+    return '<div class="report-header">' +
+        '<div>' +
+        '<h1 class="report-title">' + icon + ' ' + title + '</h1>' +
+        '<div class="report-subtitle">Tiesse Matrix Network - Documentazione Infrastruttura di Rete</div>' +
+        '</div>' +
+        '<div class="report-info">' +
+        '<div><strong>Tiesse S.P.A.</strong></div>' +
+        '<div>Data: ' + dateStr + ' - ' + timeStr + '</div>' +
+        '<div>Dispositivi: ' + appState.devices.length + ' | Connessioni: ' + appState.connections.length + '</div>' +
+        '</div>' +
+        '</div>';
+}
+
+function getReportFooter() {
+    return '<div class="report-footer">' +
+        '<strong>© 2025 Tiesse S.P.A.</strong> — Tutti i diritti riservati<br>' +
+        '⚠️ Documento riservato — Riproduzione vietata — Solo per uso interno aziendale' +
+        '</div>';
+}
+
 function printMatrix() {
-    var printArea = document.getElementById('matrixContainer');
-    if (!printArea) {
+    var matrixTable = document.getElementById('matrixTable');
+    if (!matrixTable) {
         Toast.error('Matrix not found');
         return;
     }
@@ -1303,12 +1323,29 @@ function printMatrix() {
             return;
         }
         
-        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Connection Matrix - Tiesse Network</title>';
+        // Count connections by type
+        var connByType = {};
+        for (var i = 0; i < appState.connections.length; i++) {
+            var type = appState.connections[i].type || 'other';
+            connByType[type] = (connByType[type] || 0) + 1;
+        }
+        
+        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Matrix Connessioni - Tiesse S.P.A.</title>';
         html += getPrintStyles();
         html += '</head><body>';
-        html += '<h2>🔗 Connection Matrix - ' + new Date().toLocaleDateString() + '</h2>';
-        html += '<p style="font-size:10px;color:#64748b;margin-bottom:10px;">Total devices: ' + appState.devices.length + ' | Total connections: ' + appState.connections.length + '</p>';
-        html += printArea.innerHTML;
+        html += getReportHeader('Matrice delle Connessioni', '🔗');
+        
+        // Stats bar
+        html += '<div class="stats-bar">';
+        html += '<div class="stat-item"><div class="stat-value">' + appState.devices.length + '</div><div class="stat-label">Dispositivi</div></div>';
+        html += '<div class="stat-item"><div class="stat-value">' + appState.connections.length + '</div><div class="stat-label">Connessioni</div></div>';
+        for (var t in connByType) {
+            html += '<div class="stat-item"><div class="stat-value">' + connByType[t] + '</div><div class="stat-label">' + (config.connLabels[t] || t) + '</div></div>';
+        }
+        html += '</div>';
+        
+        html += '<div style="overflow-x:auto;">' + matrixTable.outerHTML + '</div>';
+        html += getReportFooter();
         html += '</body></html>';
         
         printWindow.document.write(html);
@@ -1316,7 +1353,7 @@ function printMatrix() {
         
         setTimeout(function() {
             printWindow.print();
-        }, 300);
+        }, 500);
     } catch (e) {
         console.error('Print error:', e);
         Toast.error('Error printing: ' + e.message);
@@ -1324,9 +1361,8 @@ function printMatrix() {
 }
 
 function printConnections() {
-    var printArea = document.getElementById('connectionsListContainer');
-    if (!printArea) {
-        Toast.error('Connections list not found');
+    if (appState.connections.length === 0) {
+        Toast.warning('Nessuna connessione da stampare');
         return;
     }
     
@@ -1337,13 +1373,91 @@ function printConnections() {
             return;
         }
         
-        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Active Connections - Tiesse Network</title>';
+        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Connessioni Attive - Tiesse S.P.A.</title>';
         html += getPrintStyles();
-        html += '<style>.print-hide-id { display: none !important; }</style>';
         html += '</head><body>';
-        html += '<h2>⚡ Active Connections - ' + new Date().toLocaleDateString() + '</h2>';
-        html += '<p style="font-size:10px;color:#64748b;margin-bottom:10px;">Total connections: ' + appState.connections.length + '</p>';
-        html += printArea.innerHTML;
+        html += getReportHeader('Connessioni Attive', '⚡');
+        
+        // Count by status
+        var activeCount = 0, disabledCount = 0;
+        for (var s = 0; s < appState.connections.length; s++) {
+            if (appState.connections[s].status === 'active') activeCount++;
+            else disabledCount++;
+        }
+        
+        // Stats bar
+        html += '<div class="stats-bar">';
+        html += '<div class="stat-item"><div class="stat-value">' + appState.connections.length + '</div><div class="stat-label">Totale</div></div>';
+        html += '<div class="stat-item"><div class="stat-value" style="color:#22c55e">' + activeCount + '</div><div class="stat-label">Attive</div></div>';
+        html += '<div class="stat-item"><div class="stat-value" style="color:#ef4444">' + disabledCount + '</div><div class="stat-label">Disabilitate</div></div>';
+        html += '</div>';
+        
+        // Build table
+        html += '<table>';
+        html += '<thead><tr>';
+        html += '<th style="width:30px">#</th>';
+        html += '<th>Source</th>';
+        html += '<th style="width:40px">Pos.</th>';
+        html += '<th>Dispositivo Origine</th>';
+        html += '<th style="width:70px">Porta Src</th>';
+        html += '<th style="width:30px"></th>';
+        html += '<th style="width:70px">Porta Dst</th>';
+        html += '<th>Dispositivo Destinazione</th>';
+        html += '<th style="width:40px">Pos.</th>';
+        html += '<th>Destination</th>';
+        html += '<th style="width:80px">Tipo</th>';
+        html += '<th style="width:60px">Cavo</th>';
+        html += '<th style="width:50px">Stato</th>';
+        html += '<th>Note</th>';
+        html += '</tr></thead><tbody>';
+        
+        for (var i = 0; i < appState.connections.length; i++) {
+            var c = appState.connections[i];
+            var fromDevice = null, toDevice = null;
+            for (var j = 0; j < appState.devices.length; j++) {
+                if (appState.devices[j].id === c.from) fromDevice = appState.devices[j];
+                if (appState.devices[j].id === c.to) toDevice = appState.devices[j];
+            }
+            
+            var fromRack = fromDevice ? fromDevice.rackId : '-';
+            var fromPos = fromDevice ? String(fromDevice.order).padStart(2, '0') : '-';
+            var fromName = fromDevice ? fromDevice.name : 'N/A';
+            var toRack = toDevice ? toDevice.rackId : (c.isWallJack ? 'Wall Jack' : (c.externalDest ? 'External' : '-'));
+            var toPos = toDevice ? String(toDevice.order).padStart(2, '0') : '-';
+            var toName = toDevice ? toDevice.name : (c.isWallJack ? '🔌 ' + (c.externalDest || 'Wall Jack') : (c.externalDest ? '📡 ' + c.externalDest : 'N/A'));
+            
+            var statusBadge = c.status === 'active' 
+                ? '<span class="badge badge-success">ON</span>' 
+                : '<span class="badge badge-danger">OFF</span>';
+            
+            var typeBadge = '<span class="badge conn-' + c.type + '">' + (config.connLabels[c.type] || c.type) + '</span>';
+            
+            var cableHtml = '';
+            if (c.cableMarker) {
+                var cableColor = c.cableColor || '#6b7280';
+                cableHtml = '<span class="cable-marker" style="background:' + cableColor + ';border-color:' + cableColor + ';color:' + (isLightColor(cableColor) ? '#000' : '#fff') + '">' + c.cableMarker + '</span>';
+            }
+            
+            html += '<tr>';
+            html += '<td class="text-center text-muted">' + (i + 1) + '</td>';
+            html += '<td><strong style="color:' + getRackColor(fromRack) + '">' + fromRack + '</strong></td>';
+            html += '<td class="text-center"><span class="badge-position">' + fromPos + '</span></td>';
+            html += '<td><strong>' + fromName + '</strong></td>';
+            html += '<td class="text-center font-mono">' + (c.fromPort || '-') + '</td>';
+            html += '<td class="text-center arrow">⟷</td>';
+            html += '<td class="text-center font-mono">' + (c.toPort || '-') + '</td>';
+            html += '<td><strong>' + toName + '</strong></td>';
+            html += '<td class="text-center"><span class="badge-position">' + toPos + '</span></td>';
+            html += '<td><strong style="color:' + getRackColor(toRack) + '">' + toRack + '</strong></td>';
+            html += '<td class="text-center">' + typeBadge + '</td>';
+            html += '<td class="text-center">' + cableHtml + '</td>';
+            html += '<td class="text-center">' + statusBadge + '</td>';
+            html += '<td class="text-muted" style="font-size:9px;max-width:150px">' + (c.notes || '') + '</td>';
+            html += '</tr>';
+        }
+        
+        html += '</tbody></table>';
+        html += getReportFooter();
         html += '</body></html>';
         
         printWindow.document.write(html);
@@ -1351,11 +1465,25 @@ function printConnections() {
         
         setTimeout(function() {
             printWindow.print();
-        }, 300);
+        }, 500);
     } catch (e) {
         console.error('Print error:', e);
         Toast.error('Error printing: ' + e.message);
     }
+}
+
+// Helper to check if color is light (for contrast)
+function isLightColor(color) {
+    if (!color) return true;
+    var hex = color.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    var r = parseInt(hex.substr(0, 2), 16);
+    var g = parseInt(hex.substr(2, 2), 16);
+    var b = parseInt(hex.substr(4, 2), 16);
+    var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 155;
 }
 
 // ============================================================================
