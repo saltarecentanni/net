@@ -1348,8 +1348,45 @@ function printMatrix() {
             connByType[type] = (connByType[type] || 0) + 1;
         }
         
+        // Build compact print-specific styles
+        var matrixPrintStyles = '<style>' +
+            '@media print { @page { size: landscape; margin: 5mm; } * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }' +
+            'body { font-family: Arial, sans-serif; padding: 8px; margin: 0; font-size: 8px; }' +
+            '.report-header { display: flex; justify-content: space-between; border-bottom: 2px solid #1e40af; padding-bottom: 8px; margin-bottom: 10px; }' +
+            '.report-title { font-size: 14px; font-weight: bold; margin: 0; }' +
+            '.report-subtitle { font-size: 8px; color: #666; }' +
+            '.report-info { text-align: right; font-size: 8px; color: #666; }' +
+            '.stats-bar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }' +
+            '.stat-item { background: #f1f5f9; border-radius: 4px; padding: 4px 8px; }' +
+            '.stat-value { font-size: 12px; font-weight: bold; color: #1e40af; }' +
+            '.stat-label { font-size: 7px; color: #666; text-transform: uppercase; }' +
+            '.report-footer { margin-top: 10px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 7px; color: #999; text-align: center; }' +
+            /* Matrix table - ultra compact */
+            'table { border-collapse: collapse; font-size: 6px; width: auto !important; transform-origin: top left; }' +
+            'th, td { border: 1px solid #94a3b8 !important; padding: 2px 3px !important; text-align: center; vertical-align: middle; }' +
+            'th { background: #1e293b !important; color: white !important; font-size: 6px !important; font-weight: bold; white-space: nowrap; max-width: 60px; overflow: hidden; text-overflow: ellipsis; }' +
+            'td { min-width: 50px !important; max-width: 60px !important; height: 35px !important; vertical-align: top !important; padding: 2px !important; }' +
+            'td:first-child, th:first-child { min-width: 70px !important; max-width: 80px !important; text-align: left !important; font-weight: bold; }' +
+            /* Connection cells */
+            'td > div { border-radius: 3px !important; padding: 2px !important; margin: 1px !important; font-size: 5px !important; line-height: 1.1 !important; }' +
+            /* Remove sticky positioning */
+            '[class*="sticky"] { position: static !important; left: auto !important; }' +
+            /* Preserve colors */
+            '[style*="background-color:#3b82f6"], [style*="background:#3b82f6"] { background-color: #3b82f6 !important; color: white !important; }' +
+            '[style*="background-color:#ef4444"], [style*="background:#ef4444"] { background-color: #ef4444 !important; color: white !important; }' +
+            '[style*="background-color:#22c55e"], [style*="background:#22c55e"] { background-color: #22c55e !important; color: white !important; }' +
+            '[style*="background-color:#f97316"], [style*="background:#f97316"] { background-color: #f97316 !important; color: white !important; }' +
+            '[style*="background-color:#8b5cf6"], [style*="background:#8b5cf6"] { background-color: #8b5cf6 !important; color: white !important; }' +
+            '[style*="background-color:#06b6d4"], [style*="background:#06b6d4"] { background-color: #06b6d4 !important; color: white !important; }' +
+            '[style*="background-color:#eab308"], [style*="background:#eab308"] { background-color: #eab308 !important; color: #1e293b !important; }' +
+            '[style*="background-color:#a78bfa"], [style*="background:#a78bfa"] { background-color: #a78bfa !important; color: white !important; }' +
+            '[style*="background-color:#64748b"], [style*="background:#64748b"] { background-color: #64748b !important; color: white !important; }' +
+            '.bg-red-50 { background-color: #fef2f2 !important; }' +
+            '.no-print { display: none !important; }' +
+            '</style>';
+        
         var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Matrix Connessioni - Tiesse S.P.A.</title>';
-        html += getPrintStyles();
+        html += matrixPrintStyles;
         html += '</head><body>';
         html += getReportHeader('Matrice delle Connessioni', '🔗');
         
@@ -1362,7 +1399,13 @@ function printMatrix() {
         }
         html += '</div>';
         
-        html += '<div style="overflow-x:auto;">' + matrixTable.outerHTML + '</div>';
+        // Clone and clean matrix table
+        var tableClone = matrixTable.cloneNode(true);
+        // Remove unnecessary classes
+        tableClone.className = '';
+        tableClone.style.cssText = '';
+        
+        html += '<div>' + tableClone.outerHTML + '</div>';
         html += getReportFooter();
         html += '</body></html>';
         
