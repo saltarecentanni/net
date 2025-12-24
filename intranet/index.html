@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="app-version" content="1.9.9">
-    <title>Tiesse Matrix Network</title>
+    <title>Matrix Network - Tiesse S.P.A.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -113,10 +113,10 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
                     <!-- Logo Tiesse -->
-                    <img src="logoTiesse.png" alt="Tiesse S.P.A." class="h-10 w-auto">
+                    <img src="logoTiesse.png" alt="Tiesse S.P.A." class="h-8 w-auto">
                     <div>
                         <div class="flex items-baseline gap-2">
-                            <h1 class="text-2xl font-bold text-slate-800">Tiesse Matrix Network</h1>
+                            <h1 class="text-2xl font-bold text-slate-800">Matrix Network</h1>
                             <span class="text-xs text-slate-400 font-medium">by Tiesse S.P.A.</span>
                         </div>
                         <p class="text-slate-600 text-sm">Gestione visuale di dispositivi di rete, porte e connessioni</p>
@@ -286,7 +286,7 @@
 
                 <!-- Devices List -->
                 <div>
-                    <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-4 mb-3">
                         <h2 class="text-lg font-bold text-slate-800">Devices List</h2>
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-slate-500">View:</span>
@@ -430,13 +430,13 @@
                 <div id="matrixPrintArea">
                     <!-- Header com título e controles -->
                     <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-800">🔗 Connection Matrix</h2>
-                            <p class="text-xs text-slate-500">Visual map of all network connections</p>
-                        </div>
-                        <div class="flex items-center gap-3 no-print">
-                            <!-- View Mode Toggle -->
-                            <div class="flex bg-slate-200 rounded-lg p-0.5">
+                        <div class="flex items-center gap-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800">🔗 Connection Matrix</h2>
+                                <p class="text-xs text-slate-500">Visual map of all network connections</p>
+                            </div>
+                            <!-- View Mode Toggle - Left side -->
+                            <div class="flex bg-slate-200 rounded-lg p-0.5 no-print">
                                 <button onclick="setMatrixView('compact')" id="matrixViewCompact" class="px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-700 shadow-sm">
                                     Compact
                                 </button>
@@ -444,6 +444,8 @@
                                     Detailed
                                 </button>
                             </div>
+                        </div>
+                        <div class="flex items-center gap-3 no-print">
                             <button onclick="toggleMatrix()" id="toggleMatrixBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-lg text-xs" style="display:none;">
                                 Show All
                             </button>
@@ -888,7 +890,7 @@
                     <!-- Footer -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2025 Tiesse S.P.A. — Tutti i diritti riservati</p>
-                        <p class="mt-1">Tiesse Matrix Network v1.9.9</p>
+                        <p class="mt-1">Matrix Network v1.9.9</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Documento riservato — Riproduzione vietata — Solo per uso interno aziendale</p>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 /**
- * Tiesse Matrix Network - UI Update Functions
+ * Matrix Network - UI Update Functions
  * Version: 1.9.9
  * 
  * Contains UI rendering functions:

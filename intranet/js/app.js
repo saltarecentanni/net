@@ -1,5 +1,5 @@
 /**
- * Tiesse Matrix Network - Application Core
+ * Matrix Network - Application Core
  * Version: 1.9.9
  * 
  * Features:
@@ -1292,7 +1292,7 @@ function getReportHeader(title, icon) {
     return '<div class="report-header">' +
         '<div>' +
         '<h1 class="report-title">' + icon + ' ' + title + '</h1>' +
-        '<div class="report-subtitle">Tiesse Matrix Network - Documentazione Infrastruttura di Rete</div>' +
+        '<div class="report-subtitle">Matrix Network - Documentazione Infrastruttura di Rete</div>' +
         '</div>' +
         '<div class="report-info">' +
         '<div><strong>Tiesse S.P.A.</strong></div>' +
@@ -1502,7 +1502,7 @@ function initApp() {
         if (!ok) loadFromStorage();
         updateUI();
         // Auto-save disabled to prevent data loss with multiple sessions
-        Toast.info('Tiesse Matrix Network loaded');
+        Toast.info('Matrix Network loaded');
     }).catch(function() {
         loadFromStorage();
         updateUI();
