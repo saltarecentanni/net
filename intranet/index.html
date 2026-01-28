@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.1.6">
+    <meta name="app-version" content="3.1.7">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1116,7 +1116,7 @@
                     <!-- Footer -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.1.6</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.1.7</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -1192,11 +1192,201 @@
                 </div>
 
                 <!-- Vista Mappa -->
-                <div id="roomsMapView" class="border border-slate-300 rounded-xl bg-slate-50 overflow-auto" style="height: 650px;">
+                <div id="roomsMapView" class="border border-slate-300 rounded-xl bg-white overflow-auto" style="height: 650px;">
                     <div id="roomMapContainer" class="relative" style="min-height: 100%; display: flex; align-items: center; justify-content: center;">
-                        <img id="roomMapImage" src="MAPPATURA-RETI-TIESSE-2026.fw.png" alt="Mappa Salas" 
-                             style="max-width: 100%; height: auto; cursor: move; transition: transform 0.2s;"
-                             onload="initRoomMapInteraction()">
+                        <svg id="networkPlanSVG" viewBox="0 0 1434 800" style="max-width: 100%; height: auto; cursor: crosshair;">
+                            <!-- Background Grid Lines -->
+                            <defs>
+                                <!-- Stair Pattern (Magenta horizontal lines) -->
+                                <pattern id="stairPattern" x="0" y="0" width="10" height="8" patternUnits="userSpaceOnUse">
+                                    <line x1="0" y1="4" x2="10" y2="4" stroke="#FF00FF" stroke-width="1.5"/>
+                                </pattern>
+                                
+                                <!-- Shadow filter for room numbers -->
+                                <filter id="textShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="#000000" flood-opacity="0.3"/>
+                                </filter>
+                            </defs>
+                            
+                            <!-- Main Background -->
+                            <rect x="0" y="0" width="1434" height="800" fill="#FFFFFF"/>
+                            
+                            <!-- Border Lines -->
+                            <rect x="0" y="0" width="1434" height="15" fill="#C41E3A"/>
+                            <rect x="0" y="785" width="1434" height="15" fill="#008000"/>
+                            <rect x="0" y="0" width="15" height="800" fill="#C41E3A"/>
+                            <rect x="1419" y="0" width="15" height="800" fill="#008000"/>
+                            
+                            <!-- Vertical Grid Lines on Borders (Green and Yellow) -->
+                            <g id="gridLines">
+                                <line x1="50" y1="0" x2="50" y2="15" stroke="#00AA00" stroke-width="2"/>
+                                <line x1="100" y1="0" x2="100" y2="15" stroke="#FFFF00" stroke-width="2"/>
+                                <line x1="150" y1="0" x2="150" y2="15" stroke="#00AA00" stroke-width="2"/>
+                                <line x1="200" y1="0" x2="200" y2="15" stroke="#FFFF00" stroke-width="2"/>
+                                <line x1="250" y1="0" x2="250" y2="15" stroke="#00AA00" stroke-width="2"/>
+                                <line x1="300" y1="0" x2="300" y2="15" stroke="#FFFF00" stroke-width="2"/>
+                            </g>
+                            
+                            <!-- ROOM STRUCTURES (Blue Walls) -->
+                            <g id="roomWalls" stroke="#0000FF" stroke-width="3" fill="none">
+                                <!-- Room 1 - Bottom Left Large -->
+                                <rect class="room-wall" data-room="1" x="20" y="550" width="140" height="210"/>
+                                
+                                <!-- Room 2 - Above Room 1 (with stair pattern) -->
+                                <rect class="room-wall room-stair" data-room="2" x="20" y="450" width="140" height="95" fill="url(#stairPattern)"/>
+                                
+                                <!-- Room 3 - Top Left Small -->
+                                <rect class="room-wall" data-room="3" x="20" y="20" width="120" height="100"/>
+                                
+                                <!-- Room 4 - Top Left-Central Tall -->
+                                <rect class="room-wall" data-room="4" x="145" y="20" width="120" height="300"/>
+                                
+                                <!-- Room 5 - Next to Room 4 -->
+                                <rect class="room-wall" data-room="5" x="270" y="20" width="100" height="250"/>
+                                
+                                <!-- Room 6 - Continuation Right -->
+                                <rect class="room-wall" data-room="6" x="375" y="20" width="100" height="250"/>
+                                
+                                <!-- Room 7 - Continuation Right -->
+                                <rect class="room-wall" data-room="7" x="480" y="20" width="100" height="250"/>
+                                
+                                <!-- Room 19 - Interior small division (with stair pattern) -->
+                                <rect class="room-wall room-stair" data-room="19" x="175" y="150" width="60" height="80" fill="url(#stairPattern)"/>
+                                
+                                <!-- Room 0 - Inside 4-5 structure -->
+                                <rect class="room-wall" data-room="0" x="245" y="140" width="90" height="110"/>
+                                
+                                <!-- Room 18 - Bottom-Central -->
+                                <rect class="room-wall" data-room="18" x="165" y="550" width="150" height="210"/>
+                                
+                                <!-- Room 17 - Right of 18 -->
+                                <rect class="room-wall" data-room="17" x="320" y="550" width="150" height="210"/>
+                                
+                                <!-- Room 16 - Large Central Empty Space -->
+                                <rect class="room-wall" data-room="16" x="475" y="350" width="300" height="200"/>
+                                
+                                <!-- Room 15 - Below 16 Large -->
+                                <rect class="room-wall" data-room="15" x="475" y="555" width="200" height="205"/>
+                                
+                                <!-- Room 14 - Right of 15 -->
+                                <rect class="room-wall" data-room="14" x="680" y="555" width="180" height="205"/>
+                                
+                                <!-- Room 13 - Far Right-Bottom -->
+                                <rect class="room-wall" data-room="13" x="865" y="555" width="190" height="205"/>
+                                
+                                <!-- Room 8 - Top-Central Large Horizontal (with stair inside) -->
+                                <rect class="room-wall" data-room="8" x="585" y="20" width="400" height="180"/>
+                                <!-- Stair element inside Room 8 -->
+                                <rect class="room-stair" x="700" y="50" width="100" height="80" fill="url(#stairPattern)" stroke="#00AA00" stroke-width="2"/>
+                                
+                                <!-- Room 9 - Central-Right -->
+                                <rect class="room-wall" data-room="9" x="780" y="205" width="200" height="140"/>
+                                
+                                <!-- Room 10 - Top-Far Right -->
+                                <rect class="room-wall" data-room="10" x="990" y="20" width="140" height="160"/>
+                                
+                                <!-- Room 11 - Below 10 Narrow -->
+                                <rect class="room-wall" data-room="11" x="990" y="185" width="140" height="140"/>
+                                
+                                <!-- Room 12 - Below 11 Narrow -->
+                                <rect class="room-wall" data-room="12" x="990" y="330" width="140" height="140"/>
+                            </g>
+                            
+                            <!-- NETWORK LINES (Blue Lines connecting rooms) -->
+                            <g id="networkLines" stroke="#0000FF" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <!-- Left Circuit -->
+                                <path d="M 80,760 L 80,650 Q 80,630 95,630 L 120,630 Q 140,630 140,610 L 140,545 Q 140,520 160,520 L 175,520" />
+                                
+                                <!-- Connection from Room 1 to Room 3 -->
+                                <path d="M 80,550 L 80,120" />
+                                
+                                <!-- Top Circuit (Rooms 3-4-5-6-7-8) -->
+                                <path d="M 80,70 L 145,70 L 205,70 L 270,70 L 320,70 L 375,70 L 425,70 L 480,70 L 530,70 L 585,70" />
+                                
+                                <!-- Connection through Room 8 to upper stair -->
+                                <path d="M 750,50 L 750,20" />
+                                
+                                <!-- Right side connections (Rooms 9-10-11-12) -->
+                                <path d="M 880,275 L 990,275" />
+                                <path d="M 1060,185 L 1060,330" />
+                                
+                                <!-- Central connections (Rooms 16-15-14-13) -->
+                                <path d="M 625,555 L 625,350" />
+                                <path d="M 575,660 L 680,660 L 865,660" />
+                                
+                                <!-- Interconnections T-junctions -->
+                                <circle cx="205" cy="70" r="4" fill="#0000FF"/>
+                                <circle cx="320" cy="70" r="4" fill="#0000FF"/>
+                                <circle cx="425" cy="70" r="4" fill="#0000FF"/>
+                                <circle cx="530" cy="70" r="4" fill="#0000FF"/>
+                                <circle cx="80" cy="650" r="4" fill="#0000FF"/>
+                                <circle cx="625" cy="450" r="4" fill="#0000FF"/>
+                            </g>
+                            
+                            <!-- MAGENTA MARKERS (Critical Points) -->
+                            <g id="magentaMarkers" fill="#FF00FF">
+                                <rect x="17" y="17" width="8" height="8"/>
+                                <rect x="137" y="17" width="8" height="8"/>
+                                <rect x="267" y="17" width="8" height="8"/>
+                                <rect x="372" y="17" width="8" height="8"/>
+                                <rect x="477" y="17" width="8" height="8"/>
+                                <rect x="582" y="17" width="8" height="8"/>
+                                <rect x="987" y="17" width="8" height="8"/>
+                                <rect x="17" y="775" width="8" height="8"/>
+                                <rect x="162" y="775" width="8" height="8"/>
+                                <rect x="472" y="775" width="8" height="8"/>
+                                <rect x="862" y="775" width="8" height="8"/>
+                                <rect x="1050" y="775" width="8" height="8"/>
+                            </g>
+                            
+                            <!-- ROOM NUMBERS (Blue, Bold, Centered) -->
+                            <g id="roomNumbers" font-family="Arial, sans-serif" font-weight="bold" font-size="38" fill="#0000FF" text-anchor="middle" filter="url(#textShadow)">
+                                <text class="room-number" data-room="0" x="290" y="205">0</text>
+                                <text class="room-number" data-room="1" x="90" y="670">1</text>
+                                <text class="room-number" data-room="2" x="90" y="510">2</text>
+                                <text class="room-number" data-room="3" x="80" y="80">3</text>
+                                <text class="room-number" data-room="4" x="205" y="180">4</text>
+                                <text class="room-number" data-room="5" x="320" y="155">5</text>
+                                <text class="room-number" data-room="6" x="425" y="155">6</text>
+                                <text class="room-number" data-room="7" x="530" y="155">7</text>
+                                <text class="room-number" data-room="8" x="785" y="120">8</text>
+                                <text class="room-number" data-room="9" x="880" y="285">9</text>
+                                <text class="room-number" data-room="10" x="1060" y="110">10</text>
+                                <text class="room-number" data-room="11" x="1060" y="265">11</text>
+                                <text class="room-number" data-room="12" x="1060" y="410">12</text>
+                                <text class="room-number" data-room="13" x="960" y="670">13</text>
+                                <text class="room-number" data-room="14" x="770" y="670">14</text>
+                                <text class="room-number" data-room="15" x="575" y="670">15</text>
+                                <text class="room-number" data-room="16" x="625" y="460">16</text>
+                                <text class="room-number" data-room="17" x="395" y="670">17</text>
+                                <text class="room-number" data-room="18" x="240" y="670">18</text>
+                                <text class="room-number" data-room="19" x="205" y="200">19</text>
+                            </g>
+                            
+                            <!-- Interactive Overlay (transparent rects for hover/click) -->
+                            <g id="interactiveRooms" opacity="0">
+                                <rect class="interactive-room" data-room="0" x="245" y="140" width="90" height="110" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="1" x="20" y="550" width="140" height="210" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="2" x="20" y="450" width="140" height="95" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="3" x="20" y="20" width="120" height="100" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="4" x="145" y="20" width="120" height="300" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="5" x="270" y="20" width="100" height="250" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="6" x="375" y="20" width="100" height="250" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="7" x="480" y="20" width="100" height="250" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="8" x="585" y="20" width="400" height="180" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="9" x="780" y="205" width="200" height="140" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="10" x="990" y="20" width="140" height="160" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="11" x="990" y="185" width="140" height="140" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="12" x="990" y="330" width="140" height="140" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="13" x="865" y="555" width="190" height="205" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="14" x="680" y="555" width="180" height="205" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="15" x="475" y="555" width="200" height="205" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="16" x="475" y="350" width="300" height="200" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="17" x="320" y="550" width="150" height="210" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="18" x="165" y="550" width="150" height="210" fill="blue" opacity="0.1" cursor="pointer"/>
+                                <rect class="interactive-room" data-room="19" x="175" y="150" width="60" height="80" fill="blue" opacity="0.1" cursor="pointer"/>
+                            </g>
+                        </svg>
                     </div>
                 </div>
 
@@ -1521,10 +1711,75 @@
                     const mode = document.getElementById('roomsViewMode').value;
                     if (mode === 'list') {
                         updateRoomsList();
+                    } else {
+                        // Initialize SVG interactions when tab is opened
+                        setTimeout(initNetworkPlanSVG, 100);
                     }
                 }
             });
         });
+        
+        // Initialize SVG Network Plan on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initNetworkPlanSVG();
+        });
+    </script>
+    
+    <!-- SVG Network Plan Interactive Functions -->
+    <script>
+        function initNetworkPlanSVG() {
+            const svg = document.getElementById('networkPlanSVG');
+            if (!svg) return;
+
+            const interactiveRooms = svg.querySelectorAll('.interactive-room');
+            
+            interactiveRooms.forEach(room => {
+                const roomId = room.getAttribute('data-room');
+                
+                room.addEventListener('mouseenter', function() {
+                    this.setAttribute('opacity', '0.3');
+                });
+                
+                room.addEventListener('mouseleave', function() {
+                    if (room.dataset.selected !== 'true') {
+                        this.setAttribute('opacity', '0');
+                    }
+                });
+                
+                room.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Deselect all
+                    interactiveRooms.forEach(r => {
+                        r.dataset.selected = 'false';
+                        r.setAttribute('opacity', '0');
+                        r.setAttribute('fill', 'blue');
+                    });
+                    
+                    // Select this
+                    this.dataset.selected = 'true';
+                    this.setAttribute('opacity', '0.4');
+                    this.setAttribute('fill', '#00FF00');
+                    
+                    // Show WallJacks for this room
+                    showRoomWallJacks(roomId);
+                });
+            });
+        }
+        
+        function showRoomWallJacks(roomId) {
+            const walljacks = appState.devices.filter(d => 
+                d.type === 'WallJack' && d.location && d.location.includes(roomId)
+            );
+            
+            const connectedCount = walljacks.filter(w => 
+                appState.connections.some(c => 
+                    c.sourceDevice === w.name || c.destinationDevice === w.name
+                )
+            ).length;
+            
+            alert(`Sala ${roomId}\\n\\nWallJacks: ${walljacks.length}\\nConnessi: ${connectedCount}\\n\\nPunti: ${walljacks.map(w => w.name).join(', ') || 'Nessuno'}`);
+        }
     </script>
 
 </body>
