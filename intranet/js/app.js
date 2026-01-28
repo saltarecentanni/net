@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.0.0
+ * Version: 3.1.5
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -9,6 +9,7 @@
  * - Modular structure
  * - Robust import/export with validation
  * - Patch panel dual-connection support (front/back)
+ * - Wall jack passthrough support (v3.1.3)
  */
 
 'use strict';
@@ -16,11 +17,33 @@
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
+/**
+ * Escape HTML special characters to prevent XSS attacks
+ * @param {string} str - The string to escape
+ * @returns {string} - The escaped string
+ */
 function escapeHtml(str) {
     if (!str) return '';
     var div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+/**
+ * Require authentication for edit operations
+ * Shows login modal if not authenticated
+ * @returns {boolean} - True if authenticated, false otherwise
+ */
+function requireAuth() {
+    if (typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
+        return true;
+    }
+    if (typeof Auth !== 'undefined') {
+        Auth.showLoginModal();
+    } else {
+        Toast.error('Authentication module not loaded. Please refresh the page.');
+    }
+    return false;
 }
 
 // ============================================================================
@@ -128,8 +151,12 @@ var config = {
 // DEVICE FILTERS
 // ============================================================================
 
+// Debounce timer for text input filters
+var deviceFilterDebounceTimer = null;
+
 /**
  * Update device filter and refresh the list
+ * Uses debounce for text inputs to improve performance
  */
 function updateDeviceFilter(filterKey, value, skipFilterBarRebuild) {
     appState.deviceFilters[filterKey] = value;
@@ -150,11 +177,23 @@ function updateDeviceFilter(filterKey, value, skipFilterBarRebuild) {
         if (typeof DrawioTopology !== 'undefined') DrawioTopology.render();
     }
     
-    // Skip rebuilding filter bar to keep focus on input field
-    updateDevicesListOnly();
-    // Update counter display without rebuilding filter bar
-    updateDeviceFilterCount();
-    updateGlobalCounters();
+    // Text inputs use debounce to avoid excessive re-renders
+    var textFilters = ['name', 'source'];
+    if (textFilters.indexOf(filterKey) >= 0) {
+        if (deviceFilterDebounceTimer) {
+            clearTimeout(deviceFilterDebounceTimer);
+        }
+        deviceFilterDebounceTimer = setTimeout(function() {
+            updateDevicesListOnly();
+            updateDeviceFilterCount();
+            updateGlobalCounters();
+        }, 250);
+    } else {
+        // Dropdowns and checkboxes update immediately
+        updateDevicesListOnly();
+        updateDeviceFilterCount();
+        updateGlobalCounters();
+    }
 }
 
 /**
@@ -247,16 +286,33 @@ function getFilteredDevices() {
 // CONNECTION FILTERS
 // ============================================================================
 
+// Debounce timer for text input filters
+var connFilterDebounceTimer = null;
+
 /**
  * Update connection filter and refresh the list
+ * Uses debounce for text inputs to improve performance
  */
 function updateConnFilter(filterKey, value) {
     appState.connFilters[filterKey] = value;
-    // Skip rebuilding filter bar to keep focus on input field
-    updateConnectionsListOnly();
-    // Update counter display without rebuilding filter bar
-    updateConnFilterCount();
-    updateGlobalCounters();
+    
+    // Text inputs use debounce to avoid excessive re-renders
+    var textFilters = ['anyDevice', 'fromDevice', 'toDevice', 'destination', 'cable'];
+    if (textFilters.indexOf(filterKey) >= 0) {
+        if (connFilterDebounceTimer) {
+            clearTimeout(connFilterDebounceTimer);
+        }
+        connFilterDebounceTimer = setTimeout(function() {
+            updateConnectionsListOnly();
+            updateConnFilterCount();
+            updateGlobalCounters();
+        }, 250);
+    } else {
+        // Dropdowns and checkboxes update immediately
+        updateConnectionsListOnly();
+        updateConnFilterCount();
+        updateGlobalCounters();
+    }
 }
 
 /**
@@ -642,20 +698,6 @@ var Toast = (function() {
 // ============================================================================
 // AUTHENTICATION HELPER
 // ============================================================================
-/**
- * Check if user is logged in, if not show login modal
- * @returns {boolean} true if authenticated, false if showing login
- */
-function requireAuth() {
-    if (typeof Auth !== 'undefined' && !Auth.isLoggedIn()) {
-        Toast.warning('Login required for editing');
-        Auth.showLoginModal();
-        return false;
-    }
-    return true;
-}
-
-// ============================================================================
 // UI HELPERS
 // ============================================================================
 function switchTab(tabId) {
@@ -771,12 +813,12 @@ function saveNow() {
         localStorage.setItem('networkDevices', JSON.stringify(appState.devices));
         localStorage.setItem('networkConnections', JSON.stringify(appState.connections));
         localStorage.setItem('nextDeviceId', String(appState.nextDeviceId));
-        showSyncIndicator('saved', '✓ Salvato!');
+        showSyncIndicator('saved', '✓ Saved!');
         serverSave();
-        Toast.success('Dati salvati con successo!');
+        Toast.success('Data saved successfully!');
     } catch (e) {
         console.error('Error saving:', e);
-        Toast.error('Errore nel salvataggio: ' + e.message);
+        Toast.error('Error saving: ' + e.message);
     }
 }
 
@@ -1991,11 +2033,25 @@ function importData(e) {
                 return;
             }
             
-            // Validate each device has required fields
+            // Validate each device has required fields and correct types
             for (var i = 0; i < data.devices.length; i++) {
                 var d = data.devices[i];
+                // Check required fields exist
                 if (!d.id || (!d.rackId && !d.rack) || !d.name || !d.type || !d.status || !d.ports) {
                     Toast.error('Invalid device at index ' + i + ': missing required fields (id, rackId/rack, name, type, status, ports)');
+                    return;
+                }
+                // Validate data types
+                if (typeof d.id !== 'number') {
+                    Toast.error('Invalid device at index ' + i + ': id must be a number');
+                    return;
+                }
+                if (typeof d.name !== 'string') {
+                    Toast.error('Invalid device at index ' + i + ': name must be a string');
+                    return;
+                }
+                if (!Array.isArray(d.ports)) {
+                    Toast.error('Invalid device at index ' + i + ': ports must be an array');
                     return;
                 }
                 // Normalize rackId for compatibility
@@ -2004,11 +2060,16 @@ function importData(e) {
                 }
             }
             
-            // Validate each connection has required fields
+            // Validate each connection has required fields and correct types
             for (var j = 0; j < data.connections.length; j++) {
                 var c = data.connections[j];
                 if (typeof c.from !== 'number' || !c.type || !c.status) {
-                    Toast.error('Invalid connection at index ' + j + ': missing required fields');
+                    Toast.error('Invalid connection at index ' + j + ': missing required fields (from, type, status)');
+                    return;
+                }
+                // Validate 'to' is number or null (for external connections)
+                if (c.to !== null && c.to !== undefined && typeof c.to !== 'number') {
+                    Toast.error('Invalid connection at index ' + j + ': to must be a number or null');
                     return;
                 }
             }

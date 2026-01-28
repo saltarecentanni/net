@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.1.2  
+**Version:** 3.1.5  
 **Date:** January 28, 2026  
 **Author:** Tiesse S.P.A.
 
@@ -19,7 +19,53 @@ A web-based network infrastructure management system for enterprise environments
 - Export data to Excel/JSON/Draw.io for documentation
 - Multi-user access via local network with authentication
 
-### 1.3 What's New in v3.1.2
+### 1.3 What's New in v3.1.5
+
+#### Topology Position Persistence
+| Enhancement | Description |
+|-------------|-------------|
+| **Position Persistence** | Custom device positions are now saved to localStorage |
+| **Drag & Drop Memory** | Moving devices persists across tab switches and page reloads |
+| **Layout Reset** | Changing layout clears custom positions (intentional reset) |
+| **Improved UX** | No more losing topology arrangements when navigating |
+
+#### Bug Fixes
+| Issue | Description |
+|-------|-------------|
+| **WallJack Rack Filter** | Fixed WallJacks from other racks appearing when filtering by rack. Now only shows WallJacks from devices that belong to the filtered rack (not external/connected devices) |
+
+### 1.4 What's New in v3.1.4
+
+#### Code Quality
+| Enhancement | Description |
+|-------------|-------------|
+| **Removed Duplicate Code** | Eliminated duplicate `requireAuth()` function definition |
+| **Removed Dead Code** | Cleaned unused `debounceFilter` utility (now in app.js) |
+| **Standardized Messages** | All Toast messages now in English for consistency |
+| **Reduced File Size** | Removed ~20 lines of redundant code |
+
+### 1.5 What's New in v3.1.3
+
+#### Security Improvements
+| Enhancement | Description |
+|-------------|-------------|
+| **XSS Protection** | Complete escapeHtml() sanitization in connections and devices tables |
+| **Input Validation** | Enhanced import validation with type checking (number, string, array) |
+| **Module Fallbacks** | Added escapeHtml fallback in features.js and ui-updates.js |
+| **Auth Fallback** | requireAuth() with graceful fallback when Auth module unavailable |
+
+#### Bug Fixes
+| Issue | Description |
+|-------|-------------|
+| **c.color undefined** | Added connColor fallback: `c.color || config.connColors[c.type] || '#64748b'` |
+| **Version Consistency** | All JS files now unified at v3.1.3 |
+
+#### Performance
+| Enhancement | Description |
+|-------------|-------------|
+| **Debounce Filters** | 250ms debounce on text input filters to reduce excessive updates |
+
+### 1.4 What's New in v3.1.2
 
 #### Legend Improvements
 | Enhancement | Description |
@@ -35,7 +81,7 @@ A web-based network infrastructure management system for enterprise environments
 | **Simplified Location Filter** | Removed duplicate icon and stats text from Actions bar |
 | **Legend Button** | Added dedicated Legend button in Topology tab |
 
-### 1.4 What's New in v3.0.x
+### 1.5 What's New in v3.0.x
 
 #### v3.0.3 - Bug Fixes
 | Issue | Description |
@@ -91,7 +137,7 @@ intranet/
 │                           # - Inline CSS (Tailwind)
 │                           # - 6 tabs: Devices, Connections, Matrix, Topology, Logs, Help
 │
-├── server.js               # Node.js server (v3.1.2)
+├── server.js               # Node.js server (v3.1.3)
 │                           # - No external dependencies
 │                           # - Port 3000
 │                           # - REST API for data persistence
@@ -109,27 +155,32 @@ intranet/
 │   └── config.php          # Configuration (AUTH_USER, SESSION_TIMEOUT)
 │
 ├── js/
-│   ├── app.js              # Main logic (v3.0.0, 2330 lines)
+│   ├── app.js              # Main logic (v3.1.3, ~2400 lines)
 │   │                       # - Global state (appState)
 │   │                       # - Device/Connection CRUD
 │   │                       # - Persistence (localStorage + server)
 │   │                       # - escapeHtml() utility
 │   │                       # - JSON Import/Export
+│   │                       # - requireAuth() with fallback
+│   │                       # - Debounce timers for filters
 │   │
-│   ├── ui-updates.js       # UI Rendering (v3.0.1, 1378 lines)
+│   ├── ui-updates.js       # UI Rendering (v3.1.3, ~1400 lines)
 │   │                       # - Device list (cards/table)
 │   │                       # - Connection matrix
 │   │                       # - Connection table
 │   │                       # - Excel export (3 sheets)
+│   │                       # - XSS protection with escapeHtml
+│   │                       # - c.color fallback handling
 │   │
-│   ├── features.js         # Extended Features (v3.1.2, 3181 lines)
+│   ├── features.js         # Extended Features (v3.1.3, ~3250 lines)
 │   │                       # - ActivityLog module
 │   │                       # - LocationFilter module
 │   │                       # - SVGTopology module (Cisco icons)
 │   │                       # - DrawioExport module
 │   │                       # - showTopologyLegend() function
+│   │                       # - escapeHtml fallback
 │   │
-│   └── auth.js             # Authentication module (v3.0.3, 215 lines)
+│   └── auth.js             # Authentication module (v3.1.3, ~220 lines)
 │                           # - Login/logout functions
 │                           # - Session management
 │
@@ -141,12 +192,12 @@ intranet/
 
 | File | Version | Lines | Description |
 |------|---------|-------|-------------|
-| index.html | 3.1.2 | 1138 | Main HTML with 6 tabs |
-| server.js | 3.1.2 | - | Node.js REST server |
-| app.js | 3.0.0 | 2330 | Core logic & CRUD |
-| ui-updates.js | 3.0.1 | 1378 | UI rendering |
-| features.js | 3.1.2 | 3181 | Extended features |
-| auth.js | 3.0.3 | 215 | Authentication |
+| index.html | 3.1.5 | ~1140 | Main HTML with 6 tabs |
+| server.js | 3.1.5 | - | Node.js REST server |
+| app.js | 3.1.5 | ~2380 | Core logic, CRUD, debounce, requireAuth |
+| ui-updates.js | 3.1.5 | ~1380 | UI rendering, XSS protection |
+| features.js | 3.1.5 | ~3305 | Extended features, topology position persistence |
+| auth.js | 3.1.5 | ~220 | Authentication |
 
 ---
 
@@ -542,6 +593,15 @@ End session.
 ---
 
 ## 9. CHANGELOG
+
+### v3.1.3 (January 28, 2026)
+- **Security:** Complete XSS protection with escapeHtml() in all tables
+- **Security:** Enhanced import validation with type checking
+- **Security:** Added escapeHtml fallback in features.js and ui-updates.js
+- **Security:** Added requireAuth() fallback for missing Auth module
+- **Bug Fix:** Fixed c.color undefined error with connColor fallback
+- **Performance:** Added 250ms debounce on device and connection filters
+- **Maintenance:** Unified all JS files to version 3.1.3
 
 ### v3.1.2 (January 28, 2026)
 - Legend shows WallJack count from connections

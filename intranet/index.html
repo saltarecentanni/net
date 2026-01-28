@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.1.3">
+    <meta name="app-version" content="3.1.5">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -562,8 +562,43 @@
                     <!-- Quick Start -->
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
                         <h2 class="text-lg font-bold text-blue-800 mb-2">🚀 Guida Rapida</h2>
-                        <p class="text-blue-700">Questo sistema ti aiuta a documentare la tua infrastruttura di rete. Puoi aggiungere dispositivi (router, switch, server, dispositivi sparsi), definire le loro porte e creare connessioni tra di essi.</p>
-                        <p class="text-blue-600 text-sm mt-2"><strong>⚠️ Important:</strong> Always click <span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs">💾 Save Now</span> to save your changes!</p>
+                        <p class="text-blue-700">Questo sistema ti aiuta a documentare la tua infrastruttura di rete. Puoi aggiungere dispositivi (router, switch, server, dispositivi sparsi), definire le loro porte, creare connessioni tra di essi e visualizzare la topologia interattiva.</p>
+                        <p class="text-blue-600 text-sm mt-2"><strong>🔐 Autenticazione:</strong> Per modificare i dati devi effettuare il login cliccando <span class="bg-slate-600 text-white px-2 py-0.5 rounded text-xs">🔒 Login</span> in alto a destra.</p>
+                        <p class="text-blue-600 text-sm mt-2"><strong>⚠️ Importante:</strong> Clicca sempre <span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs">💾 Save Now</span> per salvare le modifiche!</p>
+                    </div>
+
+                    <!-- Section 0: Tabs Overview -->
+                    <div class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="bg-slate-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">📑</span>
+                            Panoramica delle Schede
+                        </h2>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-blue-700">📱 Devices</span>
+                                <p class="text-slate-600 text-sm">Gestisci dispositivi di rete: aggiungi, modifica, elimina router, switch, server, ecc.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-green-700">⚡ Active Connections</span>
+                                <p class="text-slate-600 text-sm">Crea e gestisci connessioni fisiche tra i dispositivi.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-purple-700">📊 Matrix</span>
+                                <p class="text-slate-600 text-sm">Visualizza la matrice delle connessioni in formato tabellare.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-orange-700">🗺️ Topology</span>
+                                <p class="text-slate-600 text-sm">Mappa interattiva con icone Cisco, drag & drop, zoom e filtri.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-amber-700">📋 Logs</span>
+                                <p class="text-slate-600 text-sm">Registro delle ultime 200 modifiche con filtri per tipo di azione.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-bold text-slate-700">❓ Help</span>
+                                <p class="text-slate-600 text-sm">Questa guida utente che stai leggendo.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Section 1: Adding Devices -->
@@ -585,8 +620,9 @@
                             <div class="flex items-start gap-3">
                                 <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">b</span>
                                 <div>
-                                    <p class="font-semibold text-slate-700">Compila il Source</p>
-                                    <p class="text-slate-600 text-sm">Questo è l'identificatore della posizione/origine. Esempio: <code class="bg-amber-100 px-1 rounded">Rack-Network-01</code>, <code class="bg-amber-100 px-1 rounded">Server-Room-A</code> o <code class="bg-amber-100 px-1 rounded">Standalone</code>. I dispositivi con lo stesso Source saranno raggruppati insieme.</p>
+                                    <p class="font-semibold text-slate-700">Compila Location e Source</p>
+                                    <p class="text-slate-600 text-sm"><strong>Location/Department:</strong> La sede o reparto (es. <code class="bg-amber-100 px-1 rounded">Sede Principale</code>, <code class="bg-amber-100 px-1 rounded">Ufficio Milano</code>). Usa il filtro Location nella barra per visualizzare solo dispositivi di una sede.</p>
+                                    <p class="text-slate-600 text-sm mt-1"><strong>Source:</strong> L'identificatore del rack/posizione (es. <code class="bg-amber-100 px-1 rounded">Rack-01</code>, <code class="bg-amber-100 px-1 rounded">Server-Room-A</code>). I dispositivi con lo stesso Source saranno raggruppati insieme.</p>
                                 </div>
                             </div>
 
@@ -643,7 +679,15 @@
                         </div>
 
                         <div class="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
-                            <p class="text-green-800 text-sm"><strong>💡 Suggerimento:</strong> Puoi anche aggiungere Marca/Modello, Indirizzi IP, descrizione del Servizio e Note per una documentazione più completa.</p>
+                            <p class="text-green-800 text-sm"><strong>💡 Suggerimento:</strong> Puoi anche aggiungere:</p>
+                            <ul class="text-green-700 text-sm mt-1 ml-4 list-disc">
+                                <li><strong>Marca/Modello</strong> - Per identificare l'hardware</li>
+                                <li><strong>4 Indirizzi IP</strong> - IP1, IP2, IP3, IP4 con maschera di rete</li>
+                                <li><strong>Servizio</strong> - Descrizione del ruolo del dispositivo</li>
+                                <li><strong>Links</strong> - URL multipli (documentazione, interfaccia web, ecc.)</li>
+                                <li><strong>Note</strong> - Informazioni aggiuntive</li>
+                                <li><strong>Status</strong> - Active o Disabled (off)</li>
+                            </ul>
                         </div>
                     </div>
 
@@ -783,6 +827,77 @@
                         </div>
                     </div>
 
+                    <!-- Section 3.5: Network Topology -->
+                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-orange-800 mb-4 flex items-center gap-2">
+                            <span class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">🗺️</span>
+                            Network Topology (Mappa di Rete)
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <p class="text-orange-700">La scheda <strong>Topology</strong> mostra una mappa interattiva della tua rete con icone stile Cisco.</p>
+                            
+                            <div class="bg-white p-4 rounded-lg border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-2">🎛️ Controlli disponibili:</h3>
+                                <div class="grid md:grid-cols-2 gap-3 text-sm">
+                                    <div><strong>📍 Filtro Location:</strong> Mostra solo dispositivi di una sede</div>
+                                    <div><strong>📦 Filtro Source:</strong> Mostra solo dispositivi di un rack</div>
+                                    <div><strong>🔄 Layout:</strong> Auto, Circle, Grid, Hierarchical</div>
+                                    <div><strong>⊞ Fit View:</strong> Centra e adatta la vista</div>
+                                    <div><strong>📋 Legend:</strong> Mostra legenda con conteggi dispositivi</div>
+                                    <div><strong>📷 Export PNG:</strong> Scarica immagine della topologia</div>
+                                    <div><strong>📥 Export .drawio:</strong> Esporta per Draw.io</div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-lg border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-2">🖱️ Interazioni:</h3>
+                                <ul class="text-orange-800 text-sm space-y-1 list-disc ml-4">
+                                    <li><strong>Drag & Drop:</strong> Trascina i dispositivi per riposizionarli</li>
+                                    <li><strong>Zoom:</strong> Usa la rotella del mouse per ingrandire/ridurre</li>
+                                    <li><strong>Pan:</strong> Trascina lo sfondo per spostare la vista</li>
+                                    <li><strong>Hover:</strong> Passa il mouse su un dispositivo per vedere i dettagli</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-lg border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-2">📋 Legenda dispositivi:</h3>
+                                <p class="text-orange-800 text-sm">Clicca <span class="bg-purple-500 text-white px-2 py-0.5 rounded text-xs">📋 Legend</span> per vedere:</p>
+                                <ul class="text-orange-700 text-sm mt-2 ml-4 list-disc">
+                                    <li>Conteggio per tipo di dispositivo (Router, Switch, Server, ecc.)</li>
+                                    <li>Conteggio Wall Jack virtuali dalle connessioni</li>
+                                    <li>Dispositivi spenti/disabilitati (badge rosso)</li>
+                                    <li>Riepilogo totale dispositivi</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3.6: Activity Logs -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-4 shadow-sm">
+                        <h2 class="text-xl font-bold text-amber-800 mb-4 flex items-center gap-2">
+                            <span class="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">📋</span>
+                            Activity Logs (Registro Attività)
+                        </h2>
+                        
+                        <div class="space-y-3">
+                            <p class="text-amber-700">La scheda <strong>Logs</strong> mostra le ultime 200 modifiche effettuate al sistema.</p>
+                            
+                            <div class="bg-white p-4 rounded-lg border border-amber-200">
+                                <h3 class="font-bold text-amber-900 mb-2">📊 Filtri disponibili:</h3>
+                                <div class="flex flex-wrap gap-2 text-sm">
+                                    <span class="px-2 py-1 bg-slate-100 rounded">All</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded">Add</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded">Edit</span>
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded">Delete</span>
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded">Import</span>
+                                </div>
+                            </div>
+
+                            <p class="text-amber-600 text-sm">💡 Ogni voce mostra: data/ora, tipo di azione, nome del dispositivo/connessione e dettagli della modifica.</p>
+                        </div>
+                    </div>
+
                     <!-- Section 4: Editing and Deleting -->
                     <div class="bg-white border border-slate-200 rounded-xl p-5 mb-4 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -830,7 +945,7 @@
                         
                         <div class="space-y-4">
                             <div class="flex items-start gap-3">
-                                <span class="text-2xl"></span>
+                                <span class="text-2xl">📊</span>
                                 <div>
                                     <p class="font-semibold text-slate-700">Esporta in Excel</p>
                                     <p class="text-slate-600 text-sm">Clicca <span class="bg-indigo-500 text-white px-2 py-0.5 rounded text-xs">📊 Export to Excel</span> nella barra Azioni. Crea un foglio di calcolo con 3 schede: Dispositivi, Connessioni e Matrice.</p>
@@ -840,7 +955,7 @@
                             <div class="flex items-start gap-3">
                                 <span class="text-2xl">💾</span>
                                 <div>
-                                    <p class="font-semibold text-slate-700">Esporta in JSON</p>
+                                    <p class="font-semibold text-slate-700">Esporta in JSON (Backup)</p>
                                     <p class="text-slate-600 text-sm">Clicca <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">💾 Export JSON</span> per scaricare un file di backup. Usalo per ripristinare i dati in seguito o trasferirli su un altro computer.</p>
                                 </div>
                             </div>
@@ -850,6 +965,7 @@
                                 <div>
                                     <p class="font-semibold text-slate-700">Importa da JSON</p>
                                     <p class="text-slate-600 text-sm">Clicca <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">📥 Import JSON</span> e seleziona un file JSON precedentemente esportato. Questo sostituirà tutti i dati correnti!</p>
+                                    <p class="text-red-600 text-xs mt-1">⚠️ L'importazione richiede autenticazione e sovrascrive tutti i dati esistenti.</p>
                                 </div>
                             </div>
 
@@ -857,7 +973,23 @@
                                 <span class="text-2xl">🖨️</span>
                                 <div>
                                     <p class="font-semibold text-slate-700">Stampa</p>
-                                    <p class="text-slate-600 text-sm">Usa i pulsanti <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print</span> nelle schede Matrix o Active Connections per stampare la documentazione.</p>
+                                    <p class="text-slate-600 text-sm">Usa i pulsanti <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print</span> nelle schede Matrix o Active Connections per stampare la documentazione. Puoi stampare solo la Location/Source filtrata.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">📷</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Esporta Topologia PNG</p>
+                                    <p class="text-slate-600 text-sm">Nella scheda Topology, clicca <span class="bg-indigo-500 text-white px-2 py-0.5 rounded text-xs">📷 Export PNG</span> per scaricare un'immagine della mappa di rete con titolo e data.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">📐</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">Esporta per Draw.io</p>
+                                    <p class="text-slate-600 text-sm">Nella scheda Topology, clicca <span class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs">📥 Export .drawio</span> per creare un file modificabile in Draw.io/diagrams.net.</p>
                                 </div>
                             </div>
                         </div>
@@ -907,6 +1039,11 @@
                         
                         <div class="space-y-4">
                             <div>
+                                <p class="font-semibold text-amber-900">D: Come faccio il login per modificare i dati?</p>
+                                <p class="text-amber-800 text-sm">R: Clicca il pulsante <strong>🔒 Login</strong> in alto a destra. Inserisci le credenziali fornite dall'amministratore. Una volta autenticato, vedrai il pulsante <strong>🔓 Logout</strong>.</p>
+                            </div>
+
+                            <div>
                                 <p class="font-semibold text-amber-900">D: Cosa significa Order = 0?</p>
                                 <p class="text-amber-800 text-sm">R: Order 0 è per dispositivi "sparsi" o isolati che non sono montati in un rack. Ad esempio: un access point sul soffitto, un router in un'altra stanza.</p>
                             </div>
@@ -924,6 +1061,21 @@
                             <div>
                                 <p class="font-semibold text-amber-900">D: Cosa significa (R) nelle liste?</p>
                                 <p class="text-amber-800 text-sm">R: <strong class="text-amber-600">(R)</strong> indica che il dispositivo è montato nella parte posteriore (Rear) del rack.</p>
+                            </div>
+
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Come uso il filtro Location?</p>
+                                <p class="text-amber-800 text-sm">R: Nella barra Azioni, seleziona una Location dal menu a tendina. Verranno mostrati solo i dispositivi di quella sede. Questo filtro si applica anche alla Matrice, Topologia e alla stampa.</p>
+                            </div>
+
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Come aggiungo più indirizzi IP a un dispositivo?</p>
+                                <p class="text-amber-800 text-sm">R: Ogni dispositivo ha 4 campi IP (IP1-IP4). Puoi anche specificare la maschera di rete nel formato CIDR (es. <code class="bg-amber-100 px-1 rounded">192.168.1.1/24</code>).</p>
+                            </div>
+
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Come aggiungo link/URL a un dispositivo?</p>
+                                <p class="text-amber-800 text-sm">R: Modifica il dispositivo e usa il campo <strong>Links</strong>. Puoi aggiungere più URL (interfaccia web, documentazione, ecc.). I link appariranno come icone cliccabili nella lista dispositivi.</p>
                             </div>
                             
                             <div>
@@ -945,13 +1097,23 @@
                                 <p class="font-semibold text-amber-900">D: Come funzionano le porte del Patch Panel?</p>
                                 <p class="text-amber-800 text-sm">R: Le porte del patch panel possono avere fino a 2 connessioni (fronte e retro). Questo ti permette di collegare un wall jack al retro e uno switch al fronte della stessa porta.</p>
                             </div>
+
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Come vedo le modifiche recenti?</p>
+                                <p class="text-amber-800 text-sm">R: Vai alla scheda <strong>Logs</strong>. Vedrai le ultime 200 modifiche ordinate per data. Puoi filtrare per tipo (Add, Edit, Delete, Import).</p>
+                            </div>
+
+                            <div>
+                                <p class="font-semibold text-amber-900">D: Posso esportare la topologia come immagine?</p>
+                                <p class="text-amber-800 text-sm">R: Sì! Nella scheda Topology clicca <strong>📷 Export PNG</strong>. L'immagine includerà titolo, data e filtri attivi. Puoi anche esportare in formato Draw.io per modifiche avanzate.</p>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.0.0</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.1.5</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -1094,10 +1256,10 @@
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/auth.js?v=3.1.3"></script>
-    <script src="js/app.js?v=3.1.3"></script>
-    <script src="js/ui-updates.js?v=3.1.3"></script>
-    <script src="js/features.js?v=3.1.3"></script>
+    <script src="js/auth.js?v=3.1.5"></script>
+    <script src="js/app.js?v=3.1.5"></script>
+    <script src="js/ui-updates.js?v=3.1.5"></script>
+    <script src="js/features.js?v=3.1.5"></script>
     
     <!-- Update connections count when list lists -->
     <script>

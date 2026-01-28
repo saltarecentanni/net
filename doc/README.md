@@ -2,49 +2,77 @@
 
 Applicazione web di gestione della rete per deploy in intranet aziendale.
 
-**Versione:** 3.1.2  
+**Versione:** 3.1.5  
 **Data:** 28 Gennaio 2026
 
 ---
 
-## 🆕 Novità della Versione 3.1.2
+## 🆕 Novità della Versione 3.1.5
 
-### Miglioramenti Legenda Topologia
-- **🔌 Conteggio Wall Jack:** La legenda ora conta i Wall Jack virtuali dalle connessioni (isWallJack=true)
-- **📴 Stato Off/Disabled:** La legenda mostra i dispositivi spenti con badge rosso e conteggio separato
-- **📊 Footer Riepilogativo:** Mostra totale dispositivi, dispositivi off e conteggio wall jack
+### 🗺️ Topology Position Persistence
+- **Posizioni Persistenti:** Le posizioni dei dispositivi personalizzate sono salvate in localStorage
+- **Drag & Drop Memorizzato:** Spostare dispositivi persiste tra cambi di tab e ricaricamenti pagina
+- **Reset Layout:** Cambiare layout resetta le posizioni (reset intenzionale)
+- **UX Migliorata:** Nessuna perdita di arrangiamenti topologia navigando tra tab
 
-### Miglioramenti UI
-- **🗺️ Icona Topology:** Cambiata da 🖧 a 🗺️ per migliore visibilità
-- **🎯 Filtro Location Semplificato:** Rimossa icona duplicata e testo statistiche dalla barra Actions
-- **📜 Tab Logs:** Rinominata da "Activity Logs" a "Logs"
-- **📋 Pulsante Legend:** Aggiunto pulsante dedicato nella tab Topology
+### 🐛 Bug Fix
+- **WallJack Rack Filter:** Corretto bug dove WallJack di altri rack apparivano filtrando per rack. Ora mostra solo WallJack dei dispositivi del rack filtrato (non esterni/connessi)
+
+---
+
+## 🆕 Novità della Versione 3.1.4
+
+### 🧹 Code Quality
+- **Rimozione Codice Duplicato:** Eliminata funzione `requireAuth()` duplicata
+- **Rimozione Dead Code:** Rimossa utility `debounceFilter` non utilizzata  
+- **Standardizzazione Messaggi:** Tutti i Toast ora in inglese per consistenza
+- **Riduzione File Size:** Rimosse ~20 righe di codice ridondante
+
+---
+
+## 🆕 Novità della Versione 3.1.3
+
+### 🔒 Sicurezza
+- **Protezione XSS:** Sanitizzazione completa di tutti i contenuti HTML con `escapeHtml()`
+- **Validazione Import Migliorata:** Controllo dei tipi di dati (number, string, array) durante l'import JSON
+- **Fallback escapeHtml:** Funzione disponibile anche se app.js non è caricato (features.js, ui-updates.js)
+- **requireAuth Robusto:** Fallback con messaggio se il modulo Auth non è disponibile
+
+### ⚡ Performance
+- **Filtri con Debounce:** I filtri di testo attendono 250ms prima di aggiornare la lista
+- **Rendering Ottimizzato:** Riduzione degli aggiornamenti UI durante la digitazione
+
+### 🐛 Bug Fix
+- **c.color undefined:** Fallback a `config.connColors[type]` quando il colore della connessione non è definito
+- **Versioni Sincronizzate:** Tutti i file JS ora mostrano versione 3.1.3
 
 ---
 
 ## 🆕 Versioni Precedenti
 
+### v3.1.2 - Miglioramenti Legenda
+- Conteggio Wall Jack dalle connessioni
+- Stato Off/Disabled nella legenda
+- Footer riepilogativo
+
 ### v3.0.3 - Correzioni Bug
 - Fix visualizzazione Wall Jack nella Topologia
 - Supporto connessioni esterne con icone distintive
-- Label dispositivi esterni con due righe
 
 ### v3.0.2 - Correzioni Critiche
 - Fix mutation dei dati di connessione
 - Fix memory leak nel topology
-- Migliorata gestione errori
 
 ### v3.0.1 - SVG Topology
 - Topologia SVG con icone Cisco-style
 - Export Draw.io funzionalità
-- Fix fallback connessioni
 
 ### v3.0.0 - Major Release
 - Campo Location/Department con filtro
-- 4 Campi IP separati (IP1-4 con maschera)
+- 4 Campi IP separati
 - Link multipli per dispositivo
 - Mappa di rete interattiva
-- Log attività (ultimi 200 cambiamenti)
+- Log attività
 - Sistema di autenticazione
 
 ---
@@ -70,8 +98,8 @@ php -r "echo password_hash('nuova_password', PASSWORD_DEFAULT);"
 
 ```
 intranet/
-├── index.html              # Pagina principale (v3.1.2, 1138 righe)
-├── server.js               # Server Node.js (v3.1.2)
+├── index.html              # Pagina principale (v3.1.3, 1138 righe)
+├── server.js               # Server Node.js (v3.1.3)
 ├── data.php                # API REST (PHP alternativo)
 ├── start-server.bat        # Avvio rapido Windows
 │
@@ -82,15 +110,23 @@ intranet/
 │   └── config.php          # Configurazione
 │
 ├── js/
-│   ├── app.js              # Logica principale (v3.0.0, 2330 righe)
-│   ├── ui-updates.js       # Rendering UI (v3.0.1, 1378 righe)
-│   ├── features.js         # Funzionalità estese (v3.1.2, 3181 righe)
+│   ├── app.js              # Logica principale (v3.1.3, ~2400 righe)
+│   │                       # - escapeHtml() con sanitizzazione
+│   │                       # - requireAuth() con fallback
+│   │                       # - Debounce nei filtri
+│   │                       # - Validazione import migliorata
+│   ├── ui-updates.js       # Rendering UI (v3.1.3, ~1400 righe)
+│   │                       # - XSS protection completa
+│   │                       # - c.color fallback
+│   │                       # - escapeHtml fallback
+│   ├── features.js         # Funzionalità estese (v3.1.3, ~3250 righe)
 │   │                       # - ActivityLog
 │   │                       # - LocationFilter
 │   │                       # - SVGTopology (icone Cisco)
 │   │                       # - DrawioExport
-│   │                       # - showTopologyLegend()
-│   └── auth.js             # Modulo autenticazione (v3.0.3, 215 righe)
+│   │                       # - PNG export con titolo
+│   │                       # - escapeHtml fallback
+│   └── auth.js             # Modulo autenticazione (v3.1.3)
 │
 └── data/
     └── network_manager.json  # Dati persistenti

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.1.2
+ * Version: 3.1.5
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -14,9 +14,21 @@
  * - Cable separation: Each cable has UNIQUE lane (no overlap ever)
  * - Compact Wall Jack icons and thin connection lines
  * - GLOBAL connection indexing by source device (v3.1.0)
+ * - PNG export with title header (v3.1.3)
  */
 
 'use strict';
+
+// Fallback escapeHtml if app.js not loaded yet
+var escapeHtml = window.escapeHtml || function(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+};
 
 // ============================================================================
 // ACTIVITY LOGS SYSTEM
@@ -339,11 +351,13 @@ var SVGTopology = (function() {
     var svg = null;
     var currentLayout = 'auto';
     var devicePositions = {};
+    var customPositions = {}; // User-dragged positions to persist
     var dragging = null;
     var isPanning = false;
     var panStart = { x: 0, y: 0, viewBoxX: 0, viewBoxY: 0 };
     var viewBox = { x: 0, y: 0, width: 1200, height: 600 };
     var scale = 1;
+    var POSITIONS_KEY = 'networkTopologyPositions'; // localStorage key
     var iconTheme = window.SVG_TOPOLOGY_ICON_THEME || 'inline';
     var externalIconMap = {
         router: 'assets/icons/cisco/raw/ppt/media/image2890.png',
@@ -1216,9 +1230,45 @@ var SVGTopology = (function() {
         }
     }
     
+    // ═══════════════════════════════════════════════════════════════════
+    // POSITION PERSISTENCE - Save/Load custom positions from localStorage
+    // ═══════════════════════════════════════════════════════════════════
+    
+    function saveCustomPositions() {
+        try {
+            localStorage.setItem(POSITIONS_KEY, JSON.stringify(customPositions));
+        } catch (e) {
+            console.warn('Could not save topology positions:', e);
+        }
+    }
+    
+    function loadCustomPositions() {
+        try {
+            var saved = localStorage.getItem(POSITIONS_KEY);
+            if (saved) {
+                customPositions = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.warn('Could not load topology positions:', e);
+            customPositions = {};
+        }
+    }
+    
+    function clearCustomPositions() {
+        customPositions = {};
+        try {
+            localStorage.removeItem(POSITIONS_KEY);
+        } catch (e) {
+            // Ignore
+        }
+    }
+    
     function init() {
         container = document.getElementById('drawioContainer');
         if (!container) return;
+        
+        // Load saved custom positions on init
+        loadCustomPositions();
         
         updateLocationFilter();
         render();
@@ -1288,16 +1338,22 @@ var SVGTopology = (function() {
     function getTopologyFilteredConnections() {
         var devices = getTopologyFilteredDevices();
         var deviceIds = {};
-        devices.forEach(function(d) { deviceIds[d.id] = true; });
+        var nonExternalDeviceIds = {}; // Only devices that belong to filtered rack/location
+        devices.forEach(function(d) { 
+            deviceIds[d.id] = true;
+            if (!d._isExternal) {
+                nonExternalDeviceIds[d.id] = true;
+            }
+        });
         
         // Show connections where:
         // 1. BOTH devices are visible (normal connections)
-        // 2. OR source device is visible AND has external destination (WallJack/External)
+        // 2. OR source device is FROM THE FILTERED RACK (not external) AND has external destination (WallJack/External)
         return (appState.connections || []).filter(function(c) {
             // Normal connection: both devices visible
             if (deviceIds[c.from] && deviceIds[c.to]) return true;
-            // External/WallJack connection: source visible and has externalDest
-            if (deviceIds[c.from] && c.externalDest) return true;
+            // External/WallJack connection: source must be from filtered rack (not external) and has externalDest
+            if (nonExternalDeviceIds[c.from] && c.externalDest) return true;
             return false;
         });
     }
@@ -1346,7 +1402,8 @@ var SVGTopology = (function() {
         var nodeHeight = 70;
         var padding = 120;
         
-        devicePositions = {};
+        // Start fresh for layout calculation
+        var calculatedPositions = {};
         
         if (layout === 'circle') {
             var centerX = width / 2;
@@ -1357,7 +1414,7 @@ var SVGTopology = (function() {
             
             devices.forEach(function(d, i) {
                 var angle = (2 * Math.PI * i) / devices.length - Math.PI / 2;
-                devicePositions[d.id] = {
+                calculatedPositions[d.id] = {
                     x: centerX + radius * Math.cos(angle) - nodeWidth / 2,
                     y: centerY + radius * Math.sin(angle) - nodeHeight / 2
                 };
@@ -1371,7 +1428,7 @@ var SVGTopology = (function() {
             devices.forEach(function(d, i) {
                 var col = i % cols;
                 var row = Math.floor(i / cols);
-                devicePositions[d.id] = {
+                calculatedPositions[d.id] = {
                     x: padding + col * cellWidth,
                     y: padding + row * cellHeight
                 };
@@ -1408,7 +1465,7 @@ var SVGTopology = (function() {
                     var startX = Math.max(padding, (width - rowWidth) / 2 + nodeSpacing / 2 - nodeWidth / 2);
                     
                     rowDevices.forEach(function(d, i) {
-                        devicePositions[d.id] = {
+                        calculatedPositions[d.id] = {
                             x: startX + i * nodeSpacing,
                             y: y
                         };
@@ -1425,12 +1482,24 @@ var SVGTopology = (function() {
             devices.forEach(function(d, i) {
                 var col = i % cols;
                 var row = Math.floor(i / cols);
-                devicePositions[d.id] = {
+                calculatedPositions[d.id] = {
                     x: padding + col * cellWidth,
                     y: padding + row * cellHeight
                 };
             });
         }
+        
+        // Apply calculated positions, but preserve custom (user-dragged) positions
+        devicePositions = {};
+        devices.forEach(function(d) {
+            if (customPositions[d.id]) {
+                // Use saved custom position
+                devicePositions[d.id] = customPositions[d.id];
+            } else if (calculatedPositions[d.id]) {
+                // Use calculated position
+                devicePositions[d.id] = calculatedPositions[d.id];
+            }
+        });
     }
     
     function calculateViewBox(devices) {
@@ -2134,12 +2203,18 @@ var SVGTopology = (function() {
         // Update stored position
         devicePositions[dragging.deviceId] = { x: newX, y: newY };
         
+        // Mark this position as custom (user-dragged)
+        customPositions[dragging.deviceId] = { x: newX, y: newY };
+        
         // Update connections
         updateConnections();
     }
     
     function endDrag() {
         if (dragging) {
+            // Save custom positions to localStorage when drag ends
+            saveCustomPositions();
+            
             dragging.node.style.cursor = 'move';
             svg.style.cursor = 'grab';
             dragging = null;
@@ -2411,6 +2486,10 @@ var SVGTopology = (function() {
     function updateLayout() {
         var select = document.getElementById('drawioLayout');
         currentLayout = select ? select.value : 'auto';
+        
+        // Clear custom positions when changing layout (reset to new layout)
+        clearCustomPositions();
+        
         render();
     }
     

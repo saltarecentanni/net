@@ -1,0 +1,21 @@
+# Backups folder - too large for git
+backups/
+
+# LIX folder - deprecated/unused files
+intranet/LIX/
+
+# Node modules
+node_modules/
+
+# IDE
+.vscode/
+.trunk/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.bak
+*.swp

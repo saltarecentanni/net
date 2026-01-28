@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.0.1
+ * Version: 3.1.5
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -9,9 +9,22 @@
  * - Excel export
  * - Improved print styles
  * - Device and Connection filters
+ * - XSS protection with escapeHtml (v3.1.3)
+ * - Debounced filter inputs (v3.1.3)
  */
 
 'use strict';
+
+// Fallback escapeHtml if app.js not loaded yet
+var escapeHtml = window.escapeHtml || function(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+};
 
 // ============================================================================
 // DEVICES LIST UPDATE (Cards and Table Views)
@@ -302,16 +315,25 @@ function updateDevicesListTable(cont) {
         var rowClass = i % 2 === 0 ? 'bg-white' : 'bg-slate-50';
         var warningClass = totalConnections === 0 ? 'bg-orange-50' : rowClass;
 
+        // Escape all user-provided content for XSS protection
+        var safeLocation = escapeHtml(d.location || '');
+        var safeRackId = escapeHtml(d.rackId || '');
+        var safeName = escapeHtml(d.name || '');
+        var safeBrandModel = escapeHtml(d.brandModel || '');
+        var safeType = escapeHtml(d.type || '');
+        var safeAddressText = escapeHtml(addressText || '');
+        var safeService = escapeHtml(d.service || '');
+
         html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200">';
-        html += '<td class="p-2 text-purple-700 font-semibold max-w-xs truncate" title="' + (d.location || '') + '">📍 ' + (d.location || '-') + '</td>';
-        html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span></td>';
+        html += '<td class="p-2 text-purple-700 font-semibold max-w-xs truncate" title="' + safeLocation + '">📍 ' + (safeLocation || '-') + '</td>';
+        html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + safeRackId.toUpperCase() + '</span></td>';
         html += '<td class="p-2 text-center"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + ((d.isRear || d.rear) ? '<span class="text-[9px] text-amber-600 font-bold ml-0.5">R</span>' : '') + '</td>';
-        html += '<td class="p-2 font-semibold text-slate-800">' + d.name + '</td>';
-        html += '<td class="p-2 text-slate-600">' + (d.brandModel || '-') + '</td>';
-        html += '<td class="p-2 text-slate-500 uppercase">' + d.type + '</td>';
+        html += '<td class="p-2 font-semibold text-slate-800">' + safeName + '</td>';
+        html += '<td class="p-2 text-slate-600">' + (safeBrandModel || '-') + '</td>';
+        html += '<td class="p-2 text-slate-500 uppercase">' + safeType + '</td>';
         html += '<td class="p-2 text-center">' + statusBadge + '</td>';
-        html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + addressText + '">' + (addressText || '-') + '</td>';
-        html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + (d.service || '') + '">' + (d.service || '-') + '</td>';
+        html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeAddressText + '">' + (safeAddressText || '-') + '</td>';
+        html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeService + '">' + (safeService || '-') + '</td>';
         html += '<td class="p-2 text-center"><span class="text-slate-700">' + d.ports.length + '</span> <span class="text-slate-400">(' + usedPorts + ')</span></td>';
         html += '<td class="p-2 text-center">' + (totalConnections === 0 ? '<span class="text-orange-600 font-semibold">0 ⚠</span>' : '<span class="text-slate-700">' + totalConnections + '</span>') + '</td>';
         html += '<td class="p-2 text-center whitespace-nowrap edit-mode-only">';
@@ -1090,6 +1112,9 @@ function renderConnectionsTable(cont) {
         var statusClass = disabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
         var statusText = disabled ? 'Off' : 'On';
 
+        // Connection color with fallback
+        var connColor = c.color || config.connColors[c.type] || '#64748b';
+
         var fromRackColor = getRackColor(fromDevice ? fromDevice.rackId : '');
         var toRackColor = getRackColor(toDevice ? toDevice.rackId : '');
 
@@ -1139,15 +1164,15 @@ function renderConnectionsTable(cont) {
         // Handle external destination and wall jack display
         var toDisplayName, toDisplayRack, toDisplayPos;
         if (toDevice) {
-            toDisplayName = toDevice.name;
-            toDisplayRack = toDevice.rackId;
+            toDisplayName = escapeHtml(toDevice.name);
+            toDisplayRack = escapeHtml(toDevice.rackId);
             toDisplayPos = String(toDevice.order).padStart(2, '0');
         } else if (c.isWallJack) {
-            toDisplayName = '🔌 ' + (c.externalDest || 'Wall Jack');
+            toDisplayName = '🔌 ' + escapeHtml(c.externalDest || 'Wall Jack');
             toDisplayRack = 'Wall Jack';
             toDisplayPos = '-';
         } else if (c.externalDest) {
-            toDisplayName = '📡 ' + c.externalDest;
+            toDisplayName = '📡 ' + escapeHtml(c.externalDest);
             toDisplayRack = 'External';
             toDisplayPos = '-';
         } else {
@@ -1163,27 +1188,31 @@ function renderConnectionsTable(cont) {
         // Simple border - thinner for mirrored rows
         var borderClass = isMirrored ? 'border-b border-red-300' : 'border-b border-slate-200';
 
+        // Escape device names for onclick handlers
+        var fromDeviceNameEscaped = fromDevice ? escapeHtml(fromDevice.name).replace(/'/g, "\\'") : '';
+        var toDeviceNameEscaped = toDevice ? escapeHtml(toDevice.name).replace(/'/g, "\\'") : '';
+
         html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 ' + borderClass + '">' +
             '<td class="px-3 py-2 align-top print-hide-id">' + idHtml + '</td>' +
-            '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + (fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
+            '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + escapeHtml(fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span>' + fromRearIndicator + '</td>' +
             '<td class="px-3 py-2 align-top">' +
-                '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + (fromDevice ? fromDevice.name.replace(/'/g, "\\'") : '') + '\')">' + (fromDevice ? fromDevice.name : 'N/A') + '</div>' +
+                '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + fromDeviceNameEscaped + '\')">' + escapeHtml(fromDevice ? fromDevice.name : 'N/A') + '</div>' +
                 (fromIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + fromIPs + '</div>' : '') +
             '</td>' +
-            '<td class="px-3 py-2 align-top font-mono text-center">' + (displayFromPort || '-') + '</td>' +
+            '<td class="px-3 py-2 align-top font-mono text-center">' + escapeHtml(displayFromPort || '-') + '</td>' +
             '<td class="px-1 py-2 align-top text-center"><span style="font-size:18px;font-weight:bold;color:' + (isMirrored ? '#dc2626' : '#2563eb') + ';">⟷</span></td>' +
-            '<td class="px-3 py-2 align-top font-mono text-center">' + (displayToPort || '-') + '</td>' +
+            '<td class="px-3 py-2 align-top font-mono text-center">' + escapeHtml(displayToPort || '-') + '</td>' +
             '<td class="px-3 py-2 align-top">' +
-                '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + (toDevice ? toDevice.name.replace(/'/g, "\\'") : '') + '\')">' + toDisplayName + '</div>' +
+                '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + toDeviceNameEscaped + '\')">' + toDisplayName + '</div>' +
                 (toIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + toIPs + '</div>' : '') +
             '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span>' + toRearIndicator + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + toDisplayRack + '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + c.color + '">' + config.connLabels[c.type] + '</span></td>' +
+            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + connColor + '">' + escapeHtml(config.connLabels[c.type] || c.type) + '</span></td>' +
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full ' + statusClass + '">' + statusText + '</span></td>' +
-            '<td class="px-3 py-2 align-top text-xs italic text-slate-600">' + (c.notes || '') + '</td>' +
+            '<td class="px-3 py-2 align-top text-xs italic text-slate-600">' + escapeHtml(c.notes || '') + '</td>' +
             '<td class="px-3 py-2 align-top text-center no-print edit-mode-only">' +
             '<div class="flex flex-col gap-1">' +
             '<button onclick="editConnection(' + origIdx + ')" class="text-blue-600 hover:text-blue-900 text-xs">Edit</button>' +
