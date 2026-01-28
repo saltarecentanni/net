@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.1.6">
+    <meta name="app-version" content="3.1.5">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -209,9 +209,6 @@
                 </button>
                 <button class="tab-btn" onclick="switchTab('drawio')" id="tab-drawio">
                     🗺️ Topology
-                </button>
-                <button class="tab-btn" onclick="switchTab('rooms')" id="tab-rooms">
-                    🏢 Salas
                 </button>
                 <button class="tab-btn" onclick="switchTab('logs')" id="tab-logs">
                     📜 Logs
@@ -1116,7 +1113,7 @@
                     <!-- Footer -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.1.6</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.1.5</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -1126,7 +1123,7 @@
             <div id="content-drawio" class="tab-content">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800">🗺️ Network Topology</h2>
+                        <h2 class="text-xl font-bold text-slate-800">�️ Network Topology</h2>
                         <p class="text-xs text-slate-500">Interactive visualization - drag devices to reposition</p>
                     </div>
                     <div class="flex gap-2 flex-wrap">
@@ -1164,60 +1161,6 @@
 
                 <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p class="text-sm text-blue-800"><strong>💡 Tip:</strong> Drag devices to reposition. Use "Export .drawio" to open in <a href="https://app.diagrams.net" target="_blank" class="text-blue-600 hover:underline font-semibold">diagrams.net</a> for advanced editing.</p>
-                </div>
-            </div>
-
-            <!-- Tab: Mappa Salas -->
-            <div id="content-rooms" class="tab-content">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-800">🏢 Mappa delle Salas</h2>
-                        <p class="text-xs text-slate-500">Planimetria fisica degli uffici con punti WallJack</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <select id="roomsViewMode" onchange="toggleRoomsView()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
-                            <option value="map">Vista Mappa</option>
-                            <option value="list">Lista Salas</option>
-                        </select>
-                        <button onclick="zoomRoomMap('in')" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
-                            🔍+ Zoom In
-                        </button>
-                        <button onclick="zoomRoomMap('out')" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
-                            🔍- Zoom Out
-                        </button>
-                        <button onclick="zoomRoomMap('fit')" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
-                            ⊞ Fit View
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Vista Mappa -->
-                <div id="roomsMapView" class="border border-slate-300 rounded-xl bg-slate-50 overflow-auto" style="height: 650px;">
-                    <div id="roomMapContainer" class="relative" style="min-height: 100%; display: flex; align-items: center; justify-content: center;">
-                        <img id="roomMapImage" src="../MAPPATURA-RETI-TIESSE-2026.fw.png" alt="Mappa Salas" 
-                             style="max-width: 100%; height: auto; cursor: move; transition: transform 0.2s;"
-                             onload="initRoomMapInteraction()">
-                    </div>
-                </div>
-
-                <!-- Vista Lista Salas -->
-                <div id="roomsListView" class="border border-slate-300 rounded-xl bg-white overflow-hidden" style="display: none;">
-                    <div class="p-4">
-                        <input type="text" id="roomSearchInput" placeholder="🔍 Cerca sala o WallJack..." 
-                               onkeyup="filterRoomsList()" 
-                               class="w-full px-4 py-2 border border-slate-300 rounded-lg mb-4">
-                        
-                        <div id="roomsListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Lista dinamica delle salas con WallJacks -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p class="text-sm text-amber-800">
-                        <strong>💡 Tip:</strong> Clicca su una sala nella mappa per vedere i dettagli dei punti WallJack. 
-                        Usa la vista Lista per cercare velocemente una sala specifica.
-                    </p>
                 </div>
             </div>
 
@@ -1344,188 +1287,5 @@
             };
         })();
     </script>
-
-    <!-- Rooms Map Functions -->
-    <script>
-        // Room Map State
-        let roomMapState = {
-            zoom: 1,
-            isDragging: false,
-            startX: 0,
-            startY: 0,
-            translateX: 0,
-            translateY: 0
-        };
-
-        // Toggle between map and list view
-        function toggleRoomsView() {
-            const mode = document.getElementById('roomsViewMode').value;
-            const mapView = document.getElementById('roomsMapView');
-            const listView = document.getElementById('roomsListView');
-            
-            if (mode === 'map') {
-                mapView.style.display = 'block';
-                listView.style.display = 'none';
-            } else {
-                mapView.style.display = 'none';
-                listView.style.display = 'block';
-                updateRoomsList();
-            }
-        }
-
-        // Zoom controls
-        function zoomRoomMap(action) {
-            const img = document.getElementById('roomMapImage');
-            if (!img) return;
-
-            if (action === 'in') {
-                roomMapState.zoom = Math.min(roomMapState.zoom * 1.2, 3);
-            } else if (action === 'out') {
-                roomMapState.zoom = Math.max(roomMapState.zoom / 1.2, 0.5);
-            } else if (action === 'fit') {
-                roomMapState.zoom = 1;
-                roomMapState.translateX = 0;
-                roomMapState.translateY = 0;
-            }
-
-            updateMapTransform();
-        }
-
-        function updateMapTransform() {
-            const img = document.getElementById('roomMapImage');
-            if (!img) return;
-            img.style.transform = `scale(${roomMapState.zoom}) translate(${roomMapState.translateX}px, ${roomMapState.translateY}px)`;
-        }
-
-        // Initialize drag functionality
-        function initRoomMapInteraction() {
-            const img = document.getElementById('roomMapImage');
-            const container = document.getElementById('roomMapContainer');
-            
-            if (!img || !container) return;
-
-            img.addEventListener('mousedown', (e) => {
-                roomMapState.isDragging = true;
-                roomMapState.startX = e.clientX - roomMapState.translateX;
-                roomMapState.startY = e.clientY - roomMapState.translateY;
-                img.style.cursor = 'grabbing';
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!roomMapState.isDragging) return;
-                e.preventDefault();
-                roomMapState.translateX = e.clientX - roomMapState.startX;
-                roomMapState.translateY = e.clientY - roomMapState.startY;
-                updateMapTransform();
-            });
-
-            document.addEventListener('mouseup', () => {
-                roomMapState.isDragging = false;
-                const img = document.getElementById('roomMapImage');
-                if (img) img.style.cursor = 'move';
-            });
-
-            // Mouse wheel zoom
-            container.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                roomMapState.zoom = Math.min(Math.max(roomMapState.zoom * delta, 0.5), 3);
-                updateMapTransform();
-            });
-        }
-
-        // Update rooms list with WallJack info
-        function updateRoomsList() {
-            const container = document.getElementById('roomsListContainer');
-            if (!container) return;
-
-            // Get all WallJack devices
-            const walljacks = appState.devices.filter(d => d.type === 'WallJack');
-            
-            // Group by location (room)
-            const roomsMap = {};
-            walljacks.forEach(wj => {
-                const room = wj.location || 'Sala Sconosciuta';
-                if (!roomsMap[room]) {
-                    roomsMap[room] = [];
-                }
-                roomsMap[room].push(wj);
-            });
-
-            // Generate HTML
-            const rooms = Object.keys(roomsMap).sort();
-            container.innerHTML = rooms.map(room => {
-                const wjs = roomsMap[room];
-                const connectedCount = wjs.filter(w => {
-                    return appState.connections.some(c => 
-                        c.sourceDevice === w.name || c.destinationDevice === w.name
-                    );
-                }).length;
-
-                return `
-                    <div class="border border-slate-300 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <h3 class="font-bold text-slate-800 mb-2 flex items-center justify-between">
-                            <span>📍 ${room}</span>
-                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${wjs.length} WJ</span>
-                        </h3>
-                        <div class="space-y-1 text-sm">
-                            <p class="text-slate-600">
-                                <span class="font-semibold">Punti:</span> ${wjs.map(w => w.name).join(', ')}
-                            </p>
-                            <p class="text-slate-600">
-                                <span class="font-semibold">Connessi:</span> 
-                                <span class="${connectedCount > 0 ? 'text-green-600' : 'text-amber-600'}">${connectedCount}/${wjs.length}</span>
-                            </p>
-                            ${wjs.length > 0 ? `
-                                <div class="mt-2 pt-2 border-t border-slate-200">
-                                    ${wjs.slice(0, 5).map(w => {
-                                        const conn = appState.connections.find(c => 
-                                            c.sourceDevice === w.name || c.destinationDevice === w.name
-                                        );
-                                        const status = conn ? '🟢' : '⚪';
-                                        return `<div class="text-xs text-slate-500">${status} ${w.name}${w.portName ? ` (${w.portName})` : ''}</div>`;
-                                    }).join('')}
-                                    ${wjs.length > 5 ? `<div class="text-xs text-slate-400 mt-1">... e altri ${wjs.length - 5}</div>` : ''}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            if (rooms.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full text-center py-8 text-slate-400">
-                        <p>📭 Nessun WallJack configurato</p>
-                        <p class="text-sm mt-2">Aggiungi dispositivi di tipo WallJack per popolare la mappa delle salas</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Filter rooms list
-        function filterRoomsList() {
-            const searchTerm = document.getElementById('roomSearchInput').value.toLowerCase();
-            const rooms = document.querySelectorAll('#roomsListContainer > div');
-            
-            rooms.forEach(room => {
-                const text = room.textContent.toLowerCase();
-                room.style.display = text.includes(searchTerm) ? 'block' : 'none';
-            });
-        }
-
-        // Update rooms list when switching to the tab
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.id === 'tab-rooms') {
-                    const mode = document.getElementById('roomsViewMode').value;
-                    if (mode === 'list') {
-                        updateRoomsList();
-                    }
-                }
-            });
-        });
-    </script>
-
 </body>
 </html>
