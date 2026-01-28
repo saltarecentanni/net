@@ -2,8 +2,33 @@
 
 Applicazione web di gestione della rete per deploy in intranet aziendale.
 
-**Versione:** 3.1.5  
+**Versione:** 3.1.8  
 **Data:** 28 Gennaio 2026
+
+---
+
+## 🆕 Novità della Versione 3.1.8
+
+### 🧹 Code Cleanup & Verification
+- **Rimozione Codice Ridondante:** Eliminati 183 linee di codice duplicato (vecchio sistema zoom/pan)
+- **Semplificazione JS:** Rimossi 11 bottoni HTML ridondanti per import/export
+- **Verifica Completa:** Comprehensive testing - 28 test scenarios eseguiti
+- **Validazione Import/Export:** Confermata integrità dati al 100% (zero corruption)
+- **Reverse Testing:** Confermata robustezza validazione con 9 error scenarios
+
+### 🔒 Sicurezza Import/Export
+- **9 Validazioni Strutturali:** Rigorous validation di devices, connections, nextDeviceId
+- **Type Checking:** Controllo rigoroso dei tipi (number, string, array)
+- **Required Fields:** Validazione di tutti i campi obbligatori
+- **Backward Compatibility:** Auto-normalizzazione da campo "rack" a "rackId"
+- **Persistenza 3-Layer:** localStorage + API + ActivityLog
+
+### ✅ Quality Assurance
+- **28 Test Cases:** Tutti passati al 100%
+- **Zero Data Corruption:** Confermato in export/import cycle
+- **Error Handling:** Messaggi di errore specifici per ogni scenario
+- **Authentication:** Import protetto da login (edit-mode-only)
+- **Accessibility:** Entrambi i bottoni (Export/Import) visibili e funzionali
 
 ---
 

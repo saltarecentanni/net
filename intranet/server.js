@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.1.7
+ * Version: 3.1.8
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  */
