@@ -1,10 +1,10 @@
 @echo off
-title TIESSE Matrix Network Server v2.5.0
+title TIESSE Matrix Network Server v3.0.0
 color 0A
 
 echo.
 echo  ╔══════════════════════════════════════════════════════╗
-echo  ║     TIESSE Matrix Network Server v2.5.0              ║
+echo  ║     TIESSE Matrix Network Server v3.0.0              ║
 echo  ╠══════════════════════════════════════════════════════╣
 echo  ║                                                      ║
 echo  ║  Local:   http://localhost:8080/                     ║

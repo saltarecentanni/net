@@ -1,6 +1,6 @@
 /**
- * Tiesse Matrix Network - Application Core
- * Version: 2.9.5
+ * TIESSE Matrix Network - Application Core
+ * Version: 3.0.0
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -14,18 +14,49 @@
 'use strict';
 
 // ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+function escapeHtml(str) {
+    if (!str) return '';
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ============================================================================
 // GLOBAL STATE (Encapsulated)
 // ============================================================================
 var appState = {
     devices: [],
     connections: [],
     nextDeviceId: 1,
-    connSort: { key: 'id', asc: true },
+    connSort: [{ key: 'id', asc: true }],  // Array for multi-level sorting (up to 3 levels)
     deviceSort: { key: 'rack', asc: true },
-    deviceView: 'cards',
+    deviceView: 'table',
     matrixLimit: 12,
     matrixExpanded: false,
-    rackColorMap: {}
+    rackColorMap: {},
+    // Filters for Devices List
+    deviceFilters: {
+        location: '',
+        source: '',
+        name: '',
+        type: '',
+        status: '',
+        hasConnections: ''  // '', 'yes', 'no'
+    },
+    // Filters for Connections List
+    connFilters: {
+        source: '',
+        anyDevice: '',    // Search device in both From and To columns
+        fromDevice: '',
+        toDevice: '',
+        destination: '',
+        type: '',
+        status: '',
+        cable: '',
+        normalizeView: false  // When true, shows bidirectional view (A→B and B→A)
+    }
 };
 
 // ============================================================================
@@ -58,8 +89,32 @@ var config = {
         other: 'Other'
     },
     portTypes: [
-        'Eth', 'GbE', 'SFP/SFP+', 'QSFP/QSFP+', 'TTY', 'MGMT', 'PoE',
-        'Fiber', 'USB', 'RJ11', 'WAN', 'Eth/Wan', 'others'
+        // Object format with value, label, icon, and category
+        { value: 'eth', label: 'Eth/RJ45', icon: '🔌', category: 'copper' },
+        { value: 'GbE', label: 'GbE 1G', icon: '🌐', category: 'copper' },
+        { value: '2.5GbE', label: '2.5GbE', icon: '⚡', category: 'copper' },
+        { value: '5GbE', label: '5GbE', icon: '⚡', category: 'copper' },
+        { value: '10GbE', label: '10GbE-T', icon: '🚀', category: 'copper' },
+        { value: 'PoE', label: 'PoE/PoE+', icon: '🔋', category: 'copper' },
+        { value: 'SFP', label: 'SFP 1G', icon: '💎', category: 'fiber' },
+        { value: 'SFP/SFP+', label: 'SFP+ 10G', icon: '💠', category: 'fiber' },
+        { value: 'SFP28', label: 'SFP28 25G', icon: '💠', category: 'fiber' },
+        { value: 'QSFP/QSFP+', label: 'QSFP+ 40G', icon: '🔷', category: 'fiber' },
+        { value: 'QSFP28', label: 'QSFP28 100G', icon: '🔷', category: 'fiber' },
+        { value: 'QSFP-DD', label: 'QSFP-DD 400G', icon: '💎', category: 'fiber' },
+        { value: 'fiber', label: 'Fiber LC/SC', icon: '🔴', category: 'fiber' },
+        { value: 'WAN', label: 'WAN', icon: '🌍', category: 'wan' },
+        { value: 'eth/wan', label: 'ETH/WAN', icon: '🌐', category: 'wan' },
+        { value: 'MGMT', label: 'MGMT', icon: '⚙️', category: 'management' },
+        { value: 'TTY', label: 'Console/TTY', icon: '🖥️', category: 'management' },
+        { value: 'USB', label: 'USB', icon: '🔗', category: 'management' },
+        { value: 'USB-C', label: 'USB-C', icon: '🔗', category: 'management' },
+        { value: 'RJ11', label: 'RJ11/Phone', icon: '📞', category: 'telecom' },
+        { value: 'ISDN', label: 'ISDN BRI', icon: '📠', category: 'telecom' },
+        { value: 'E1/T1', label: 'E1/T1', icon: '📡', category: 'telecom' },
+        { value: 'serial', label: 'Serial RS232', icon: '📟', category: 'legacy' },
+        { value: 'aux', label: 'AUX', icon: '🔧', category: 'legacy' },
+        { value: 'others', label: 'Others', icon: '❓', category: 'other' }
     ],
     rackColors: [
         '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6',
@@ -68,6 +123,444 @@ var config = {
         '#dc2626', '#059669', '#7c3aed', '#db2777', '#0891b2', '#65a30d'
     ]
 };
+
+// ============================================================================
+// DEVICE FILTERS
+// ============================================================================
+
+/**
+ * Update device filter and refresh the list
+ */
+function updateDeviceFilter(filterKey, value, skipFilterBarRebuild) {
+    appState.deviceFilters[filterKey] = value;
+    
+    // Sync location filter with global LocationFilter
+    if (filterKey === 'location') {
+        var globalFilter = document.getElementById('locationFilter');
+        if (globalFilter && globalFilter.value !== value) {
+            globalFilter.value = value;
+        }
+        // Update all views when location changes (like global filter does)
+        if (typeof LocationFilter !== 'undefined') {
+            LocationFilter.updateCounters();
+        }
+        if (typeof updateConnectionsList === 'function') updateConnectionsList();
+        if (typeof updateMatrix === 'function') updateMatrix();
+        if (typeof NetworkTopology !== 'undefined') NetworkTopology.render();
+        if (typeof DrawioTopology !== 'undefined') DrawioTopology.render();
+    }
+    
+    // Skip rebuilding filter bar to keep focus on input field
+    updateDevicesListOnly();
+    // Update counter display without rebuilding filter bar
+    updateDeviceFilterCount();
+    updateGlobalCounters();
+}
+
+/**
+ * Update device filter count display
+ */
+function updateDeviceFilterCount() {
+    var filteredDevices = typeof getFilteredDevices === 'function' ? getFilteredDevices() : appState.devices;
+    var totalDevices = appState.devices.length;
+    var filteredCount = filteredDevices.length;
+    var hasActiveFilters = appState.deviceFilters.location || appState.deviceFilters.source || appState.deviceFilters.name || 
+                           appState.deviceFilters.type || appState.deviceFilters.status || 
+                           appState.deviceFilters.hasConnections;
+    
+    var countEl = document.getElementById('deviceFilterCount');
+    var clearBtn = document.getElementById('deviceFilterClearBtn');
+    
+    if (countEl) {
+        if (hasActiveFilters) {
+            countEl.textContent = 'Showing ' + filteredCount + ' of ' + totalDevices;
+        } else {
+            countEl.textContent = totalDevices + ' devices';
+        }
+    }
+    if (clearBtn) {
+        clearBtn.style.display = hasActiveFilters ? 'inline-block' : 'none';
+    }
+}
+
+/**
+ * Clear all device filters
+ */
+function clearDeviceFilters() {
+    appState.deviceFilters = {
+        location: '',
+        source: '',
+        name: '',
+        type: '',
+        status: '',
+        hasConnections: ''
+    };
+    // Full rebuild including filter bar
+    updateDevicesList();
+    updateGlobalCounters();
+}
+
+/**
+ * Get filtered devices based on current filters
+ */
+function getFilteredDevices() {
+    var devices = appState.devices.slice();
+    var filters = appState.deviceFilters;
+    
+    return devices.filter(function(d) {
+        // Location filter
+        if (filters.location && d.location !== filters.location) {
+            return false;
+        }
+        // Source filter
+        if (filters.source && (d.rackId || '').toLowerCase().indexOf(filters.source.toLowerCase()) === -1) {
+            return false;
+        }
+        // Name filter
+        if (filters.name && (d.name || '').toLowerCase().indexOf(filters.name.toLowerCase()) === -1) {
+            return false;
+        }
+        // Type filter
+        if (filters.type && d.type !== filters.type) {
+            return false;
+        }
+        // Status filter
+        if (filters.status && d.status !== filters.status) {
+            return false;
+        }
+        // Has connections filter
+        if (filters.hasConnections) {
+            var connCount = 0;
+            for (var ci = 0; ci < appState.connections.length; ci++) {
+                if (appState.connections[ci].from === d.id || appState.connections[ci].to === d.id) {
+                    connCount++;
+                }
+            }
+            if (filters.hasConnections === 'yes' && connCount === 0) return false;
+            if (filters.hasConnections === 'no' && connCount > 0) return false;
+        }
+        return true;
+    });
+}
+
+// ============================================================================
+// CONNECTION FILTERS
+// ============================================================================
+
+/**
+ * Update connection filter and refresh the list
+ */
+function updateConnFilter(filterKey, value) {
+    appState.connFilters[filterKey] = value;
+    // Skip rebuilding filter bar to keep focus on input field
+    updateConnectionsListOnly();
+    // Update counter display without rebuilding filter bar
+    updateConnFilterCount();
+    updateGlobalCounters();
+}
+
+/**
+ * Toggle normalize view for connections (shows filtered device always in From column)
+ */
+function toggleConnNormalizeView() {
+    appState.connFilters.normalizeView = !appState.connFilters.normalizeView;
+    // Rebuild list to apply normalization
+    updateConnectionsListOnly();
+    // Update checkbox state
+    var checkbox = document.getElementById('connNormalizeView');
+    if (checkbox) {
+        checkbox.checked = appState.connFilters.normalizeView;
+    }
+}
+
+/**
+ * Update connection filter count display
+ * Shows real connection count + line count when bidirectional mode is ON
+ */
+function updateConnFilterCount() {
+    var filteredItems = typeof getFilteredConnections === 'function' ? getFilteredConnections() : [];
+    var totalConnections = appState.connections.length;
+    var lineCount = filteredItems.length;
+    var isBidirectional = appState.connFilters.normalizeView;
+    
+    // Count real connections (not mirrored duplicates)
+    var realCount = 0;
+    for (var i = 0; i < filteredItems.length; i++) {
+        if (!filteredItems[i]._isMirrored) realCount++;
+    }
+    
+    var hasActiveFilters = appState.connFilters.source || appState.connFilters.anyDevice ||
+                           appState.connFilters.fromDevice || appState.connFilters.toDevice || 
+                           appState.connFilters.destination || appState.connFilters.type || 
+                           appState.connFilters.status || appState.connFilters.cable;
+    
+    var countEl = document.getElementById('connFilterCount');
+    var clearBtn = document.getElementById('connFilterClearBtn');
+    
+    if (countEl) {
+        if (hasActiveFilters) {
+            if (isBidirectional && lineCount !== realCount) {
+                countEl.textContent = realCount + ' conn. (' + lineCount + ' lines) of ' + totalConnections;
+            } else {
+                countEl.textContent = 'Showing ' + realCount + ' of ' + totalConnections;
+            }
+        } else {
+            if (isBidirectional) {
+                countEl.textContent = totalConnections + ' conn. (' + lineCount + ' lines)';
+            } else {
+                countEl.textContent = totalConnections + ' connections';
+            }
+        }
+    }
+    if (clearBtn) {
+        clearBtn.style.display = hasActiveFilters ? 'inline-block' : 'none';
+    }
+
+    // Update connStats
+    var connDeviceStatsEl = document.getElementById('connDeviceStats');
+    var connConnectionStatsEl = document.getElementById('connConnectionStats');
+    if (connDeviceStatsEl && connConnectionStatsEl) {
+        if (appState.connFilters.source) {
+            // Count devices and connections in the filtered rack
+            var rackDevices = appState.devices.filter(function(d) {
+                return (d.rackId || '').toLowerCase().indexOf(appState.connFilters.source.toLowerCase()) !== -1;
+            });
+            var rackConnections = appState.connections.filter(function(c) {
+                var fromDevice = appState.devices.find(function(d) { return d.id === c.from; });
+                var toDevice = appState.devices.find(function(d) { return d.id === c.to; });
+                var fromRack = fromDevice ? (fromDevice.rackId || '') : '';
+                var toRack = toDevice ? (toDevice.rackId || '') : '';
+                return fromRack.toLowerCase().indexOf(appState.connFilters.source.toLowerCase()) !== -1 ||
+                       toRack.toLowerCase().indexOf(appState.connFilters.source.toLowerCase()) !== -1;
+            });
+            connDeviceStatsEl.textContent = rackDevices.length;
+            connConnectionStatsEl.textContent = rackConnections.length;
+        } else {
+            connDeviceStatsEl.textContent = appState.devices.length;
+            connConnectionStatsEl.textContent = totalConnections;
+        }
+    }
+}
+
+/**
+ * Clear all connection filters (bidirectional mode OFF by default)
+ */
+function clearConnFilters() {
+    appState.connFilters = {
+        source: '',
+        anyDevice: '',
+        fromDevice: '',
+        toDevice: '',
+        destination: '',
+        type: '',
+        status: '',
+        cable: '',
+        normalizeView: false  // Bidirectional mode off by default
+    };
+    // Full rebuild including filter bar
+    updateConnectionsList();
+    updateGlobalCounters();
+}
+
+/**
+ * Filter connections by a specific device name (used from devices table click)
+ * Scrolls to connections section and sets the anyDevice filter
+ */
+function filterConnectionsByDevice(deviceName) {
+    // Clear other filters and set only the device filter (keep current normalizeView state)
+    var currentNormalize = appState.connFilters.normalizeView || false;
+    appState.connFilters = {
+        source: '',
+        anyDevice: deviceName,
+        fromDevice: '',
+        toDevice: '',
+        destination: '',
+        type: '',
+        status: '',
+        cable: '',
+        normalizeView: currentNormalize  // Preserve current swap state
+    };
+    // Full rebuild to show the filter
+    updateConnectionsList();
+    updateGlobalCounters();
+    
+    // Scroll to connections section
+    var connSection = document.getElementById('connectionsListContainer');
+    if (connSection) {
+        connSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+/**
+ * Creates bidirectional view: each device-to-device connection appears twice
+ * Original: A→B and Mirrored: B→A (with visual indicator)
+ * External/WallJack connections are NOT mirrored
+ */
+function getBidirectionalConnections() {
+    var connections = appState.connections;
+    var result = [];
+    
+    for (var i = 0; i < connections.length; i++) {
+        var conn = connections[i];
+        
+        // Add original connection
+        result.push({
+            _original: conn,
+            _originalIndex: i,
+            _isMirrored: false
+        });
+        
+        // Add mirrored connection (only for device-to-device, not external/walljack)
+        if (conn.to && !conn.isWallJack && !conn.externalDest) {
+            result.push({
+                _original: conn,
+                _originalIndex: i,
+                _isMirrored: true,
+                // Swapped values for display
+                from: conn.to,
+                fromPort: conn.toPort,
+                to: conn.from,
+                toPort: conn.fromPort
+            });
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Get connection property - handles both normal and mirrored connections
+ */
+function getConnProp(item, prop) {
+    if (item._isMirrored && (prop === 'from' || prop === 'fromPort' || prop === 'to' || prop === 'toPort')) {
+        return item[prop]; // Use swapped value
+    }
+    return item._original[prop];
+}
+
+/**
+ * Get filtered connections based on current filters
+ * When bidirectional mode is ON, returns duplicated connections
+ */
+function getFilteredConnections() {
+    var filters = appState.connFilters;
+    var locationFilter = appState.deviceFilters.location; // Global location filter
+    
+    // Get base connections (bidirectional or normal)
+    var items;
+    if (filters.normalizeView) {
+        items = getBidirectionalConnections();
+    } else {
+        // Wrap normal connections in same structure for consistency
+        items = [];
+        for (var i = 0; i < appState.connections.length; i++) {
+            items.push({
+                _original: appState.connections[i],
+                _originalIndex: i,
+                _isMirrored: false
+            });
+        }
+    }
+    
+    // Pre-build device lookup and location device IDs
+    var deviceById = {};
+    var locationDeviceIds = {};
+    for (var d = 0; d < appState.devices.length; d++) {
+        var dev = appState.devices[d];
+        deviceById[dev.id] = dev;
+        if (locationFilter && dev.location === locationFilter) {
+            locationDeviceIds[dev.id] = true;
+        }
+    }
+    
+    return items.filter(function(item) {
+        var c = item._original;
+        var fromId = getConnProp(item, 'from');
+        var toId = getConnProp(item, 'to');
+        
+        // Location filter - connection must have at least one device in the location
+        if (locationFilter) {
+            if (!locationDeviceIds[fromId] && !locationDeviceIds[toId]) {
+                return false;
+            }
+        }
+        
+        var fromDevice = deviceById[fromId] || null;
+        var toDevice = deviceById[toId] || null;
+        
+        // Source filter (from device's rack)
+        if (filters.source) {
+            var fromRack = fromDevice ? (fromDevice.rackId || '') : '';
+            if (fromRack.toLowerCase().indexOf(filters.source.toLowerCase()) === -1) {
+                return false;
+            }
+        }
+        
+        // Any Device filter (searches in BOTH From and To columns)
+        if (filters.anyDevice) {
+            var fromName = fromDevice ? (fromDevice.name || '') : '';
+            var toName = toDevice ? (toDevice.name || '') : (c.externalDest || '');
+            var searchTerm = filters.anyDevice.toLowerCase();
+            var foundInFrom = fromName.toLowerCase().indexOf(searchTerm) !== -1;
+            var foundInTo = toName.toLowerCase().indexOf(searchTerm) !== -1;
+            if (!foundInFrom && !foundInTo) {
+                return false;
+            }
+        }
+        
+        // From Device filter
+        if (filters.fromDevice) {
+            var fromName2 = fromDevice ? (fromDevice.name || '') : '';
+            if (fromName2.toLowerCase().indexOf(filters.fromDevice.toLowerCase()) === -1) {
+                return false;
+            }
+        }
+        
+        // To Device filter
+        if (filters.toDevice) {
+            var toName2 = toDevice ? (toDevice.name || '') : (c.externalDest || '');
+            if (toName2.toLowerCase().indexOf(filters.toDevice.toLowerCase()) === -1) {
+                return false;
+            }
+        }
+        
+        // Destination filter (to device's rack or external)
+        if (filters.destination) {
+            var toRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'External'));
+            if (toRack.toLowerCase().indexOf(filters.destination.toLowerCase()) === -1) {
+                return false;
+            }
+        }
+        
+        // Type filter
+        if (filters.type && c.type !== filters.type) {
+            return false;
+        }
+        
+        // Status filter
+        if (filters.status && c.status !== filters.status) {
+            return false;
+        }
+        
+        // Cable filter
+        if (filters.cable) {
+            var cableMarker = c.cableMarker || '';
+            if (cableMarker.toLowerCase().indexOf(filters.cable.toLowerCase()) === -1) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+}
+
+/**
+ * Clear connection sorting
+ */
+function clearConnSort() {
+    appState.connSort = [{ key: 'id', asc: true }];
+    updateConnectionsList();
+}
 
 // ============================================================================
 // TOAST NOTIFICATION SYSTEM
@@ -147,6 +640,22 @@ var Toast = (function() {
 })();
 
 // ============================================================================
+// AUTHENTICATION HELPER
+// ============================================================================
+/**
+ * Check if user is logged in, if not show login modal
+ * @returns {boolean} true if authenticated, false if showing login
+ */
+function requireAuth() {
+    if (typeof Auth !== 'undefined' && !Auth.isLoggedIn()) {
+        Toast.warning('Login required for editing');
+        Auth.showLoginModal();
+        return false;
+    }
+    return true;
+}
+
+// ============================================================================
 // UI HELPERS
 // ============================================================================
 function switchTab(tabId) {
@@ -208,7 +717,7 @@ function highlightEditFields(formType, enable) {
     if (formType === 'connection') {
         fields = ['fromDevice', 'fromPort', 'toDevice', 'toPort', 'connType', 'connStatus', 'cableMarker', 'cableColor', 'connNotes'];
     } else if (formType === 'device') {
-        fields = ['rackId', 'deviceOrder', 'deviceRear', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceAddresses', 'deviceService', 'deviceNotes'];
+        fields = ['rackId', 'deviceOrder', 'deviceRear', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceLocation', 'deviceIP1', 'deviceIP2', 'deviceIP3', 'deviceIP4', 'deviceService', 'deviceNotes'];
     }
     
     for (var i = 0; i < fields.length; i++) {
@@ -325,13 +834,20 @@ function serverSave() {
         return fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: payload
         }).then(function(r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-        }).then(function(data) {
-            if (data.error) throw new Error(data.error);
-            return data;
+            return r.json().then(function(data) {
+                // Check for authentication required
+                if (data.code === 'AUTH_REQUIRED' || r.status === 401) {
+                    var authError = new Error('AUTH_REQUIRED');
+                    authError.authRequired = true;
+                    throw authError;
+                }
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                if (data.error) throw new Error(data.error);
+                return data;
+            });
         });
     }
     
@@ -343,6 +859,14 @@ function serverSave() {
             console.log('Server save OK: /data');
         })
         .catch(function(err1) {
+            // Check if auth required
+            if (err1.authRequired) {
+                showSyncIndicator('error', '🔒 Login required');
+                if (typeof Auth !== 'undefined') {
+                    Auth.showLoginModal();
+                }
+                return;
+            }
             console.log('/data failed:', err1.message, '- trying /data.php');
             return postUrl('/data.php')
                 .then(function() {
@@ -350,6 +874,14 @@ function serverSave() {
                     console.log('Server save OK: /data.php');
                 })
                 .catch(function(err2) {
+                    // Check if auth required
+                    if (err2.authRequired) {
+                        showSyncIndicator('error', '🔒 Login required');
+                        if (typeof Auth !== 'undefined') {
+                            Auth.showLoginModal();
+                        }
+                        return;
+                    }
                     // All endpoints failed - data is in localStorage only
                     console.warn('All server endpoints failed. Data saved to localStorage only.');
                     console.warn('Errors:', err1.message, err2.message);
@@ -403,6 +935,9 @@ function resetRackColors() {
 // DEVICE MANAGEMENT
 // ============================================================================
 function saveDevice() {
+    // Require authentication for saving
+    if (!requireAuth()) return;
+    
     try {
         var editId = document.getElementById('deviceEditId').value;
         var rackId = document.getElementById('rackId').value.trim();
@@ -413,9 +948,26 @@ function saveDevice() {
         var brandModel = document.getElementById('deviceBrandModel').value.trim();
         var type = document.getElementById('deviceType').value;
         var status = document.getElementById('deviceStatus').value;
-        var addressesText = document.getElementById('deviceAddresses').value.trim();
         var service = document.getElementById('deviceService').value.trim();
         var notes = document.getElementById('deviceNotes').value.trim();
+        
+        // New fields: location, IPs (dynamic), links
+        var location = document.getElementById('deviceLocation') ? document.getElementById('deviceLocation').value.trim() : '';
+        
+        // Get dynamic IP addresses
+        var addresses = [];
+        var ipContainer = document.getElementById('deviceIPContainer');
+        if (ipContainer) {
+            var ipFields = ipContainer.querySelectorAll('.ip-field');
+            ipFields.forEach(function(field) {
+                var value = field.value.trim();
+                if (value) {
+                    addresses.push({ network: value, ip: '', vlan: null });
+                }
+            });
+        }
+        
+        var links = typeof DeviceLinks !== 'undefined' ? DeviceLinks.getLinks('deviceLinksContainer') : [];
 
         // Validation
         if (!rackId) {
@@ -426,6 +978,11 @@ function saveDevice() {
         if (!name) {
             Toast.warning('Please enter Device Name');
             document.getElementById('deviceName').focus();
+            return;
+        }
+        if (!location) {
+            Toast.warning('Please enter Location');
+            document.getElementById('deviceLocation').focus();
             return;
         }
 
@@ -448,23 +1005,27 @@ function saveDevice() {
             }
         });
 
-        var addresses = parseAddresses(addressesText);
-
         var deviceData = {
             id: editId ? parseInt(editId, 10) : appState.nextDeviceId++,
             rackId: rackId,
+            rack: rackId, // alias for compatibility
             order: order,
             isRear: isRear,
+            rear: isRear, // alias
             name: name,
             brandModel: brandModel,
             type: type,
             status: status,
-            addresses: addresses,
+            location: location,
+            addresses: addresses, // Dynamic IP array
+            links: links,
             service: service,
             ports: ports,
             notes: notes
         };
 
+        var actionType = editId ? 'edit' : 'add';
+        
         if (editId) {
             var idx = -1;
             for (var i = 0; i < appState.devices.length; i++) {
@@ -480,6 +1041,11 @@ function saveDevice() {
         } else {
             appState.devices.push(deviceData);
             Toast.success('Device added successfully');
+        }
+        
+        // Log the action
+        if (typeof ActivityLog !== 'undefined') {
+            ActivityLog.add(actionType, 'device', name + ' (' + type + ')' + (location ? ' @ ' + location : ''));
         }
 
         clearDeviceForm();
@@ -499,15 +1065,30 @@ function clearDeviceForm() {
     document.getElementById('deviceBrandModel').value = '';
     document.getElementById('deviceType').value = 'router';
     document.getElementById('deviceStatus').value = 'active';
-    document.getElementById('deviceAddresses').value = '';
     document.getElementById('deviceService').value = '';
     document.getElementById('deviceNotes').value = '';
     document.getElementById('portTypeQuantityContainer').innerHTML = '';
+    
+    // Clear new fields
+    if (document.getElementById('deviceLocation')) document.getElementById('deviceLocation').value = '';
+    
+    // Reset IP container to one empty field
+    var ipContainer = document.getElementById('deviceIPContainer');
+    if (ipContainer) {
+        ipContainer.innerHTML = '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" placeholder="192.168.1.1/24 or VLAN 10">';
+    }
+    
+    if (document.getElementById('deviceLinksContainer')) document.getElementById('deviceLinksContainer').innerHTML = '';
+    
     document.getElementById('saveDeviceButton').textContent = 'Add Device';
+    document.getElementById('cancelDeviceButton').classList.add('hidden');
     highlightEditFields('device', false);
 }
 
 function editDevice(id) {
+    // Require authentication for editing
+    if (!requireAuth()) return;
+    
     var d = null;
     for (var i = 0; i < appState.devices.length; i++) {
         if (appState.devices[i].id === id) {
@@ -520,53 +1101,115 @@ function editDevice(id) {
     switchTab('devices');
 
     document.getElementById('deviceEditId').value = d.id;
-    document.getElementById('rackId').value = d.rackId || '';
+    document.getElementById('rackId').value = d.rackId || d.rack || '';
     document.getElementById('deviceOrder').value = d.order !== undefined ? d.order : 1;
-    document.getElementById('deviceRear').checked = d.isRear || false;
+    document.getElementById('deviceRear').checked = d.isRear || d.rear || false;
     document.getElementById('deviceName').value = d.name || '';
     document.getElementById('deviceBrandModel').value = d.brandModel || '';
     document.getElementById('deviceType').value = d.type || 'router';
     document.getElementById('deviceStatus').value = d.status || 'active';
-    document.getElementById('deviceAddresses').value = formatAddresses(d.addresses || []);
     document.getElementById('deviceService').value = d.service || '';
     document.getElementById('deviceNotes').value = d.notes || '';
     document.getElementById('saveDeviceButton').textContent = 'Update Device';
 
-    autoResizeTextarea(document.getElementById('deviceAddresses'));
+    // Fill new fields
+    if (document.getElementById('deviceLocation')) {
+        document.getElementById('deviceLocation').value = d.location || '';
+    }
+    
+    // Fill IP addresses - supports both old (ip1-4) and new (addresses[]) formats
+    var ipContainer = document.getElementById('deviceIPContainer');
+    if (ipContainer) {
+        ipContainer.innerHTML = '';
+        var hasIPs = false;
+        
+        // Check for addresses[] array first (new/current format)
+        if (d.addresses && d.addresses.length > 0) {
+            d.addresses.forEach(function(addr) {
+                var ipValue = addr.network || addr.ip || '';
+                if (ipValue) {
+                    hasIPs = true;
+                    ipContainer.insertAdjacentHTML('beforeend', 
+                        '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" value="' + escapeHtml(ipValue) + '" placeholder="192.168.1.1/24 or VLAN 10">');
+                }
+            });
+        }
+        // Fallback to old ip1-4 format for compatibility
+        else if (d.ip1 || d.ip2 || d.ip3 || d.ip4) {
+            [d.ip1, d.ip2, d.ip3, d.ip4].forEach(function(ip) {
+                if (ip && ip.trim()) {
+                    hasIPs = true;
+                    ipContainer.insertAdjacentHTML('beforeend',
+                        '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" value="' + escapeHtml(ip) + '" placeholder="192.168.1.1/24 or VLAN 10">');
+                }
+            });
+        }
+        
+        // Add at least one empty field if no IPs
+        if (!hasIPs) {
+            ipContainer.innerHTML = '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" placeholder="192.168.1.1/24 or VLAN 10">';
+        }
+    }
+    
+    // Fill links
+    if (typeof DeviceLinks !== 'undefined' && d.links) {
+        DeviceLinks.setLinks('deviceLinksContainer', d.links);
+    }
+
     autoResizeTextarea(document.getElementById('deviceNotes'));
 
     var container = document.getElementById('portTypeQuantityContainer');
     container.innerHTML = '';
 
-    var counts = {};
-    for (var j = 0; j < d.ports.length; j++) {
-        var p = d.ports[j];
-        if (!counts[p.type]) {
-            counts[p.type] = { qty: 0, startAtZero: false, firstPortNum: null };
+    if (d.ports && d.ports.length > 0) {
+        var counts = {};
+        for (var j = 0; j < d.ports.length; j++) {
+            var p = d.ports[j];
+            if (!counts[p.type]) {
+                counts[p.type] = { qty: 0, startAtZero: false, firstPortNum: null };
+            }
+            var portNum = parseInt(p.name.replace(/\D/g, ''), 10);
+            if (counts[p.type].firstPortNum === null || portNum < counts[p.type].firstPortNum) {
+                counts[p.type].firstPortNum = portNum;
+                counts[p.type].startAtZero = (portNum === 0);
+            }
+            counts[p.type].qty++;
         }
-        var portNum = parseInt(p.name.replace(/\D/g, ''), 10);
-        if (counts[p.type].firstPortNum === null || portNum < counts[p.type].firstPortNum) {
-            counts[p.type].firstPortNum = portNum;
-            counts[p.type].startAtZero = (portNum === 0);
-        }
-        counts[p.type].qty++;
-    }
 
-    var types = Object.keys(counts);
-    for (var k = 0; k < types.length; k++) {
-        var t = types[k];
-        container.insertAdjacentHTML('beforeend', renderPortField(t, counts[t].qty, counts[t].startAtZero));
+        var types = Object.keys(counts);
+        for (var k = 0; k < types.length; k++) {
+            var t = types[k];
+            container.insertAdjacentHTML('beforeend', renderPortField(t, counts[t].qty, counts[t].startAtZero));
+        }
     }
 
     highlightEditFields('device', true);
+    
+    // Show cancel button and update save button text
+    document.getElementById('cancelDeviceButton').classList.remove('hidden');
+    
     document.getElementById('rackId').scrollIntoView({ behavior: 'smooth' });
 }
 
+/**
+ * Cancel device edit mode - resets form and hides cancel button
+ */
+function cancelDeviceEdit() {
+    clearDeviceForm();
+    document.getElementById('cancelDeviceButton').classList.add('hidden');
+    Toast.info('Edit cancelled');
+}
+
 function removeDevice(id) {
+    // Require authentication for deleting
+    if (!requireAuth()) return;
+    
     var deviceName = '';
+    var deviceType = '';
     for (var i = 0; i < appState.devices.length; i++) {
         if (appState.devices[i].id === id) {
             deviceName = appState.devices[i].name;
+            deviceType = appState.devices[i].type;
             break;
         }
     }
@@ -574,7 +1217,12 @@ function removeDevice(id) {
     if (!confirm('Remove device "' + deviceName + '"? This will also remove all its connections.')) return;
 
     appState.devices = appState.devices.filter(function(d) { return d.id !== id; });
-    appState.connections = appState.connections.filter(function(c) { return c.from !== id && c.to !== id; });
+    appState.connections = appState.connections.filter(function(c) { return c.from !== id && c.to !== id && c.fromDevice !== id && c.toDevice !== id; });
+    
+    // Log the action
+    if (typeof ActivityLog !== 'undefined') {
+        ActivityLog.add('delete', 'device', deviceName + ' (' + deviceType + ')');
+    }
     
     clearDeviceForm();
     updateUI();
@@ -582,18 +1230,49 @@ function removeDevice(id) {
 }
 
 function renderPortField(type, qty, startAtZero) {
-    var options = '';
+    // Group port types by category
+    var categories = {
+        copper: { label: '🔌 Copper', types: [] },
+        fiber: { label: '💎 Fiber/SFP', types: [] },
+        wan: { label: '🌍 WAN', types: [] },
+        management: { label: '⚙️ Management', types: [] },
+        telecom: { label: '📞 Telecom', types: [] },
+        legacy: { label: '📟 Legacy', types: [] },
+        other: { label: '❓ Other', types: [] }
+    };
+    
     for (var i = 0; i < config.portTypes.length; i++) {
-        var t = config.portTypes[i];
-        options += '<option value="' + t + '"' + (t === type ? ' selected' : '') + '>' + t + '</option>';
+        var pt = config.portTypes[i];
+        if (categories[pt.category]) {
+            categories[pt.category].types.push(pt);
+        }
+    }
+    
+    var options = '';
+    var catOrder = ['copper', 'fiber', 'wan', 'management', 'telecom', 'legacy', 'other'];
+    for (var c = 0; c < catOrder.length; c++) {
+        var cat = categories[catOrder[c]];
+        if (cat.types.length > 0) {
+            options += '<optgroup label="' + cat.label + '">';
+            for (var j = 0; j < cat.types.length; j++) {
+                var t = cat.types[j];
+                var selected = (t.value === type || t.value.toLowerCase() === (type || '').toLowerCase()) ? ' selected' : '';
+                options += '<option value="' + t.value + '"' + selected + '>' + t.icon + ' ' + t.label + '</option>';
+            }
+            options += '</optgroup>';
+        }
     }
     
     var checked = startAtZero ? ' checked' : '';
-    return '<div class="port-type-row flex items-center gap-2 mb-2">' +
-        '<select class="px-2 py-1 border border-slate-300 rounded text-sm">' + options + '</select>' +
-        '<input type="number" min="0" max="999" value="' + qty + '" class="w-16 px-2 py-1 border border-slate-300 rounded text-sm text-center" placeholder="Qty">' +
-        '<label class="flex items-center gap-1 text-xs text-slate-600"><input type="checkbox"' + checked + ' class="rounded"> Start at 0</label>' +
-        '<button type="button" onclick="removePortField(this)" class="text-red-500 hover:text-red-700 text-lg font-bold">×</button>' +
+    return '<div class="port-type-row flex items-center gap-2 mb-2 p-2 bg-slate-50 rounded-lg border border-slate-200">' +
+        '<select class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm bg-white min-w-[140px]">' + options + '</select>' +
+        '<div class="flex items-center gap-1">' +
+        '<span class="text-xs text-slate-500">Qty:</span>' +
+        '<input type="number" min="0" max="999" value="' + qty + '" class="w-14 px-2 py-1.5 border border-slate-300 rounded-lg text-sm text-center font-semibold">' +
+        '</div>' +
+        '<label class="flex items-center gap-1 text-xs text-slate-600 bg-white px-2 py-1 rounded border border-slate-200 cursor-pointer hover:bg-slate-50">' +
+        '<input type="checkbox"' + checked + ' class="rounded border-slate-300 text-blue-600"> Start at 0</label>' +
+        '<button type="button" onclick="removePortField(this)" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors">✕</button>' +
         '</div>';
 }
 
@@ -604,13 +1283,60 @@ function removePortField(btn) {
 
 function addPortTypeField() {
     var container = document.getElementById('portTypeQuantityContainer');
-    container.insertAdjacentHTML('beforeend', renderPortField('Eth', 1, false));
+    container.insertAdjacentHTML('beforeend', renderPortField('eth', 1, false));
+}
+
+// Helper to get port type info by value
+function getPortTypeInfo(value) {
+    if (!value) return { value: 'others', label: 'Others', icon: '❓', category: 'other' };
+    var normalizedValue = value.toLowerCase();
+    for (var i = 0; i < config.portTypes.length; i++) {
+        var pt = config.portTypes[i];
+        if (pt.value === value || pt.value.toLowerCase() === normalizedValue) {
+            return pt;
+        }
+    }
+    // Legacy mapping for old data
+    var legacyMap = {
+        'eth': config.portTypes[0],
+        'gbe': config.portTypes.find(function(p) { return p.value === 'GbE'; }),
+        'poe': config.portTypes.find(function(p) { return p.value === 'PoE'; }),
+        'fiber': config.portTypes.find(function(p) { return p.value === 'fiber'; }),
+        'console': config.portTypes.find(function(p) { return p.value === 'TTY'; })
+    };
+    return legacyMap[normalizedValue] || { value: value, label: value, icon: '❓', category: 'other' };
+}
+
+// ============================================================================
+// IP ADDRESS MANAGEMENT (DYNAMIC)
+// ============================================================================
+function addIPField() {
+    var container = document.getElementById('deviceIPContainer');
+    if (container) {
+        container.insertAdjacentHTML('beforeend', 
+            '<div class="flex gap-1 items-center">' +
+            '<input type="text" class="ip-field flex-1 px-2 py-1 border border-slate-300 rounded text-xs font-mono" placeholder="192.168.1.1/24 or VLAN 10">' +
+            '<button type="button" onclick="removeIPField(this)" class="text-red-500 hover:text-red-700 font-bold px-1">&times;</button>' +
+            '</div>');
+    }
+}
+
+function removeIPField(btn) {
+    var row = btn.closest('div');
+    var container = document.getElementById('deviceIPContainer');
+    // Keep at least one IP field
+    if (container && container.children.length > 1 && row) {
+        row.remove();
+    }
 }
 
 // ============================================================================
 // CONNECTION MANAGEMENT
 // ============================================================================
 function saveConnection() {
+    // Require authentication for saving
+    if (!requireAuth()) return;
+    
     try {
         var editIndex = document.getElementById('connEditIndex').value;
         var fromDeviceVal = document.getElementById('fromDevice').value;
@@ -680,14 +1406,14 @@ function saveConnection() {
             return;
         }
 
-        // Check port usage - using isPortUsed function which handles patch panel logic
+        // Check port usage - using isPortUsed function which handles patch panel/walljack logic
         var excludeIdx = editIndex !== '' ? parseInt(editIndex, 10) : undefined;
         
         if (from && fromPort && isPortUsed(from, fromPort, excludeIdx)) {
-            // Check if it's a patch panel that already has 2 connections
+            // Check if it's a patch panel or walljack that already has 2 connections
             var fromDeviceType = fromDevice ? fromDevice.type : '';
-            if (fromDeviceType === 'patch') {
-                Toast.error('Porta del patch panel già ha 2 connessioni (fronte e retro)');
+            if (fromDeviceType === 'patch' || fromDeviceType === 'walljack') {
+                Toast.error('Porta già ha 2 connessioni (fronte e retro)');
             } else {
                 Toast.error('Porta sorgente già in uso');
             }
@@ -696,8 +1422,8 @@ function saveConnection() {
         
         if (to && toPort && isPortUsed(to, toPort, excludeIdx)) {
             var toDeviceType = toDevice ? toDevice.type : '';
-            if (toDeviceType === 'patch') {
-                Toast.error('Porta del patch panel già ha 2 connessioni (fronte e retro)');
+            if (toDeviceType === 'patch' || toDeviceType === 'walljack') {
+                Toast.error('Porta già ha 2 connessioni (fronte e retro)');
             } else {
                 Toast.error('Porta destinazione già in uso');
             }
@@ -719,12 +1445,21 @@ function saveConnection() {
             notes: notes
         };
 
+        var actionType = editIndex !== '' ? 'edit' : 'add';
+        var logDetails = (fromDevice ? fromDevice.name : 'Device ' + from) + ':' + (fromPort || '-') + ' → ' +
+            (toDevice ? toDevice.name : (externalDest || 'Device ' + to)) + ':' + (toPort || '-');
+
         if (editIndex !== '') {
             appState.connections[parseInt(editIndex, 10)] = connData;
             Toast.success('Connection updated successfully');
         } else {
             appState.connections.push(connData);
             Toast.success('Connection added successfully');
+        }
+        
+        // Log the action
+        if (typeof ActivityLog !== 'undefined') {
+            ActivityLog.add(actionType, 'connection', logDetails);
         }
 
         clearConnectionForm();
@@ -736,6 +1471,9 @@ function saveConnection() {
 }
 
 function editConnection(idx) {
+    // Require authentication for editing
+    if (!requireAuth()) return;
+    
     var c = appState.connections[idx];
     if (!c) return;
 
@@ -804,8 +1542,26 @@ function clearConnectionForm() {
 }
 
 function removeConnection(idx) {
+    // Require authentication for deleting
+    if (!requireAuth()) return;
+    
     if (!confirm('Remove this connection?')) return;
+    
+    var conn = appState.connections[idx];
+    var logDetails = '';
+    if (conn) {
+        var fromDevice = appState.devices.find(function(d) { return d.id === conn.from || d.id === conn.fromDevice; });
+        var toDevice = appState.devices.find(function(d) { return d.id === conn.to || d.id === conn.toDevice; });
+        logDetails = (fromDevice ? fromDevice.name : 'Unknown') + ' → ' + (toDevice ? toDevice.name : conn.externalDest || 'Unknown');
+    }
+    
     appState.connections.splice(idx, 1);
+    
+    // Log the action
+    if (typeof ActivityLog !== 'undefined') {
+        ActivityLog.add('delete', 'connection', logDetails);
+    }
+    
     clearConnectionForm();
     updateUI();
     Toast.success('Connection removed');
@@ -844,11 +1600,12 @@ function isPortUsed(deviceId, portName, excludeConnIdx) {
         }
     }
     
-    // Patch panels can have 2 connections per port (front and back)
+    // Patch panels and wall jacks can have 2 connections per port (front and back)
     // Example: Wall jack connects to patch panel port 19 (back)
     //          Switch connects to patch panel port 19 (front)
-    var isPatchPanel = device && device.type === 'patch';
-    var maxConnections = isPatchPanel ? 2 : 1;
+    // Wall jack example: Printer → Wall Jack port A → Patch Panel port 15
+    var isPassthrough = device && (device.type === 'patch' || device.type === 'walljack');
+    var maxConnections = isPassthrough ? 2 : 1;
     var connectionCount = 0;
     
     for (var i = 0; i < appState.connections.length; i++) {
@@ -876,25 +1633,27 @@ function updateFromPorts(selectedPort) {
     if (d && d.ports) {
         var editIdx = document.getElementById('connEditIndex').value;
         var excludeIdx = editIdx !== '' ? parseInt(editIdx, 10) : undefined;
-        var isPatchPanel = d.type === 'patch';
+        var isPassthrough = d.type === 'patch' || d.type === 'walljack';
         
         for (var j = 0; j < d.ports.length; j++) {
             var p = d.ports[j];
             var used = isPortUsed(id, p.name, excludeIdx);
+            var portInfo = getPortTypeInfo(p.type);
+            var icon = portInfo.icon || '🔌';
             var label;
             
-            if (isPatchPanel) {
-                // Count current connections for patch panel port
+            if (isPassthrough) {
+                // Count current connections for patch panel/walljack port
                 var connCount = getPortConnectionCount(id, p.name, excludeIdx);
                 if (connCount === 0) {
-                    label = p.name + ' (Libera)';
+                    label = icon + ' ' + p.name + ' (Libera)';
                 } else if (connCount === 1) {
-                    label = p.name + ' (1/2 - disponibile)';
+                    label = icon + ' ' + p.name + ' (1/2 - disponibile)';
                 } else {
-                    label = p.name + ' (2/2 - completa)';
+                    label = icon + ' ' + p.name + ' (2/2 - completa)';
                 }
             } else {
-                label = p.name + ' ' + (used ? '(In uso)' : '(Libera)');
+                label = icon + ' ' + p.name + ' ' + (used ? '(In uso)' : '(Libera)');
             }
             
             var selected = (selectedPort === p.name) ? 'selected' : '';
@@ -917,24 +1676,26 @@ function updateToPorts(selectedPort) {
     if (d && d.ports) {
         var editIdx = document.getElementById('connEditIndex').value;
         var excludeIdx = editIdx !== '' ? parseInt(editIdx, 10) : undefined;
-        var isPatchPanel = d.type === 'patch';
+        var isPassthrough = d.type === 'patch' || d.type === 'walljack';
         
         for (var j = 0; j < d.ports.length; j++) {
             var p = d.ports[j];
             var used = isPortUsed(id, p.name, excludeIdx);
+            var portInfo = getPortTypeInfo(p.type);
+            var icon = portInfo.icon || '🔌';
             var label;
             
-            if (isPatchPanel) {
+            if (isPassthrough) {
                 var connCount = getPortConnectionCount(id, p.name, excludeIdx);
                 if (connCount === 0) {
-                    label = p.name + ' (Libera)';
+                    label = icon + ' ' + p.name + ' (Libera)';
                 } else if (connCount === 1) {
-                    label = p.name + ' (1/2 - disponibile)';
+                    label = icon + ' ' + p.name + ' (1/2 - disponibile)';
                 } else {
-                    label = p.name + ' (2/2 - completa)';
+                    label = icon + ' ' + p.name + ' (2/2 - completa)';
                 }
             } else {
-                label = p.name + ' ' + (used ? '(In uso)' : '(Libera)');
+                label = icon + ' ' + p.name + ' ' + (used ? '(In uso)' : '(Libera)');
             }
             
             var selected = (selectedPort === p.name) ? 'selected' : '';
@@ -976,7 +1737,58 @@ function updateUI() {
     updateDeviceSelects();
     updateMatrix();
     updateConnectionsList();
-    saveToStorage();
+    // REMOVED: saveToStorage() - was causing login modal to appear on page load
+    // Data should only be saved manually via "Save Now" button or after explicit user actions
+    
+    // Update global counters in header
+    updateGlobalCounters();
+    
+    // Update location filter dropdown
+    if (typeof LocationFilter !== 'undefined') {
+        LocationFilter.update();
+    }
+}
+
+function updateGlobalCounters() {
+    // Legacy IDs for backwards compatibility
+    var locationsCount = document.getElementById('totalLocationsCount');
+    var devicesCount = document.getElementById('totalDevicesCount');
+    var connectionsCount = document.getElementById('totalConnectionsCount');
+    
+    // Check if there's an active location filter
+    var locationFilter = appState.deviceFilters.location;
+    
+    // Count unique locations (always from all devices)
+    if (locationsCount) {
+        var uniqueLocations = [];
+        for (var i = 0; i < appState.devices.length; i++) {
+            var loc = appState.devices[i].location;
+            if (loc && uniqueLocations.indexOf(loc) === -1) {
+                uniqueLocations.push(loc);
+            }
+        }
+        locationsCount.textContent = uniqueLocations.length;
+    }
+    
+    // Show filtered counts when location filter is active
+    if (locationFilter) {
+        var filteredDevices = getFilteredDevices();
+        var filteredConnections = getFilteredConnections();
+        if (devicesCount) {
+            devicesCount.textContent = filteredDevices.length;
+        }
+        if (connectionsCount) {
+            connectionsCount.textContent = filteredConnections.length;
+        }
+    } else {
+        // No filter - show totals
+        if (devicesCount) {
+            devicesCount.textContent = appState.devices.length;
+        }
+        if (connectionsCount) {
+            connectionsCount.textContent = appState.connections.length;
+        }
+    }
 }
 
 function updateRackIdDatalist() {
@@ -1091,12 +1903,36 @@ function toggleMatrix() {
     updateMatrix();
 }
 
-function toggleConnSort(key) {
-    if (appState.connSort.key === key) {
-        appState.connSort.asc = !appState.connSort.asc;
+function toggleConnSort(key, event) {
+    // Multi-level sorting: Shift+Click adds a level, regular click resets
+    var isShiftClick = event && event.shiftKey;
+    
+    if (isShiftClick && appState.connSort.length < 3) {
+        // Check if this key is already in the sort
+        var existingIndex = -1;
+        for (var i = 0; i < appState.connSort.length; i++) {
+            if (appState.connSort[i].key === key) {
+                existingIndex = i;
+                break;
+            }
+        }
+        
+        if (existingIndex >= 0) {
+            // Toggle direction
+            appState.connSort[existingIndex].asc = !appState.connSort[existingIndex].asc;
+        } else {
+            // Add new sort level
+            appState.connSort.push({ key: key, asc: true });
+        }
     } else {
-        appState.connSort.key = key;
-        appState.connSort.asc = true;
+        // Regular click: check if this is the primary sort
+        if (appState.connSort.length === 1 && appState.connSort[0].key === key) {
+            // Toggle direction
+            appState.connSort[0].asc = !appState.connSort[0].asc;
+        } else {
+            // Reset to single sort on this column
+            appState.connSort = [{ key: key, asc: true }];
+        }
     }
     updateConnectionsList();
 }
@@ -1115,16 +1951,28 @@ function exportJSON() {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'network_manager_' + new Date().toISOString().slice(0,10) + '.json';
+    var filename = 'network_manager_' + new Date().toISOString().slice(0,10) + '.json';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
+    // Log the export
+    if (typeof ActivityLog !== 'undefined') {
+        ActivityLog.add('export', 'export', 'Exported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections to ' + filename);
+    }
+    
     Toast.success('JSON exported successfully');
 }
 
 function importData(e) {
+    // Require authentication for importing
+    if (!requireAuth()) {
+        e.target.value = '';
+        return;
+    }
+    
     var file = e.target.files[0];
     if (!file) return;
 
@@ -1146,9 +1994,13 @@ function importData(e) {
             // Validate each device has required fields
             for (var i = 0; i < data.devices.length; i++) {
                 var d = data.devices[i];
-                if (!d.id || !d.rackId || !d.name || !d.type || !d.status || !d.ports) {
-                    Toast.error('Invalid device at index ' + i + ': missing required fields');
+                if (!d.id || (!d.rackId && !d.rack) || !d.name || !d.type || !d.status || !d.ports) {
+                    Toast.error('Invalid device at index ' + i + ': missing required fields (id, rackId/rack, name, type, status, ports)');
                     return;
+                }
+                // Normalize rackId for compatibility
+                if (!d.rackId && d.rack) {
+                    d.rackId = d.rack;
                 }
             }
             
@@ -1176,6 +2028,11 @@ function importData(e) {
                 appState.nextDeviceId = maxId + 1;
             }
             
+            // Log the import
+            if (typeof ActivityLog !== 'undefined') {
+                ActivityLog.add('import', 'import', 'Imported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections from ' + file.name);
+            }
+            
             // Save to storage and server
             saveToStorage();
             updateUI();
@@ -1190,15 +2047,99 @@ function importData(e) {
     e.target.value = '';
 }
 
+/**
+ * Clear All with mandatory backup download and admin password confirmation
+ */
 function clearAll() {
-    if (!confirm('Are you sure you want to clear all data? This cannot be undone.')) return;
-    appState.devices = [];
-    appState.connections = [];
-    appState.nextDeviceId = 1;
-    clearConnectionForm();
-    clearDeviceForm();
-    updateUI();
-    Toast.info('All data cleared');
+    // Require authentication first
+    if (!requireAuth()) return;
+    
+    // Step 1: Show mandatory backup dialog
+    var backupConfirmed = confirm(
+        '⚠️ CLEAR ALL DATA\n\n' +
+        'This action will DELETE all devices and connections.\n\n' +
+        'MANDATORY: You must download a backup first.\n\n' +
+        'Click OK to download backup, then enter admin password.'
+    );
+    
+    if (!backupConfirmed) {
+        Toast.info('Clear all cancelled');
+        return;
+    }
+    
+    // Step 2: Force backup download
+    var data = {
+        devices: appState.devices,
+        connections: appState.connections,
+        nextDeviceId: appState.nextDeviceId,
+        exportedAt: new Date().toISOString(),
+        backupReason: 'Pre-Clear All Backup'
+    };
+    
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'matrix-backup-' + new Date().toISOString().slice(0, 10) + '-pre-clear.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    Toast.info('Backup downloaded. Now enter admin password...');
+    
+    // Step 3: Ask for admin password
+    setTimeout(function() {
+        var password = prompt(
+            'CONFIRM CLEAR ALL\n\n' +
+            'Enter admin password to confirm deletion of ALL data:\n' +
+            '(' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections)'
+        );
+        
+        if (!password) {
+            Toast.info('Clear all cancelled - no password entered');
+            return;
+        }
+        
+        // Verify password via PHP
+        var formData = new FormData();
+        formData.append('action', 'verify_password');
+        formData.append('password', password);
+        
+        fetch('data.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.valid) {
+                // Password correct - proceed with clear
+                var deviceCount = appState.devices.length;
+                var connCount = appState.connections.length;
+                
+                appState.devices = [];
+                appState.connections = [];
+                appState.nextDeviceId = 1;
+                
+                // Log the action
+                if (typeof ActivityLog !== 'undefined') {
+                    ActivityLog.add('clear', 'system', 'Cleared all data: ' + deviceCount + ' devices, ' + connCount + ' connections (backup downloaded)');
+                }
+                
+                clearConnectionForm();
+                clearDeviceForm();
+                updateUI();
+                Toast.success('All data cleared successfully');
+            } else {
+                Toast.error('Invalid admin password. Clear all cancelled.');
+            }
+        })
+        .catch(function(err) {
+            console.error('Password verification error:', err);
+            Toast.error('Error verifying password. Clear all cancelled.');
+        });
+    }, 500);
 }
 
 // ============================================================================

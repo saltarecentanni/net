@@ -1,15 +1,46 @@
 /**
- * Simple Node.js server for Tiesse Matrix Network
+ * TIESSE Matrix Network - Node.js Server
+ * Version: 3.1.2
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  */
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data', 'network_manager.json');
+
+// Authentication settings
+const AUTH_USERNAME = 'tiesse';
+const AUTH_PASSWORD = 'tiesseadm';
+const SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours in ms
+
+// Simple in-memory session store
+const sessions = new Map();
+
+function generateSessionId() {
+    return crypto.randomBytes(32).toString('hex');
+}
+
+function getSessionFromCookie(req) {
+    const cookies = req.headers.cookie || '';
+    const match = cookies.match(/session=([^;]+)/);
+    if (match) {
+        const sessionId = match[1];
+        const session = sessions.get(sessionId);
+        if (session && Date.now() - session.lastActivity < SESSION_TIMEOUT) {
+            session.lastActivity = Date.now();
+            return session;
+        }
+        if (session) {
+            sessions.delete(sessionId); // Expired
+        }
+    }
+    return null;
+}
 
 // Ensure data directory exists
 const dataDir = path.dirname(DATA_FILE);
@@ -49,7 +80,8 @@ function handleDataRequest(req, res) {
             const data = JSON.parse(content);
             sendJSON(res, 200, data);
         } catch (e) {
-            sendJSON(res, 500, { error: 'Failed to read data file' });
+            console.error('Error reading data file:', e.message);
+            sendJSON(res, 500, { error: 'Failed to read data file: ' + e.message });
         }
     } else if (req.method === 'POST') {
         // Write data
@@ -90,6 +122,69 @@ function handleDataRequest(req, res) {
     }
 }
 
+// Authentication handlers
+function handleAuthRequest(req, res, action) {
+    if (action === 'check') {
+        // Check auth status
+        const session = getSessionFromCookie(req);
+        sendJSON(res, 200, {
+            authenticated: !!session,
+            user: session ? session.username : null
+        });
+    } else if (action === 'login') {
+        if (req.method !== 'POST') {
+            return sendJSON(res, 405, { error: 'Method not allowed' });
+        }
+        
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const { username, password } = data;
+                
+                if (username === AUTH_USERNAME && password === AUTH_PASSWORD) {
+                    const sessionId = generateSessionId();
+                    sessions.set(sessionId, {
+                        username: username,
+                        loginTime: Date.now(),
+                        lastActivity: Date.now()
+                    });
+                    
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json',
+                        'Set-Cookie': `session=${sessionId}; Path=/; HttpOnly; SameSite=Strict`
+                    });
+                    res.end(JSON.stringify({
+                        ok: true,
+                        message: 'Login successful',
+                        user: username
+                    }));
+                } else {
+                    sendJSON(res, 401, { error: 'Invalid credentials' });
+                }
+            } catch (e) {
+                console.error('Login error:', e.message);
+                sendJSON(res, 400, { error: 'Invalid request: ' + e.message });
+            }
+        });
+    } else if (action === 'logout') {
+        const cookies = req.headers.cookie || '';
+        const match = cookies.match(/session=([^;]+)/);
+        if (match) {
+            sessions.delete(match[1]);
+        }
+        
+        res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Set-Cookie': 'session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0'
+        });
+        res.end(JSON.stringify({ ok: true, message: 'Logged out' }));
+    } else {
+        sendJSON(res, 400, { error: 'Invalid action' });
+    }
+}
+
 function serveStaticFile(req, res, filePath) {
     fs.readFile(filePath, (err, content) => {
         if (err) {
@@ -111,7 +206,19 @@ function serveStaticFile(req, res, filePath) {
 }
 
 const server = http.createServer((req, res) => {
-    const url = req.url.split('?')[0];
+    const urlParts = req.url.split('?');
+    const url = urlParts[0];
+    const queryString = urlParts[1] || '';
+    const query = {};
+    queryString.split('&').forEach(pair => {
+        const [key, value] = pair.split('=');
+        if (key) query[key] = decodeURIComponent(value || '');
+    });
+    
+    // Auth API
+    if (url === '/api/auth.php') {
+        return handleAuthRequest(req, res, query.action);
+    }
     
     // Data API - support multiple endpoint variations
     if (url === '/data' || url === '/data.php' || url === 'data.php') {
@@ -133,7 +240,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v2.5.0            ║');
+    console.log('║     TIESSE Matrix Network Server v3.1.2            ║');
     console.log('╠════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                  ║`);
     console.log('║  Network:  http://<YOUR-IP>:' + PORT + '/                  ║');
