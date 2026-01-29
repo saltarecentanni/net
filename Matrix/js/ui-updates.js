@@ -527,91 +527,98 @@ function updateMatrix() {
         return;
     }
 
-    var cellSize = 80;
-    var cellHeight = 80;  // Quadrado: altura = largura
+    // FIXED DIMENSIONS - All cells uniform
+    var CELL_SIZE = 90;        // Width and height for all cells
+    var FIRST_COL_WIDTH = 150; // First column width (device names + IPs)
+    var BADGE_SIZE = 32;       // Connection badge size
+    var FONT_SIZE = '10px';    // Uniform font size
+    var FONT_SIZE_SMALL = '9px'; // For IPs and ports
     
-    // Build matrix HTML with square cells
-    var html = '<div style="overflow-x: auto; cursor: grab;">';
-    html += '<table class="border-collapse" style="border-spacing: 0; width: 100%; border: 1px solid #cbd5e1;">';
+    // Build matrix HTML
+    var html = '<div style="width: 100%; height: 100%;">';
+    html += '<table style="border-collapse: collapse; border-spacing: 0;">';
     
-    // Header row
-    html += '<thead><tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">';
-    html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; min-width: 80px; text-align: center; font-size: 0.875rem; font-weight: 600;">' +
-            '<div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">' +
-            '<div style="display: flex; align-items: center; gap: 6px;">' +
-            '<span style="font-size: 10px; color: #64748b;">FROM</span>' +
-            '<div style="width: 20px; height: 20px; border-radius: 50%; background-color: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">↓</div>' +
-            '</div>' +
-            '<div style="display: flex; align-items: center; gap: 6px;">' +
-            '<span style="font-size: 10px; color: #64748b;">TO</span>' +
-            '<div style="width: 20px; height: 20px; border-radius: 50%; background-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">→</div>' +
-            '</div>' +
-            '</div>' +
-            '</th>';
+    // ═══════════════════════════════════════════════════════════════
+    // HEADER ROW - Fixed height with FROM/TO icons
+    // ═══════════════════════════════════════════════════════════════
+    html += '<thead><tr style="background-color: #f1f5f9;">';
     
+    // Corner cell (FROM/TO legend)
+    html += '<th style="width: ' + FIRST_COL_WIDTH + 'px; height: ' + CELL_SIZE + 'px; padding: 4px; border: 1px solid #cbd5e1; text-align: center; vertical-align: middle;">' +
+            '<div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: ' + FONT_SIZE_SMALL + '; color: #64748b;">' +
+            '<div style="display: flex; align-items: center; gap: 3px;">' +
+            '<span>FROM</span>' +
+            '<div style="width: 16px; height: 16px; border-radius: 50%; background-color: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700;">↓</div>' +
+            '</div>' +
+            '<div style="display: flex; align-items: center; gap: 3px;">' +
+            '<span>TO</span>' +
+            '<div style="width: 16px; height: 16px; border-radius: 50%; background-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700;">→</div>' +
+            '</div>' +
+            '</div></th>';
+    
+    // Column headers - Device names (IPs in tooltip only)
     for (var i = 0; i < filtered.length; i++) {
         var device = filtered[i];
-        var headerIPs = [];
+        var deviceIPs = [];
         if (device.addresses && device.addresses.length > 0) {
-            for (var ha = 0; ha < device.addresses.length; ha++) {
-                if (device.addresses[ha].network) headerIPs.push(device.addresses[ha].network);
-                if (device.addresses[ha].ip && device.addresses[ha].ip !== device.addresses[ha].network) {
-                    headerIPs.push(device.addresses[ha].ip);
+            for (var a = 0; a < device.addresses.length; a++) {
+                if (device.addresses[a].network) deviceIPs.push(device.addresses[a].network);
+                if (device.addresses[a].ip && device.addresses[a].ip !== device.addresses[a].network) {
+                    deviceIPs.push(device.addresses[a].ip);
                 }
             }
         }
+        var tooltip = device.name + (deviceIPs.length > 0 ? '\\n' + deviceIPs.join('\\n') : '');
         
-        html += '<th style="padding: 6px 8px; border-right: 1px solid #cbd5e1; text-align: center; width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600;">' +
-                '<div style="font-weight: 700; color: #1e293b; margin-bottom: 2px;" title="' + device.name + '">' + device.name + '</div>';
-        
-        if (headerIPs.length > 0) {
-            html += '<div style="font-size: 9px; color: #64748b; line-height: 1.2;">' + headerIPs.join('<br>') + '</div>';
-        }
-        
-        html += '</th>';
+        html += '<th style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; padding: 4px; border: 1px solid #cbd5e1; text-align: center; vertical-align: middle; overflow: hidden;" title="' + tooltip + '">' +
+                '<div style="font-size: ' + FONT_SIZE + '; font-weight: 700; color: #1e293b; line-height: 1.2; word-break: break-word; overflow: hidden; text-overflow: ellipsis; max-height: ' + (CELL_SIZE - 8) + 'px;">' + 
+                device.name + 
+                '</div></th>';
     }
     
-    html += '</tr></thead><tbody>';
+    html += '</tr></thead>';
     
-    // Data rows
+    // ═══════════════════════════════════════════════════════════════
+    // DATA ROWS - Fixed height cells with device info
+    // ═══════════════════════════════════════════════════════════════
+    html += '<tbody>';
+    
     for (var r = 0; r < filtered.length; r++) {
         var row = filtered[r];
         var rowBg = r % 2 === 0 ? '#ffffff' : '#f8fafc';
         
-        html += '<tr style="background-color: ' + rowBg + '; border-bottom: 1px solid #cbd5e1;">';
+        html += '<tr style="background-color: ' + rowBg + ';">';
         
-        // First column with device name and IPs
-        var deviceIPs = [];
+        // First column - Device name with IPs
+        var rowIPs = [];
         if (row.addresses && row.addresses.length > 0) {
-            for (var a = 0; a < row.addresses.length; a++) {
-                if (row.addresses[a].network) deviceIPs.push(row.addresses[a].network);
-                if (row.addresses[a].ip && row.addresses[a].ip !== row.addresses[a].network) {
-                    deviceIPs.push(row.addresses[a].ip);
+            for (var ra = 0; ra < row.addresses.length; ra++) {
+                if (row.addresses[ra].network) rowIPs.push(row.addresses[ra].network);
+                if (row.addresses[ra].ip && row.addresses[ra].ip !== row.addresses[ra].network) {
+                    rowIPs.push(row.addresses[ra].ip);
                 }
             }
         }
         
-        html += '<td style="padding: 6px 8px; border-right: 1px solid #cbd5e1; font-size: 0.75rem;">' +
-                '<div style="font-weight: 700; color: #1e293b; margin-bottom: 2px;">' + row.name + '</div>';
+        html += '<td style="width: ' + FIRST_COL_WIDTH + 'px; height: ' + CELL_SIZE + 'px; padding: 6px; border: 1px solid #cbd5e1; vertical-align: middle; overflow: hidden;">' +
+                '<div style="font-size: ' + FONT_SIZE + '; font-weight: 700; color: #1e293b; line-height: 1.2; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis;">' + row.name + '</div>';
         
-        if (deviceIPs.length > 0) {
-            html += '<div style="font-size: 10px; color: #64748b; line-height: 1.3;">' + deviceIPs.join('<br>') + '</div>';
+        if (rowIPs.length > 0) {
+            html += '<div style="font-size: ' + FONT_SIZE_SMALL + '; color: #64748b; line-height: 1.3; overflow: hidden; text-overflow: ellipsis;">' + rowIPs.slice(0, 2).join('<br>') + (rowIPs.length > 2 ? '<br>...' : '') + '</div>';
         }
         
         html += '</td>';
         
+        // Data cells - Connection indicators
         for (var c = 0; c < filtered.length; c++) {
             var col = filtered[c];
-            var cellContent = '';
             var cellBg = rowBg;
-            var cellStyle = 'cursor: default;';
             
             if (row.id === col.id) {
-                // Diagonal cells
-                cellContent = '';
-                cellBg = '#e2e8f0';
+                // Diagonal cells (gray background, no content)
+                html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; border: 1px solid #cbd5e1; background-color: #e2e8f0; text-align: center; vertical-align: middle;"></td>';
             } else {
-                // Look for connection between these two devices
+                // Check for connection
                 var conn = null;
                 var connIdx = -1;
                 for (var ci = 0; ci < appState.connections.length; ci++) {
@@ -625,40 +632,39 @@ function updateMatrix() {
                 }
                 
                 if (conn) {
+                    // Connected cell - show badge and ports
                     var connType = conn.type || 'unknown';
                     var fromPort = conn.from === row.id ? conn.fromPort : conn.toPort;
                     var toPort = conn.from === row.id ? conn.toPort : conn.fromPort;
                     var connColor = config.connColors[connType] || '#64748b';
                     var typeName = config.connLabels[connType] || connType;
                     
-                    // Cell with square design showing connection type badge and ports
-                    cellContent = '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: ' + cellHeight + 'px; cursor: pointer;" ' +
-                                  'onmouseenter="showMatrixTooltip(event, ' + connIdx + ')" ' +
-                                  'onmouseleave="hideMatrixTooltip()" ' +
-                                  'onclick="editConnection(' + connIdx + ')">' +
-                                  
-                                  // Connection type badge (bolinha redonda)
-                                  '<div style="width: 32px; height: 32px; border-radius: 50%; background-color: ' + connColor + '; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.2s;" ' +
-                                  'onmouseenter="this.style.transform=\'scale(1.1)\';" onmouseleave="this.style.transform=\'scale(1)\';">' +
-                                  '<span style="color: white; font-size: 11px; font-weight: 700; text-align: center;">' + typeName.substring(0, 3).toUpperCase() + '</span>' +
-                                  '</div>' +
-                                  
-                                  // Source and destination ports side by side
-                                  '<div style="display: flex; gap: 2px; font-size: 9px; font-weight: 600;">' +
-                                  '<span style="background-color: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.8;">' + (fromPort || '—') + '</span>' +
-                                  '<span style="color: #94a3b8;">→</span>' +
-                                  '<span style="background-color: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.6;">' + (toPort || '—') + '</span>' +
-                                  '</div>' +
-                                  
-                                  '</div>';
-                    cellBg = '#ffffff';  // White background for connection cells
-                    cellStyle = 'cursor: pointer;';
+                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; padding: 4px; border: 1px solid #cbd5e1; background-color: #ffffff; text-align: center; vertical-align: middle; cursor: pointer;" ' +
+                            'onmouseenter="showMatrixTooltip(event, ' + connIdx + ')" ' +
+                            'onmouseleave="hideMatrixTooltip()" ' +
+                            'onclick="editConnection(' + connIdx + ')">' +
+                            
+                            '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 100%;">' +
+                            
+                            // Connection type badge
+                            '<div style="width: ' + BADGE_SIZE + 'px; height: ' + BADGE_SIZE + 'px; border-radius: 50%; background-color: ' + connColor + '; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.2s;" ' +
+                            'onmouseenter="this.style.transform=\'scale(1.1)\';" onmouseleave="this.style.transform=\'scale(1)\';">' +
+                            '<span style="color: white; font-size: ' + FONT_SIZE + '; font-weight: 700;">' + typeName.substring(0, 3).toUpperCase() + '</span>' +
+                            '</div>' +
+                            
+                            // Ports
+                            '<div style="display: flex; gap: 2px; font-size: ' + FONT_SIZE_SMALL + '; font-weight: 600; align-items: center;">' +
+                            '<span style="background-color: ' + connColor + '; color: white; padding: 1px 3px; border-radius: 2px; opacity: 0.8; max-width: 32px; overflow: hidden; text-overflow: ellipsis;">' + (fromPort || '—') + '</span>' +
+                            '<span style="color: #94a3b8;">→</span>' +
+                            '<span style="background-color: ' + connColor + '; color: white; padding: 1px 3px; border-radius: 2px; opacity: 0.6; max-width: 32px; overflow: hidden; text-overflow: ellipsis;">' + (toPort || '—') + '</span>' +
+                            '</div>' +
+                            
+                            '</div></td>';
+                } else {
+                    // Empty cell
+                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; border: 1px solid #cbd5e1; background-color: ' + cellBg + ';"></td>';
                 }
             }
-            
-            html += '<td style="padding: 4px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; ' + cellStyle + '">' +
-                    (cellContent || '<div style="height: ' + cellHeight + 'px; display: flex; align-items: center; justify-content: center;"></div>') +
-                    '</td>';
         }
         
         html += '</tr>';
@@ -667,7 +673,7 @@ function updateMatrix() {
     html += '</tbody></table></div>';
     cont.innerHTML = html;
     
-    // Reinitialize drag-to-scroll on the container
+    // Reinitialize drag-to-scroll
     initDragToScroll();
 }
 
@@ -1265,66 +1271,56 @@ function initDragToScroll() {
     
     var isDragging = false;
     var startX, startY, scrollLeft, scrollTop;
-    var dragThreshold = 5; // pixels to move before considering it a drag
-    var hasMoved = false;
+    var currentZoom = 1.0;
 
-    // Zoom with mouse wheel - apply to inner div wrapper
+    // Zoom with mouse wheel - smooth and controlled
     matrixContainer.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        
-        var wrapper = matrixContainer.querySelector('div[style*="overflow-x"]');
-        if (!wrapper) return;
-        
-        var delta = e.deltaY > 0 ? 0.95 : 1.05; // Smoother zoom
-        var currentScale = wrapper.style.transform ? parseFloat(wrapper.style.transform.replace(/[^0-9.]/g, '')) : 1.0;
-        var newScale = currentScale * delta;
-        
-        // Limit zoom range
-        if (newScale < 0.5) newScale = 0.5;
-        if (newScale > 2.5) newScale = 2.5;
-        
-        wrapper.style.transform = 'scale(' + newScale + ')';
-        wrapper.style.transformOrigin = 'top left';
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            
+            var delta = e.deltaY > 0 ? 0.95 : 1.05;
+            currentZoom *= delta;
+            
+            // Limit zoom range
+            if (currentZoom < 0.5) currentZoom = 0.5;
+            if (currentZoom > 2.0) currentZoom = 2.0;
+            
+            var wrapper = matrixContainer.querySelector('div');
+            if (wrapper) {
+                wrapper.style.transform = 'scale(' + currentZoom + ')';
+                wrapper.style.transformOrigin = 'top left';
+            }
+        }
     }, { passive: false });
 
-    // Drag to scroll (hand navigation) - only on wrapper div, not on cells
+    // Drag to scroll
     matrixContainer.addEventListener('mousedown', function(e) {
-        // Don't drag if clicking on interactive elements or cells with content
-        if (e.target.closest('button, a, input, select')) return;
-        if (e.target.closest('td[onclick], th')) return;
+        // Don't interfere with cell clicks
+        if (e.target.closest('td[onclick]')) return;
         
         isDragging = true;
-        hasMoved = false;
         matrixContainer.style.cursor = 'grabbing';
         matrixContainer.style.userSelect = 'none';
         startX = e.pageX;
         startY = e.pageY;
         scrollLeft = matrixContainer.scrollLeft;
         scrollTop = matrixContainer.scrollTop;
+        e.preventDefault();
     });
 
-    matrixContainer.addEventListener('mousemove', function(e) {
+    document.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
+        e.preventDefault();
         
-        var dx = e.pageX - startX;
-        var dy = e.pageY - startY;
-        var distance = Math.sqrt(dx * dx + dy * dy);
+        var dx = startX - e.pageX;
+        var dy = startY - e.pageY;
         
-        if (distance > dragThreshold) {
-            hasMoved = true;
-            e.preventDefault();
-            matrixContainer.scrollLeft = scrollLeft - dx;
-            matrixContainer.scrollTop = scrollTop - dy;
-        }
+        matrixContainer.scrollLeft = scrollLeft + dx;
+        matrixContainer.scrollTop = scrollTop + dy;
     });
 
-    matrixContainer.addEventListener('mouseup', function() {
-        isDragging = false;
-        matrixContainer.style.cursor = 'grab';
-        matrixContainer.style.userSelect = '';
-    });
-
-    matrixContainer.addEventListener('mouseleave', function() {
+    document.addEventListener('mouseup', function() {
+        if (!isDragging) return;
         isDragging = false;
         matrixContainer.style.cursor = 'grab';
         matrixContainer.style.userSelect = '';
