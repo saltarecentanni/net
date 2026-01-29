@@ -458,12 +458,48 @@ function showMatrixTooltip(event, connIdx) {
     var typeName = config.connLabels[conn.type] || conn.type;
     var connColor = config.connColors[conn.type] || '#6b7280';
     
-    // Minimal tooltip - just essential info
-    var html = '<div style="font-size: 11px; font-weight: 600; color:' + connColor + '; margin-bottom: 4px;">' + typeName + '</div>';
-    html += '<div style="font-size: 10px; line-height: 1.4;">';
-    html += '<div>' + fromName + ' <span style="color: #cbd5e1;">[' + (conn.fromPort || '—') + ']</span></div>';
-    html += '<div style="text-align: center; color: #94a3b8; font-size: 9px; margin: 2px 0;">↓</div>';
-    html += '<div>' + toName + ' <span style="color: #cbd5e1;">[' + (conn.toPort || '—') + ']</span></div>';
+    // Enhanced tooltip with more details
+    var html = '<div style="min-width: 200px;">';
+    
+    // Connection type header with color
+    html += '<div style="font-size: 12px; font-weight: 700; color: white; background-color:' + connColor + '; padding: 6px 8px; border-radius: 4px 4px 0 0; margin: -8px -8px 8px -8px;">' + 
+            typeName + '</div>';
+    
+    // FROM device
+    html += '<div style="margin-bottom: 8px;">';
+    html += '<div style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 2px;">FROM</div>';
+    html += '<div style="font-size: 11px; font-weight: 600; color: #1e293b;">' + fromName + '</div>';
+    if (fromDevice && fromDevice.rackId) {
+        html += '<div style="font-size: 10px; color: #64748b;">Rack: ' + fromDevice.rackId + (fromDevice.order ? ' • Pos: ' + fromDevice.order : '') + '</div>';
+    }
+    html += '<div style="font-size: 11px; color: #3b82f6; font-weight: 600; margin-top: 2px;">Port: ' + (conn.fromPort || '—') + '</div>';
+    html += '</div>';
+    
+    // Arrow
+    html += '<div style="text-align: center; color: #cbd5e1; font-size: 14px; margin: 4px 0;">↓</div>';
+    
+    // TO device
+    html += '<div>';
+    html += '<div style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 2px;">TO</div>';
+    html += '<div style="font-size: 11px; font-weight: 600; color: #1e293b;">' + toName + '</div>';
+    if (toDevice && toDevice.rackId) {
+        html += '<div style="font-size: 10px; color: #64748b;">Rack: ' + toDevice.rackId + (toDevice.order ? ' • Pos: ' + toDevice.order : '') + '</div>';
+    }
+    html += '<div style="font-size: 11px; color: #3b82f6; font-weight: 600; margin-top: 2px;">Port: ' + (conn.toPort || '—') + '</div>';
+    html += '</div>';
+    
+    // Cable info if available
+    if (conn.cableMarker || conn.notes) {
+        html += '<div style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 8px;">';
+        if (conn.cableMarker) {
+            html += '<div style="font-size: 10px; color: #64748b;">Cable: <span style="font-weight: 600; color: #1e293b;">' + conn.cableMarker + '</span></div>';
+        }
+        if (conn.notes) {
+            html += '<div style="font-size: 10px; color: #64748b; margin-top: 2px;">' + conn.notes + '</div>';
+        }
+        html += '</div>';
+    }
+    
     html += '</div>';
     
     tooltip.innerHTML = html;
@@ -1183,7 +1219,29 @@ function initDragToScroll() {
     
     var isDragging = false;
     var startX, startY, scrollLeft, scrollTop;
+    var currentZoom = 1.0;
 
+    // Zoom with mouse wheel (like Topology)
+    matrixContainer.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        
+        var delta = e.deltaY > 0 ? 0.9 : 1.1; // Zoom out / Zoom in
+        var newZoom = currentZoom * delta;
+        
+        // Limit zoom range
+        if (newZoom < 0.3) newZoom = 0.3;
+        if (newZoom > 3.0) newZoom = 3.0;
+        
+        currentZoom = newZoom;
+        
+        var table = matrixContainer.querySelector('table');
+        if (table) {
+            table.style.transform = 'scale(' + currentZoom + ')';
+            table.style.transformOrigin = 'top left';
+        }
+    }, { passive: false });
+
+    // Drag to scroll (hand navigation)
     matrixContainer.addEventListener('mousedown', function(e) {
         if (e.target.closest('button, a, input, select, td[onclick]')) return;
         isDragging = true;
