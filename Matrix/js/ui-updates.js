@@ -517,114 +517,95 @@ function updateMatrix() {
     var cont = document.getElementById('matrixContainer');
     if (!cont) return;
     
-    // Get filtered devices based on location and group selections
     var filtered = getMatrixFilteredDevices();
     
     if (filtered.length === 0) {
-        cont.innerHTML = '<div class="flex items-center justify-center py-16 text-slate-400">' +
-            '<p>No devices in selected filters</p>' +
-            '</div>';
+        cont.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 400px; color: #999; font-size: 14px;">No devices in selected filters</div>';
         return;
     }
 
-    // FIXED DIMENSIONS - All cells uniform
-    var CELL_SIZE = 90;        // Width and height for all cells
-    var FIRST_COL_WIDTH = 150; // First column width (device names + IPs)
-    var BADGE_SIZE = 32;       // Connection badge size
-    var FONT_SIZE = '10px';    // Uniform font size
-    var FONT_SIZE_SMALL = '9px'; // For IPs and ports
+    // EXCEL-STYLE CONFIGURATION
+    var CELL_SIZE = 100;           // Square cells
+    var FIRST_COL_WIDTH = 180;     // Device names column
+    var HEADER_HEIGHT = 100;       // Header row height
+    var BADGE_SIZE = 36;           // Connection badge
     
-    // Build matrix HTML
-    var html = '<div style="width: 100%; height: 100%;">';
-    html += '<table style="border-collapse: collapse; border-spacing: 0;">';
+    // Build professional Excel-like matrix
+    var html = '<div class="matrix-wrapper" style="position: relative; width: 100%; height: 100%; overflow: auto;">';
+    html += '<table class="matrix-table" style="border-collapse: collapse; table-layout: fixed; background: white;">';
     
     // ═══════════════════════════════════════════════════════════════
-    // HEADER ROW - Fixed height with FROM/TO icons
+    // HEADER ROW (Sticky)
     // ═══════════════════════════════════════════════════════════════
-    html += '<thead><tr style="background-color: #f1f5f9;">';
+    html += '<thead><tr>';
     
-    // Corner cell (FROM/TO legend)
-    html += '<th style="width: ' + FIRST_COL_WIDTH + 'px; height: ' + CELL_SIZE + 'px; padding: 4px; border: 1px solid #cbd5e1; text-align: center; vertical-align: middle;">' +
-            '<div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: ' + FONT_SIZE_SMALL + '; color: #64748b;">' +
-            '<div style="display: flex; align-items: center; gap: 3px;">' +
-            '<span>FROM</span>' +
-            '<div style="width: 16px; height: 16px; border-radius: 50%; background-color: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700;">↓</div>' +
-            '</div>' +
-            '<div style="display: flex; align-items: center; gap: 3px;">' +
-            '<span>TO</span>' +
-            '<div style="width: 16px; height: 16px; border-radius: 50%; background-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700;">→</div>' +
-            '</div>' +
+    // Top-left corner cell (FROM/TO legend)
+    html += '<th class="matrix-corner" style="position: sticky; left: 0; top: 0; z-index: 30; width: ' + FIRST_COL_WIDTH + 'px; height: ' + HEADER_HEIGHT + 'px; background: #f8f9fa; border: 1px solid #d0d0d0; padding: 8px; text-align: center; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;">' +
+            '<div style="font-size: 10px; color: #666; line-height: 1.4;">' +
+            '<div style="margin-bottom: 6px;"><span style="font-weight: 600;">FROM</span> <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #2196F3; color: white; text-align: center; line-height: 18px; font-size: 11px; font-weight: bold; vertical-align: middle;">↓</span></div>' +
+            '<div><span style="font-weight: 600;">TO</span> <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #4CAF50; color: white; text-align: center; line-height: 18px; font-size: 11px; font-weight: bold; vertical-align: middle;">→</span></div>' +
             '</div></th>';
     
-    // Column headers - Device names (IPs in tooltip only)
+    // Column headers (Device names)
     for (var i = 0; i < filtered.length; i++) {
-        var device = filtered[i];
-        var deviceIPs = [];
-        if (device.addresses && device.addresses.length > 0) {
-            for (var a = 0; a < device.addresses.length; a++) {
-                if (device.addresses[a].network) deviceIPs.push(device.addresses[a].network);
-                if (device.addresses[a].ip && device.addresses[a].ip !== device.addresses[a].network) {
-                    deviceIPs.push(device.addresses[a].ip);
-                }
+        var dev = filtered[i];
+        var devIPs = [];
+        if (dev.addresses && dev.addresses.length > 0) {
+            for (var a = 0; a < dev.addresses.length; a++) {
+                if (dev.addresses[a].network) devIPs.push(dev.addresses[a].network);
             }
         }
-        var tooltip = device.name + (deviceIPs.length > 0 ? '\\n' + deviceIPs.join('\\n') : '');
+        var tooltipText = dev.name + (devIPs.length > 0 ? '\\n' + devIPs.join('\\n') : '');
         
-        html += '<th style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; padding: 4px; border: 1px solid #cbd5e1; text-align: center; vertical-align: middle; overflow: hidden;" title="' + tooltip + '">' +
-                '<div style="font-size: ' + FONT_SIZE + '; font-weight: 700; color: #1e293b; line-height: 1.2; word-break: break-word; overflow: hidden; text-overflow: ellipsis; max-height: ' + (CELL_SIZE - 8) + 'px;">' + 
-                device.name + 
-                '</div></th>';
+        html += '<th style="position: sticky; top: 0; z-index: 20; width: ' + CELL_SIZE + 'px; height: ' + HEADER_HEIGHT + 'px; background: #f8f9fa; border: 1px solid #d0d0d0; padding: 6px; text-align: center; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif; font-size: 11px; font-weight: 600; color: #333; overflow: hidden;" title="' + tooltipText + '">' +
+                '<div style="writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: ' + (HEADER_HEIGHT - 12) + 'px;">' + dev.name + '</div>' +
+                '</th>';
     }
     
     html += '</tr></thead>';
     
     // ═══════════════════════════════════════════════════════════════
-    // DATA ROWS - Fixed height cells with device info
+    // DATA ROWS
     // ═══════════════════════════════════════════════════════════════
     html += '<tbody>';
     
     for (var r = 0; r < filtered.length; r++) {
         var row = filtered[r];
-        var rowBg = r % 2 === 0 ? '#ffffff' : '#f8fafc';
+        var rowBg = r % 2 === 0 ? '#ffffff' : '#fafafa';
         
-        html += '<tr style="background-color: ' + rowBg + ';">';
+        html += '<tr>';
         
-        // First column - Device name with IPs
+        // Row header (Device name + IPs) - Sticky
         var rowIPs = [];
         if (row.addresses && row.addresses.length > 0) {
             for (var ra = 0; ra < row.addresses.length; ra++) {
                 if (row.addresses[ra].network) rowIPs.push(row.addresses[ra].network);
-                if (row.addresses[ra].ip && row.addresses[ra].ip !== row.addresses[ra].network) {
-                    rowIPs.push(row.addresses[ra].ip);
-                }
             }
         }
         
-        html += '<td style="width: ' + FIRST_COL_WIDTH + 'px; height: ' + CELL_SIZE + 'px; padding: 6px; border: 1px solid #cbd5e1; vertical-align: middle; overflow: hidden;">' +
-                '<div style="font-size: ' + FONT_SIZE + '; font-weight: 700; color: #1e293b; line-height: 1.2; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis;">' + row.name + '</div>';
+        html += '<th style="position: sticky; left: 0; z-index: 10; width: ' + FIRST_COL_WIDTH + 'px; height: ' + CELL_SIZE + 'px; background: ' + rowBg + '; border: 1px solid #d0d0d0; padding: 8px; text-align: left; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif; font-size: 12px; font-weight: 600; color: #333;">' +
+                '<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">' + row.name + '</div>';
         
         if (rowIPs.length > 0) {
-            html += '<div style="font-size: ' + FONT_SIZE_SMALL + '; color: #64748b; line-height: 1.3; overflow: hidden; text-overflow: ellipsis;">' + rowIPs.slice(0, 2).join('<br>') + (rowIPs.length > 2 ? '<br>...' : '') + '</div>';
+            html += '<div style="font-size: 10px; font-weight: normal; color: #666; line-height: 1.3;">' + rowIPs.slice(0, 2).join('<br>') + '</div>';
         }
         
-        html += '</td>';
+        html += '</th>';
         
-        // Data cells - Connection indicators
+        // Data cells
         for (var c = 0; c < filtered.length; c++) {
             var col = filtered[c];
-            var cellBg = rowBg;
             
             if (row.id === col.id) {
-                // Diagonal cells (gray background, no content)
-                html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; border: 1px solid #cbd5e1; background-color: #e2e8f0; text-align: center; vertical-align: middle;"></td>';
+                // Diagonal cells
+                html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; background: #e8e8e8; border: 1px solid #d0d0d0;"></td>';
             } else {
-                // Check for connection
+                // Find connection
                 var conn = null;
                 var connIdx = -1;
                 for (var ci = 0; ci < appState.connections.length; ci++) {
                     var c_conn = appState.connections[ci];
-                    if ((c_conn.from === row.id && c_conn.to === col.id) ||
-                        (c_conn.from === col.id && c_conn.to === row.id)) {
+                    if ((c_conn.from === row.id && c_conn.to === col.id) || (c_conn.from === col.id && c_conn.to === row.id)) {
                         conn = c_conn;
                         connIdx = ci;
                         break;
@@ -632,37 +613,37 @@ function updateMatrix() {
                 }
                 
                 if (conn) {
-                    // Connected cell - show badge and ports
+                    // Connection cell
                     var connType = conn.type || 'unknown';
                     var fromPort = conn.from === row.id ? conn.fromPort : conn.toPort;
                     var toPort = conn.from === row.id ? conn.toPort : conn.fromPort;
-                    var connColor = config.connColors[connType] || '#64748b';
+                    var connColor = config.connColors[connType] || '#888';
                     var typeName = config.connLabels[connType] || connType;
                     
-                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; padding: 4px; border: 1px solid #cbd5e1; background-color: #ffffff; text-align: center; vertical-align: middle; cursor: pointer;" ' +
+                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; background: white; border: 1px solid #d0d0d0; cursor: pointer; text-align: center; vertical-align: middle; padding: 0;" ' +
                             'onmouseenter="showMatrixTooltip(event, ' + connIdx + ')" ' +
                             'onmouseleave="hideMatrixTooltip()" ' +
                             'onclick="editConnection(' + connIdx + ')">' +
                             
-                            '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 100%;">' +
+                            '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 100%;">' +
                             
-                            // Connection type badge
-                            '<div style="width: ' + BADGE_SIZE + 'px; height: ' + BADGE_SIZE + 'px; border-radius: 50%; background-color: ' + connColor + '; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.2s;" ' +
-                            'onmouseenter="this.style.transform=\'scale(1.1)\';" onmouseleave="this.style.transform=\'scale(1)\';">' +
-                            '<span style="color: white; font-size: ' + FONT_SIZE + '; font-weight: 700;">' + typeName.substring(0, 3).toUpperCase() + '</span>' +
+                            // Badge
+                            '<div style="width: ' + BADGE_SIZE + 'px; height: ' + BADGE_SIZE + 'px; border-radius: 50%; background: ' + connColor + '; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: transform 0.15s ease;" ' +
+                            'onmouseenter="this.style.transform=\'scale(1.15)\';" onmouseleave="this.style.transform=\'scale(1)\';">' +
+                            '<span style="color: white; font-size: 11px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;">' + typeName.substring(0, 3).toUpperCase() + '</span>' +
                             '</div>' +
                             
                             // Ports
-                            '<div style="display: flex; gap: 2px; font-size: ' + FONT_SIZE_SMALL + '; font-weight: 600; align-items: center;">' +
-                            '<span style="background-color: ' + connColor + '; color: white; padding: 1px 3px; border-radius: 2px; opacity: 0.8; max-width: 32px; overflow: hidden; text-overflow: ellipsis;">' + (fromPort || '—') + '</span>' +
-                            '<span style="color: #94a3b8;">→</span>' +
-                            '<span style="background-color: ' + connColor + '; color: white; padding: 1px 3px; border-radius: 2px; opacity: 0.6; max-width: 32px; overflow: hidden; text-overflow: ellipsis;">' + (toPort || '—') + '</span>' +
+                            '<div style="display: flex; gap: 3px; align-items: center; font-size: 9px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;">' +
+                            '<span style="background: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.85; max-width: 35px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + (fromPort || '—') + '</span>' +
+                            '<span style="color: #999;">→</span>' +
+                            '<span style="background: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.65; max-width: 35px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + (toPort || '—') + '</span>' +
                             '</div>' +
                             
                             '</div></td>';
                 } else {
                     // Empty cell
-                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; border: 1px solid #cbd5e1; background-color: ' + cellBg + ';"></td>';
+                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; background: ' + rowBg + '; border: 1px solid #d0d0d0;"></td>';
                 }
             }
         }
@@ -671,9 +652,8 @@ function updateMatrix() {
     }
     
     html += '</tbody></table></div>';
-    cont.innerHTML = html;
     
-    // Reinitialize drag-to-scroll
+    cont.innerHTML = html;
     initDragToScroll();
 }
 
@@ -1266,67 +1246,64 @@ function exportExcel() {
 // DRAG-TO-SCROLL
 // ============================================================================
 function initDragToScroll() {
-    var matrixContainer = document.getElementById('matrixContainer');
-    if (!matrixContainer) return;
+    var container = document.getElementById('matrixContainer');
+    if (!container) return;
+    
+    var wrapper = container.querySelector('.matrix-wrapper');
+    if (!wrapper) return;
     
     var isDragging = false;
-    var startX, startY, scrollLeft, scrollTop;
+    var startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
     var currentZoom = 1.0;
-
-    // Zoom with mouse wheel - smooth and controlled
-    matrixContainer.addEventListener('wheel', function(e) {
+    
+    // Excel-style zoom with Ctrl+Wheel (smooth, centered)
+    wrapper.addEventListener('wheel', function(e) {
         if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
             
-            var delta = e.deltaY > 0 ? 0.95 : 1.05;
-            currentZoom *= delta;
+            var delta = e.deltaY < 0 ? 1.05 : 0.95;
+            currentZoom = Math.min(Math.max(currentZoom * delta, 0.5), 2.0);
             
-            // Limit zoom range
-            if (currentZoom < 0.5) currentZoom = 0.5;
-            if (currentZoom > 2.0) currentZoom = 2.0;
-            
-            var wrapper = matrixContainer.querySelector('div');
-            if (wrapper) {
-                wrapper.style.transform = 'scale(' + currentZoom + ')';
-                wrapper.style.transformOrigin = 'top left';
+            var table = wrapper.querySelector('.matrix-table');
+            if (table) {
+                table.style.transform = 'scale(' + currentZoom + ')';
+                table.style.transformOrigin = 'top left';
             }
         }
     }, { passive: false });
-
-    // Drag to scroll
-    matrixContainer.addEventListener('mousedown', function(e) {
-        // Don't interfere with cell clicks
-        if (e.target.closest('td[onclick]')) return;
+    
+    // Excel-style pan/drag (anywhere except clickable cells)
+    wrapper.addEventListener('mousedown', function(e) {
+        if (e.target.closest('td[onclick]')) return; // Don't drag on connection cells
         
         isDragging = true;
-        matrixContainer.style.cursor = 'grabbing';
-        matrixContainer.style.userSelect = 'none';
-        startX = e.pageX;
-        startY = e.pageY;
-        scrollLeft = matrixContainer.scrollLeft;
-        scrollTop = matrixContainer.scrollTop;
+        wrapper.style.cursor = 'grabbing';
+        startX = e.clientX;
+        startY = e.clientY;
+        scrollLeft = wrapper.scrollLeft;
+        scrollTop = wrapper.scrollTop;
         e.preventDefault();
     });
-
+    
     document.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
         e.preventDefault();
         
-        var dx = startX - e.pageX;
-        var dy = startY - e.pageY;
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
         
-        matrixContainer.scrollLeft = scrollLeft + dx;
-        matrixContainer.scrollTop = scrollTop + dy;
+        wrapper.scrollLeft = scrollLeft - dx;
+        wrapper.scrollTop = scrollTop - dy;
     });
-
+    
     document.addEventListener('mouseup', function() {
         if (!isDragging) return;
         isDragging = false;
-        matrixContainer.style.cursor = 'grab';
-        matrixContainer.style.userSelect = '';
+        wrapper.style.cursor = 'default';
     });
-
-    matrixContainer.style.cursor = 'grab';
+    
+    // Set default cursor
+    wrapper.style.cursor = 'default';
 }
 
 // Matrix Export Function
