@@ -536,7 +536,18 @@ function updateMatrix() {
     
     // Header row
     html += '<thead><tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">';
-    html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; min-width: 120px; text-align: left; font-size: 0.875rem; font-weight: 600;">Device</th>';
+    html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; min-width: 80px; text-align: center; font-size: 0.875rem; font-weight: 600;">' +
+            '<div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">' +
+            '<div style="display: flex; align-items: center; gap: 6px;">' +
+            '<span style="font-size: 10px; color: #64748b;">FROM</span>' +
+            '<div style="width: 20px; height: 20px; border-radius: 50%; background-color: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">↓</div>' +
+            '</div>' +
+            '<div style="display: flex; align-items: center; gap: 6px;">' +
+            '<span style="font-size: 10px; color: #64748b;">TO</span>' +
+            '<div style="width: 20px; height: 20px; border-radius: 50%; background-color: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">→</div>' +
+            '</div>' +
+            '</div>' +
+            '</th>';
     
     for (var i = 0; i < filtered.length; i++) {
         var device = filtered[i];
@@ -552,7 +563,26 @@ function updateMatrix() {
         var rowBg = r % 2 === 0 ? '#ffffff' : '#f8fafc';
         
         html += '<tr style="background-color: ' + rowBg + '; border-bottom: 1px solid #cbd5e1;">';
-        html += '<td style="padding: 8px; border-right: 1px solid #cbd5e1; font-weight: 600; font-size: 0.875rem;">' + row.name + '</td>';
+        
+        // First column with device name and IPs
+        var deviceIPs = [];
+        if (row.addresses && row.addresses.length > 0) {
+            for (var a = 0; a < row.addresses.length; a++) {
+                if (row.addresses[a].network) deviceIPs.push(row.addresses[a].network);
+                if (row.addresses[a].ip && row.addresses[a].ip !== row.addresses[a].network) {
+                    deviceIPs.push(row.addresses[a].ip);
+                }
+            }
+        }
+        
+        html += '<td style="padding: 6px 8px; border-right: 1px solid #cbd5e1; font-size: 0.75rem;">' +
+                '<div style="font-weight: 700; color: #1e293b; margin-bottom: 2px;">' + row.name + '</div>';
+        
+        if (deviceIPs.length > 0) {
+            html += '<div style="font-size: 10px; color: #64748b; line-height: 1.3;">' + deviceIPs.join('<br>') + '</div>';
+        }
+        
+        html += '</td>';
         
         for (var c = 0; c < filtered.length; c++) {
             var col = filtered[c];
