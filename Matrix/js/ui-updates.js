@@ -504,8 +504,8 @@ function updateMatrix() {
     
     for (var i = 0; i < filtered.length; i++) {
         var device = filtered[i];
-        html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600;">' +
-                '<div title="' + device.name + '" style="word-break: break-word;">' + device.name + '</div></th>';
+        html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' +
+                '<div title="' + device.name + '">' + device.name + '</div></th>';
     }
     
     html += '</tr></thead><tbody>';
