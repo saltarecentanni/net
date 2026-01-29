@@ -1263,8 +1263,10 @@ function exportExcel() {
 // ============================================================================
 // DRAG-TO-SCROLL
 // ============================================================================
-// Global zoom state
+// Matrix zoom and pan state (like Topology)
 var matrixZoomLevel = 1.0;
+var matrixIsDragging = false;
+var matrixDragStart = { x: 0, y: 0, scrollLeft: 0, scrollTop: 0 };
 
 function initDragToScroll() {
     var container = document.getElementById('matrixContainer');
@@ -1273,74 +1275,58 @@ function initDragToScroll() {
     var wrapper = container.querySelector('div');
     if (!wrapper) return;
     
-    var isDragging = false;
-    var startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
-    
     // Set hand cursor
     wrapper.style.cursor = 'grab';
     
-    // Zoom: Ctrl+Wheel
+    // Zoom with mouse wheel (without Ctrl, like Topology)
     wrapper.addEventListener('wheel', function(e) {
-        if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            var delta = e.deltaY < 0 ? 1.05 : 0.95;
-            matrixZoomLevel = Math.max(0.5, Math.min(2.0, matrixZoomLevel * delta));
-            applyMatrixZoom();
+        e.preventDefault();
+        var delta = e.deltaY > 0 ? 1.1 : 0.9;
+        matrixZoomLevel = Math.max(0.3, Math.min(3.0, matrixZoomLevel * delta));
+        
+        var table = wrapper.querySelector('table');
+        if (table) {
+            table.style.transform = 'scale(' + matrixZoomLevel + ')';
+            table.style.transformOrigin = 'top left';
         }
     }, { passive: false });
     
-    // Drag to pan with hand cursor
+    // Drag to pan with hand cursor (like Topology)
     wrapper.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
         if (e.target.closest('td[onclick]')) return;
-        isDragging = true;
+        
+        matrixIsDragging = true;
+        matrixDragStart.x = e.clientX;
+        matrixDragStart.y = e.clientY;
+        matrixDragStart.scrollLeft = wrapper.scrollLeft;
+        matrixDragStart.scrollTop = wrapper.scrollTop;
+        
         wrapper.style.cursor = 'grabbing';
-        startX = e.clientX;
-        startY = e.clientY;
-        scrollLeft = wrapper.scrollLeft;
-        scrollTop = wrapper.scrollTop;
         e.preventDefault();
     });
     
     document.addEventListener('mousemove', function(e) {
-        if (!isDragging) return;
+        if (!matrixIsDragging) return;
         e.preventDefault();
-        wrapper.scrollLeft = scrollLeft - (e.clientX - startX);
-        wrapper.scrollTop = scrollTop - (e.clientY - startY);
+        
+        var wrapper = document.querySelector('#matrixContainer div');
+        if (!wrapper) return;
+        
+        var dx = e.clientX - matrixDragStart.x;
+        var dy = e.clientY - matrixDragStart.y;
+        
+        wrapper.scrollLeft = matrixDragStart.scrollLeft - dx;
+        wrapper.scrollTop = matrixDragStart.scrollTop - dy;
     });
     
     document.addEventListener('mouseup', function() {
-        if (isDragging) {
-            isDragging = false;
+        if (matrixIsDragging) {
+            matrixIsDragging = false;
             var wrapper = document.querySelector('#matrixContainer div');
             if (wrapper) wrapper.style.cursor = 'grab';
         }
     });
-}
-
-function applyMatrixZoom() {
-    var wrapper = document.querySelector('#matrixContainer div');
-    if (!wrapper) return;
-    
-    var table = wrapper.querySelector('table');
-    if (table) {
-        table.style.transform = 'scale(' + matrixZoomLevel + ')';
-        table.style.transformOrigin = 'top left';
-    }
-}
-
-function zoomMatrixIn() {
-    matrixZoomLevel = Math.min(2.0, matrixZoomLevel * 1.1);
-    applyMatrixZoom();
-}
-
-function zoomMatrixOut() {
-    matrixZoomLevel = Math.max(0.5, matrixZoomLevel * 0.9);
-    applyMatrixZoom();
-}
-
-function zoomMatrixReset() {
-    matrixZoomLevel = 1.0;
-    applyMatrixZoom();
 }
 
 // Matrix Export Function
