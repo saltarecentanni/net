@@ -2218,10 +2218,7 @@ function updateUI() {
     updateRackIdDatalist();
     updateDevicesList();
     updateDeviceSelects();
-    updateMatrix();
     updateConnectionsList();
-    // REMOVED: saveToStorage() - was causing login modal to appear on page load
-    // Data should only be saved manually via "Save Now" button or after explicit user actions
     
     // Update global counters in header
     updateGlobalCounters();
@@ -2231,10 +2228,16 @@ function updateUI() {
         LocationFilter.update();
     }
     
-    // Update Matrix location and group filters
+    // Update Matrix location and group filters FIRST (required for updateMatrix to work)
     if (typeof updateMatrixLocationFilter === 'function') {
         updateMatrixLocationFilter();
     }
+    
+    // Update matrix AFTER filters are populated
+    updateMatrix();
+    
+    // REMOVED: saveToStorage() - was causing login modal to appear on page load
+    // Data should only be saved manually via "Save Now" button or after explicit user actions
 }
 
 function updateGlobalCounters() {
@@ -2803,11 +2806,14 @@ function printConnections() {
 // TEST DATA (Demo for Matrix visualization)
 // ============================================================================
 function createTestData() {
-    // Only create test data if appState is empty
-    if (appState.devices.length > 0 || appState.connections.length > 0) {
-        return; // Don't overwrite existing data
-    }
-    
+    // This function is deprecated - test data is already provided by data.php
+    // DO NOT use this function to auto-populate appState
+    // Instead, edit data/network_manager.json directly for test data
+    return;
+}
+
+function _createTestDataLegacy() {
+    // Legacy function - kept for reference only
     // Create test devices
     appState.devices = [
         {
@@ -2924,15 +2930,11 @@ function createTestData() {
 function initApp() {
     serverLoad().then(function(ok) {
         if (!ok) loadFromStorage();
-        // Create test data if empty (for demo/testing purposes)
-        createTestData();
         updateUI();
         // Auto-save disabled to prevent data loss with multiple sessions
         Toast.info('Tiesse Matrix Network loaded');
     }).catch(function() {
         loadFromStorage();
-        // Create test data if empty (for demo/testing purposes)
-        createTestData();
         updateUI();
         // Auto-save disabled to prevent data loss with multiple sessions
     });
