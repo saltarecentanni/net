@@ -457,19 +457,43 @@ function showMatrixTooltip(event, connIdx) {
     var toName = toDevice ? toDevice.name : (conn.externalDest || 'External');
     var typeName = config.connLabels[conn.type] || conn.type;
     var connColor = conn.color || config.connColors[conn.type] || '#6b7280';
+    var cableColor = conn.cableColor || '#666666';
     
-    var html = '<div class="font-bold text-sm mb-2" style="color:' + connColor + '">' + typeName + '</div>';
-    html += '<div class="space-y-1">';
-    html += '<div><span class="text-slate-400">From:</span> ' + fromName + ' <span class="text-blue-300">[' + (conn.fromPort || '-') + ']</span></div>';
-    html += '<div><span class="text-slate-400">To:</span> ' + toName + ' <span class="text-blue-300">[' + (conn.toPort || '-') + ']</span></div>';
-    if (conn.cableMarker) {
-        html += '<div><span class="text-slate-400">Cable:</span> ' + conn.cableMarker + '</div>';
-    }
-    if (conn.notes) {
-        html += '<div class="text-slate-300 italic mt-1 text-[10px]">' + conn.notes + '</div>';
-    }
+    // Build tooltip HTML with colors and detailed information
+    var html = '<div class="font-bold text-sm mb-2 pb-2 border-b border-slate-600" style="color:' + connColor + '">' + typeName + '</div>';
+    html += '<div class="space-y-2">';
+    html += '<div>';
+    html += '<span class="text-slate-400 text-[10px]">FROM</span><br>';
+    html += '<span style="font-weight: 600;">' + fromName + '</span> ';
+    html += '<span class="text-slate-400">[' + (conn.fromPort || '—') + ']</span>';
     html += '</div>';
-    html += '<div class="text-[10px] text-slate-400 mt-2 border-t border-slate-600 pt-1">Click to edit</div>';
+    
+    html += '<div>';
+    html += '<span class="text-slate-400 text-[10px]">TO</span><br>';
+    html += '<span style="font-weight: 600;">' + toName + '</span> ';
+    html += '<span class="text-slate-400">[' + (conn.toPort || '—') + ']</span>';
+    html += '</div>';
+    
+    if (conn.cableMarker || conn.cableColor) {
+        html += '<div style="padding-top: 6px; border-top: 1px solid #475569;">';
+        if (conn.cableMarker) {
+            html += '<div><span class="text-slate-400 text-[10px]">CABLE ID</span><br>' + conn.cableMarker + '</div>';
+        }
+        if (conn.cableColor) {
+            html += '<div style="margin-top: 4px;"><span class="text-slate-400 text-[10px]">COLOR</span><br>' +
+                    '<span style="display: inline-block; width: 16px; height: 16px; border-radius: 3px; margin-right: 4px; border: 1px solid #999; vertical-align: middle; background-color: ' + cableColor + ';"></span>' +
+                    '<span style="vertical-align: middle;">' + conn.cableColor + '</span></div>';
+        }
+        html += '</div>';
+    }
+    
+    if (conn.notes) {
+        html += '<div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #475569; font-size: 10px; color: #cbd5e1; font-style: italic;">' + 
+                conn.notes.substring(0, 60) + (conn.notes.length > 60 ? '...' : '') + '</div>';
+    }
+    
+    html += '</div>';
+    html += '<div class="text-[9px] text-slate-500 mt-2 pt-2 border-t border-slate-600">Click to edit</div>';
     
     tooltip.innerHTML = html;
     tooltip.style.display = 'block';
@@ -499,18 +523,18 @@ function updateMatrix() {
     var cellSize = 80;
     var cellHeight = 60;
     
-    // Build simple matrix HTML
-    var html = '<div style="overflow-x: auto;">';
+    // Build matrix HTML with colors and interactivity
+    var html = '<div style="overflow-x: auto; cursor: grab;">';
     html += '<table class="border-collapse" style="border-spacing: 0; width: 100%; border: 1px solid #cbd5e1;">';
     
     // Header row
     html += '<thead><tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">';
-    html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; min-width: 120px; text-align: left; font-size: 0.875rem;">Device</th>';
+    html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; min-width: 120px; text-align: left; font-size: 0.875rem; font-weight: 600;">Device</th>';
     
     for (var i = 0; i < filtered.length; i++) {
         var device = filtered[i];
         html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; min-width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600;">' +
-                '<div title="' + device.name + '">' + device.name + '</div></th>';
+                '<div title="' + device.name + '" style="word-break: break-word;">' + device.name + '</div></th>';
     }
     
     html += '</tr></thead><tbody>';
@@ -527,6 +551,9 @@ function updateMatrix() {
             var col = filtered[c];
             var cellContent = '';
             var cellBg = rowBg;
+            var cellColor = '#64748b';
+            var tooltipText = '';
+            var cellStyle = 'cursor: default;';
             
             if (row.id === col.id) {
                 cellContent = '—';
@@ -549,13 +576,39 @@ function updateMatrix() {
                     var connType = conn.type || 'unknown';
                     var fromPort = conn.from === row.id ? conn.fromPort : conn.toPort;
                     var toPort = conn.from === row.id ? conn.toPort : conn.fromPort;
-                    cellContent = '<div style="font-size: 0.75rem; font-weight: 600; cursor: pointer;" onclick="editConnection(' + connIdx + ')" title="' + connType + ': ' + fromPort + ' → ' + toPort + '">' +
-                                  (connType.substring(0, 3).toUpperCase()) + '</div>';
+                    var fromDevice = conn.from === row.id ? row.name : col.name;
+                    var toDevice = conn.from === row.id ? col.name : row.name;
+                    
+                    // Get color from config
+                    cellColor = config.connColors[connType] || '#64748b';
+                    
+                    // Build tooltip with port and cable info
+                    tooltipText = fromDevice + ':' + fromPort + ' → ' + toDevice + ':' + toPort;
+                    if (conn.cableMarker) {
+                        tooltipText += ' [Cable: ' + conn.cableMarker + ']';
+                    }
+                    if (conn.cableColor) {
+                        tooltipText += ' [Color: ' + conn.cableColor + ']';
+                    }
+                    
+                    // Create cell with hover tooltip
+                    cellContent = '<div style="font-size: 0.75rem; font-weight: 600; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3);" ' +
+                                  'title="' + tooltipText + '" ' +
+                                  'onmouseenter="showMatrixTooltip(event, ' + connIdx + ')" ' +
+                                  'onmouseleave="hideMatrixTooltip()" ' +
+                                  'onclick="editConnection(' + connIdx + ')" ' +
+                                  'style="cursor: pointer; padding: 4px;">' +
+                                  (config.connLabels[connType] || connType).substring(0, 8) + '</div>';
+                    cellStyle = 'cursor: pointer;';
                 }
             }
             
-            html += '<td style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; cursor: ' + (cellContent ? 'pointer' : 'default') + ';">' +
-                    cellContent + '</td>';
+            html += '<td style="padding: 4px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; ' + cellStyle + '; transition: all 0.2s;">' +
+                    '<div style="width: 100%; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 4px; ' +
+                    (cellContent ? 'background-color: ' + cellColor + '; box-shadow: 0 1px 3px rgba(0,0,0,0.1);' : '') +
+                    '" onmouseenter="this.style.transform=\'scale(1.05)\';" onmouseleave="this.style.transform=\'scale(1)\';" ' +
+                    'style="transition: transform 0.2s;">' +
+                    cellContent + '</div></td>';
         }
         
         html += '</tr>';
@@ -563,6 +616,9 @@ function updateMatrix() {
     
     html += '</tbody></table></div>';
     cont.innerHTML = html;
+    
+    // Reinitialize drag-to-scroll on the container
+    initDragToScroll();
 }
 
 // ============================================================================
@@ -1195,6 +1251,155 @@ function initDragToScroll() {
     });
 
     matrixContainer.style.cursor = 'grab';
+}
+
+// Matrix Export Function
+function exportMatrixPNG() {
+    var cont = document.getElementById('matrixContainer');
+    if (!cont) return;
+    
+    // Get current filters for title
+    var locationSelect = document.getElementById('matrixLocationFilter');
+    var groupSelect = document.getElementById('matrixGroupFilter');
+    var selectedLocation = locationSelect ? locationSelect.value : '';
+    var selectedGroup = groupSelect ? groupSelect.value : '';
+    
+    // Create a canvas from the matrix table
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    
+    // Set canvas dimensions
+    var padding = 20;
+    var titleHeight = 40;
+    var dateHeight = 20;
+    var tableContainer = cont.querySelector('table');
+    
+    if (!tableContainer) {
+        alert('No matrix to export');
+        return;
+    }
+    
+    // Calculate dimensions
+    var tableHeight = tableContainer.offsetHeight;
+    var tableWidth = tableContainer.offsetWidth;
+    var canvasWidth = tableWidth + (padding * 2);
+    var canvasHeight = titleHeight + dateHeight + tableHeight + (padding * 3) + 20;
+    
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    
+    // Set white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    
+    // Draw title
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 18px Arial, sans-serif';
+    var filterInfo = 'Connection Matrix';
+    if (selectedLocation) filterInfo += ' - Location: ' + selectedLocation;
+    if (selectedGroup) filterInfo += ' - Group: ' + selectedGroup;
+    ctx.fillText(filterInfo, padding, padding + 20);
+    
+    // Draw date and time
+    var now = new Date();
+    var dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px Arial, sans-serif';
+    ctx.fillText('Exported: ' + dateStr, padding, padding + 35);
+    
+    // Draw table using html2canvas approach - fallback to simple text
+    // For now, we'll use a simple HTML to image approach using SVG
+    var svg = document.createElement('svg');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('width', tableWidth);
+    svg.setAttribute('height', tableHeight);
+    
+    // Convert table to canvas using serialization
+    var tableSVG = tableToSVG(tableContainer, tableWidth, tableHeight);
+    
+    // Draw the SVG onto canvas
+    var img = new Image();
+    img.onload = function() {
+        ctx.drawImage(img, padding, padding + titleHeight + dateHeight + 20);
+        downloadCanvasPNG(canvas, filterInfo);
+    };
+    
+    // Create SVG image source
+    var svgData = new XMLSerializer().serializeToString(tableSVG);
+    var svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+    var url = URL.createObjectURL(svgBlob);
+    img.src = url;
+}
+
+function tableToSVG(table, width, height) {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+    
+    var y = 0;
+    var rows = table.querySelectorAll('tr');
+    
+    rows.forEach(function(row, rowIdx) {
+        var x = 0;
+        var cells = row.querySelectorAll('td, th');
+        var cellHeight = 30;
+        
+        cells.forEach(function(cell, cellIdx) {
+            var cellWidth = cell.offsetWidth;
+            var bgColor = window.getComputedStyle(cell).backgroundColor || '#ffffff';
+            var textColor = window.getComputedStyle(cell).color || '#000000';
+            
+            // Draw cell border
+            var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', x);
+            rect.setAttribute('y', y);
+            rect.setAttribute('width', cellWidth);
+            rect.setAttribute('height', cellHeight);
+            rect.setAttribute('fill', bgColor);
+            rect.setAttribute('stroke', '#cbd5e1');
+            rect.setAttribute('stroke-width', '1');
+            svg.appendChild(rect);
+            
+            // Draw cell text
+            var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x + 5);
+            text.setAttribute('y', y + 18);
+            text.setAttribute('font-size', '12');
+            text.setAttribute('fill', textColor);
+            text.setAttribute('font-family', 'Arial');
+            var cellText = cell.textContent.trim();
+            if (cellText.length > 15) cellText = cellText.substring(0, 12) + '...';
+            text.textContent = cellText;
+            svg.appendChild(text);
+            
+            x += cellWidth;
+        });
+        
+        y += cellHeight;
+    });
+    
+    return svg;
+}
+
+function downloadCanvasPNG(canvas, title) {
+    // Get current date/time for filename
+    var now = new Date();
+    var filename = 'Matrix_' + 
+                   now.getFullYear() + 
+                   String(now.getMonth() + 1).padStart(2, '0') +
+                   String(now.getDate()).padStart(2, '0') + '_' +
+                   String(now.getHours()).padStart(2, '0') +
+                   String(now.getMinutes()).padStart(2, '0') +
+                   '.png';
+    
+    // Download PNG
+    var link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Matrix Filter Functions (following Topology pattern)

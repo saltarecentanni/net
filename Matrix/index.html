@@ -569,6 +569,9 @@
                         <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                             <option value="">Filter by Group</option>
                         </select>
+                        <button onclick="exportMatrixPNG()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                            Export PNG
+                        </button>
                         <button onclick="printMatrix()" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
                             Print
                         </button>
@@ -578,6 +581,9 @@
                     <div class="flex items-center justify-center h-full text-slate-400">
                         <p>Loading connection matrix...</p>
                     </div>
+                </div>
+                <!-- Tooltip for matrix cells -->
+                <div id="matrixTooltip" class="fixed hidden z-50 bg-slate-800 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs pointer-events-none">
                 </div>
             </div>
 
