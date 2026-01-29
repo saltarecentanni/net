@@ -2800,16 +2800,139 @@ function printConnections() {
 // Changes are NOT saved automatically - always click "Salva Ora" to persist data.
 
 // ============================================================================
+// TEST DATA (Demo for Matrix visualization)
+// ============================================================================
+function createTestData() {
+    // Only create test data if appState is empty
+    if (appState.devices.length > 0 || appState.connections.length > 0) {
+        return; // Don't overwrite existing data
+    }
+    
+    // Create test devices
+    appState.devices = [
+        {
+            id: 1,
+            name: 'Router-1',
+            rackId: 'RACK-A',
+            order: 1,
+            type: 'router',
+            status: 'active',
+            location: 'DC1',
+            brandModel: 'Cisco ASR 1000',
+            ports: [
+                { name: 'Eth0', type: 'GbE', status: 'active' },
+                { name: 'Eth1', type: 'GbE', status: 'active' },
+                { name: 'Eth2', type: 'GbE', status: 'active' }
+            ],
+            addresses: [{ network: '192.168.1.1/24', ip: '', vlan: null }],
+            notes: 'Primary router'
+        },
+        {
+            id: 2,
+            name: 'Switch-1',
+            rackId: 'RACK-A',
+            order: 2,
+            type: 'switch',
+            status: 'active',
+            location: 'DC1',
+            brandModel: 'Cisco Catalyst 3850',
+            ports: [
+                { name: 'Eth0', type: 'GbE', status: 'active' },
+                { name: 'Eth1', type: 'GbE', status: 'active' },
+                { name: 'Eth2', type: 'GbE', status: 'active' }
+            ],
+            addresses: [{ network: '192.168.1.2/24', ip: '', vlan: null }],
+            notes: 'Core switch'
+        },
+        {
+            id: 3,
+            name: 'Firewall-1',
+            rackId: 'RACK-B',
+            order: 1,
+            type: 'firewall',
+            status: 'active',
+            location: 'DC1',
+            brandModel: 'Fortinet FortiGate',
+            ports: [
+                { name: 'Eth0', type: 'GbE', status: 'active' },
+                { name: 'Eth1', type: 'GbE', status: 'active' }
+            ],
+            addresses: [{ network: '10.0.0.1/24', ip: '', vlan: null }],
+            notes: 'Security gateway'
+        },
+        {
+            id: 4,
+            name: 'Server-1',
+            rackId: 'RACK-C',
+            order: 1,
+            type: 'server',
+            status: 'active',
+            location: 'DC1',
+            brandModel: 'Dell PowerEdge R750',
+            ports: [
+                { name: 'Eth0', type: 'GbE', status: 'active' },
+                { name: 'Eth1', type: 'GbE', status: 'active' }
+            ],
+            addresses: [{ network: '192.168.100.10/24', ip: '', vlan: null }],
+            notes: 'Web server'
+        }
+    ];
+    
+    appState.nextDeviceId = 5;
+    
+    // Create test connections
+    appState.connections = [
+        {
+            from: 1,
+            fromPort: 'Eth0',
+            to: 2,
+            toPort: 'Eth0',
+            type: 'lan',
+            status: 'active',
+            cableMarker: 'A',
+            cableColor: '#3b82f6',
+            notes: 'Primary connection'
+        },
+        {
+            from: 2,
+            fromPort: 'Eth1',
+            to: 3,
+            toPort: 'Eth0',
+            type: 'wan',
+            status: 'active',
+            cableMarker: 'B',
+            cableColor: '#ef4444',
+            notes: 'Firewall uplink'
+        },
+        {
+            from: 2,
+            fromPort: 'Eth2',
+            to: 4,
+            toPort: 'Eth0',
+            type: 'dmz',
+            status: 'active',
+            cableMarker: 'C',
+            cableColor: '#f97316',
+            notes: 'Server connection'
+        }
+    ];
+}
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 function initApp() {
     serverLoad().then(function(ok) {
         if (!ok) loadFromStorage();
+        // Create test data if empty (for demo/testing purposes)
+        createTestData();
         updateUI();
         // Auto-save disabled to prevent data loss with multiple sessions
         Toast.info('Tiesse Matrix Network loaded');
     }).catch(function() {
         loadFromStorage();
+        // Create test data if empty (for demo/testing purposes)
+        createTestData();
         updateUI();
         // Auto-save disabled to prevent data loss with multiple sessions
     });
