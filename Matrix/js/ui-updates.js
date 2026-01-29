@@ -1312,79 +1312,80 @@ function initDragToScroll() {
 
 // Matrix Export Function
 function exportMatrixPNG() {
-    var cont = document.getElementById('matrixContainer');
-    if (!cont) return;
-    
+    var shell = document.getElementById('matrixShell');
+    if (!shell) {
+        alert('No matrix to export');
+        return;
+    }
+
     // Get current filters for title
     var locationSelect = document.getElementById('matrixLocationFilter');
     var groupSelect = document.getElementById('matrixGroupFilter');
     var selectedLocation = locationSelect ? locationSelect.value : '';
     var selectedGroup = groupSelect ? groupSelect.value : '';
-    
-    // Create a canvas from the matrix table
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    
-    // Set canvas dimensions
+
+    // Capture current size (viewport) of the matrix shell
+    var rect = shell.getBoundingClientRect();
+    var shellWidth = Math.ceil(rect.width);
+    var shellHeight = Math.ceil(rect.height);
+
+    // Canvas dimensions with padding and title
     var padding = 20;
-    var titleHeight = 40;
-    var dateHeight = 20;
-    var tableContainer = cont.querySelector('table');
-    
-    if (!tableContainer) {
-        alert('No matrix to export');
-        return;
-    }
-    
-    // Calculate dimensions
-    var tableHeight = tableContainer.offsetHeight;
-    var tableWidth = tableContainer.offsetWidth;
-    var canvasWidth = tableWidth + (padding * 2);
-    var canvasHeight = titleHeight + dateHeight + tableHeight + (padding * 3) + 20;
-    
+    var titleHeight = 24;
+    var metaHeight = 16;
+    var canvasWidth = shellWidth + padding * 2;
+    var canvasHeight = shellHeight + padding * 3 + titleHeight + metaHeight;
+
+    var canvas = document.createElement('canvas');
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-    
-    // Set white background
+    var ctx = canvas.getContext('2d');
+
+    // White background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-    
-    // Draw title
+
+    // Title and filters
+    var filterInfo = 'Connection Matrix';
+    if (selectedLocation) filterInfo += ' · Location: ' + selectedLocation;
+    if (selectedGroup) filterInfo += ' · Group: ' + selectedGroup;
     ctx.fillStyle = '#1e293b';
     ctx.font = 'bold 18px Arial, sans-serif';
-    var filterInfo = 'Connection Matrix';
-    if (selectedLocation) filterInfo += ' - Location: ' + selectedLocation;
-    if (selectedGroup) filterInfo += ' - Group: ' + selectedGroup;
-    ctx.fillText(filterInfo, padding, padding + 20);
-    
-    // Draw date and time
+    ctx.fillText(filterInfo, padding, padding + 16);
+
+    // Date/meta
     var now = new Date();
     var dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
     ctx.fillStyle = '#64748b';
     ctx.font = '12px Arial, sans-serif';
-    ctx.fillText('Exported: ' + dateStr, padding, padding + 35);
-    
-    // Draw table using html2canvas approach - fallback to simple text
-    // For now, we'll use a simple HTML to image approach using SVG
-    var svg = document.createElement('svg');
-    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    svg.setAttribute('width', tableWidth);
-    svg.setAttribute('height', tableHeight);
-    
-    // Convert table to canvas using serialization
-    var tableSVG = tableToSVG(tableContainer, tableWidth, tableHeight);
-    
-    // Draw the SVG onto canvas
+    ctx.fillText('Exported: ' + dateStr, padding, padding + 16 + 12 + 4);
+
+    // Clone shell to avoid scroll bars and preserve transforms
+    var clone = shell.cloneNode(true);
+    clone.style.margin = '0';
+    clone.style.border = 'none';
+    clone.style.position = 'static';
+    clone.style.width = shellWidth + 'px';
+    clone.style.height = shellHeight + 'px';
+
+    // Build SVG with foreignObject
+    var serializer = new XMLSerializer();
+    var xhtml = '<div xmlns="http://www.w3.org/1999/xhtml" style="width:' + shellWidth + 'px;height:' + shellHeight + 'px;">' + clone.innerHTML + '</div>';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + shellWidth + '" height="' + shellHeight + '">' +
+              '<foreignObject width="100%" height="100%">' + xhtml + '</foreignObject></svg>';
+    var blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+
     var img = new Image();
     img.onload = function() {
-        ctx.drawImage(img, padding, padding + titleHeight + dateHeight + 20);
+        ctx.drawImage(img, padding, padding + titleHeight + metaHeight + 10);
+        URL.revokeObjectURL(url);
         downloadCanvasPNG(canvas, filterInfo);
     };
-    
-    // Create SVG image source
-    var svgData = new XMLSerializer().serializeToString(tableSVG);
-    var svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
-    var url = URL.createObjectURL(svgBlob);
+    img.onerror = function() {
+        URL.revokeObjectURL(url);
+        alert('Could not export matrix');
+    };
     img.src = url;
 }
 
