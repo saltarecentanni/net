@@ -524,10 +524,10 @@ function updateMatrix() {
         return;
     }
 
-    // Fixed dimensions based on reference image
-    var CELL_WIDTH = 140;
-    var CELL_HEIGHT = 100;
-    var HEADER_COL_WIDTH = 140;
+    // Fixed dimensions - reduced for better overview
+    var CELL_WIDTH = 100;
+    var CELL_HEIGHT = 70;
+    var HEADER_COL_WIDTH = 100;
     
     var html = '<div style="width: 100%; height: 100%; overflow: auto;">';
     html += '<table style="border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Arial, sans-serif;">';
@@ -554,9 +554,13 @@ function updateMatrix() {
             }
         }
         
-        html += '<th style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20;">' +
-                '<div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">' + dev.name + '</div>' +
-                '<div style="font-size: 10px; color: #666; line-height: 1.3;">' + (ips.length > 0 ? ips.slice(0, 2).join('<br>') : '-') + '</div>' +
+        var locationBadge = dev.location ? '<div style="font-size: 8px; color: #f59e0b; font-weight: 600; margin-bottom: 2px;">📍 ' + dev.location + '</div>' : '';
+        var groupBadge = dev.rackId ? '<div style="font-size: 8px; color: #92400e; font-weight: 500; margin-bottom: 3px;">🗄️ ' + dev.rackId + '</div>' : '';
+        
+        html += '<th style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border: 1px solid #ddd; padding: 4px; text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20;">' +
+                locationBadge + groupBadge +
+                '<div style="font-size: 10px; font-weight: 600; color: #333; margin-bottom: 2px; line-height: 1.2;">' + dev.name + '</div>' +
+                '<div style="font-size: 8px; color: #666; line-height: 1.2;">' + (ips.length > 0 ? ips.slice(0, 1).join('<br>') : '-') + '</div>' +
                 '</th>';
     }
     
@@ -580,9 +584,13 @@ function updateMatrix() {
             }
         }
         
-        html += '<th style="width: ' + HEADER_COL_WIDTH + 'px; min-width: ' + HEADER_COL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; position: sticky; left: 0; z-index: 10;">' +
-                '<div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">' + row.name + '</div>' +
-                '<div style="font-size: 10px; color: #666; line-height: 1.3;">' + (rowIPs.length > 0 ? rowIPs.slice(0, 2).join('<br>') : '-') + '</div>' +
+        var rowLocationBadge = row.location ? '<div style="font-size: 8px; color: #f59e0b; font-weight: 600; margin-bottom: 2px;">📍 ' + row.location + '</div>' : '';
+        var rowGroupBadge = row.rackId ? '<div style="font-size: 8px; color: #92400e; font-weight: 500; margin-bottom: 3px;">🗄️ ' + row.rackId + '</div>' : '';
+        
+        html += '<th style="width: ' + HEADER_COL_WIDTH + 'px; min-width: ' + HEADER_COL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border: 1px solid #ddd; padding: 4px; text-align: center; vertical-align: middle; position: sticky; left: 0; z-index: 10;">' +
+                rowLocationBadge + rowGroupBadge +
+                '<div style="font-size: 10px; font-weight: 600; color: #333; margin-bottom: 2px; line-height: 1.2;">' + row.name + '</div>' +
+                '<div style="font-size: 8px; color: #666; line-height: 1.2;">' + (rowIPs.length > 0 ? rowIPs.slice(0, 1).join('<br>') : '-') + '</div>' +
                 '</th>';
         
         // Data cells
@@ -634,18 +642,18 @@ function updateMatrix() {
                             '<div style="display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; height: 100%;">';
                     
                     // Type badge
-                    html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap;">' + 
+                    html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 2px 6px; border-radius: 10px; font-size: 8px; font-weight: 600; white-space: nowrap;">' + 
                             typeName.substring(0, 6).toUpperCase() + 
                             '</span>';
                     
                     // Port badges
                     if (fromPort || toPort) {
-                        html += '<div style="display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; align-items: center;">';
+                        html += '<div style="display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; align-items: center;">';
                         if (fromPort) {
-                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 500; opacity: 0.8;">' + fromPort + '</span>';
+                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 1px 4px; border-radius: 8px; font-size: 7px; font-weight: 500; opacity: 0.8;">' + fromPort + '</span>';
                         }
                         if (toPort && toPort !== fromPort) {
-                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 500; opacity: 0.6;">' + toPort + '</span>';
+                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 1px 4px; border-radius: 8px; font-size: 7px; font-weight: 500; opacity: 0.6;">' + toPort + '</span>';
                         }
                         html += '</div>';
                     }
