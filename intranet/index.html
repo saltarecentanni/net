@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.1.7">
+    <meta name="app-version" content="3.1.9">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -210,9 +210,6 @@
                 <button class="tab-btn" onclick="switchTab('drawio')" id="tab-drawio">
                     🗺️ Topology
                 </button>
-                <button class="tab-btn" onclick="switchTab('rooms')" id="tab-rooms">
-                    🏢 Salas
-                </button>
                 <button class="tab-btn" onclick="switchTab('logs')" id="tab-logs">
                     📜 Logs
                 </button>
@@ -234,50 +231,65 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 xl:grid-cols-12 gap-2 items-end">
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block">📍 Location *</label>
-                            <input type="text" id="deviceLocation" list="locationList" placeholder="Server Room, Logistics"
-                                class="w-full px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm font-semibold">
+                            <input type="text" id="deviceLocation" list="locationList" placeholder="Sala Server, Riparazione, Hardware"
+                                class="w-full px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs">
                             <datalist id="locationList"></datalist>
                         </div>
                         <div class="col-span-1">
-                            <label class="text-xs text-slate-600 mb-1 block">Source *</label>
-                            <input type="text" id="rackId" list="rackIdList" placeholder="Rack1" 
-                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold text-center text-sm">
+                            <!-- rackId nel codice, label visuale 'Group' per rack/uffici/sale/zone -->
+                            <label class="text-xs text-slate-600 mb-1 block">Group *</label>
+                            <input type="text" id="rackId" list="rackIdList" placeholder="Rack1, Standalone" 
+                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-xs">
                             <datalist id="rackIdList"></datalist>
                         </div>
                         <div class="col-span-1">
-                            <label class="text-xs text-slate-600 mb-1 block">Order *</label>
-                            <div class="flex gap-1 items-center">
-                                <input type="number" id="deviceOrder" placeholder="01" min="0" value="1"
-                                    class="w-16 px-2 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 font-bold text-center text-sm">
+                            <label class="text-xs text-slate-600 mb-1 block text-center">Order *</label>
+                            <div class="flex gap-1 items-center justify-center">
+                                <input type="text" id="deviceOrder" placeholder="00" value="00" maxlength="2"
+                                    class="w-10 px-1 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-xs"
+                                    onchange="formatDeviceOrder()" oninput="formatDeviceOrder()">
+                                <div class="flex flex-col gap-0">
+                                    <button type="button" onclick="adjustDeviceOrder(1)" class="px-1.5 py-0 text-[10px] bg-slate-200 hover:bg-slate-300 rounded-t border border-slate-300 leading-none h-3">▲</button>
+                                    <button type="button" onclick="adjustDeviceOrder(-1)" class="px-1.5 py-0 text-[10px] bg-slate-200 hover:bg-slate-300 rounded-b border border-t-0 border-slate-300 leading-none h-3">▼</button>
+                                </div>
                                 <label class="flex items-center gap-1 px-2 py-1.5 bg-amber-50 border border-amber-300 rounded-lg cursor-pointer hover:bg-amber-100" title="Check if device is on back/rear of rack">
-                                    <input type="checkbox" id="deviceRear" class="w-3.5 h-3.5 rounded border-amber-400 text-amber-600">
-                                    <span class="text-xs font-semibold text-amber-700">Rear</span>
+                                    <input type="checkbox" id="deviceRear" class="w-3 h-3 rounded border-amber-400 text-amber-600">
+                                    <span class="text-xs font-semibold text-amber-700">R</span>
                                 </label>
                             </div>
                         </div>
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block">Device Name *</label>
-                            <input type="text" id="deviceName" placeholder="e.g., Router-GW" 
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                            <input type="text" id="deviceName" placeholder="Router-GW, SW-Core" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-xs">
                         </div>
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block">Brand/Model</label>
-                            <input type="text" id="deviceBrandModel" placeholder="e.g., HPE Aruba 2930F" 
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <input type="text" id="deviceBrandModel" placeholder="HPE Aruba 2930F" 
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
                         </div>
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Type</label>
-                            <select id="deviceType" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
-                                <option value="router">Router</option>
-                                <option value="switch">Switch</option>
-                                <option value="patch">Patch Panel</option>
+                            <select id="deviceType" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                <option value="router">📡 Router</option>
+                                <option value="switch">🔀 Switch</option>
+                                <option value="patch">📌 Patch Panel</option>
                                 <option value="walljack">🔌 Wall Jack</option>
-                                <option value="firewall">Firewall</option>
-                                <option value="server">Server</option>
-                                <option value="wifi">WiFi AP</option>
-                                <option value="isp">ISP/Provider</option>
-                                <option value="router_wifi">Router Wifi</option>
-                                <option value="others">Others</option>
+                                <option value="firewall">🛡️ Firewall</option>
+                                <option value="server">🖥️ Server</option>
+                                <option value="wifi">📶 WiFi AP</option>
+                                <option value="isp">🌐 ISP/Provider</option>
+                                <option value="router_wifi">📶 Router WiFi</option>
+                                <option value="modem">📠 Modem</option>
+                                <option value="hub">🔘 Hub</option>
+                                <option value="pc">💻 PC/Desktop</option>
+                                <option value="tablet">📱 Tablet</option>
+                                <option value="ip_phone">📞 IP Phone</option>
+                                <option value="printer">🖨️ Printer</option>
+                                <option value="nas">🗄️ NAS/Storage</option>
+                                <option value="camera">📹 IP Camera</option>
+                                <option value="ups">🔋 UPS</option>
+                                <option value="others">📦 Others</option>
                             </select>
                         </div>
                         <div class="col-span-1">
@@ -292,7 +304,7 @@
                         <div>
                             <label class="text-xs text-slate-600 mb-1 block">Service</label>
                             <input type="text" id="deviceService" placeholder="DHCP, DNS, Gateway" 
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
                         </div>
                         <div class="border border-green-200 rounded-lg p-2 bg-green-50">
                             <div class="flex items-center justify-between mb-1">
@@ -311,7 +323,6 @@
                                     class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded transition-colors">+ Add Port Type</button>
                             </div>
                             <div id="portTypeQuantityContainer" class="space-y-1 max-h-48 overflow-y-auto"></div>
-                            <p class="text-[10px] text-blue-600 mt-1 italic">💡 Grouped by: Copper, Fiber/SFP, WAN, Management, Telecom</p>
                         </div>
                         <div class="border border-purple-200 rounded-lg p-2 bg-purple-50">
                             <div class="flex items-center justify-between mb-1">
@@ -322,27 +333,24 @@
                             <div id="deviceLinksContainer" class="space-y-1 max-h-32 overflow-y-auto"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-2">
-                        <div class="col-span-2">
+                    <div class="flex flex-wrap gap-2 mt-2 items-end">
+                        <div class="flex-1 min-w-[200px]">
                             <label class="text-xs text-slate-600 mb-1 block">Notes</label>
-                            <textarea id="deviceNotes" placeholder="Notes (optional)" rows="1"
-                                oninput="autoResizeTextarea(this)"
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
+                            <input type="text" id="deviceNotes" placeholder="Notes (optional)"
+                                class="w-full px-3 py-1 border border-slate-300 rounded-lg text-sm">
                         </div>
-                        <div class="col-span-2 flex gap-2 items-end">
-                            <button onclick="saveDevice()" 
-                                class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" id="saveDeviceButton">
-                                Add Device
-                            </button>
-                            <button onclick="cancelDeviceEdit()" id="cancelDeviceButton"
-                                class="hidden bg-orange-400 hover:bg-orange-500 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
-                                Cancel
-                            </button>
-                            <button onclick="clearDeviceForm()" 
-                                class="bg-slate-400 hover:bg-slate-500 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
-                                Clear
-                            </button>
-                        </div>
+                        <button onclick="saveDevice()" 
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-4 rounded-lg text-sm" id="saveDeviceButton">
+                            + Add
+                        </button>
+                        <button onclick="cancelDeviceEdit()" id="cancelDeviceButton"
+                            class="hidden bg-orange-400 hover:bg-orange-500 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                            Cancel
+                        </button>
+                        <button onclick="clearDeviceForm()" 
+                            class="bg-slate-400 hover:bg-slate-500 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                            Clear
+                        </button>
                     </div>
                 </div>
 
@@ -377,39 +385,39 @@
                     <h2 class="text-lg font-bold text-slate-800 mb-3" id="connectionFormTitle">Add Connection</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 items-end">
                         <div class="col-span-2">
-                            <label class="text-xs text-slate-600 mb-1 block">Source Device</label>
+                            <label class="text-xs text-slate-600 mb-1 block">Source Device *</label>
                             <select id="fromDevice" onchange="updateFromPorts()" 
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 text-xs">
                                 <option value="">Select source</option>
                             </select>
                         </div>
                         <div class="col-span-1">
-                            <label class="text-xs text-slate-600 mb-1 block">Source Port</label>
-                            <select id="fromPort" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <label class="text-xs text-slate-600 mb-1 block">Source Port *</label>
+                            <select id="fromPort" class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 text-xs">
                                 <option value="">Port</option>
                             </select>
                         </div>
                         <div class="col-span-2">
-                            <label class="text-xs text-slate-600 mb-1 block">Destination Device</label>
+                            <label class="text-xs text-slate-600 mb-1 block">Destination Device *</label>
                             <select id="toDevice" onchange="updateToPorts(); toggleExternalDest()" 
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                class="w-full px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs">
                                 <option value="">Select destination</option>
                             </select>
                         </div>
                         <div class="col-span-1" id="toPortContainer">
-                            <label class="text-xs text-slate-600 mb-1 block">Dest Port</label>
-                            <select id="toPort" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <label class="text-xs text-slate-600 mb-1 block">Dest Port *</label>
+                            <select id="toPort" class="w-full px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs">
                                 <option value="">Port</option>
                             </select>
                         </div>
                         <div class="col-span-3 hidden" id="externalDestContainer">
                             <label class="text-xs text-slate-600 mb-1 block">External Destination</label>
-                            <input type="text" id="externalDest" placeholder="e.g. Fiber Optic TIM, Internet WAN, ISP Link"
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <input type="text" id="externalDest" placeholder="Fiber TIM, Internet WAN"
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
                         </div>
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Type</label>
-                            <select id="connType" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <select id="connType" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
                                 <option value="lan">LAN</option>
                                 <option value="wan">WAN/Internet</option>
                                 <option value="dmz">DMZ</option>
@@ -424,7 +432,7 @@
                         </div>
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Status</label>
-                            <select id="connStatus" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <select id="connStatus" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
                                 <option value="active">Active</option>
                                 <option value="disabled">Disabled</option>
                             </select>
@@ -432,11 +440,11 @@
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Cable ID</label>
                             <input type="text" id="cableMarker" maxlength="5" placeholder="1, A"
-                                class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                                class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
                         </div>
                         <div class="col-span-1">
                             <label class="text-xs text-slate-600 mb-1 block">Color</label>
-                            <select id="cableColor" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <select id="cableColor" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
                                 <option value="">None</option>
                                 <option value="#000000">Black</option>
                                 <option value="#ffffff">White</option>
@@ -450,25 +458,23 @@
                                 <option value="#6b7280">Gray</option>
                             </select>
                         </div>
-                        <div class="col-span-2 flex gap-2">
-                            <input type="hidden" id="connEditIndex" value="">
-                            <button onclick="saveConnection()" 
-                                class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" id="saveConnectionButton">
-                                Add Connection
-                            </button>
-                            <button onclick="cancelConnectionEdit()" id="cancelConnectionButton"
-                                class="hidden bg-slate-400 hover:bg-slate-500 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
-                                Cancel
-                            </button>
-                        </div>
                     </div>
-                    <div class="mt-2">
+                    <div class="mt-2 flex gap-2 items-end">
                         <textarea id="connNotes" placeholder="Notes (optional)" rows="1"
                             oninput="autoResizeTextarea(this)"
-                            class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm"></textarea>
+                            class="flex-1 px-3 py-1.5 border border-slate-300 rounded-lg text-xs"></textarea>
+                        <input type="hidden" id="connEditIndex" value="">
+                        <button onclick="saveConnection()" 
+                            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1.5 px-4 rounded-lg text-xs whitespace-nowrap" id="saveConnectionButton">
+                            Add Connection
+                        </button>
+                        <button onclick="cancelConnectionEdit()" id="cancelConnectionButton"
+                            class="hidden bg-slate-400 hover:bg-slate-500 text-white font-semibold py-1.5 px-3 rounded-lg text-xs">
+                            Cancel
+                        </button>
                     </div>
                     <!-- Legend for dropdown format -->
-                    <p class="text-xs text-slate-400 mt-1">ℹ️ Format: [SOURCE][POS] Device — <span class="text-red-500 font-bold">*</span> disabled — <span class="text-amber-600 text-[10px] font-semibold">(R)</span> rear</p>
+                    <p class="text-xs text-slate-400 mt-1">ℹ️ Format: [GROUP][POS] Device — <span class="text-red-500 font-bold">*</span> disabled — <span class="text-amber-600 text-[10px] font-semibold">(R)</span> rear</p>
                 </div>
 
                 <!-- Connections List -->
@@ -623,9 +629,9 @@
                             <div class="flex items-start gap-3">
                                 <span class="bg-slate-200 text-slate-700 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">b</span>
                                 <div>
-                                    <p class="font-semibold text-slate-700">Compila Location e Source</p>
+                                    <p class="font-semibold text-slate-700">Compila Location e Group</p>
                                     <p class="text-slate-600 text-sm"><strong>Location/Department:</strong> La sede o reparto (es. <code class="bg-amber-100 px-1 rounded">Sede Principale</code>, <code class="bg-amber-100 px-1 rounded">Ufficio Milano</code>). Usa il filtro Location nella barra per visualizzare solo dispositivi di una sede.</p>
-                                    <p class="text-slate-600 text-sm mt-1"><strong>Source:</strong> L'identificatore del rack/posizione (es. <code class="bg-amber-100 px-1 rounded">Rack-01</code>, <code class="bg-amber-100 px-1 rounded">Server-Room-A</code>). I dispositivi con lo stesso Source saranno raggruppati insieme.</p>
+                                    <p class="text-slate-600 text-sm mt-1"><strong>Group:</strong> L'identificatore del raggruppamento (es. <code class="bg-amber-100 px-1 rounded">Rack-01</code>, <code class="bg-amber-100 px-1 rounded">Ufficio-12</code>, <code class="bg-amber-100 px-1 rounded">Sala-14</code>). I dispositivi con lo stesso Group saranno raggruppati insieme.</p>
                                 </div>
                             </div>
 
@@ -844,7 +850,7 @@
                                 <h3 class="font-bold text-orange-900 mb-2">🎛️ Controlli disponibili:</h3>
                                 <div class="grid md:grid-cols-2 gap-3 text-sm">
                                     <div><strong>📍 Filtro Location:</strong> Mostra solo dispositivi di una sede</div>
-                                    <div><strong>📦 Filtro Source:</strong> Mostra solo dispositivi di un rack</div>
+                                    <div><strong>📦 Filtro Group:</strong> Mostra solo dispositivi di un raggruppamento</div>
                                     <div><strong>🔄 Layout:</strong> Auto, Circle, Grid, Hierarchical</div>
                                     <div><strong>⊞ Fit View:</strong> Centra e adatta la vista</div>
                                     <div><strong>📋 Legend:</strong> Mostra legenda con conteggi dispositivi</div>
@@ -976,7 +982,7 @@
                                 <span class="text-2xl">🖨️</span>
                                 <div>
                                     <p class="font-semibold text-slate-700">Stampa</p>
-                                    <p class="text-slate-600 text-sm">Usa i pulsanti <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print</span> nelle schede Matrix o Active Connections per stampare la documentazione. Puoi stampare solo la Location/Source filtrata.</p>
+                                    <p class="text-slate-600 text-sm">Usa i pulsanti <span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print</span> nelle schede Matrix o Active Connections per stampare la documentazione. Puoi stampare solo la Location/Group filtrata.</p>
                                 </div>
                             </div>
 
@@ -1116,7 +1122,7 @@
                     <!-- Footer -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.1.7</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.1.9</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -1134,7 +1140,7 @@
                             <option value="">All Locations</option>
                         </select>
                         <select id="topologyRackFilter" onchange="filterTopologyByRack()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
-                            <option value="">All Sources</option>
+                            <option value="">All Groups</option>
                         </select>
                         <select id="drawioLayout" onchange="updateDrawioLayout()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                             <option value="auto">Auto Layout</option>
@@ -1164,236 +1170,6 @@
 
                 <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p class="text-sm text-blue-800"><strong>💡 Tip:</strong> Drag devices to reposition. Use "Export .drawio" to open in <a href="https://app.diagrams.net" target="_blank" class="text-blue-600 hover:underline font-semibold">diagrams.net</a> for advanced editing.</p>
-                </div>
-            </div>
-
-            <!-- Tab: Mappa Salas -->
-            <div id="content-rooms" class="tab-content">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-800">🏢 Mappa delle Salas</h2>
-                        <p class="text-xs text-slate-500">Planimetria fisica degli uffici con punti WallJack</p>
-                    </div>
-                    <select id="roomsViewMode" onchange="toggleRoomsView()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
-                        <option value="map">Vista Mappa</option>
-                        <option value="list">Lista Salas</option>
-                    </select>
-                </div>
-
-                <!-- Vista Mappa -->
-                <div id="roomsMapView" class="border border-slate-300 rounded-xl bg-white overflow-hidden" style="height: 650px; position: relative;">
-                    <!-- Controles -->
-                    <div id="mapControls" class="absolute top-3 left-3 z-50 flex gap-2 bg-white/95 p-3 rounded-lg border border-slate-300 shadow-lg">
-                        <button id="zoomInBtn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold text-sm transition">🔍+</button>
-                        <button id="zoomOutBtn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold text-sm transition">🔍-</button>
-                        <button id="zoomResetBtn" class="px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white rounded-md font-semibold text-sm transition">⟲ Reset</button>
-                        <span id="zoomLevel" class="px-3 py-1.5 text-sm font-semibold text-slate-700">100%</span>
-                    </div>
-
-                    <!-- Painel lateral -->
-                    <div id="roomDetailsPanel" class="absolute bottom-0 left-0 w-80 bg-white/98 border-t border-r border-slate-300 shadow-lg max-h-96 overflow-y-auto rounded-tr-lg" style="display: none;">
-                        <div class="p-4">
-                            <div class="flex justify-between items-center mb-3">
-                                <h3 id="roomTitle" class="font-bold text-lg text-blue-600">Sala #</h3>
-                                <button id="closePanelBtn" class="text-slate-500 hover:text-slate-700 font-bold text-xl">×</button>
-                            </div>
-                            <div class="space-y-2 text-sm">
-                                <div><strong>ID:</strong> <span id="roomId">-</span></div>
-                                <div><strong>Nome:</strong> <span id="roomName">-</span></div>
-                                <div><strong>Tipo:</strong> <span id="roomType">-</span></div>
-                                <div><strong>Descrizione:</strong> <span id="roomDesc">-</span></div>
-                                <div><strong>Dimensioni:</strong> <span id="roomDim">-</span></div>
-                                <div><strong>Posizione:</strong> <span id="roomPos">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SVG Container -->
-                    <div id="roomMapContainer" style="width: 100%; height: 100%; overflow: hidden; background: #f8f9fa; position: relative;">
-                        <svg id="networkPlanSVG" viewBox="0 0 1434 800" style="width: 100%; height: 100%; background: white; display: block;">
-                            <defs>
-                                <!-- Padrão para escadas (linhas magenta horizontais) -->
-                                <pattern id="stairPattern" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-                                    <line x1="0" y1="4" x2="8" y2="4" stroke="#FF00FF" stroke-width="1.5"/>
-                                </pattern>
-                            </defs>
-                            
-                            <!-- Background -->
-                            <rect x="0" y="0" width="1434" height="800" fill="#FFFFFF"/>
-                            
-                            <!-- Bordas -->
-                            <line x1="0" y1="15" x2="1434" y2="15" stroke="#C41E3A" stroke-width="2"/>
-                            <line x1="0" y1="785" x2="1434" y2="785" stroke="#008000" stroke-width="2"/>
-                            <line x1="15" y1="0" x2="15" y2="800" stroke="#C41E3A" stroke-width="2"/>
-                            <line x1="1419" y1="0" x2="1419" y2="800" stroke="#008000" stroke-width="2"/>
-                            
-                            <!-- Grid vertical (alternando verde/amarelo) -->
-                            <g id="grid">
-                                <line x1="130" y1="15" x2="130" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="165" y1="15" x2="165" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="230" y1="15" x2="230" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="265" y1="15" x2="265" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="330" y1="15" x2="330" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="365" y1="15" x2="365" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="430" y1="15" x2="430" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="465" y1="15" x2="465" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="530" y1="15" x2="530" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="565" y1="15" x2="565" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="630" y1="15" x2="630" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="665" y1="15" x2="665" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="730" y1="15" x2="730" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="765" y1="15" x2="765" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="830" y1="15" x2="830" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="865" y1="15" x2="865" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="930" y1="15" x2="930" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="965" y1="15" x2="965" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1030" y1="15" x2="1030" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1065" y1="15" x2="1065" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1130" y1="15" x2="1130" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1165" y1="15" x2="1165" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1230" y1="15" x2="1230" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1265" y1="15" x2="1265" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1330" y1="15" x2="1330" y2="785" stroke="#00AA00" stroke-width="1" opacity="0.6"/>
-                                <line x1="1365" y1="15" x2="1365" y2="785" stroke="#FFFF00" stroke-width="1" opacity="0.6"/>
-                            </g>
-                            
-                            <!-- Paredes das Salas -->
-                            <g id="rooms" stroke="#0000FF" stroke-width="3" fill="none">
-                                <rect class="room" data-room="0" x="210" y="155" width="155" height="130"/>
-                                <rect class="room" data-room="1" x="25" y="550" width="135" height="215"/>
-                                <rect class="room room-stair" data-room="2" x="160" y="430" width="70" height="105" fill="url(#stairPattern)" stroke="#00AA00"/>
-                                <rect class="room" data-room="3" x="25" y="130" width="80" height="130"/>
-                                <rect class="room" data-room="4" x="110" y="85" width="75" height="180"/>
-                                <rect class="room" data-room="5" x="193" y="85" width="60" height="150"/>
-                                <rect class="room" data-room="6" x="261" y="85" width="78" height="145"/>
-                                <rect class="room" data-room="7" x="347" y="85" width="75" height="150"/>
-                                <rect class="room" data-room="8" x="440" y="85" width="250" height="130"/>
-                                <rect class="room" data-room="9" x="930" y="200" width="140" height="165"/>
-                                <rect class="room" data-room="10" x="1080" y="30" width="135" height="85"/>
-                                <rect class="room" data-room="11" x="1080" y="123" width="135" height="85"/>
-                                <rect class="room" data-room="12" x="1080" y="216" width="135" height="85"/>
-                                <rect class="room" data-room="13" x="930" y="450" width="285" height="315"/>
-                                <rect class="room" data-room="14" x="710" y="450" width="118" height="315"/>
-                                <rect class="room" data-room="15" x="525" y="415" width="185" height="350"/>
-                                <rect class="room" data-room="16" x="440" y="250" width="285" height="165"/>
-                                <rect class="room" data-room="17" x="370" y="550" width="95" height="215"/>
-                                <rect class="room" data-room="18" x="280" y="550" width="88" height="215"/>
-                                <rect class="room" data-room="19" x="161" y="285" width="70" height="75"/>
-                            </g>
-                            
-                            <!-- Escadas -->
-                            <g id="stairs">
-                                <rect x="165" y="435" width="60" height="95" fill="url(#stairPattern)" stroke="#00AA00" stroke-width="2"/>
-                                <rect x="680" y="85" width="80" height="110" fill="url(#stairPattern)" stroke="#FF00FF" stroke-width="2"/>
-                            </g>
-                            
-                            <!-- Paredes principais (linhas de conexão) -->
-                            <g id="walls" stroke="#0000FF" stroke-width="3" fill="none">
-                                <path d="M 25,280 L 25,130 L 110,130 L 110,85 L 193,85 L 193,115 L 210,115 L 210,85 L 261,85 L 261,115 L 347,115 L 347,85 L 422,85" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M 110,265 L 110,280 L 25,280" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M 160,360 L 160,430" stroke-linecap="round"/>
-                                <path d="M 230,360 L 280,360 L 280,550" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M 370,415 L 440,415" stroke-linecap="round"/>
-                                <path d="M 440,285 L 440,250" stroke-linecap="round"/>
-                                <path d="M 525,360 L 710,360" stroke-linecap="round"/>
-                                <path d="M 690,215 L 930,215" stroke-linecap="round"/>
-                                <path d="M 930,280 L 930,200" stroke-linecap="round"/>
-                                <path d="M 1070,200 L 1080,200" stroke-linecap="round"/>
-                                <path d="M 1215,30 L 1215,450" stroke-linecap="round"/>
-                            </g>
-                            
-                            <!-- Marcadores magenta -->
-                            <g id="markers" fill="#FF00FF">
-                                <rect x="21" y="26" width="8" height="8"/>
-                                <rect x="106" y="26" width="8" height="8"/>
-                                <rect x="276" y="26" width="8" height="8"/>
-                                <rect x="418" y="26" width="8" height="8"/>
-                                <rect x="686" y="26" width="8" height="8"/>
-                                <rect x="926" y="26" width="8" height="8"/>
-                                <rect x="1211" y="26" width="8" height="8"/>
-                                <rect x="21" y="446" width="8" height="8"/>
-                                <rect x="276" y="446" width="8" height="8"/>
-                                <rect x="521" y="446" width="8" height="8"/>
-                                <rect x="706" y="446" width="8" height="8"/>
-                                <rect x="926" y="446" width="8" height="8"/>
-                                <rect x="1211" y="446" width="8" height="8"/>
-                                <rect x="21" y="761" width="8" height="8"/>
-                                <rect x="276" y="761" width="8" height="8"/>
-                                <rect x="418" y="761" width="8" height="8"/>
-                                <rect x="706" y="761" width="8" height="8"/>
-                                <rect x="926" y="761" width="8" height="8"/>
-                                <rect x="1211" y="761" width="8" height="8"/>
-                            </g>
-                            
-                            <!-- Números das Salas -->
-                            <g id="numbers" font-family="Arial,sans-serif" font-weight="bold" font-size="38" fill="#0000FF" text-anchor="middle" dominant-baseline="middle">
-                                <text data-room="0" x="287" y="220">0</text>
-                                <text data-room="1" x="92" y="657">1</text>
-                                <text data-room="2" x="195" y="482">2</text>
-                                <text data-room="3" x="65" y="195">3</text>
-                                <text data-room="4" x="147" y="175">4</text>
-                                <text data-room="5" x="223" y="160">5</text>
-                                <text data-room="6" x="300" y="157">6</text>
-                                <text data-room="7" x="384" y="160">7</text>
-                                <text data-room="8" x="565" y="150">8</text>
-                                <text data-room="9" x="1000" y="282">9</text>
-                                <text data-room="10" x="1147" y="72">10</text>
-                                <text data-room="11" x="1147" y="165">11</text>
-                                <text data-room="12" x="1147" y="258">12</text>
-                                <text data-room="13" x="1072" y="607">13</text>
-                                <text data-room="14" x="769" y="607">14</text>
-                                <text data-room="15" x="617" y="590">15</text>
-                                <text data-room="16" x="582" y="332">16</text>
-                                <text data-room="17" x="417" y="657">17</text>
-                                <text data-room="18" x="324" y="657">18</text>
-                                <text data-room="19" x="196" y="322">19</text>
-                            </g>
-                            
-                            <!-- Overlay interativo (preparado para futuro) -->
-                            <g id="interactive" opacity="0">
-                                <rect class="clickable" data-room="0" x="210" y="155" width="155" height="130" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="1" x="25" y="550" width="135" height="215" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="2" x="160" y="430" width="70" height="105" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="3" x="25" y="130" width="80" height="130" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="4" x="110" y="85" width="75" height="180" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="5" x="193" y="85" width="60" height="150" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="6" x="261" y="85" width="78" height="145" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="7" x="347" y="85" width="75" height="150" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="8" x="440" y="85" width="250" height="130" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="9" x="930" y="200" width="140" height="165" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="10" x="1080" y="30" width="135" height="85" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="11" x="1080" y="123" width="135" height="85" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="12" x="1080" y="216" width="135" height="85" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="13" x="930" y="450" width="285" height="315" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="14" x="710" y="450" width="118" height="315" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="15" x="525" y="415" width="185" height="350" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="16" x="440" y="250" width="285" height="165" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="17" x="370" y="550" width="95" height="215" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="18" x="280" y="550" width="88" height="215" fill="blue" opacity="0.1" cursor="pointer"/>
-                                <rect class="clickable" data-room="19" x="161" y="285" width="70" height="75" fill="blue" opacity="0.1" cursor="pointer"/>
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-
-                <!-- Vista Lista Salas -->
-                <div id="roomsListView" class="border border-slate-300 rounded-xl bg-white overflow-hidden" style="display: none;">
-                    <div class="p-4">
-                        <input type="text" id="roomSearchInput" placeholder="🔍 Cerca sala o WallJack..." 
-                               onkeyup="filterRoomsList()" 
-                               class="w-full px-4 py-2 border border-slate-300 rounded-lg mb-4">
-                        
-                        <div id="roomsListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Lista dinamica delle salas con WallJacks -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p class="text-sm text-amber-800">
-                        <strong>💡 Tip:</strong> Clicca su una sala nella mappa per vedere i dettagli dei punti WallJack. 
-                        Usa la vista Lista per cercare velocemente una sala specifica.
-                    </p>
                 </div>
             </div>
 
@@ -1519,271 +1295,6 @@
                 }
             };
         })();
-    </script>
-
-    <!-- Rooms Management Functions -->
-    <script>
-        // Toggle between map and list view
-        function toggleRoomsView() {
-            const mode = document.getElementById('roomsViewMode').value;
-            const mapView = document.getElementById('roomsMapView');
-            const listView = document.getElementById('roomsListView');
-            
-            if (mode === 'map') {
-                mapView.style.display = 'block';
-                listView.style.display = 'none';
-            } else {
-                mapView.style.display = 'none';
-                listView.style.display = 'block';
-                updateRoomsList();
-            }
-        }
-
-        // Update rooms list with WallJack info
-        function updateRoomsList() {
-            const container = document.getElementById('roomsListContainer');
-            if (!container) return;
-
-            // Get all WallJack devices
-            const walljacks = appState.devices.filter(d => d.type === 'WallJack');
-            
-            // Group by location (room)
-            const roomsMap = {};
-            walljacks.forEach(wj => {
-                const room = wj.location || 'Sala Sconosciuta';
-                if (!roomsMap[room]) {
-                    roomsMap[room] = [];
-                }
-                roomsMap[room].push(wj);
-            });
-
-            // Generate HTML
-            const rooms = Object.keys(roomsMap).sort();
-            container.innerHTML = rooms.map(room => {
-                const wjs = roomsMap[room];
-                const connectedCount = wjs.filter(w => {
-                    return appState.connections.some(c => 
-                        c.sourceDevice === w.name || c.destinationDevice === w.name
-                    );
-                }).length;
-
-                return `
-                    <div class="border border-slate-300 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <h3 class="font-bold text-slate-800 mb-2 flex items-center justify-between">
-                            <span>📍 ${room}</span>
-                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${wjs.length} WJ</span>
-                        </h3>
-                        <div class="space-y-1 text-sm">
-                            <p class="text-slate-600">
-                                <span class="font-semibold">Punti:</span> ${wjs.map(w => w.name).join(', ')}
-                            </p>
-                            <p class="text-slate-600">
-                                <span class="font-semibold">Connessi:</span> 
-                                <span class="${connectedCount > 0 ? 'text-green-600' : 'text-amber-600'}">${connectedCount}/${wjs.length}</span>
-                            </p>
-                            ${wjs.length > 0 ? `
-                                <div class="mt-2 pt-2 border-t border-slate-200">
-                                    ${wjs.slice(0, 5).map(w => {
-                                        const conn = appState.connections.find(c => 
-                                            c.sourceDevice === w.name || c.destinationDevice === w.name
-                                        );
-                                        const status = conn ? '🟢' : '⚪';
-                                        return `<div class="text-xs text-slate-500">${status} ${w.name}${w.portName ? ` (${w.portName})` : ''}</div>`;
-                                    }).join('')}
-                                    ${wjs.length > 5 ? `<div class="text-xs text-slate-400 mt-1">... e altri ${wjs.length - 5}</div>` : ''}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            if (rooms.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full text-center py-8 text-slate-400">
-                        <p>📭 Nessun WallJack configurato</p>
-                        <p class="text-sm mt-2">Aggiungi dispositivi di tipo WallJack per popolare la mappa delle salas</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Filter rooms list
-        function filterRoomsList() {
-            const searchTerm = document.getElementById('roomSearchInput').value.toLowerCase();
-            const rooms = document.querySelectorAll('#roomsListContainer > div');
-            
-            rooms.forEach(room => {
-                const text = room.textContent.toLowerCase();
-                room.style.display = text.includes(searchTerm) ? 'block' : 'none';
-            });
-        }
-
-        // Update rooms list when switching to the tab
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.id === 'tab-rooms') {
-                    const mode = document.getElementById('roomsViewMode').value;
-                    if (mode === 'list') {
-                        updateRoomsList();
-                    } else {
-                        // Initialize SVG interactions when tab is opened
-                        setTimeout(initNetworkMapPlan, 100);
-                    }
-                }
-            });
-        });
-        
-        // Initialize SVG Network Plan on load
-        document.addEventListener('DOMContentLoaded', () => {
-            initNetworkMapPlan();
-        });
-    </script>
-    
-    <!-- SVG Network Plan Interactive Functions - COMPLETA -->
-    <script>
-        // Dati das 20 salas (do JSON)
-        const roomsData = [
-            {id: 0, name: "Sala 0", type: "regular", x: 210, y: 155, width: 155, height: 130, desc: ""},
-            {id: 1, name: "Sala 1", type: "regular", x: 25, y: 550, width: 135, height: 215, desc: ""},
-            {id: 2, name: "Sala 2", type: "stairwell", x: 160, y: 430, width: 70, height: 105, desc: "Stairwell"},
-            {id: 3, name: "Sala 3", type: "regular", x: 25, y: 130, width: 80, height: 130, desc: ""},
-            {id: 4, name: "Sala 4", type: "regular", x: 110, y: 85, width: 75, height: 180, desc: ""},
-            {id: 5, name: "Sala 5", type: "regular", x: 193, y: 85, width: 60, height: 150, desc: ""},
-            {id: 6, name: "Sala 6", type: "regular", x: 261, y: 85, width: 78, height: 145, desc: ""},
-            {id: 7, name: "Sala 7", type: "regular", x: 347, y: 85, width: 75, height: 150, desc: ""},
-            {id: 8, name: "Sala 8", type: "regular", x: 440, y: 85, width: 250, height: 130, desc: ""},
-            {id: 9, name: "Sala 9", type: "regular", x: 930, y: 200, width: 140, height: 165, desc: ""},
-            {id: 10, name: "Sala 10", type: "regular", x: 1080, y: 30, width: 135, height: 85, desc: ""},
-            {id: 11, name: "Sala 11", type: "regular", x: 1080, y: 123, width: 135, height: 85, desc: ""},
-            {id: 12, name: "Sala 12", type: "regular", x: 1080, y: 216, width: 135, height: 85, desc: ""},
-            {id: 13, name: "Sala 13", type: "regular", x: 930, y: 450, width: 285, height: 315, desc: ""},
-            {id: 14, name: "Sala 14", type: "regular", x: 710, y: 450, width: 118, height: 315, desc: ""},
-            {id: 15, name: "Sala 15", type: "regular", x: 525, y: 415, width: 185, height: 350, desc: ""},
-            {id: 16, name: "Sala 16", type: "regular", x: 440, y: 250, width: 285, height: 165, desc: ""},
-            {id: 17, name: "Sala 17", type: "regular", x: 370, y: 550, width: 95, height: 215, desc: ""},
-            {id: 18, name: "Sala 18", type: "regular", x: 280, y: 550, width: 88, height: 215, desc: ""},
-            {id: 19, name: "Sala 19", type: "stairwell", x: 161, y: 285, width: 70, height: 75, desc: "Stairwell"}
-        ];
-
-        let mapState = {
-            zoom: 1,
-            panX: 0,
-            panY: 0,
-            selectedRoomId: null
-        };
-
-        function initNetworkMapPlan() {
-            const svg = document.getElementById('networkPlanSVG');
-            const container = document.getElementById('roomMapContainer');
-            if (!svg || !container) return;
-
-            // Eventos de zoom
-            document.getElementById('zoomInBtn').addEventListener('click', () => updateZoom(1.2));
-            document.getElementById('zoomOutBtn').addEventListener('click', () => updateZoom(0.8));
-            document.getElementById('zoomResetBtn').addEventListener('click', resetView);
-
-            // Mouse wheel zoom
-            container.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                updateZoom(e.deltaY > 0 ? 0.9 : 1.1);
-            }, { passive: false });
-
-            // Click nas salas
-            const clickableRects = svg.querySelectorAll('#interactive .clickable');
-            clickableRects.forEach(rect => {
-                rect.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const roomId = parseInt(rect.getAttribute('data-room'));
-                    selectRoom(roomId);
-                });
-
-                rect.addEventListener('mouseenter', () => {
-                    const roomId = parseInt(rect.getAttribute('data-room'));
-                    const roomRect = svg.querySelector(`.room[data-room="${roomId}"]`);
-                    if (roomRect) {
-                        roomRect.style.opacity = '0.7';
-                        roomRect.style.filter = 'drop-shadow(0 0 5px rgba(0,0,255,0.5))';
-                    }
-                });
-
-                rect.addEventListener('mouseleave', () => {
-                    const roomId = parseInt(rect.getAttribute('data-room'));
-                    const roomRect = svg.querySelector(`.room[data-room="${roomId}"]`);
-                    if (roomRect && mapState.selectedRoomId !== roomId) {
-                        roomRect.style.opacity = '1';
-                        roomRect.style.filter = 'none';
-                    }
-                });
-            });
-
-            // Fechar painel
-            document.getElementById('closePanelBtn').addEventListener('click', () => {
-                mapState.selectedRoomId = null;
-                document.getElementById('roomDetailsPanel').style.display = 'none';
-                svg.querySelectorAll(`.room[data-room]`).forEach(room => {
-                    room.style.opacity = '1';
-                    room.style.filter = 'none';
-                });
-            });
-        }
-
-        function updateZoom(factor) {
-            mapState.zoom = Math.max(0.5, Math.min(3, mapState.zoom * factor));
-            applyTransform();
-        }
-
-        function resetView() {
-            mapState.zoom = 1;
-            mapState.panX = 0;
-            mapState.panY = 0;
-            mapState.selectedRoomId = null;
-            applyTransform();
-            document.getElementById('roomDetailsPanel').style.display = 'none';
-        }
-
-        function applyTransform() {
-            const svg = document.getElementById('networkPlanSVG');
-            const container = document.getElementById('roomMapContainer');
-            
-            if (!svg || !container) return;
-
-            const transform = `scale(${mapState.zoom}) translate(${mapState.panX}px, ${mapState.panY}px)`;
-            svg.style.transform = transform;
-            svg.style.transformOrigin = '0 0';
-
-            document.getElementById('zoomLevel').textContent = Math.round(mapState.zoom * 100) + '%';
-        }
-
-        function selectRoom(roomId) {
-            mapState.selectedRoomId = roomId;
-            const room = roomsData.find(r => r.id === roomId);
-            const svg = document.getElementById('networkPlanSVG');
-
-            if (!room) return;
-
-            // Highlight room
-            svg.querySelectorAll(`.room[data-room]`).forEach(r => {
-                const rid = parseInt(r.getAttribute('data-room'));
-                if (rid === roomId) {
-                    r.style.opacity = '1';
-                    r.style.filter = 'drop-shadow(0 0 8px rgba(255,0,255,0.8))';
-                } else {
-                    r.style.opacity = '0.4';
-                }
-            });
-
-            // Show panel
-            const panel = document.getElementById('roomDetailsPanel');
-            document.getElementById('roomTitle').textContent = `Sala ${room.id}`;
-            document.getElementById('roomId').textContent = room.id;
-            document.getElementById('roomName').textContent = room.name;
-            document.getElementById('roomType').textContent = room.type;
-            document.getElementById('roomDesc').textContent = room.desc || '(nessuna)';
-            document.getElementById('roomDim').textContent = `${room.width}×${room.height}px`;
-            document.getElementById('roomPos').textContent = `x:${room.x}, y:${room.y}`;
-            panel.style.display = 'block';
-        }
     </script>
 
 </body>

@@ -50,7 +50,14 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.1.10.24",
+          "label": "SSH Server"
+        }
+      ]
     },
     {
       "id": 2,
@@ -1942,7 +1949,7 @@
           "status": "active"
         }
       ],
-      "notes": "è Morto?",
+      "notes": "\u00e8 Morto?",
       "location": "Sala Server"
     },
     {
@@ -6197,7 +6204,7 @@
       "status": "active",
       "cableMarker": "C8",
       "cableColor": "#eab308",
-      "notes": "Non c'è nulla connesso al questo router"
+      "notes": "Non c'\u00e8 nulla connesso al questo router"
     },
     {
       "from": 49,

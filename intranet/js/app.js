@@ -30,6 +30,31 @@ function escapeHtml(str) {
 }
 
 /**
+ * Copy text to clipboard and show confirmation toast
+ * @param {string} text - Text to copy
+ */
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        Toast.success('📋 Copied: ' + text);
+    }).catch(function(err) {
+        // Fallback for older browsers
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            Toast.success('📋 Copied: ' + text);
+        } catch (e) {
+            Toast.error('Failed to copy');
+        }
+        document.body.removeChild(textarea);
+    });
+}
+
+/**
  * Require authentication for edit operations
  * Shows login modal if not authenticated
  * @returns {boolean} - True if authenticated, false otherwise
@@ -485,10 +510,11 @@ function getBidirectionalConnections() {
 }
 
 /**
- * Get connection property - handles both normal and mirrored connections
+ * Get connection property - handles normal, mirrored, and auto-inverted connections
  */
 function getConnProp(item, prop) {
-    if (item._isMirrored && (prop === 'from' || prop === 'fromPort' || prop === 'to' || prop === 'toPort')) {
+    // For mirrored or auto-inverted items, use the swapped values for from/to/ports
+    if ((item._isMirrored || item._autoInverted) && (prop === 'from' || prop === 'fromPort' || prop === 'to' || prop === 'toPort')) {
         return item[prop]; // Use swapped value
     }
     return item._original[prop];
@@ -513,7 +539,8 @@ function getFilteredConnections() {
             items.push({
                 _original: appState.connections[i],
                 _originalIndex: i,
-                _isMirrored: false
+                _isMirrored: false,
+                _autoInverted: false  // Flag for auto-inversion based on filter
             });
         }
     }
@@ -529,7 +556,10 @@ function getFilteredConnections() {
         }
     }
     
-    return items.filter(function(item) {
+    // Filter and potentially auto-invert connections
+    var result = [];
+    for (var idx = 0; idx < items.length; idx++) {
+        var item = items[idx];
         var c = item._original;
         var fromId = getConnProp(item, 'from');
         var toId = getConnProp(item, 'to');
@@ -537,30 +567,58 @@ function getFilteredConnections() {
         // Location filter - connection must have at least one device in the location
         if (locationFilter) {
             if (!locationDeviceIds[fromId] && !locationDeviceIds[toId]) {
-                return false;
+                continue;
             }
         }
         
         var fromDevice = deviceById[fromId] || null;
         var toDevice = deviceById[toId] || null;
         
-        // Source filter (from device's rack)
+        // Source/Rack filter - searches in BOTH from and to device's rack
+        // Auto-inverts the display if the searched rack is in destination
         if (filters.source) {
             var fromRack = fromDevice ? (fromDevice.rackId || '') : '';
-            if (fromRack.toLowerCase().indexOf(filters.source.toLowerCase()) === -1) {
-                return false;
+            var toRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'External'));
+            var searchTerm = filters.source.toLowerCase();
+            var foundInSource = fromRack.toLowerCase().indexOf(searchTerm) !== -1;
+            var foundInDest = toRack.toLowerCase().indexOf(searchTerm) !== -1;
+            
+            if (!foundInSource && !foundInDest) {
+                continue; // Not found in either - skip
+            }
+            
+            // Auto-invert: if found in destination but NOT in source, show inverted
+            // This ensures the searched rack always appears as SOURCE
+            if (!foundInSource && foundInDest && !filters.normalizeView) {
+                item = {
+                    _original: c,
+                    _originalIndex: item._originalIndex,
+                    _isMirrored: false,
+                    _autoInverted: true,  // Mark as auto-inverted for display
+                    // Swapped from/to for display
+                    from: c.to,
+                    to: c.from,
+                    fromPort: c.toPort,
+                    toPort: c.fromPort
+                };
             }
         }
+        
+        // Re-get device info in case item was inverted
+        fromId = getConnProp(item, 'from');
+        toId = getConnProp(item, 'to');
+        fromDevice = deviceById[fromId] || null;
+        toDevice = deviceById[toId] || null;
         
         // Any Device filter (searches in BOTH From and To columns)
         if (filters.anyDevice) {
             var fromName = fromDevice ? (fromDevice.name || '') : '';
             var toName = toDevice ? (toDevice.name || '') : (c.externalDest || '');
-            var searchTerm = filters.anyDevice.toLowerCase();
-            var foundInFrom = fromName.toLowerCase().indexOf(searchTerm) !== -1;
-            var foundInTo = toName.toLowerCase().indexOf(searchTerm) !== -1;
+            var anySearchTerm = filters.anyDevice.toLowerCase();
+            var foundInFrom = fromName.toLowerCase().indexOf(anySearchTerm) !== -1;
+            var foundInTo = toName.toLowerCase().indexOf(anySearchTerm) !== -1;
             if (!foundInFrom && !foundInTo) {
-                return false;
+                continue;
             }
         }
         
@@ -568,7 +626,7 @@ function getFilteredConnections() {
         if (filters.fromDevice) {
             var fromName2 = fromDevice ? (fromDevice.name || '') : '';
             if (fromName2.toLowerCase().indexOf(filters.fromDevice.toLowerCase()) === -1) {
-                return false;
+                continue;
             }
         }
         
@@ -576,38 +634,41 @@ function getFilteredConnections() {
         if (filters.toDevice) {
             var toName2 = toDevice ? (toDevice.name || '') : (c.externalDest || '');
             if (toName2.toLowerCase().indexOf(filters.toDevice.toLowerCase()) === -1) {
-                return false;
+                continue;
             }
         }
         
         // Destination filter (to device's rack or external)
         if (filters.destination) {
-            var toRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'External'));
-            if (toRack.toLowerCase().indexOf(filters.destination.toLowerCase()) === -1) {
-                return false;
+            var destRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'External'));
+            if (destRack.toLowerCase().indexOf(filters.destination.toLowerCase()) === -1) {
+                continue;
             }
         }
         
         // Type filter
         if (filters.type && c.type !== filters.type) {
-            return false;
+            continue;
         }
         
         // Status filter
         if (filters.status && c.status !== filters.status) {
-            return false;
+            continue;
         }
         
         // Cable filter
         if (filters.cable) {
             var cableMarker = c.cableMarker || '';
             if (cableMarker.toLowerCase().indexOf(filters.cable.toLowerCase()) === -1) {
-                return false;
+                continue;
             }
         }
         
-        return true;
-    });
+        // Passed all filters - add to result
+        result.push(item);
+    }
+    
+    return result;
 }
 
 /**
@@ -1101,7 +1162,7 @@ function saveDevice() {
 function clearDeviceForm() {
     document.getElementById('deviceEditId').value = '';
     document.getElementById('rackId').value = '';
-    document.getElementById('deviceOrder').value = '1';
+    document.getElementById('deviceOrder').value = '00';
     document.getElementById('deviceRear').checked = false;
     document.getElementById('deviceName').value = '';
     document.getElementById('deviceBrandModel').value = '';
@@ -1144,7 +1205,7 @@ function editDevice(id) {
 
     document.getElementById('deviceEditId').value = d.id;
     document.getElementById('rackId').value = d.rackId || d.rack || '';
-    document.getElementById('deviceOrder').value = d.order !== undefined ? d.order : 1;
+    document.getElementById('deviceOrder').value = String(d.order !== undefined ? d.order : 0).padStart(2, '0');
     document.getElementById('deviceRear').checked = d.isRear || d.rear || false;
     document.getElementById('deviceName').value = d.name || '';
     document.getElementById('deviceBrandModel').value = d.brandModel || '';
@@ -1197,8 +1258,6 @@ function editDevice(id) {
     if (typeof DeviceLinks !== 'undefined' && d.links) {
         DeviceLinks.setLinks('deviceLinksContainer', d.links);
     }
-
-    autoResizeTextarea(document.getElementById('deviceNotes'));
 
     var container = document.getElementById('portTypeQuantityContainer');
     container.innerHTML = '';
@@ -1347,6 +1406,56 @@ function getPortTypeInfo(value) {
         'console': config.portTypes.find(function(p) { return p.value === 'TTY'; })
     };
     return legacyMap[normalizedValue] || { value: value, label: value, icon: '❓', category: 'other' };
+}
+
+// ============================================================================
+// DEVICE ORDER FIELD MANAGEMENT
+// ============================================================================
+
+/**
+ * Adjust device order value with circular behavior (00-99)
+ * 00 = no position (loose items like network printers)
+ * @param {number} delta - Amount to adjust (+1 or -1)
+ */
+function adjustDeviceOrder(delta) {
+    var input = document.getElementById('deviceOrder');
+    if (!input) return;
+    
+    var currentVal = parseInt(input.value) || 0;
+    var newVal = currentVal + delta;
+    
+    // Circular behavior: 00 -> 99 when going down, 99 -> 00 when going up
+    if (newVal < 0) {
+        newVal = 99;
+    } else if (newVal > 99) {
+        newVal = 0;
+    }
+    
+    // Format with leading zero
+    input.value = String(newVal).padStart(2, '0');
+}
+
+/**
+ * Format device order to always have 2 digits (00-99)
+ * 00 = no position (loose items)
+ */
+function formatDeviceOrder() {
+    var input = document.getElementById('deviceOrder');
+    if (!input) return;
+    
+    // Remove non-numeric characters
+    var val = input.value.replace(/[^0-9]/g, '');
+    
+    // Parse and clamp to 0-99
+    var num = parseInt(val);
+    if (isNaN(num)) num = 0;
+    if (num < 0) num = 0;
+    if (num > 99) num = 99;
+    
+    // Only update if finished typing (on change) or if invalid
+    if (val.length >= 2 || val === '' || num.toString() !== val) {
+        input.value = String(num).padStart(2, '0');
+    }
 }
 
 // ============================================================================

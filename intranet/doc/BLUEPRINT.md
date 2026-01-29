@@ -244,24 +244,26 @@ intranet/
 
 ### 3.3 Device Types
 
-| Type | Label | Icon Color |
-|------|-------|------------|
-| router | Router | #e74c3c (Red) |
-| switch | Switch | #3498db (Blue) |
-| patch | Patch Panel | #9b59b6 (Purple) |
-| firewall | Firewall | #e67e22 (Orange) |
-| server | Server | #2ecc71 (Green) |
+| Type | Label | Badge Color |
+|------|-------|-------------|
+| router | Router | #3498db (Blue) |
+| switch | Switch | #2ecc71 (Green) |
+| patch | Patch Panel | #f39c12 (Orange) |
+| firewall | Firewall | #e74c3c (Red) |
+| server | Server | #9b59b6 (Purple) |
 | wifi | WiFi AP | #1abc9c (Teal) |
-| router_wifi | Router WiFi | #e91e63 (Pink) |
-| isp | ISP | #607d8b (Blue-Gray) |
-| walljack | Wall Jack | #ecf0f1 (Light Gray) |
-| hub | Hub | #f39c12 (Amber) |
-| nas | NAS | #27ae60 (Green) |
-| pc | PC | #3498db (Blue) |
-| laptop | Laptop | #9b59b6 (Purple) |
-| printer | Printer | #95a5a6 (Gray) |
-| camera | Camera | #c0392b (Dark Red) |
-| ups | UPS | #f1c40f (Yellow) |
+| router_wifi | Router WiFi | #16a085 (Dark Teal) |
+| isp | ISP/WAN | #e67e22 (Orange) |
+| modem | Modem | #e67e22 (Orange) |
+| hub | Hub | #7f8c8d (Gray) |
+| walljack | Wall Jack | #7f8c8d (Gray) |
+| pc | PC/Desktop | #34495e (Dark) |
+| ip_phone | IP Phone | #27ae60 (Green) |
+| printer | Printer | #f1c40f (Yellow) |
+| nas | NAS/Storage | #9b59b6 (Purple) |
+| camera | IP Camera | #e74c3c (Red) |
+| ups | UPS | #27ae60 (Green) |
+| laptop | Laptop | #2c3e50 (Dark) |
 | others | Others | #95a5a6 (Gray) |
 
 ### 3.4 Connection Object

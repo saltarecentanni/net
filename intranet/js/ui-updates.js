@@ -109,9 +109,9 @@ function updateDeviceFilterBar() {
     }
     html += '</select>';
     
-    // Source filter
+    // Group filter (campo rackId - vedi nota in index.html)
     html += '<select id="filterDeviceSource" onchange="updateDeviceFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
-    html += '<option value="">All Sources</option>';
+    html += '<option value="">All Groups</option>';
     for (var s = 0; s < sources.length; s++) {
         var selected = appState.deviceFilters.source === sources[s] ? ' selected' : '';
         html += '<option value="' + sources[s] + '"' + selected + '>' + sources[s] + '</option>';
@@ -265,7 +265,7 @@ function updateDevicesListTable(cont) {
     var html = '<table class="w-full text-xs border-collapse">';
     html += '<thead><tr class="bg-slate-700 text-white">';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'location\')">📍 Location' + sortIcon('location') + '</th>';
-    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'rack\')">Source' + sortIcon('rack') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'rack\')">Group' + sortIcon('rack') + '</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'order\')">Pos.' + sortIcon('order') + '</th>';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'name\')">Device Name' + sortIcon('name') + '</th>';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'brandModel\')">Brand/Model' + sortIcon('brandModel') + '</th>';
@@ -274,7 +274,8 @@ function updateDevicesListTable(cont) {
     html += '<th class="p-2 text-left">IP/Network</th>';
     html += '<th class="p-2 text-left">Service</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'ports\')">Ports' + sortIcon('ports') + '</th>';
-    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'connections\')">Connections' + sortIcon('connections') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'connections\')">Conn.' + sortIcon('connections') + '</th>';
+    html += '<th class="p-2 text-center">🔗 Links</th>';
     html += '<th class="p-2 text-center edit-mode-only">Actions</th>';
     html += '</tr></thead><tbody>';
 
@@ -336,6 +337,9 @@ function updateDevicesListTable(cont) {
         html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeService + '">' + (safeService || '-') + '</td>';
         html += '<td class="p-2 text-center"><span class="text-slate-700">' + d.ports.length + '</span> <span class="text-slate-400">(' + usedPorts + ')</span></td>';
         html += '<td class="p-2 text-center">' + (totalConnections === 0 ? '<span class="text-orange-600 font-semibold">0 ⚠</span>' : '<span class="text-slate-700">' + totalConnections + '</span>') + '</td>';
+        // Links column - shows label if defined, otherwise URL
+        var linksHtml = (typeof DeviceLinks !== 'undefined' && d.links && d.links.length) ? DeviceLinks.renderLinks(d.links) : '-';
+        html += '<td class="p-2 text-center">' + linksHtml + '</td>';
         html += '<td class="p-2 text-center whitespace-nowrap edit-mode-only">';
         html += '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-600 hover:text-green-900 text-xs mr-1" title="Add Connection">+Conn</button>';
         html += '<button onclick="editDevice(' + d.id + ')" class="text-blue-600 hover:text-blue-900 text-xs mr-1">Edit</button>';
@@ -501,7 +505,7 @@ function updateMatrixStats() {
     
     html += '<div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-3 text-white">' +
         '<div class="text-2xl font-bold">' + Object.keys(racks).length + '</div>' +
-        '<div class="text-xs opacity-80">Racks/Sources</div></div>';
+        '<div class="text-xs opacity-80">Groups</div></div>';
     
     // Most common connection type
     var topType = 'N/A';
@@ -823,9 +827,9 @@ function updateConnFilterBar() {
     var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
     html += '<span class="text-xs font-semibold text-slate-600">🔍 Filters:</span>';
     
-    // Source filter (from device's rack)
-    html += '<select id="filterConnSource" onchange="updateConnFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
-    html += '<option value="">All Sources</option>';
+    // Group filter - cerca in entrambi source e destination (campo rackId per compatibilità)
+    html += '<select id="filterConnSource" onchange="updateConnFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white" title="Filtra per Group (cerca in Source e Destination)">';
+    html += '<option value="">All Groups</option>';
     for (var s = 0; s < sources.length; s++) {
         var selected = appState.connFilters.source === sources[s] ? ' selected' : '';
         html += '<option value="' + sources[s] + '"' + selected + '>' + sources[s] + '</option>';
@@ -960,10 +964,10 @@ function renderConnectionsTable(cont) {
         return;
     }
 
-    // Prepare sortable headers
+    // Prepare sortable headers (nota: fromRack/toRack sono i campi rackId, label visuale "Group")
     var headers = [
         { key: 'id', label: '#', printHide: true },
-        { key: 'fromRack', label: 'Source' },
+        { key: 'fromRack', label: 'Group' },
         { key: 'fromPos', label: 'Pos.' },
         { key: 'fromDevice', label: 'From Device' },
         { key: 'fromPort', label: 'Src Port' },
@@ -1089,13 +1093,14 @@ function renderConnectionsTable(cont) {
         var item = sorted[i];
         var c = item._original;
         var isMirrored = item._isMirrored;
+        var isAutoInverted = item._autoInverted;  // Auto-inverted due to filter search
         var origIdx = item._originalIndex;
         
-        // Get FROM/TO based on whether this is mirrored
-        var fromId = isMirrored ? item.from : c.from;
-        var toId = isMirrored ? item.to : c.to;
-        var displayFromPort = isMirrored ? item.fromPort : c.fromPort;
-        var displayToPort = isMirrored ? item.toPort : c.toPort;
+        // Get FROM/TO based on whether this is mirrored or auto-inverted
+        var fromId = (isMirrored || isAutoInverted) ? item.from : c.from;
+        var toId = (isMirrored || isAutoInverted) ? item.to : c.to;
+        var displayFromPort = (isMirrored || isAutoInverted) ? item.fromPort : c.fromPort;
+        var displayToPort = (isMirrored || isAutoInverted) ? item.toPort : c.toPort;
         
         var fromDevice = null;
         var toDevice = null;
@@ -1144,19 +1149,23 @@ function renderConnectionsTable(cont) {
             toIPs = [toDevice.ip1, toDevice.ip2, toDevice.ip3, toDevice.ip4].filter(Boolean).join('<br>');
         }
 
-        // Row styling: mirrored rows have red background to stand out
+        // Row styling: mirrored rows have red background, auto-inverted have blue background
         var rowBg;
         if (isMirrored) {
             rowBg = 'bg-red-100';
+        } else if (isAutoInverted) {
+            rowBg = 'bg-blue-50';  // Light blue for auto-inverted (filter matched destination)
         } else {
             rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
         }
         
-        // ID number: same for both, just add ⇄ for mirrored (red and bigger)
+        // ID number: same for both, just add ⇄ for mirrored (red and bigger) or ↩ for auto-inverted (blue)
         var idNumber = origIdx + 1;
         var idHtml;
         if (isMirrored) {
             idHtml = idNumber + ' <span class="text-red-600 text-base font-bold">⇄</span>';
+        } else if (isAutoInverted) {
+            idHtml = idNumber + ' <span class="text-blue-600 text-sm font-bold" title="View inverted to show filtered rack as source">↩</span>';
         } else {
             idHtml = String(idNumber);
         }
@@ -1248,7 +1257,7 @@ function exportExcel() {
             }
             devData.push({
                 'Location': d.location || '',
-                'Source': d.rackId || d.rack || '',
+                'Group': d.rackId || d.rack || '',
                 'Order': d.order,
                 'Position': (d.isRear || d.rear) ? 'Rear' : 'Front',
                 'Name': d.name,

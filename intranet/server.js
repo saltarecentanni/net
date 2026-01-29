@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.1.8
+ * Version: 3.1.9
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  */
@@ -240,7 +240,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.1.7            ║');
+    console.log('║     TIESSE Matrix Network Server v3.1.9            ║');
     console.log('╠════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                  ║`);
     console.log('║  Network:  http://<YOUR-IP>:' + PORT + '/                  ║');

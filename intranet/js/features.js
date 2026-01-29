@@ -1044,6 +1044,30 @@ var SVGTopology = (function() {
                 '<circle cx="12" cy="58" r="2" fill="#95a5a6"/>' +
                 '<circle cx="53" cy="58" r="2" fill="#95a5a6"/>' +
                 '</g>';
+        },
+        // Modem DSL/Cable
+        modem: function(color) {
+            return '<g transform="translate(5,12) scale(0.85)">' +
+                // Chassi principal
+                '<rect x="5" y="10" width="80" height="35" rx="3" fill="#2d3436"/>' +
+                '<rect x="8" y="13" width="74" height="29" rx="2" fill="#1e272e"/>' +
+                // Painel frontal
+                '<rect x="12" y="16" width="66" height="23" fill="#0c0c0c" rx="1"/>' +
+                // LEDs de status
+                '<circle cx="20" cy="23" r="2.5" fill="#00b894"/>' +
+                '<text x="20" y="33" text-anchor="middle" fill="#636e72" font-size="4">PWR</text>' +
+                '<circle cx="32" cy="23" r="2.5" fill="#00b894"/>' +
+                '<text x="32" y="33" text-anchor="middle" fill="#636e72" font-size="4">DSL</text>' +
+                '<circle cx="44" cy="23" r="2.5" fill="#0984e3"/>' +
+                '<text x="44" y="33" text-anchor="middle" fill="#636e72" font-size="4">NET</text>' +
+                '<circle cx="56" cy="23" r="2.5" fill="#fdcb6e"/>' +
+                '<text x="56" y="33" text-anchor="middle" fill="#636e72" font-size="4">LAN</text>' +
+                '<circle cx="68" cy="23" r="2.5" fill="#00b894"/>' +
+                '<text x="68" y="33" text-anchor="middle" fill="#636e72" font-size="4">WiFi</text>' +
+                // Ventilacao lateral
+                '<rect x="72" y="17" width="4" height="20" fill="#2d3436" rx="0.5"/>' +
+                '<line x1="74" y1="19" x2="74" y2="35" stroke="#636e72" stroke-width="0.5"/>' +
+                '</g>';
         }
     };
     
@@ -1072,6 +1096,7 @@ var SVGTopology = (function() {
         nas: '#2d3436',         // Dark gray (storage)
         ups: '#2d3436',         // Dark gray (power)
         walljack: '#ecf0f1',    // Light gray (wall plate)
+        modem: '#2d3436',       // Dark gray (modem)
         others: '#636e72'       // Gray
     };
     
@@ -1101,6 +1126,7 @@ var SVGTopology = (function() {
         nas: 'NAS',
         ups: 'UPS',
         walljack: 'Wall Jack',
+        modem: 'Modem',
         others: 'Other'
     };
     
@@ -1130,6 +1156,7 @@ var SVGTopology = (function() {
         nas: '#9b59b6',
         ups: '#27ae60',
         walljack: '#7f8c8d',
+        modem: '#e67e22',
         others: '#95a5a6'
     };
     
@@ -1218,7 +1245,7 @@ var SVGTopology = (function() {
         });
         
         var currentValue = rackSelect.value;
-        var html = '<option value="">🗄️ Filter by Source</option>';
+        var html = '<option value="">🗄️ Filter by Group</option>';
         Object.keys(racks).sort().forEach(function(rack) {
             html += '<option value="' + rack + '">' + rack + '</option>';
         });
@@ -1942,7 +1969,7 @@ var SVGTopology = (function() {
                     html += '<text x="40" y="-20" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">' +
                         '📍 ' + escapeHtml(d.location) + '</text>';
                     
-                    // Source/Rack line (below) - darker
+                    // Group line (below) - darker (campo rackId per compatibilità, label visuale "Group")
                     html += '<rect x="' + labelX + '" y="-15" width="' + maxWidth + '" height="13" rx="3" fill="#92400e" opacity="0.9"/>';
                     html += '<text x="40" y="-5" text-anchor="middle" fill="#fff" font-size="8" font-weight="600">' +
                         '🗄️ ' + escapeHtml(d.rackId) + '</text>';
@@ -2692,7 +2719,7 @@ function showTopologyLegend() {
         allTypes = SVGTopology.getAllDeviceTypes();
     } catch(e) {
         console.error('Error getting device types:', e);
-        allTypes = ['router', 'switch', 'patch', 'firewall', 'server', 'wifi', 'isp', 'router_wifi', 'walljack', 'others'];
+        allTypes = ['router', 'switch', 'patch', 'firewall', 'server', 'wifi', 'isp', 'router_wifi', 'modem', 'hub', 'pc', 'ip_phone', 'printer', 'nas', 'camera', 'ups', 'walljack', 'others'];
     }
     
     // Ensure walljack is in the list
@@ -2730,12 +2757,12 @@ function showTopologyLegend() {
     
     // Group types by category
     var categories = {
-        '🔌 Network Infrastructure': ['router', 'switch', 'firewall', 'patch', 'hub', 'backbone', 'walljack'],
+        '🔌 Network Infrastructure': ['router', 'switch', 'firewall', 'patch', 'hub', 'modem', 'backbone', 'walljack'],
         '📶 Wireless': ['wifi', 'router_wifi'],
         '🖥️ Servers & Storage': ['server', 'nas', 'cloud', 'dmz'],
         '💻 End Devices': ['pc', 'laptop', 'tablet', 'phone', 'ip_phone', 'printer', 'monitor'],
         '📹 Security & Monitoring': ['camera', 'time_clock'],
-        '⚡ Power & Other': ['ups', 'isp', 'others']
+        '⚡ Power & ISP': ['ups', 'isp', 'others']
     };
     
     var html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
@@ -3070,7 +3097,7 @@ var DeviceLinks = (function() {
             }).join('') +
             '</select>' +
             '<input type="text" class="link-url flex-1 px-2 py-1 border border-slate-300 rounded text-xs" placeholder="URL or address">' +
-            '<input type="text" class="link-label w-20 px-2 py-1 border border-slate-300 rounded text-xs" placeholder="Label">' +
+            '<input type="text" class="link-label w-20 px-2 py-1 border border-slate-300 rounded text-xs" placeholder="Gestione" title="Gestione web, access SSH">' +
             '<button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 px-1">✕</button>';
         
         container.appendChild(div);
@@ -3124,16 +3151,25 @@ var DeviceLinks = (function() {
         
         return links.map(function(link) {
             var typeInfo = linkTypes.find(function(t) { return t.value === link.type; }) || linkTypes[linkTypes.length - 1];
-            var displayLabel = link.label || link.url;
+            // Se não tem label, usa "Gestione" como padrão
+            var displayLabel = link.label || 'Gestione';
+            var safeUrl = escapeHtml(link.url);
+            var safeLabel = escapeHtml(displayLabel);
             
-            // Make it clickable if it looks like a URL
-            if (link.url.match(/^(https?|smb|nfs|ftp|ssh|rdp|vnc):\/\//i) || link.url.match(/^\\\\/) || link.url.match(/^\//)) {
-                return '<a href="' + escapeHtml(link.url) + '" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline">' +
-                    typeInfo.icon + ' ' + escapeHtml(displayLabel) + '</a>';
+            // Protocolos que abrem direto no navegador
+            if (link.url.match(/^(https?|ftp):\/\//i) || link.url.match(/^\\\\/) || link.url.match(/^\//)) {
+                return '<a href="' + safeUrl + '" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline" title="' + safeUrl + '">' +
+                    typeInfo.icon + ' ' + safeLabel + '</a>';
             }
             
-            return '<span class="inline-flex items-center gap-1 text-xs text-slate-600">' +
-                typeInfo.icon + ' ' + escapeHtml(displayLabel) + '</span>';
+            // Protocolos que precisam copiar (SSH, RDP, VNC, SMB, NFS, Telnet)
+            if (link.url.match(/^(ssh|rdp|vnc|smb|nfs|telnet):\/\//i) || link.type === 'ssh' || link.type === 'rdp' || link.type === 'vnc' || link.type === 'smb') {
+                return '<a href="#" onclick="copyToClipboard(\'' + safeUrl.replace(/'/g, "\\'") + '\'); return false;" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="📋 Click to copy: ' + safeUrl + '">' +
+                    typeInfo.icon + ' ' + safeLabel + '</a>';
+            }
+            
+            return '<span class="inline-flex items-center gap-1 text-xs text-slate-600" title="' + safeUrl + '">' +
+                typeInfo.icon + ' ' + safeLabel + '</span>';
         }).join(' ');
     }
     
