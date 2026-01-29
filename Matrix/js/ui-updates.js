@@ -574,7 +574,7 @@ function updateMatrix() {
                 }
             }
             
-            html += '<td style="padding: 4px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; ' + cellStyle + ';">' +
+            html += '<td style="padding: 4px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; ' + cellStyle + '">' +
                     (cellContent || '<div style="height: ' + cellHeight + 'px; display: flex; align-items: center; justify-content: center;"></div>') +
                     '</td>';
         }
