@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.1.5
+ * Version: 3.2.1
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -10,6 +10,8 @@
  * - Robust import/export with validation
  * - Patch panel dual-connection support (front/back)
  * - Wall jack passthrough support (v3.1.3)
+ * - Refactored Matrix page with Topology-style layout (v3.2.0)
+ * - Improved sticky headers and zoom (v3.2.1)
  */
 
 'use strict';
@@ -2218,7 +2220,10 @@ function updateUI() {
     updateRackIdDatalist();
     updateDevicesList();
     updateDeviceSelects();
+    updateMatrix();
     updateConnectionsList();
+    // REMOVED: saveToStorage() - was causing login modal to appear on page load
+    // Data should only be saved manually via "Save Now" button or after explicit user actions
     
     // Update global counters in header
     updateGlobalCounters();
@@ -2227,17 +2232,6 @@ function updateUI() {
     if (typeof LocationFilter !== 'undefined') {
         LocationFilter.update();
     }
-    
-    // Update Matrix location and group filters FIRST (required for updateMatrix to work)
-    if (typeof updateMatrixLocationFilter === 'function') {
-        updateMatrixLocationFilter();
-    }
-    
-    // Update matrix AFTER filters are populated
-    updateMatrix();
-    
-    // REMOVED: saveToStorage() - was causing login modal to appear on page load
-    // Data should only be saved manually via "Save Now" button or after explicit user actions
 }
 
 function updateGlobalCounters() {
@@ -2801,128 +2795,6 @@ function printConnections() {
 // they compete with each other and overwrite data, causing information loss.
 // Use the "Salva Ora" (Save Now) button for manual saves.
 // Changes are NOT saved automatically - always click "Salva Ora" to persist data.
-
-// ============================================================================
-// TEST DATA (Demo for Matrix visualization)
-// ============================================================================
-function createTestData() {
-    // This function is deprecated - test data is already provided by data.php
-    // DO NOT use this function to auto-populate appState
-    // Instead, edit data/network_manager.json directly for test data
-    return;
-}
-
-function _createTestDataLegacy() {
-    // Legacy function - kept for reference only
-    // Create test devices
-    appState.devices = [
-        {
-            id: 1,
-            name: 'Router-1',
-            rackId: 'RACK-A',
-            order: 1,
-            type: 'router',
-            status: 'active',
-            location: 'DC1',
-            brandModel: 'Cisco ASR 1000',
-            ports: [
-                { name: 'Eth0', type: 'GbE', status: 'active' },
-                { name: 'Eth1', type: 'GbE', status: 'active' },
-                { name: 'Eth2', type: 'GbE', status: 'active' }
-            ],
-            addresses: [{ network: '192.168.1.1/24', ip: '', vlan: null }],
-            notes: 'Primary router'
-        },
-        {
-            id: 2,
-            name: 'Switch-1',
-            rackId: 'RACK-A',
-            order: 2,
-            type: 'switch',
-            status: 'active',
-            location: 'DC1',
-            brandModel: 'Cisco Catalyst 3850',
-            ports: [
-                { name: 'Eth0', type: 'GbE', status: 'active' },
-                { name: 'Eth1', type: 'GbE', status: 'active' },
-                { name: 'Eth2', type: 'GbE', status: 'active' }
-            ],
-            addresses: [{ network: '192.168.1.2/24', ip: '', vlan: null }],
-            notes: 'Core switch'
-        },
-        {
-            id: 3,
-            name: 'Firewall-1',
-            rackId: 'RACK-B',
-            order: 1,
-            type: 'firewall',
-            status: 'active',
-            location: 'DC1',
-            brandModel: 'Fortinet FortiGate',
-            ports: [
-                { name: 'Eth0', type: 'GbE', status: 'active' },
-                { name: 'Eth1', type: 'GbE', status: 'active' }
-            ],
-            addresses: [{ network: '10.0.0.1/24', ip: '', vlan: null }],
-            notes: 'Security gateway'
-        },
-        {
-            id: 4,
-            name: 'Server-1',
-            rackId: 'RACK-C',
-            order: 1,
-            type: 'server',
-            status: 'active',
-            location: 'DC1',
-            brandModel: 'Dell PowerEdge R750',
-            ports: [
-                { name: 'Eth0', type: 'GbE', status: 'active' },
-                { name: 'Eth1', type: 'GbE', status: 'active' }
-            ],
-            addresses: [{ network: '192.168.100.10/24', ip: '', vlan: null }],
-            notes: 'Web server'
-        }
-    ];
-    
-    appState.nextDeviceId = 5;
-    
-    // Create test connections
-    appState.connections = [
-        {
-            from: 1,
-            fromPort: 'Eth0',
-            to: 2,
-            toPort: 'Eth0',
-            type: 'lan',
-            status: 'active',
-            cableMarker: 'A',
-            cableColor: '#3b82f6',
-            notes: 'Primary connection'
-        },
-        {
-            from: 2,
-            fromPort: 'Eth1',
-            to: 3,
-            toPort: 'Eth0',
-            type: 'wan',
-            status: 'active',
-            cableMarker: 'B',
-            cableColor: '#ef4444',
-            notes: 'Firewall uplink'
-        },
-        {
-            from: 2,
-            fromPort: 'Eth2',
-            to: 4,
-            toPort: 'Eth0',
-            type: 'dmz',
-            status: 'active',
-            cableMarker: 'C',
-            cableColor: '#f97316',
-            notes: 'Server connection'
-        }
-    ];
-}
 
 // ============================================================================
 // INITIALIZATION
