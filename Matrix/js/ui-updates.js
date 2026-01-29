@@ -456,44 +456,15 @@ function showMatrixTooltip(event, connIdx) {
     var fromName = fromDevice ? fromDevice.name : 'Unknown';
     var toName = toDevice ? toDevice.name : (conn.externalDest || 'External');
     var typeName = config.connLabels[conn.type] || conn.type;
-    var connColor = conn.color || config.connColors[conn.type] || '#6b7280';
-    var cableColor = conn.cableColor || '#666666';
+    var connColor = config.connColors[conn.type] || '#6b7280';
     
-    // Build tooltip HTML with colors and detailed information
-    var html = '<div class="font-bold text-sm mb-2 pb-2 border-b border-slate-600" style="color:' + connColor + '">' + typeName + '</div>';
-    html += '<div class="space-y-2">';
-    html += '<div>';
-    html += '<span class="text-slate-400 text-[10px]">FROM</span><br>';
-    html += '<span style="font-weight: 600;">' + fromName + '</span> ';
-    html += '<span class="text-slate-400">[' + (conn.fromPort || '—') + ']</span>';
+    // Minimal tooltip - just essential info
+    var html = '<div style="font-size: 11px; font-weight: 600; color:' + connColor + '; margin-bottom: 4px;">' + typeName + '</div>';
+    html += '<div style="font-size: 10px; line-height: 1.4;">';
+    html += '<div>' + fromName + ' <span style="color: #cbd5e1;">[' + (conn.fromPort || '—') + ']</span></div>';
+    html += '<div style="text-align: center; color: #94a3b8; font-size: 9px; margin: 2px 0;">↓</div>';
+    html += '<div>' + toName + ' <span style="color: #cbd5e1;">[' + (conn.toPort || '—') + ']</span></div>';
     html += '</div>';
-    
-    html += '<div>';
-    html += '<span class="text-slate-400 text-[10px]">TO</span><br>';
-    html += '<span style="font-weight: 600;">' + toName + '</span> ';
-    html += '<span class="text-slate-400">[' + (conn.toPort || '—') + ']</span>';
-    html += '</div>';
-    
-    if (conn.cableMarker || conn.cableColor) {
-        html += '<div style="padding-top: 6px; border-top: 1px solid #475569;">';
-        if (conn.cableMarker) {
-            html += '<div><span class="text-slate-400 text-[10px]">CABLE ID</span><br>' + conn.cableMarker + '</div>';
-        }
-        if (conn.cableColor) {
-            html += '<div style="margin-top: 4px;"><span class="text-slate-400 text-[10px]">COLOR</span><br>' +
-                    '<span style="display: inline-block; width: 16px; height: 16px; border-radius: 3px; margin-right: 4px; border: 1px solid #999; vertical-align: middle; background-color: ' + cableColor + ';"></span>' +
-                    '<span style="vertical-align: middle;">' + conn.cableColor + '</span></div>';
-        }
-        html += '</div>';
-    }
-    
-    if (conn.notes) {
-        html += '<div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #475569; font-size: 10px; color: #cbd5e1; font-style: italic;">' + 
-                conn.notes.substring(0, 60) + (conn.notes.length > 60 ? '...' : '') + '</div>';
-    }
-    
-    html += '</div>';
-    html += '<div class="text-[9px] text-slate-500 mt-2 pt-2 border-t border-slate-600">Click to edit</div>';
     
     tooltip.innerHTML = html;
     tooltip.style.display = 'block';
@@ -521,9 +492,9 @@ function updateMatrix() {
     }
 
     var cellSize = 80;
-    var cellHeight = 60;
+    var cellHeight = 80;  // Quadrado: altura = largura
     
-    // Build matrix HTML with colors and interactivity
+    // Build matrix HTML with square cells
     var html = '<div style="overflow-x: auto; cursor: grab;">';
     html += '<table class="border-collapse" style="border-spacing: 0; width: 100%; border: 1px solid #cbd5e1;">';
     
@@ -533,7 +504,7 @@ function updateMatrix() {
     
     for (var i = 0; i < filtered.length; i++) {
         var device = filtered[i];
-        html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; min-width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600;">' +
+        html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600;">' +
                 '<div title="' + device.name + '" style="word-break: break-word;">' + device.name + '</div></th>';
     }
     
@@ -551,12 +522,11 @@ function updateMatrix() {
             var col = filtered[c];
             var cellContent = '';
             var cellBg = rowBg;
-            var cellColor = '#64748b';
-            var tooltipText = '';
             var cellStyle = 'cursor: default;';
             
             if (row.id === col.id) {
-                cellContent = '—';
+                // Diagonal cells
+                cellContent = '';
                 cellBg = '#e2e8f0';
             } else {
                 // Look for connection between these two devices
@@ -576,39 +546,37 @@ function updateMatrix() {
                     var connType = conn.type || 'unknown';
                     var fromPort = conn.from === row.id ? conn.fromPort : conn.toPort;
                     var toPort = conn.from === row.id ? conn.toPort : conn.fromPort;
-                    var fromDevice = conn.from === row.id ? row.name : col.name;
-                    var toDevice = conn.from === row.id ? col.name : row.name;
+                    var connColor = config.connColors[connType] || '#64748b';
+                    var typeName = config.connLabels[connType] || connType;
                     
-                    // Get color from config
-                    cellColor = config.connColors[connType] || '#64748b';
-                    
-                    // Build tooltip with port and cable info
-                    tooltipText = fromDevice + ':' + fromPort + ' → ' + toDevice + ':' + toPort;
-                    if (conn.cableMarker) {
-                        tooltipText += ' [Cable: ' + conn.cableMarker + ']';
-                    }
-                    if (conn.cableColor) {
-                        tooltipText += ' [Color: ' + conn.cableColor + ']';
-                    }
-                    
-                    // Create cell with hover tooltip
-                    cellContent = '<div style="font-size: 0.75rem; font-weight: 600; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3);" ' +
-                                  'title="' + tooltipText + '" ' +
+                    // Cell with square design showing connection type badge and ports
+                    cellContent = '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: ' + cellHeight + 'px; cursor: pointer;" ' +
                                   'onmouseenter="showMatrixTooltip(event, ' + connIdx + ')" ' +
                                   'onmouseleave="hideMatrixTooltip()" ' +
-                                  'onclick="editConnection(' + connIdx + ')" ' +
-                                  'style="cursor: pointer; padding: 4px;">' +
-                                  (config.connLabels[connType] || connType).substring(0, 8) + '</div>';
+                                  'onclick="editConnection(' + connIdx + ')">' +
+                                  
+                                  // Connection type badge (bolinha redonda)
+                                  '<div style="width: 32px; height: 32px; border-radius: 50%; background-color: ' + connColor + '; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.2s;" ' +
+                                  'onmouseenter="this.style.transform=\'scale(1.1)\';" onmouseleave="this.style.transform=\'scale(1)\';">' +
+                                  '<span style="color: white; font-size: 11px; font-weight: 700; text-align: center;">' + typeName.substring(0, 3).toUpperCase() + '</span>' +
+                                  '</div>' +
+                                  
+                                  // Source and destination ports side by side
+                                  '<div style="display: flex; gap: 2px; font-size: 9px; font-weight: 600;">' +
+                                  '<span style="background-color: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.8;">' + (fromPort || '—') + '</span>' +
+                                  '<span style="color: #94a3b8;">→</span>' +
+                                  '<span style="background-color: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.6;">' + (toPort || '—') + '</span>' +
+                                  '</div>' +
+                                  
+                                  '</div>';
+                    cellBg = '#ffffff';  // White background for connection cells
                     cellStyle = 'cursor: pointer;';
                 }
             }
             
-            html += '<td style="padding: 4px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; ' + cellStyle + '; transition: all 0.2s;">' +
-                    '<div style="width: 100%; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 4px; ' +
-                    (cellContent ? 'background-color: ' + cellColor + '; box-shadow: 0 1px 3px rgba(0,0,0,0.1);' : '') +
-                    '" onmouseenter="this.style.transform=\'scale(1.05)\';" onmouseleave="this.style.transform=\'scale(1)\';" ' +
-                    'style="transition: transform 0.2s;">' +
-                    cellContent + '</div></td>';
+            html += '<td style="padding: 4px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; ' + cellStyle + ';">' +
+                    (cellContent || '<div style="height: ' + cellHeight + 'px; display: flex; align-items: center; justify-content: center;"></div>') +
+                    '</td>';
         }
         
         html += '</tr>';
