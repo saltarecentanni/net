@@ -551,8 +551,24 @@ function updateMatrix() {
     
     for (var i = 0; i < filtered.length; i++) {
         var device = filtered[i];
-        html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' +
-                '<div title="' + device.name + '">' + device.name + '</div></th>';
+        var headerIPs = [];
+        if (device.addresses && device.addresses.length > 0) {
+            for (var ha = 0; ha < device.addresses.length; ha++) {
+                if (device.addresses[ha].network) headerIPs.push(device.addresses[ha].network);
+                if (device.addresses[ha].ip && device.addresses[ha].ip !== device.addresses[ha].network) {
+                    headerIPs.push(device.addresses[ha].ip);
+                }
+            }
+        }
+        
+        html += '<th style="padding: 6px 8px; border-right: 1px solid #cbd5e1; text-align: center; width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600;">' +
+                '<div style="font-weight: 700; color: #1e293b; margin-bottom: 2px;" title="' + device.name + '">' + device.name + '</div>';
+        
+        if (headerIPs.length > 0) {
+            html += '<div style="font-size: 9px; color: #64748b; line-height: 1.2;">' + headerIPs.join('<br>') + '</div>';
+        }
+        
+        html += '</th>';
     }
     
     html += '</tr></thead><tbody>';
@@ -1249,49 +1265,57 @@ function initDragToScroll() {
     
     var isDragging = false;
     var startX, startY, scrollLeft, scrollTop;
-    var currentZoom = 1.0;
+    var dragThreshold = 5; // pixels to move before considering it a drag
+    var hasMoved = false;
 
-    // Zoom with mouse wheel (like Topology)
+    // Zoom with mouse wheel - apply to inner div wrapper
     matrixContainer.addEventListener('wheel', function(e) {
         e.preventDefault();
         
-        var delta = e.deltaY > 0 ? 0.9 : 1.1; // Zoom out / Zoom in
-        var newZoom = currentZoom * delta;
+        var wrapper = matrixContainer.querySelector('div[style*="overflow-x"]');
+        if (!wrapper) return;
+        
+        var delta = e.deltaY > 0 ? 0.95 : 1.05; // Smoother zoom
+        var currentScale = wrapper.style.transform ? parseFloat(wrapper.style.transform.replace(/[^0-9.]/g, '')) : 1.0;
+        var newScale = currentScale * delta;
         
         // Limit zoom range
-        if (newZoom < 0.3) newZoom = 0.3;
-        if (newZoom > 3.0) newZoom = 3.0;
+        if (newScale < 0.5) newScale = 0.5;
+        if (newScale > 2.5) newScale = 2.5;
         
-        currentZoom = newZoom;
-        
-        var table = matrixContainer.querySelector('table');
-        if (table) {
-            table.style.transform = 'scale(' + currentZoom + ')';
-            table.style.transformOrigin = 'top left';
-        }
+        wrapper.style.transform = 'scale(' + newScale + ')';
+        wrapper.style.transformOrigin = 'top left';
     }, { passive: false });
 
-    // Drag to scroll (hand navigation)
+    // Drag to scroll (hand navigation) - only on wrapper div, not on cells
     matrixContainer.addEventListener('mousedown', function(e) {
-        if (e.target.closest('button, a, input, select, td[onclick]')) return;
+        // Don't drag if clicking on interactive elements or cells with content
+        if (e.target.closest('button, a, input, select')) return;
+        if (e.target.closest('td[onclick], th')) return;
+        
         isDragging = true;
+        hasMoved = false;
         matrixContainer.style.cursor = 'grabbing';
         matrixContainer.style.userSelect = 'none';
-        startX = e.pageX - matrixContainer.offsetLeft;
-        startY = e.pageY - matrixContainer.offsetTop;
+        startX = e.pageX;
+        startY = e.pageY;
         scrollLeft = matrixContainer.scrollLeft;
         scrollTop = matrixContainer.scrollTop;
     });
 
     matrixContainer.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
-        e.preventDefault();
-        var x = e.pageX - matrixContainer.offsetLeft;
-        var y = e.pageY - matrixContainer.offsetTop;
-        var walkX = (x - startX) * 1.5;
-        var walkY = (y - startY) * 1.5;
-        matrixContainer.scrollLeft = scrollLeft - walkX;
-        matrixContainer.scrollTop = scrollTop - walkY;
+        
+        var dx = e.pageX - startX;
+        var dy = e.pageY - startY;
+        var distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > dragThreshold) {
+            hasMoved = true;
+            e.preventDefault();
+            matrixContainer.scrollLeft = scrollLeft - dx;
+            matrixContainer.scrollTop = scrollTop - dy;
+        }
     });
 
     matrixContainer.addEventListener('mouseup', function() {
