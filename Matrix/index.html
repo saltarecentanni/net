@@ -569,6 +569,11 @@
                         <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                             <option value="">Filter by Group</option>
                         </select>
+                        <div class="flex gap-1 items-center border border-slate-300 rounded-lg p-1 bg-white">
+                            <button onclick="zoomMatrixOut()" class="px-2 py-1 hover:bg-slate-100 rounded text-sm font-bold" title="Zoom Out (Ctrl + Scroll)">−</button>
+                            <button onclick="zoomMatrixReset()" class="px-2 py-1 hover:bg-slate-100 rounded text-xs font-semibold" title="Reset Zoom">100%</button>
+                            <button onclick="zoomMatrixIn()" class="px-2 py-1 hover:bg-slate-100 rounded text-sm font-bold" title="Zoom In (Ctrl + Scroll)">+</button>
+                        </div>
                         <button onclick="exportMatrixPNG()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
                             Export PNG
                         </button>

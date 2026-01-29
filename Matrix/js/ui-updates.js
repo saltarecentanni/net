@@ -1255,6 +1255,9 @@ function exportExcel() {
 // ============================================================================
 // DRAG-TO-SCROLL
 // ============================================================================
+// Global zoom state
+var matrixZoomLevel = 1.0;
+
 function initDragToScroll() {
     var container = document.getElementById('matrixContainer');
     if (!container) return;
@@ -1264,28 +1267,25 @@ function initDragToScroll() {
     
     var isDragging = false;
     var startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
-    var currentZoom = 1.0;
+    
+    // Set hand cursor
+    wrapper.style.cursor = 'grab';
     
     // Zoom: Ctrl+Wheel
     wrapper.addEventListener('wheel', function(e) {
         if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
             var delta = e.deltaY < 0 ? 1.05 : 0.95;
-            currentZoom = Math.max(0.5, Math.min(2.0, currentZoom * delta));
-            
-            var table = wrapper.querySelector('table');
-            if (table) {
-                table.style.transform = 'scale(' + currentZoom + ')';
-                table.style.transformOrigin = 'top left';
-            }
+            matrixZoomLevel = Math.max(0.5, Math.min(2.0, matrixZoomLevel * delta));
+            applyMatrixZoom();
         }
     }, { passive: false });
     
-    // Drag to pan
+    // Drag to pan with hand cursor
     wrapper.addEventListener('mousedown', function(e) {
         if (e.target.closest('td[onclick]')) return;
         isDragging = true;
-        wrapper.style.cursor = 'move';
+        wrapper.style.cursor = 'grabbing';
         startX = e.clientX;
         startY = e.clientY;
         scrollLeft = wrapper.scrollLeft;
@@ -1303,9 +1303,36 @@ function initDragToScroll() {
     document.addEventListener('mouseup', function() {
         if (isDragging) {
             isDragging = false;
-            wrapper.style.cursor = 'default';
+            var wrapper = document.querySelector('#matrixContainer div');
+            if (wrapper) wrapper.style.cursor = 'grab';
         }
     });
+}
+
+function applyMatrixZoom() {
+    var wrapper = document.querySelector('#matrixContainer div');
+    if (!wrapper) return;
+    
+    var table = wrapper.querySelector('table');
+    if (table) {
+        table.style.transform = 'scale(' + matrixZoomLevel + ')';
+        table.style.transformOrigin = 'top left';
+    }
+}
+
+function zoomMatrixIn() {
+    matrixZoomLevel = Math.min(2.0, matrixZoomLevel * 1.1);
+    applyMatrixZoom();
+}
+
+function zoomMatrixOut() {
+    matrixZoomLevel = Math.max(0.5, matrixZoomLevel * 0.9);
+    applyMatrixZoom();
+}
+
+function zoomMatrixReset() {
+    matrixZoomLevel = 1.0;
+    applyMatrixZoom();
 }
 
 // Matrix Export Function
