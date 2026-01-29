@@ -555,67 +555,28 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Matrix (Refactored) -->
+            <!-- Tab 3: Connection Matrix -->
             <div id="content-matrix" class="tab-content">
-                <div id="matrixPrintArea">
-                    <!-- Header com título e controles -->
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-4">
-                            <div>
-                                <h2 class="text-xl font-bold text-slate-800">🔗 Connection Matrix</h2>
-                                <p class="text-xs text-slate-500">Visual map of all network connections</p>
-                            </div>
-                            <!-- View Mode Toggle - Left side -->
-                            <div class="flex bg-slate-200 rounded-lg p-0.5 no-print">
-                                <button onclick="setMatrixView('compact')" id="matrixViewCompact" class="px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-700 shadow-sm">
-                                    Compact
-                                </button>
-                                <button onclick="setMatrixView('detailed')" id="matrixViewDetailed" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-100">
-                                    Detailed
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 no-print">
-                            <button onclick="toggleMatrix()" id="toggleMatrixBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-lg text-xs" style="display:none;">
-                                Show All
-                            </button>
-                            <button onclick="printMatrix()" class="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-1.5 px-3 rounded-lg text-xs">
-                                🖨️ Print
-                            </button>
-                        </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Connection Matrix</h2>
+                        <p class="text-xs text-slate-500">Device connection map by location and group</p>
                     </div>
-
-                    <!-- Stats Bar -->
-                    <div id="matrixStats" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4 no-print">
-                        <!-- Stats will be populated by JS -->
-                    </div>
-
-                    <!-- Legend Bar (collapsible) -->
-                    <div class="mb-4 no-print">
-                        <button onclick="toggleMatrixLegend()" class="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1 mb-2">
-                            <span id="legendToggleIcon">▼</span> Connection Types Legend
+                    <div class="flex gap-2 flex-wrap">
+                        <select id="matrixLocationFilter" onchange="filterMatrixByLocation()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <option value="">All Locations</option>
+                        </select>
+                        <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <option value="">Filter by Group</option>
+                        </select>
+                        <button onclick="printMatrix()" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                            Print
                         </button>
-                        <div id="matrixLegend" class="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#3b82f6">● LAN</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#ef4444">● WAN</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#f97316">● DMZ</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#22c55e">● Trunk</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#8b5cf6">● Mgmt</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#eab308">● Backup</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#06b6d4">● Fiber</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#a78bfa">● Wall Jack</span>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-white" style="background:#64748b">● External</span>
-                        </div>
                     </div>
-
-                    <!-- Matrix Container -->
-                    <div class="overflow-auto drag-scroll rounded-xl border border-slate-200 bg-white shadow-sm" id="matrixContainer" style="max-height:65vh;">
-                        <div class="text-center text-slate-500 py-8">Loading...</div>
-                    </div>
-
-                    <!-- Tooltip container for hover details -->
-                    <div id="matrixTooltip" class="fixed hidden z-50 bg-slate-800 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs pointer-events-none">
-                        <!-- Tooltip content populated by JS -->
+                </div>
+                <div id="matrixContainer" class="border border-slate-300 rounded-lg bg-white" style="max-height: 70vh; overflow: auto;">
+                    <div class="flex items-center justify-center h-full text-slate-400">
+                        <p>Loading connection matrix...</p>
                     </div>
                 </div>
             </div>

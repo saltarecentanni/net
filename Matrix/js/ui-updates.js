@@ -436,95 +436,9 @@ function getDevicesSortedBy(key, asc, devicesList) {
 var matrixViewMode = 'compact'; // 'compact' or 'detailed'
 var matrixLegendVisible = true;
 
-function setMatrixView(mode) {
-    matrixViewMode = mode;
-    var compactBtn = document.getElementById('matrixViewCompact');
-    var detailedBtn = document.getElementById('matrixViewDetailed');
-    if (compactBtn && detailedBtn) {
-        if (mode === 'compact') {
-            compactBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-700 shadow-sm';
-            detailedBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-100';
-        } else {
-            compactBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:bg-slate-100';
-            detailedBtn.className = 'px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-700 shadow-sm';
-        }
-    }
-    updateMatrix();
-}
-
-function toggleMatrixLegend() {
-    matrixLegendVisible = !matrixLegendVisible;
-    var legend = document.getElementById('matrixLegend');
-    var icon = document.getElementById('legendToggleIcon');
-    if (legend) {
-        legend.style.display = matrixLegendVisible ? 'flex' : 'none';
-    }
-    if (icon) {
-        icon.textContent = matrixLegendVisible ? '▼' : '▶';
-    }
-}
-
-function updateMatrixStats() {
-    var statsContainer = document.getElementById('matrixStats');
-    if (!statsContainer) return;
-    
-    var totalDevices = appState.devices.length;
-    var totalConnections = appState.connections.length;
-    var activeConnections = 0;
-    var disabledConnections = 0;
-    var connectionsByType = {};
-    var racks = {};
-    
-    for (var i = 0; i < appState.connections.length; i++) {
-        var conn = appState.connections[i];
-        if (conn.status === 'active') activeConnections++;
-        else disabledConnections++;
-        
-        var type = conn.type || 'other';
-        connectionsByType[type] = (connectionsByType[type] || 0) + 1;
-    }
-    
-    for (var j = 0; j < appState.devices.length; j++) {
-        var rack = appState.devices[j].rackId || 'Unassigned';
-        racks[rack] = (racks[rack] || 0) + 1;
-    }
-    
-    var html = '';
-    html += '<div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-3 text-white">' +
-        '<div class="text-2xl font-bold">' + totalDevices + '</div>' +
-        '<div class="text-xs opacity-80">Devices</div></div>';
-    
-    html += '<div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-3 text-white">' +
-        '<div class="text-2xl font-bold">' + totalConnections + '</div>' +
-        '<div class="text-xs opacity-80">Connections</div></div>';
-    
-    html += '<div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg p-3 text-white">' +
-        '<div class="text-2xl font-bold">' + activeConnections + '</div>' +
-        '<div class="text-xs opacity-80">Active</div></div>';
-    
-    html += '<div class="bg-gradient-to-br from-red-400 to-red-500 rounded-lg p-3 text-white">' +
-        '<div class="text-2xl font-bold">' + disabledConnections + '</div>' +
-        '<div class="text-xs opacity-80">Disabled</div></div>';
-    
-    html += '<div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-3 text-white">' +
-        '<div class="text-2xl font-bold">' + Object.keys(racks).length + '</div>' +
-        '<div class="text-xs opacity-80">Groups</div></div>';
-    
-    // Most common connection type
-    var topType = 'N/A';
-    var topCount = 0;
-    for (var t in connectionsByType) {
-        if (connectionsByType[t] > topCount) {
-            topCount = connectionsByType[t];
-            topType = config.connLabels[t] || t;
-        }
-    }
-    html += '<div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-3 text-white">' +
-        '<div class="text-lg font-bold truncate">' + topType + '</div>' +
-        '<div class="text-xs opacity-80">Most Used (' + topCount + ')</div></div>';
-    
-    statsContainer.innerHTML = html;
-}
+// Legacy functions removed - Matrix now follows Topology pattern with Location and Group filters
+// Previous view modes (compact/detailed) removed in favor of simplified table design
+// Previous stats and legend features removed - Matrix is now cleaner and more professional
 
 function showMatrixTooltip(event, connIdx) {
     var tooltip = document.getElementById('matrixTooltip');
@@ -572,217 +486,82 @@ function updateMatrix() {
     var cont = document.getElementById('matrixContainer');
     if (!cont) return;
     
-    // Update stats
-    updateMatrixStats();
+    // Get filtered devices based on location and group selections
+    var filtered = getMatrixFilteredDevices();
     
-    if (appState.devices.length === 0) {
-        cont.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-slate-400">' +
-            '<div class="text-6xl mb-4">📡</div>' +
-            '<div class="text-lg font-medium">No devices yet</div>' +
-            '<div class="text-sm">Add devices in the Devices tab to see the connection matrix</div>' +
+    if (filtered.length === 0) {
+        cont.innerHTML = '<div class="flex items-center justify-center py-16 text-slate-400">' +
+            '<p>No devices in selected filters</p>' +
             '</div>';
         return;
     }
 
-    var sorted = getSorted();
-    var isCompact = matrixViewMode === 'compact';
-    var cellSize = isCompact ? 60 : 90;
-    var cellHeight = isCompact ? 50 : 75;
+    var cellSize = 80;
+    var cellHeight = 60;
     
-    // Check for special connections
-    var hasWallJackConnections = false;
-    var hasExternalConnections = false;
-    var wallJackConnections = [];
-    var externalConnections = [];
+    // Build simple matrix HTML
+    var html = '<div style="overflow-x: auto;">';
+    html += '<table class="border-collapse" style="border-spacing: 0; width: 100%; border: 1px solid #cbd5e1;">';
     
-    for (var sc = 0; sc < appState.connections.length; sc++) {
-        var sconn = appState.connections[sc];
-        if (sconn.to === null || sconn.to === undefined) {
-            if (sconn.isWallJack || sconn.type === 'wallport') {
-                hasWallJackConnections = true;
-                wallJackConnections.push({ conn: sconn, idx: sc });
-            } else if (sconn.externalDest || sconn.type === 'wan' || sconn.type === 'external') {
-                hasExternalConnections = true;
-                externalConnections.push({ conn: sconn, idx: sc });
-            }
-        }
-    }
-
-    var html = '<table id="matrixTable" class="border-collapse" style="border-spacing:0;">';
+    // Header row
+    html += '<thead><tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">';
+    html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; min-width: 120px; text-align: left; font-size: 0.875rem;">Device</th>';
     
-    // HEADER ROW
-    html += '<thead><tr>';
-    
-    // Corner cell with summary
-    html += '<th class="sticky left-0 z-20 p-2 text-center align-middle" style="min-width:' + (cellSize + 20) + 'px;background:linear-gradient(135deg,#1e293b 0%,#334155 100%);border:none;border-radius:8px 0 0 0;">' +
-        '<div class="text-white font-bold text-xs">MATRIX</div>' +
-        '<div class="text-slate-400 text-[10px]">' + sorted.length + ' devices</div>' +
-        '</th>';
-
-    // Column headers (destination devices)
-    for (var i = 0; i < sorted.length; i++) {
-        var d = sorted[i];
-        var rackColor = getRackColor(d.rackId);
-        var posNum = String(d.order || 0).padStart(2, '0');
-        var isDisabled = d.status === 'disabled';
-        
-        html += '<th class="p-1 text-center align-middle relative group" style="min-width:' + cellSize + 'px;width:' + cellSize + 'px;background-color:#1e293b;border-left:3px solid ' + rackColor + ';">' +
-            '<div class="flex flex-col items-center justify-center h-full py-1">' +
-            // Position badge
-            '<span class="inline-flex items-center justify-center w-5 h-5 text-[9px] font-bold rounded-full mb-1" style="background-color:' + rackColor + '22;color:' + rackColor + ';border:1px solid ' + rackColor + ';">' + posNum + '</span>' +
-            // Device name
-            '<div class="text-[9px] font-semibold text-white leading-tight text-center max-w-full px-0.5" style="word-break:break-word;' + (isDisabled ? 'opacity:0.5;' : '') + '" title="' + d.name + '">' + 
-            (d.name.length > 10 ? d.name.substring(0,9) + '…' : d.name) + 
-            '</div>' +
-            // Rack name
-            '<div class="text-[8px] font-medium mt-0.5" style="color:' + rackColor + ';">' + (d.rackId || '').toUpperCase() + '</div>' +
-            '</div></th>';
-    }
-    
-    // Special columns
-    if (hasWallJackConnections) {
-        html += '<th class="p-1 text-center align-middle" style="min-width:' + cellSize + 'px;width:' + cellSize + 'px;background-color:#1e293b;border-left:3px solid #a78bfa;">' +
-            '<div class="flex flex-col items-center justify-center py-1">' +
-            '<span class="text-xl">🔌</span>' +
-            '<div class="text-[9px] font-semibold text-white">Wall Jack</div>' +
-            '</div></th>';
-    }
-    if (hasExternalConnections) {
-        html += '<th class="p-1 text-center align-middle" style="min-width:' + cellSize + 'px;width:' + cellSize + 'px;background-color:#1e293b;border-left:3px solid #ef4444;">' +
-            '<div class="flex flex-col items-center justify-center py-1">' +
-            '<span class="text-xl">🌐</span>' +
-            '<div class="text-[9px] font-semibold text-white">External</div>' +
-            '</div></th>';
+    for (var i = 0; i < filtered.length; i++) {
+        var device = filtered[i];
+        html += '<th style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; min-width: ' + cellSize + 'px; font-size: 0.75rem; font-weight: 600;">' +
+                '<div title="' + device.name + '">' + device.name + '</div></th>';
     }
     
     html += '</tr></thead><tbody>';
-
-    // DATA ROWS
-    for (var r = 0; r < sorted.length; r++) {
-        var row = sorted[r];
-        var rowRackColor = getRackColor(row.rackId);
-        var rowPosNum = String(row.order || 0).padStart(2, '0');
-        var rowDisabled = row.status === 'disabled';
+    
+    // Data rows
+    for (var r = 0; r < filtered.length; r++) {
+        var row = filtered[r];
         var rowBg = r % 2 === 0 ? '#ffffff' : '#f8fafc';
         
-        html += '<tr>';
+        html += '<tr style="background-color: ' + rowBg + '; border-bottom: 1px solid #cbd5e1;">';
+        html += '<td style="padding: 8px; border-right: 1px solid #cbd5e1; font-weight: 600; font-size: 0.875rem;">' + row.name + '</td>';
         
-        // Row header (source device)
-        html += '<td class="sticky left-0 z-10 p-1 text-center align-middle" style="min-width:' + (cellSize + 20) + 'px;background-color:#f1f5f9;border-top:2px solid ' + rowRackColor + ';border-bottom:1px solid #e2e8f0;">' +
-            '<div class="flex items-center gap-2 px-1">' +
-            '<span class="inline-flex items-center justify-center w-5 h-5 text-[9px] font-bold rounded-full flex-shrink-0" style="background-color:' + rowRackColor + '22;color:' + rowRackColor + ';border:1px solid ' + rowRackColor + ';">' + rowPosNum + '</span>' +
-            '<div class="text-left flex-1 min-w-0">' +
-            '<div class="text-[10px] font-bold text-slate-800 truncate' + (rowDisabled ? ' opacity-50' : '') + '" title="' + row.name + '">' + row.name + '</div>' +
-            '<div class="text-[8px] font-medium" style="color:' + rowRackColor + ';">' + (row.rackId || '').toUpperCase() + '</div>' +
-            '</div></div></td>';
-
-        // Data cells
-        for (var c = 0; c < sorted.length; c++) {
-            var col = sorted[c];
-            var connIdx = getConnectionIndex(row.id, col.id);
-
+        for (var c = 0; c < filtered.length; c++) {
+            var col = filtered[c];
+            var cellContent = '';
+            var cellBg = rowBg;
+            
             if (row.id === col.id) {
-                // Diagonal - self reference
-                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background:repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 4px,#e2e8f0 4px,#e2e8f0 8px);border:1px solid #e2e8f0;">' +
-                    '<div class="w-full h-full flex items-center justify-center text-slate-300 text-lg">—</div></td>';
-            } else if (connIdx >= 0) {
-                // Connection exists
-                var conn = appState.connections[connIdx];
-                var connColor = conn.color || config.connColors[conn.type] || '#6b7280';
-                var isConnDisabled = conn.status === 'disabled';
+                cellContent = '—';
+                cellBg = '#e2e8f0';
+            } else {
+                // Look for connection between these two devices
+                var conn = null;
+                var connIdx = -1;
+                for (var ci = 0; ci < appState.connections.length; ci++) {
+                    var c_conn = appState.connections[ci];
+                    if ((c_conn.from === row.id && c_conn.to === col.id) ||
+                        (c_conn.from === col.id && c_conn.to === row.id)) {
+                        conn = c_conn;
+                        connIdx = ci;
+                        break;
+                    }
+                }
                 
-                // Determine ports
-                var portA = conn.from === row.id ? conn.fromPort : conn.toPort;
-                var portB = conn.from === row.id ? conn.toPort : conn.fromPort;
-                
-                if (isCompact) {
-                    // Compact view - just colored cell with type indicator
-                    html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105 hover:z-10" ' +
-                        'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;padding:3px;" ' +
-                        'onclick="editConnection(' + connIdx + ')" ' +
-                        'onmouseenter="showMatrixTooltip(event,' + connIdx + ')" ' +
-                        'onmouseleave="hideMatrixTooltip()">' +
-                        '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md transition-shadow hover:shadow-lg' + (isConnDisabled ? ' opacity-50' : '') + '" style="background-color:' + connColor + ';">' +
-                        '<div class="text-[10px] font-bold text-white uppercase">' + (conn.type || '').substring(0,3) + '</div>' +
-                        (conn.cableMarker ? '<div class="text-[8px] text-white/80 font-medium mt-0.5">' + conn.cableMarker + '</div>' : '') +
-                        '</div></td>';
-                } else {
-                    // Detailed view - full info
-                    var markerHtml = conn.cableMarker ? '<div class="mt-1">' + createMarkerHtml(conn.cableMarker, conn.cableColor || '#ffffff', true) + '</div>' : '';
-                    
-                    html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105 hover:z-10" ' +
-                        'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;padding:3px;" ' +
-                        'onclick="editConnection(' + connIdx + ')" ' +
-                        'onmouseenter="showMatrixTooltip(event,' + connIdx + ')" ' +
-                        'onmouseleave="hideMatrixTooltip()">' +
-                        '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md p-1' + (isConnDisabled ? ' opacity-50' : '') + '" style="background-color:' + connColor + ';">' +
-                        '<div class="text-[9px] font-bold text-white">' + (config.connLabels[conn.type] || conn.type || 'N/A').substring(0,6) + '</div>' +
-                        '<div class="flex items-center gap-1 mt-1">' +
-                        '<span class="text-[8px] px-1 py-0.5 bg-white/20 rounded text-white font-mono">' + (portA || '-') + '</span>' +
-                        '<span class="text-[10px] text-white/70">↔</span>' +
-                        '<span class="text-[8px] px-1 py-0.5 bg-black/20 rounded text-white font-mono">' + (portB || '-') + '</span>' +
-                        '</div>' +
-                        markerHtml +
-                        '</div></td>';
-                }
-            } else {
-                // No connection - empty cell
-                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;"></td>';
-            }
-        }
-        
-        // Wall Jack column
-        if (hasWallJackConnections) {
-            var wjConn = null;
-            var wjConnIdx = -1;
-            for (var wj = 0; wj < wallJackConnections.length; wj++) {
-                if (wallJackConnections[wj].conn.from === row.id) {
-                    wjConn = wallJackConnections[wj].conn;
-                    wjConnIdx = wallJackConnections[wj].idx;
-                    break;
+                if (conn) {
+                    var connType = conn.type || 'unknown';
+                    var fromPort = conn.from === row.id ? conn.fromPort : conn.toPort;
+                    var toPort = conn.from === row.id ? conn.toPort : conn.fromPort;
+                    cellContent = '<div style="font-size: 0.75rem; font-weight: 600; cursor: pointer;" onclick="editConnection(' + connIdx + ')" title="' + connType + ': ' + fromPort + ' → ' + toPort + '">' +
+                                  (connType.substring(0, 3).toUpperCase()) + '</div>';
                 }
             }
-            if (wjConn) {
-                html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105" ' +
-                    'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#faf5ff;border:1px solid #e9d5ff;padding:3px;" ' +
-                    'onclick="editConnection(' + wjConnIdx + ')">' +
-                    '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md" style="background-color:#a78bfa;">' +
-                    '<div class="text-[9px] font-bold text-white">' + (wjConn.fromPort || '-') + '</div>' +
-                    '<div class="text-[8px] text-white/80 truncate max-w-full px-1">→ ' + (wjConn.externalDest || 'WJ') + '</div>' +
-                    '</div></td>';
-            } else {
-                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#faf5ff;border:1px solid #e9d5ff;"></td>';
-            }
-        }
-        
-        // External column
-        if (hasExternalConnections) {
-            var extConn = null;
-            var extConnIdx = -1;
-            for (var ex = 0; ex < externalConnections.length; ex++) {
-                if (externalConnections[ex].conn.from === row.id) {
-                    extConn = externalConnections[ex].conn;
-                    extConnIdx = externalConnections[ex].idx;
-                    break;
-                }
-            }
-            if (extConn) {
-                html += '<td class="p-0 align-middle cursor-pointer transition-all hover:scale-105" ' +
-                    'style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#fef2f2;border:1px solid #fecaca;padding:3px;" ' +
-                    'onclick="editConnection(' + extConnIdx + ')">' +
-                    '<div class="w-full h-full rounded-lg flex flex-col items-center justify-center shadow-md" style="background-color:#ef4444;">' +
-                    '<div class="text-[9px] font-bold text-white">' + (extConn.fromPort || '-') + '</div>' +
-                    '<div class="text-[8px] text-white/80 truncate max-w-full px-1">→ ' + (extConn.externalDest || 'EXT') + '</div>' +
-                    '</div></td>';
-            } else {
-                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#fef2f2;border:1px solid #fecaca;"></td>';
-            }
+            
+            html += '<td style="padding: 8px; border-right: 1px solid #cbd5e1; text-align: center; background-color: ' + cellBg + '; cursor: ' + (cellContent ? 'pointer' : 'default') + ';">' +
+                    cellContent + '</td>';
         }
         
         html += '</tr>';
     }
     
-    html += '</tbody></table>';
+    html += '</tbody></table></div>';
     cont.innerHTML = html;
 }
 
@@ -1416,6 +1195,112 @@ function initDragToScroll() {
     });
 
     matrixContainer.style.cursor = 'grab';
+}
+
+// Matrix Filter Functions (following Topology pattern)
+function updateMatrixLocationFilter() {
+    var select = document.getElementById('matrixLocationFilter');
+    if (!select) return;
+    
+    var locations = {};
+    if (appState.devices) {
+        appState.devices.forEach(function(d) {
+            if (d.location) locations[d.location] = true;
+        });
+    }
+    
+    var currentValue = select.value;
+    var html = '<option value="">All Locations</option>';
+    Object.keys(locations).sort().forEach(function(loc) {
+        html += '<option value="' + loc + '">' + loc + '</option>';
+    });
+    select.innerHTML = html;
+    
+    if (currentValue) {
+        select.value = currentValue;
+    }
+    
+    updateMatrixGroupFilter();
+}
+
+function updateMatrixGroupFilter() {
+    var groupSelect = document.getElementById('matrixGroupFilter');
+    if (!groupSelect) return;
+    
+    var locationSelect = document.getElementById('matrixLocationFilter');
+    var selectedLocation = locationSelect ? locationSelect.value : '';
+    
+    var groups = {};
+    if (appState.devices) {
+        appState.devices.forEach(function(d) {
+            if (d.rackId) {
+                if (!selectedLocation || d.location === selectedLocation) {
+                    groups[d.rackId] = true;
+                }
+            }
+        });
+    }
+    
+    var currentValue = groupSelect.value;
+    var html = '<option value="">Filter by Group</option>';
+    Object.keys(groups).sort().forEach(function(group) {
+        html += '<option value="' + group + '">' + group + '</option>';
+    });
+    groupSelect.innerHTML = html;
+    
+    if (currentValue) {
+        groupSelect.value = currentValue;
+    }
+}
+
+function filterMatrixByLocation() {
+    updateMatrixGroupFilter();
+    updateMatrix();
+}
+
+function filterMatrixByGroup() {
+    updateMatrix();
+}
+
+function getMatrixFilteredDevices() {
+    var locationSelect = document.getElementById('matrixLocationFilter');
+    var groupSelect = document.getElementById('matrixGroupFilter');
+    var selectedLocation = locationSelect ? locationSelect.value : '';
+    var selectedGroup = groupSelect ? groupSelect.value : '';
+    
+    var filtered = [];
+    if (appState.devices) {
+        appState.devices.forEach(function(d) {
+            var matchLocation = !selectedLocation || d.location === selectedLocation;
+            var matchGroup = !selectedGroup || d.rackId === selectedGroup;
+            if (matchLocation && matchGroup) {
+                filtered.push(d);
+            }
+        });
+    }
+    
+    return filtered.sort(function(a, b) {
+        var aOrder = a.order || 0;
+        var bOrder = b.order || 0;
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return (a.name || '').localeCompare(b.name || '');
+    });
+}
+
+function getMatrixFilteredConnections(fromDevices) {
+    var fromIds = {};
+    fromDevices.forEach(function(d) { fromIds[d.id] = true; });
+    
+    var filtered = [];
+    if (appState.connections) {
+        appState.connections.forEach(function(c, idx) {
+            if (fromIds[c.from] || fromIds[c.to]) {
+                filtered.push({ conn: c, idx: idx });
+            }
+        });
+    }
+    
+    return filtered;
 }
 
 // Initialize drag-to-scroll when DOM is ready

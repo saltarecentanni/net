@@ -2230,6 +2230,11 @@ function updateUI() {
     if (typeof LocationFilter !== 'undefined') {
         LocationFilter.update();
     }
+    
+    // Update Matrix location and group filters
+    if (typeof updateMatrixLocationFilter === 'function') {
+        updateMatrixLocationFilter();
+    }
 }
 
 function updateGlobalCounters() {
