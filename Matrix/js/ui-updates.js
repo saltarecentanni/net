@@ -1294,7 +1294,12 @@ function initDragToScroll() {
     // Drag to pan with hand cursor (like Topology)
     wrapper.addEventListener('mousedown', function(e) {
         if (e.button !== 0) return;
-        if (e.target.closest('td[onclick]')) return;
+        
+        // Only prevent drag if clicking directly on a clickable connection cell
+        var target = e.target;
+        if (target.tagName === 'TD' && target.hasAttribute('onclick')) {
+            return; // Allow click on connection cell
+        }
         
         matrixIsDragging = true;
         matrixDragStart.x = e.clientX;
