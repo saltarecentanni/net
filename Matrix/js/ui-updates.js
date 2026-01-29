@@ -76,155 +76,134 @@ function updateDeviceFilterBar() {
     if (!filterBar) return;
     
     // Get unique locations, sources and types for dropdowns
-    var locations = [];
-    var sources = [];
-    var types = [];
-    for (var i = 0; i < appState.devices.length; i++) {
-        var d = appState.devices[i];
-        if (d.location && locations.indexOf(d.location) === -1) locations.push(d.location);
-        if (d.rackId && sources.indexOf(d.rackId) === -1) sources.push(d.rackId);
-        if (d.type && types.indexOf(d.type) === -1) types.push(d.type);
-    }
-    locations.sort();
-    sources.sort();
-    types.sort();
-    
-    // Calculate filtered count
-    var filteredDevices = typeof getFilteredDevices === 'function' ? getFilteredDevices() : appState.devices;
-    var totalDevices = appState.devices.length;
-    var filteredCount = filteredDevices.length;
-    var hasActiveFilters = appState.deviceFilters.location || appState.deviceFilters.source || appState.deviceFilters.name || 
-                           appState.deviceFilters.type || appState.deviceFilters.status || 
-                           appState.deviceFilters.hasConnections;
-    
-    var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
-    html += '<span class="text-xs font-semibold text-slate-600">🔍 Filters:</span>';
-    
-    // Location filter (first, with purple styling)
-    html += '<select id="filterDeviceLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold">';
-    html += '<option value="">📍 All Locations</option>';
-    for (var l = 0; l < locations.length; l++) {
-        var selectedL = appState.deviceFilters.location === locations[l] ? ' selected' : '';
-        html += '<option value="' + locations[l] + '"' + selectedL + '>' + locations[l] + '</option>';
-    }
-    html += '</select>';
-    
-    // Group filter (campo rackId - vedi nota in index.html)
-    html += '<select id="filterDeviceSource" onchange="updateDeviceFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
-    html += '<option value="">All Groups</option>';
-    for (var s = 0; s < sources.length; s++) {
-        var selected = appState.deviceFilters.source === sources[s] ? ' selected' : '';
-        html += '<option value="' + sources[s] + '"' + selected + '>' + sources[s] + '</option>';
-    }
-    html += '</select>';
-    
-    // Name search filter (simple text input)
-    html += '<input type="text" id="filterDeviceName" placeholder="Search name..." value="' + (appState.deviceFilters.name || '') + '" oninput="updateDeviceFilter(\'name\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white w-28">';
-    
-    // Type filter
-    html += '<select id="filterDeviceType" onchange="updateDeviceFilter(\'type\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
-    html += '<option value="">All Types</option>';
-    for (var t = 0; t < types.length; t++) {
-        var selectedT = appState.deviceFilters.type === types[t] ? ' selected' : '';
-        html += '<option value="' + types[t] + '"' + selectedT + '>' + types[t].charAt(0).toUpperCase() + types[t].slice(1) + '</option>';
-    }
-    html += '</select>';
-    
-    // Status filter
-    html += '<select id="filterDeviceStatus" onchange="updateDeviceFilter(\'status\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
-    html += '<option value="">All Status</option>';
-    html += '<option value="active"' + (appState.deviceFilters.status === 'active' ? ' selected' : '') + '>Active</option>';
-    html += '<option value="disabled"' + (appState.deviceFilters.status === 'disabled' ? ' selected' : '') + '>Disabled</option>';
-    html += '</select>';
-    
-    // Connections filter
-    html += '<select id="filterDeviceConnections" onchange="updateDeviceFilter(\'hasConnections\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
-    html += '<option value="">Connections</option>';
-    html += '<option value="yes"' + (appState.deviceFilters.hasConnections === 'yes' ? ' selected' : '') + '>With conn.</option>';
-    html += '<option value="no"' + (appState.deviceFilters.hasConnections === 'no' ? ' selected' : '') + '>No conn.</option>';
-    html += '</select>';
-    
-    // Clear filters button (with ID for dynamic updates)
-    html += '<button id="deviceFilterClearBtn" onclick="clearDeviceFilters()" class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200" style="display:' + (hasActiveFilters ? 'inline-block' : 'none') + '">✕ Clear</button>';
-    
-    // Count display (with ID for dynamic updates)
-    if (hasActiveFilters) {
-        html += '<span id="deviceFilterCount" class="text-xs text-slate-500 ml-2">Showing ' + filteredCount + ' of ' + totalDevices + '</span>';
-    } else {
-        html += '<span id="deviceFilterCount" class="text-xs text-slate-500 ml-2">' + totalDevices + ' devices</span>';
-    }
-    
-    // Legend
-    html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear</span>';
-    
-    html += '</div>';
-    filterBar.innerHTML = html;
-}
+    // Fixed dimensions based on reference image
+    var CELL_WIDTH = 100;
+    var CELL_HEIGHT = 70;
+    var HEADER_COL_WIDTH = 100;
+    var bodyWidth = filtered.length * CELL_WIDTH;
+    var bodyHeight = filtered.length * CELL_HEIGHT;
 
-function updateDevicesListCards(cont) {
-    var sorted = typeof getFilteredDevices === 'function' ? getFilteredDevices() : getSorted();
-    // Sort the filtered devices
-    sorted = getDevicesSortedBy(appState.deviceSort.key, appState.deviceSort.asc, sorted);
-    
-    if (sorted.length === 0) {
-        cont.innerHTML = '<p class="text-slate-400 text-center py-6 col-span-5 text-sm">No devices match the current filters</p>';
-        return;
-    }
-    
-    var html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">';
-    
-    for (var i = 0; i < sorted.length; i++) {
-        var d = sorted[i];
-        var usedPorts = 0;
-        for (var j = 0; j < d.ports.length; j++) {
-            if (isPortUsed(d.id, d.ports[j].name)) {
-                usedPorts++;
+    var html = '';
+    html += '<div id="matrixShell" style="position: relative; width: 100%; height: 70vh; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white;">';
+
+    // Corner (top-left)
+    html += '<div id="matrixCorner" style="position: absolute; top: 0; left: 0; width: ' + HEADER_COL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; z-index: 30; display: flex; align-items: center; justify-content: center;">' +
+            '<div style="font-size: 10px; color: #666; line-height: 1.5; text-align: center;">' +
+            '<div style="margin-bottom: 4px;"><strong>TO</strong> <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; border-radius: 50%; background: #2196F3; color: white; font-size: 10px; text-align: center; vertical-align: middle;">→</span></div>' +
+            '<div style="border-top: 1px solid #ddd; padding-top: 4px; margin-top: 4px;"><strong>FROM</strong> <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; border-radius: 50%; background: #4CAF50; color: white; font-size: 10px; text-align: center; vertical-align: middle;">↓</span></div>' +
+            '</div></div>';
+
+    // Header Row (TO devices)
+    html += '<div id="matrixHeaderRow" style="position: absolute; top: 0; left: ' + HEADER_COL_WIDTH + 'px; right: 0; height: ' + CELL_HEIGHT + 'px; overflow: hidden; border-bottom: 1px solid #ddd; background: #f5f5f5; z-index: 20;">';
+    html += '<div id="matrixHeaderRowContent" style="display: flex; width: ' + bodyWidth + 'px; height: ' + CELL_HEIGHT + 'px;">';
+    for (var i = 0; i < filtered.length; i++) {
+        var dev = filtered[i];
+        var ips = [];
+        if (dev.addresses && dev.addresses.length > 0) {
+            for (var a = 0; a < dev.addresses.length; a++) {
+                if (dev.addresses[a].network) ips.push(dev.addresses[a].network);
             }
         }
-        var disabled = d.status === 'disabled';
-        var rackColor = getRackColor(d.rackId);
-        var statusClass = disabled ? 'bg-red-500' : 'bg-green-500';
-        var statusText = disabled ? 'OFF' : 'ON';
-        var opacityClass = disabled ? 'opacity-50' : '';
+        var locationBadge = dev.location ? '<div style="font-size: 8px; color: #f59e0b; font-weight: 600; margin-bottom: 2px;">📍 ' + dev.location + '</div>' : '';
+        var groupBadge = dev.rackId ? '<div style="font-size: 8px; color: #92400e; font-weight: 500; margin-bottom: 3px;">🗄️ ' + dev.rackId + '</div>' : '';
+        html += '<div style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; border-right: 1px solid #ddd; padding: 4px; text-align: center; display: flex; flex-direction: column; justify-content: center;">' +
+                locationBadge + groupBadge +
+                '<div style="font-size: 10px; font-weight: 600; color: #333; margin-bottom: 2px; line-height: 1.2;">' + dev.name + '</div>' +
+                '<div style="font-size: 8px; color: #666; line-height: 1.2;">' + (ips.length > 0 ? ips.slice(0, 1).join('<br>') : '-') + '</div>' +
+                '</div>';
+    }
+    html += '</div></div>';
 
-        // Count total connections for this device
-        var totalConnections = 0;
-        for (var ci = 0; ci < appState.connections.length; ci++) {
-            if (appState.connections[ci].from === d.id || appState.connections[ci].to === d.id) {
-                totalConnections++;
+    // Header Column (FROM devices)
+    html += '<div id="matrixHeaderCol" style="position: absolute; top: ' + CELL_HEIGHT + 'px; left: 0; bottom: 0; width: ' + HEADER_COL_WIDTH + 'px; overflow: hidden; border-right: 1px solid #ddd; background: #f5f5f5; z-index: 10;">';
+    html += '<div id="matrixHeaderColContent" style="width: ' + HEADER_COL_WIDTH + 'px; height: ' + bodyHeight + 'px;">';
+    for (var r = 0; r < filtered.length; r++) {
+        var row = filtered[r];
+        var rowIPs = [];
+        if (row.addresses && row.addresses.length > 0) {
+            for (var ra = 0; ra < row.addresses.length; ra++) {
+                if (row.addresses[ra].network) rowIPs.push(row.addresses[ra].network);
             }
         }
-        var noConnectionsClass = totalConnections === 0 ? 'border-orange-400 border-2 bg-orange-50' : 'bg-white';
-        var noConnectionsWarning = totalConnections === 0 ? '<div class="text-xs mt-1 text-orange-600 font-semibold">⚠ No connections</div>' : '';
+        var rowLocationBadge = row.location ? '<div style="font-size: 8px; color: #f59e0b; font-weight: 600; margin-bottom: 2px;">📍 ' + row.location + '</div>' : '';
+        var rowGroupBadge = row.rackId ? '<div style="font-size: 8px; color: #92400e; font-weight: 500; margin-bottom: 3px;">🗄️ ' + row.rackId + '</div>' : '';
+        html += '<div style="width: ' + HEADER_COL_WIDTH + 'px; min-width: ' + HEADER_COL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; border-bottom: 1px solid #ddd; padding: 4px; text-align: center; display: flex; flex-direction: column; justify-content: center;">' +
+                rowLocationBadge + rowGroupBadge +
+                '<div style="font-size: 10px; font-weight: 600; color: #333; margin-bottom: 2px; line-height: 1.2;">' + row.name + '</div>' +
+                '<div style="font-size: 8px; color: #666; line-height: 1.2;">' + (rowIPs.length > 0 ? rowIPs.slice(0, 1).join('<br>') : '-') + '</div>' +
+                '</div>';
+    }
+    html += '</div></div>';
 
-        var addressText = '';
-        // Support both addresses[] array (new) and ip1-4 fields (legacy)
-        var ipList = [];
-        if (d.addresses && d.addresses.length > 0) {
-            ipList = d.addresses.map(function(a) { return a.network || a.ip || ''; }).filter(Boolean);
-        } else {
-            ipList = [d.ip1, d.ip2, d.ip3, d.ip4].filter(function(ip) { return ip && ip.trim(); });
+    // Body
+    html += '<div id="matrixBody" style="position: absolute; top: ' + CELL_HEIGHT + 'px; left: ' + HEADER_COL_WIDTH + 'px; right: 0; bottom: 0; overflow: auto; background: white;">';
+    html += '<div id="matrixBodyContent" style="width: ' + bodyWidth + 'px; height: ' + bodyHeight + 'px;">';
+    
+    for (var rr = 0; rr < filtered.length; rr++) {
+        var rowDevice = filtered[rr];
+        html += '<div style="display: flex; width: ' + bodyWidth + 'px; height: ' + CELL_HEIGHT + 'px;">';
+        for (var cc = 0; cc < filtered.length; cc++) {
+            var colDevice = filtered[cc];
+            if (rowDevice.id === colDevice.id) {
+                html += '<div style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #e8e8e8; border: 1px solid #ddd;"></div>';
+            } else {
+                // Find connection
+                var conn = null;
+                var connIdx = -1;
+                for (var ci = 0; ci < appState.connections.length; ci++) {
+                    var c_conn = appState.connections[ci];
+                    if ((c_conn.from === rowDevice.id && c_conn.to === colDevice.id) || (c_conn.from === colDevice.id && c_conn.to === rowDevice.id)) {
+                        conn = c_conn;
+                        connIdx = ci;
+                        break;
+                    }
+                }
+                if (conn) {
+                    var connType = conn.type || 'unknown';
+                    var connColor = config.connColors[connType] || '#999';
+                    var typeName = config.connLabels[connType] || connType;
+                    var fromPort = conn.from === rowDevice.id ? conn.fromPort : conn.toPort;
+                    var toPort = conn.from === rowDevice.id ? conn.toPort : conn.fromPort;
+                    var cellBg = '#fff';
+                    if (connType === 'lan') cellBg = '#e3f2fd';
+                    else if (connType === 'wan') cellBg = '#ffebee';
+                    else if (connType === 'dmz') cellBg = '#fff3e0';
+                    else if (connType === 'internet') cellBg = '#f3e5f5';
+                    else if (connType === 'voice') cellBg = '#e8f5e9';
+                    else if (connType === 'storage') cellBg = '#fce4ec';
+                    else if (connType === 'backup') cellBg = '#e0f2f1';
+                    else if (connType === 'mgmt') cellBg = '#fff9c4';
+                    else if (connType === 'ilo') cellBg = '#f1f8e9';
+                    else if (connType === 'cluster') cellBg = '#ede7f6';
+                    html += '<div style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: ' + cellBg + '; border: 1px solid #ddd; padding: 6px; text-align: center; display: flex; align-items: center; justify-content: center; cursor: pointer;" ' +
+                            'onmouseenter="showMatrixTooltip(event, ' + connIdx + ')" ' +
+                            'onmouseleave="hideMatrixTooltip()" ' +
+                            'onclick="editConnection(' + connIdx + ')">' +
+                            '<div style="display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; width: 100%; height: 100%;">' +
+                            '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 2px 6px; border-radius: 10px; font-size: 8px; font-weight: 600; white-space: nowrap;">' + typeName.substring(0, 6).toUpperCase() + '</span>';
+                    if (fromPort || toPort) {
+                        html += '<div style="display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; align-items: center;">';
+                        if (fromPort) {
+                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 1px 4px; border-radius: 8px; font-size: 7px; font-weight: 500; opacity: 0.8;">' + fromPort + '</span>';
+                        }
+                        if (toPort && toPort !== fromPort) {
+                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 1px 4px; border-radius: 8px; font-size: 7px; font-weight: 500; opacity: 0.6;">' + toPort + '</span>';
+                        }
+                        html += '</div>';
+                    }
+                    html += '</div></div>';
+                } else {
+                    html += '<div style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #fff; border: 1px solid #ddd;"></div>';
+                }
+            }
         }
-        if (ipList.length > 0) {
-            addressText = '<div class="text-xs mt-1 text-slate-600">IP: <strong>' + ipList.join('</strong>, <strong>') + '</strong></div>';
-        }
-        
-        var locationText = '';
-        if (d.location) {
-            locationText = '<div class="text-xs mt-1 text-purple-600">📍 ' + d.location + '</div>';
-        }
+        html += '</div>'; // end row
+    }
+    html += '</div></div>'; // bodyContent + body
+    html += '</div>'; // shell
 
-        var brandModelText = '';
-        if (d.brandModel) {
-            brandModelText = '<div class="text-xs text-slate-500 truncate">' + d.brandModel + '</div>';
-        }
-
-        html += '<div class="border rounded-lg p-2 hover:shadow-md transition-shadow ' + opacityClass + ' ' + noConnectionsClass + '">' +
-            '<div class="flex justify-between items-start">' +
-            '<div class="flex-1 min-w-0">' +
-            '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
-            '<span class="text-xs font-semibold px-1.5 py-0.5 rounded uppercase" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span>' +
-            '<span class="text-xs text-slate-500">Pos.</span>' +
+    cont.innerHTML = html;
+    initDragToScroll();
             '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' +
             ((d.isRear || d.rear) ? '<span class="text-[11px] font-bold text-amber-600" title="Rear/Back position">↩</span>' : '') +
             '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
@@ -1271,55 +1250,62 @@ var matrixDragStart = { x: 0, y: 0, scrollLeft: 0, scrollTop: 0 };
 function initDragToScroll() {
     var container = document.getElementById('matrixContainer');
     if (!container) return;
-    
-    var wrapper = container.querySelector('div');
-    if (!wrapper) return;
-    
+
+    var body = document.getElementById('matrixBody');
+    var headerRow = document.getElementById('matrixHeaderRow');
+    var headerCol = document.getElementById('matrixHeaderCol');
+    var bodyContent = document.getElementById('matrixBodyContent');
+    var headerRowContent = document.getElementById('matrixHeaderRowContent');
+    var headerColContent = document.getElementById('matrixHeaderColContent');
+    if (!body || !headerRow || !headerCol || !bodyContent || !headerRowContent || !headerColContent) return;
+
     // Set hand cursor
-    wrapper.style.cursor = 'grab';
-    
-    // Note: Zoom disabled to preserve sticky headers functionality
-    // Transform breaks position: sticky in CSS
-    
-    // Drag to pan with hand cursor (like Topology)
-    wrapper.addEventListener('mousedown', function(e) {
+    body.style.cursor = 'grab';
+
+    // Sync scroll between body and headers
+    body.addEventListener('scroll', function() {
+        headerRow.scrollLeft = body.scrollLeft;
+        headerCol.scrollTop = body.scrollTop;
+    });
+
+    // Zoom with mouse wheel (without Ctrl), scale contents (not containers)
+    body.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        var delta = e.deltaY > 0 ? 1.1 : 0.9;
+        matrixZoomLevel = Math.max(0.4, Math.min(2.5, matrixZoomLevel * delta));
+
+        var scale = 'scale(' + matrixZoomLevel + ')';
+        bodyContent.style.transform = scale;
+        bodyContent.style.transformOrigin = 'top left';
+        headerRowContent.style.transform = scale;
+        headerRowContent.style.transformOrigin = 'top left';
+        headerColContent.style.transform = scale;
+        headerColContent.style.transformOrigin = 'top left';
+    }, { passive: false });
+
+    // Drag to pan with hand cursor
+    body.addEventListener('mousedown', function(e) {
         if (e.button !== 0) return;
-        
-        // Only prevent drag if clicking directly on a clickable connection cell
-        var target = e.target;
-        if (target.tagName === 'TD' && target.hasAttribute('onclick')) {
-            return; // Allow click on connection cell
-        }
-        
         matrixIsDragging = true;
         matrixDragStart.x = e.clientX;
         matrixDragStart.y = e.clientY;
-        matrixDragStart.scrollLeft = wrapper.scrollLeft;
-        matrixDragStart.scrollTop = wrapper.scrollTop;
-        
-        wrapper.style.cursor = 'grabbing';
+        matrixDragStart.scrollLeft = body.scrollLeft;
+        matrixDragStart.scrollTop = body.scrollTop;
+        body.style.cursor = 'grabbing';
         e.preventDefault();
     });
-    
+
     document.addEventListener('mousemove', function(e) {
         if (!matrixIsDragging) return;
         e.preventDefault();
-        
-        var wrapper = document.querySelector('#matrixContainer div');
-        if (!wrapper) return;
-        
-        var dx = e.clientX - matrixDragStart.x;
-        var dy = e.clientY - matrixDragStart.y;
-        
-        wrapper.scrollLeft = matrixDragStart.scrollLeft - dx;
-        wrapper.scrollTop = matrixDragStart.scrollTop - dy;
+        body.scrollLeft = matrixDragStart.scrollLeft - (e.clientX - matrixDragStart.x);
+        body.scrollTop = matrixDragStart.scrollTop - (e.clientY - matrixDragStart.y);
     });
-    
+
     document.addEventListener('mouseup', function() {
         if (matrixIsDragging) {
             matrixIsDragging = false;
-            var wrapper = document.querySelector('#matrixContainer div');
-            if (wrapper) wrapper.style.cursor = 'grab';
+            body.style.cursor = 'grab';
         }
     });
 }
