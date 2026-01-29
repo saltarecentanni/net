@@ -1546,15 +1546,27 @@ function filterMatrixByGroup() {
 function getMatrixFilteredDevices() {
     var locationSelect = document.getElementById('matrixLocationFilter');
     var groupSelect = document.getElementById('matrixGroupFilter');
+    var onlyConnectedCheckbox = document.getElementById('matrixOnlyConnected');
     var selectedLocation = locationSelect ? locationSelect.value : '';
     var selectedGroup = groupSelect ? groupSelect.value : '';
+    var onlyConnected = onlyConnectedCheckbox ? onlyConnectedCheckbox.checked : true;
+    
+    // Build set of device IDs that have connections
+    var connectedDeviceIds = {};
+    if (onlyConnected && appState.connections) {
+        appState.connections.forEach(function(c) {
+            connectedDeviceIds[c.from] = true;
+            connectedDeviceIds[c.to] = true;
+        });
+    }
     
     var filtered = [];
     if (appState.devices) {
         appState.devices.forEach(function(d) {
             var matchLocation = !selectedLocation || d.location === selectedLocation;
             var matchGroup = !selectedGroup || d.rackId === selectedGroup;
-            if (matchLocation && matchGroup) {
+            var matchConnected = !onlyConnected || connectedDeviceIds[d.id];
+            if (matchLocation && matchGroup && matchConnected) {
                 filtered.push(d);
             }
         });

@@ -569,6 +569,10 @@
                         <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                             <option value="">Filter by Group</option>
                         </select>
+                        <label class="flex items-center gap-2 px-3 py-1.5 border border-slate-300 rounded-lg text-sm bg-white cursor-pointer hover:bg-slate-50" title="Show only devices with connections">
+                            <input type="checkbox" id="matrixOnlyConnected" onchange="filterMatrixByGroup()" checked class="w-4 h-4 rounded border-slate-300">
+                            <span class="text-xs font-medium text-slate-700">Only Connected</span>
+                        </label>
                         <button onclick="exportMatrixPNG()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
                             Export PNG
                         </button>
