@@ -520,45 +520,43 @@ function updateMatrix() {
     var filtered = getMatrixFilteredDevices();
     
     if (filtered.length === 0) {
-        cont.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 400px; color: #999; font-size: 14px;">No devices in selected filters</div>';
+        cont.innerHTML = '<div style="padding: 40px; text-align: center; color: #999;">No devices in selected filters</div>';
         return;
     }
 
-    // EXCEL-STYLE CONFIGURATION
-    var CELL_SIZE = 100;           // Square cells
-    var FIRST_COL_WIDTH = 180;     // Device names column
-    var HEADER_HEIGHT = 100;       // Header row height
-    var BADGE_SIZE = 36;           // Connection badge
+    // Fixed dimensions based on reference image
+    var CELL_WIDTH = 140;
+    var CELL_HEIGHT = 100;
+    var HEADER_COL_WIDTH = 140;
     
-    // Build professional Excel-like matrix
-    var html = '<div class="matrix-wrapper" style="position: relative; width: 100%; height: 100%; overflow: auto;">';
-    html += '<table class="matrix-table" style="border-collapse: collapse; table-layout: fixed; background: white;">';
+    var html = '<div style="width: 100%; height: 100%; overflow: auto;">';
+    html += '<table style="border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Arial, sans-serif;">';
     
     // ═══════════════════════════════════════════════════════════════
-    // HEADER ROW (Sticky)
+    // HEADER ROW
     // ═══════════════════════════════════════════════════════════════
     html += '<thead><tr>';
     
-    // Top-left corner cell (FROM/TO legend)
-    html += '<th class="matrix-corner" style="position: sticky; left: 0; top: 0; z-index: 30; width: ' + FIRST_COL_WIDTH + 'px; height: ' + HEADER_HEIGHT + 'px; background: #f8f9fa; border: 1px solid #d0d0d0; padding: 8px; text-align: center; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;">' +
-            '<div style="font-size: 10px; color: #666; line-height: 1.4;">' +
-            '<div style="margin-bottom: 6px;"><span style="font-weight: 600;">FROM</span> <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #2196F3; color: white; text-align: center; line-height: 18px; font-size: 11px; font-weight: bold; vertical-align: middle;">↓</span></div>' +
-            '<div><span style="font-weight: 600;">TO</span> <span style="display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #4CAF50; color: white; text-align: center; line-height: 18px; font-size: 11px; font-weight: bold; vertical-align: middle;">→</span></div>' +
+    // Top-left corner (FROM/TO indicator)
+    html += '<th style="width: ' + HEADER_COL_WIDTH + 'px; min-width: ' + HEADER_COL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; position: sticky; left: 0; top: 0; z-index: 30;">' +
+            '<div style="font-size: 10px; color: #666; line-height: 1.5;">' +
+            '<div style="margin-bottom: 4px;"><strong>TO</strong> <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; border-radius: 50%; background: #2196F3; color: white; font-size: 10px; text-align: center; vertical-align: middle;">→</span></div>' +
+            '<div style="border-top: 1px solid #ddd; padding-top: 4px; margin-top: 4px;"><strong>FROM</strong> <span style="display: inline-block; width: 16px; height: 16px; line-height: 16px; border-radius: 50%; background: #4CAF50; color: white; font-size: 10px; text-align: center; vertical-align: middle;">↓</span></div>' +
             '</div></th>';
     
-    // Column headers (Device names)
+    // Column headers (TO devices)
     for (var i = 0; i < filtered.length; i++) {
         var dev = filtered[i];
-        var devIPs = [];
+        var ips = [];
         if (dev.addresses && dev.addresses.length > 0) {
             for (var a = 0; a < dev.addresses.length; a++) {
-                if (dev.addresses[a].network) devIPs.push(dev.addresses[a].network);
+                if (dev.addresses[a].network) ips.push(dev.addresses[a].network);
             }
         }
-        var tooltipText = dev.name + (devIPs.length > 0 ? '\\n' + devIPs.join('\\n') : '');
         
-        html += '<th style="position: sticky; top: 0; z-index: 20; width: ' + CELL_SIZE + 'px; height: ' + HEADER_HEIGHT + 'px; background: #f8f9fa; border: 1px solid #d0d0d0; padding: 6px; text-align: center; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif; font-size: 11px; font-weight: 600; color: #333; overflow: hidden;" title="' + tooltipText + '">' +
-                '<div style="writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: ' + (HEADER_HEIGHT - 12) + 'px;">' + dev.name + '</div>' +
+        html += '<th style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; position: sticky; top: 0; z-index: 20;">' +
+                '<div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">' + dev.name + '</div>' +
+                '<div style="font-size: 10px; color: #666; line-height: 1.3;">' + (ips.length > 0 ? ips.slice(0, 2).join('<br>') : '-') + '</div>' +
                 '</th>';
     }
     
@@ -571,11 +569,10 @@ function updateMatrix() {
     
     for (var r = 0; r < filtered.length; r++) {
         var row = filtered[r];
-        var rowBg = r % 2 === 0 ? '#ffffff' : '#fafafa';
         
         html += '<tr>';
         
-        // Row header (Device name + IPs) - Sticky
+        // Row header (FROM device)
         var rowIPs = [];
         if (row.addresses && row.addresses.length > 0) {
             for (var ra = 0; ra < row.addresses.length; ra++) {
@@ -583,22 +580,18 @@ function updateMatrix() {
             }
         }
         
-        html += '<th style="position: sticky; left: 0; z-index: 10; width: ' + FIRST_COL_WIDTH + 'px; height: ' + CELL_SIZE + 'px; background: ' + rowBg + '; border: 1px solid #d0d0d0; padding: 8px; text-align: left; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif; font-size: 12px; font-weight: 600; color: #333;">' +
-                '<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">' + row.name + '</div>';
-        
-        if (rowIPs.length > 0) {
-            html += '<div style="font-size: 10px; font-weight: normal; color: #666; line-height: 1.3;">' + rowIPs.slice(0, 2).join('<br>') + '</div>';
-        }
-        
-        html += '</th>';
+        html += '<th style="width: ' + HEADER_COL_WIDTH + 'px; min-width: ' + HEADER_COL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #f5f5f5; border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; position: sticky; left: 0; z-index: 10;">' +
+                '<div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">' + row.name + '</div>' +
+                '<div style="font-size: 10px; color: #666; line-height: 1.3;">' + (rowIPs.length > 0 ? rowIPs.slice(0, 2).join('<br>') : '-') + '</div>' +
+                '</th>';
         
         // Data cells
         for (var c = 0; c < filtered.length; c++) {
             var col = filtered[c];
             
             if (row.id === col.id) {
-                // Diagonal cells
-                html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; background: #e8e8e8; border: 1px solid #d0d0d0;"></td>';
+                // Diagonal cell
+                html += '<td style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #e8e8e8; border: 1px solid #ddd;"></td>';
             } else {
                 // Find connection
                 var conn = null;
@@ -613,37 +606,54 @@ function updateMatrix() {
                 }
                 
                 if (conn) {
-                    // Connection cell
+                    // Connection exists
                     var connType = conn.type || 'unknown';
+                    var connColor = config.connColors[connType] || '#999';
+                    var typeName = config.connLabels[connType] || connType;
                     var fromPort = conn.from === row.id ? conn.fromPort : conn.toPort;
                     var toPort = conn.from === row.id ? conn.toPort : conn.fromPort;
-                    var connColor = config.connColors[connType] || '#888';
-                    var typeName = config.connLabels[connType] || connType;
                     
-                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; background: white; border: 1px solid #d0d0d0; cursor: pointer; text-align: center; vertical-align: middle; padding: 0;" ' +
+                    // Cell background color based on connection type (subtle)
+                    var cellBg = '#fff';
+                    if (connType === 'lan') cellBg = '#e3f2fd';
+                    else if (connType === 'wan') cellBg = '#ffebee';
+                    else if (connType === 'dmz') cellBg = '#fff3e0';
+                    else if (connType === 'internet') cellBg = '#f3e5f5';
+                    else if (connType === 'voice') cellBg = '#e8f5e9';
+                    else if (connType === 'storage') cellBg = '#fce4ec';
+                    else if (connType === 'backup') cellBg = '#e0f2f1';
+                    else if (connType === 'mgmt') cellBg = '#fff9c4';
+                    else if (connType === 'ilo') cellBg = '#f1f8e9';
+                    else if (connType === 'cluster') cellBg = '#ede7f6';
+                    
+                    html += '<td style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: ' + cellBg + '; border: 1px solid #ddd; padding: 6px; text-align: center; vertical-align: middle; cursor: pointer;" ' +
                             'onmouseenter="showMatrixTooltip(event, ' + connIdx + ')" ' +
                             'onmouseleave="hideMatrixTooltip()" ' +
                             'onclick="editConnection(' + connIdx + ')">' +
                             
-                            '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 100%;">' +
-                            
-                            // Badge
-                            '<div style="width: ' + BADGE_SIZE + 'px; height: ' + BADGE_SIZE + 'px; border-radius: 50%; background: ' + connColor + '; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: transform 0.15s ease;" ' +
-                            'onmouseenter="this.style.transform=\'scale(1.15)\';" onmouseleave="this.style.transform=\'scale(1)\';">' +
-                            '<span style="color: white; font-size: 11px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;">' + typeName.substring(0, 3).toUpperCase() + '</span>' +
-                            '</div>' +
-                            
-                            // Ports
-                            '<div style="display: flex; gap: 3px; align-items: center; font-size: 9px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif;">' +
-                            '<span style="background: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.85; max-width: 35px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + (fromPort || '—') + '</span>' +
-                            '<span style="color: #999;">→</span>' +
-                            '<span style="background: ' + connColor + '; color: white; padding: 2px 4px; border-radius: 3px; opacity: 0.65; max-width: 35px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + (toPort || '—') + '</span>' +
-                            '</div>' +
-                            
-                            '</div></td>';
+                            '<div style="display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; height: 100%;">';
+                    
+                    // Type badge
+                    html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap;">' + 
+                            typeName.substring(0, 6).toUpperCase() + 
+                            '</span>';
+                    
+                    // Port badges
+                    if (fromPort || toPort) {
+                        html += '<div style="display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; align-items: center;">';
+                        if (fromPort) {
+                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 500; opacity: 0.8;">' + fromPort + '</span>';
+                        }
+                        if (toPort && toPort !== fromPort) {
+                            html += '<span style="display: inline-block; background: ' + connColor + '; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 500; opacity: 0.6;">' + toPort + '</span>';
+                        }
+                        html += '</div>';
+                    }
+                    
+                    html += '</div></td>';
                 } else {
                     // Empty cell
-                    html += '<td style="width: ' + CELL_SIZE + 'px; height: ' + CELL_SIZE + 'px; background: ' + rowBg + '; border: 1px solid #d0d0d0;"></td>';
+                    html += '<td style="width: ' + CELL_WIDTH + 'px; min-width: ' + CELL_WIDTH + 'px; height: ' + CELL_HEIGHT + 'px; background: #fff; border: 1px solid #ddd;"></td>';
                 }
             }
         }
@@ -1249,22 +1259,21 @@ function initDragToScroll() {
     var container = document.getElementById('matrixContainer');
     if (!container) return;
     
-    var wrapper = container.querySelector('.matrix-wrapper');
+    var wrapper = container.querySelector('div');
     if (!wrapper) return;
     
     var isDragging = false;
     var startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
     var currentZoom = 1.0;
     
-    // Excel-style zoom with Ctrl+Wheel (smooth, centered)
+    // Zoom: Ctrl+Wheel
     wrapper.addEventListener('wheel', function(e) {
         if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
-            
             var delta = e.deltaY < 0 ? 1.05 : 0.95;
-            currentZoom = Math.min(Math.max(currentZoom * delta, 0.5), 2.0);
+            currentZoom = Math.max(0.5, Math.min(2.0, currentZoom * delta));
             
-            var table = wrapper.querySelector('.matrix-table');
+            var table = wrapper.querySelector('table');
             if (table) {
                 table.style.transform = 'scale(' + currentZoom + ')';
                 table.style.transformOrigin = 'top left';
@@ -1272,12 +1281,11 @@ function initDragToScroll() {
         }
     }, { passive: false });
     
-    // Excel-style pan/drag (anywhere except clickable cells)
+    // Drag to pan
     wrapper.addEventListener('mousedown', function(e) {
-        if (e.target.closest('td[onclick]')) return; // Don't drag on connection cells
-        
+        if (e.target.closest('td[onclick]')) return;
         isDragging = true;
-        wrapper.style.cursor = 'grabbing';
+        wrapper.style.cursor = 'move';
         startX = e.clientX;
         startY = e.clientY;
         scrollLeft = wrapper.scrollLeft;
@@ -1288,22 +1296,16 @@ function initDragToScroll() {
     document.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
         e.preventDefault();
-        
-        var dx = e.clientX - startX;
-        var dy = e.clientY - startY;
-        
-        wrapper.scrollLeft = scrollLeft - dx;
-        wrapper.scrollTop = scrollTop - dy;
+        wrapper.scrollLeft = scrollLeft - (e.clientX - startX);
+        wrapper.scrollTop = scrollTop - (e.clientY - startY);
     });
     
     document.addEventListener('mouseup', function() {
-        if (!isDragging) return;
-        isDragging = false;
-        wrapper.style.cursor = 'default';
+        if (isDragging) {
+            isDragging = false;
+            wrapper.style.cursor = 'default';
+        }
     });
-    
-    // Set default cursor
-    wrapper.style.cursor = 'default';
 }
 
 // Matrix Export Function
