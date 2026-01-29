@@ -1278,18 +1278,8 @@ function initDragToScroll() {
     // Set hand cursor
     wrapper.style.cursor = 'grab';
     
-    // Zoom with mouse wheel (without Ctrl, like Topology)
-    wrapper.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        var delta = e.deltaY > 0 ? 1.1 : 0.9;
-        matrixZoomLevel = Math.max(0.3, Math.min(3.0, matrixZoomLevel * delta));
-        
-        var table = wrapper.querySelector('table');
-        if (table) {
-            table.style.transform = 'scale(' + matrixZoomLevel + ')';
-            table.style.transformOrigin = 'top left';
-        }
-    }, { passive: false });
+    // Note: Zoom disabled to preserve sticky headers functionality
+    // Transform breaks position: sticky in CSS
     
     // Drag to pan with hand cursor (like Topology)
     wrapper.addEventListener('mousedown', function(e) {
