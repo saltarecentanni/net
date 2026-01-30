@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.3.0
+ * Version: 3.2.2
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -12,7 +12,6 @@
  * - Wall jack passthrough support (v3.1.3)
  * - Refactored Matrix page with Topology-style layout (v3.2.0)
  * - Improved sticky headers and zoom (v3.2.1)
- * - CSS Variables + Tailwind architecture (v3.3.0)
  */
 
 'use strict';
@@ -701,18 +700,17 @@ var Toast = (function() {
         type = type || 'info';
         duration = duration || 3000;
         
-        // Uses CSS variables from styles.css
         var colors = {
-            success: { bg: 'var(--color-success)', icon: '✓' },
-            error: { bg: 'var(--color-danger)', icon: '✕' },
-            warning: { bg: 'var(--color-warning)', icon: '⚠' },
-            info: { bg: 'var(--color-primary)', icon: 'ℹ' }
+            success: { bg: '#22c55e', icon: '✓' },
+            error: { bg: '#ef4444', icon: '✕' },
+            warning: { bg: '#f59e0b', icon: '⚠' },
+            info: { bg: '#3b82f6', icon: 'ℹ' }
         };
         
         var c = colors[type] || colors.info;
         
         var toast = document.createElement('div');
-        toast.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 16px;background:' + c.bg + ';color:white;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:14px;animation:slideIn 0.3s ease;cursor:pointer;';
+        toast.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 16px;background:' + c.bg + ';color:white;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:14px;animation:slideIn 0.3s ease;cursor:pointer;';
         toast.innerHTML = '<span style="font-size:18px;">' + c.icon + '</span><span>' + message + '</span>';
         
         toast.onclick = function() {
@@ -833,8 +831,8 @@ function highlightEditFields(formType, enable) {
         var el = document.getElementById(fields[i]);
         if (el) {
             if (enable) {
-                el.style.backgroundColor = 'var(--color-bg-alt)';
-                el.style.borderColor = 'var(--color-primary-100)';
+                el.style.backgroundColor = '#f8fafc';
+                el.style.borderColor = '#93c5fd';
             } else {
                 el.style.backgroundColor = '';
                 el.style.borderColor = '';
@@ -1017,7 +1015,7 @@ function loadFromStorage() {
 // RACK COLOR MANAGEMENT
 // ============================================================================
 function getRackColor(rackId) {
-    if (!rackId) return 'var(--color-secondary)';
+    if (!rackId) return '#64748b';
     if (!appState.rackColorMap[rackId]) {
         var idx = Object.keys(appState.rackColorMap).length % config.rackColors.length;
         appState.rackColorMap[rackId] = config.rackColors[idx];
@@ -2092,9 +2090,9 @@ function updateToDevices(selectedDeviceId) {
     }
     
     // Special destinations
-    opts += '<option disabled style="font-size:10px;color:var(--color-text-muted);">── Special ──</option>';
-    opts += '<option value="walljack" style="color:var(--color-accent-hover);font-weight:bold;">🔌 Wall Jack / Presa LAN</option>';
-    opts += '<option value="external" style="color:var(--color-danger-hover);font-weight:bold;">📡 External (ISP/WAN)</option>';
+    opts += '<option disabled style="font-size:10px;color:#94a3b8;">── Special ──</option>';
+    opts += '<option value="walljack" style="color:#7c3aed;font-weight:bold;">🔌 Wall Jack / Presa LAN</option>';
+    opts += '<option value="external" style="color:#dc2626;font-weight:bold;">📡 External (ISP/WAN)</option>';
     
     sel.innerHTML = opts;
     
@@ -2741,7 +2739,7 @@ function printMatrix() {
         html += getPrintStyles();
         html += '</head><body>';
         html += '<h2>🔗 Connection Matrix - ' + new Date().toLocaleDateString() + '</h2>';
-        html += '<p style="font-size:10px;color:var(--color-text-light);margin-bottom:10px;">Total devices: ' + appState.devices.length + ' | Total connections: ' + appState.connections.length + '</p>';
+        html += '<p style="font-size:10px;color:#64748b;margin-bottom:10px;">Total devices: ' + appState.devices.length + ' | Total connections: ' + appState.connections.length + '</p>';
         html += printArea.innerHTML;
         html += '</body></html>';
         
@@ -2776,7 +2774,7 @@ function printConnections() {
         html += '<style>.print-hide-id { display: none !important; }</style>';
         html += '</head><body>';
         html += '<h2>⚡ Active Connections - ' + new Date().toLocaleDateString() + '</h2>';
-        html += '<p style="font-size:10px;color:var(--color-text-light);margin-bottom:10px;">Total connections: ' + appState.connections.length + '</p>';
+        html += '<p style="font-size:10px;color:#64748b;margin-bottom:10px;">Total connections: ' + appState.connections.length + '</p>';
         html += printArea.innerHTML;
         html += '</body></html>';
         

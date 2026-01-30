@@ -6,15 +6,124 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.3.0">
+    <meta name="app-version" content="3.2.1">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%231e40af'/><circle cx='25' cy='25' r='8' fill='%2360a5fa'/><circle cx='75' cy='25' r='8' fill='%2360a5fa'/><circle cx='25' cy='75' r='8' fill='%2360a5fa'/><circle cx='75' cy='75' r='8' fill='%2360a5fa'/><circle cx='50' cy='50' r='10' fill='%23fbbf24'/><line x1='25' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='25' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/></svg>">
     <!-- Local libraries for offline/intranet use -->
     <script src="assets/vendor/tailwind.min.js"></script>
     <script src="assets/vendor/xlsx.full.min.js"></script>
-    <!-- Custom CSS with CSS Variables (v3.3.0) -->
-    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .sticky-col { 
+            position: sticky; 
+            left: 0; 
+            z-index: 20; 
+        }
+        thead th.sticky-col {
+            z-index: 30;
+        }
+        .sync-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .sync-saved { background: #22c55e; color: white; }
+        .sync-info { background: #3b82f6; color: white; }
+        
+        /* Tab styles */
+        .tab-btn {
+            padding: 12px 24px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+        .tab-btn:hover {
+            color: #3b82f6;
+            background: #f1f5f9;
+        }
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Drag to scroll */
+        .drag-scroll {
+            cursor: grab;
+            user-select: none;
+        }
+        .drag-scroll:active, .drag-scroll.dragging {
+            cursor: grabbing;
+        }
+        /* Matrix sticky headers - fix for scroll issues */
+        #matrixTable thead {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        #matrixTable thead th {
+            position: sticky;
+            top: 0;
+            background-clip: padding-box;
+        }
+        #matrixTable tbody td:first-child {
+            position: sticky;
+            left: 0;
+            background-clip: padding-box;
+        }
+        /* Prevent border bleed during scroll */
+        #matrixTable th, #matrixTable td {
+            box-sizing: border-box;
+        }
+        /* Print styles */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .print-hide-id { display: none !important; }
+            .print-hide-empty:empty { display: none !important; }
+            .drag-scroll { overflow: visible !important; max-height: none !important; cursor: default; }
+            table { font-size: 9px !important; border-collapse: collapse !important; width: 100% !important; }
+            table th, table td { 
+                border: 1px solid #334155 !important; 
+                padding: 4px 6px !important;
+            }
+            table thead th { 
+                background-color: #334155 !important; 
+                color: #ffffff !important;
+                font-weight: bold !important; 
+            }
+            table tbody tr:nth-child(even) { background-color: #f1f5f9 !important; }
+            table tbody tr:nth-child(odd) { background-color: #ffffff !important; }
+            /* Preserve badge colors */
+            .bg-green-100 { background-color: #dcfce7 !important; }
+            .bg-red-100 { background-color: #fee2e2 !important; }
+            .bg-blue-100 { background-color: #dbeafe !important; }
+            .text-green-800 { color: #166534 !important; }
+            .text-red-800 { color: #991b1b !important; }
+            .text-blue-800 { color: #1e40af !important; }
+            /* Matrix cell colors preserved */
+            .matrix-cell { min-width: 90px !important; }
+            span[style*="text-shadow"] { text-shadow: none !important; }
+            @page { size: landscape; margin: 6mm; }
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
     <div id="syncIndicator" class="sync-indicator" style="display:none;"></div>
@@ -42,9 +151,6 @@
                     </button>
                     <button id="logoutBtn" onclick="Auth.logout()" class="edit-mode-only bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" style="display:none;">
                         🔒 Logout
-                    </button>
-                    <button onclick="switchTab('logs')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-1.5 px-3 rounded-lg text-sm" title="Activity Logs">
-                        📋
                     </button>
                     <div class="text-right text-xs text-slate-500">
                         <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
@@ -118,11 +224,14 @@
                 <button class="tab-btn" onclick="switchTab('active')" id="tab-active">
                     ⚡ Active Connections
                 </button>
+                <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
+                    🔗 Matrix
+                </button>
                 <button class="tab-btn" onclick="switchTab('drawio')" id="tab-drawio">
                     🗺️ Topology
                 </button>
-                <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
-                    📊 Matrix
+                <button class="tab-btn" onclick="switchTab('logs')" id="tab-logs">
+                    📜 Logs
                 </button>
                 <button class="tab-btn" onclick="switchTab('help')" id="tab-help">
                     ❓ Help
@@ -264,7 +373,7 @@
                         </button>
                     </div>
                     <!-- Legend -->
-                    <p class="text-xs text-slate-500 mt-2">Legend: <span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> no connections · <span class="text-blue-500 font-bold">🌐</span> links</p>
+                    <p class="text-xs text-slate-500 mt-2">Legend: <span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear/back</p>
                 </div>
 
                 <!-- Devices List -->
@@ -445,7 +554,7 @@
                         </div>
                     </div>
                     <!-- Legend -->
-                    <p class="text-xs text-slate-500 mt-2">Legend: <span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> no connections · <span class="text-blue-500 font-bold">🌐</span> links</p>
+                    <p class="text-xs text-slate-500 mt-2">Legend: <span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear/back</p>
                 </div>
 
                 <!-- Connections List -->
@@ -469,58 +578,65 @@
             <!-- Tab 3: Matrix (Refactored - Topology Style) -->
             <div id="content-matrix" class="tab-content">
                 <div id="matrixPrintArea">
-                    <!-- Header with all controls in one line -->
-                    <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
-                        <!-- Left: Title + Stats -->
-                        <div class="flex items-center gap-3">
-                            <h2 class="text-xl font-bold text-slate-800">📊 Connection Matrix</h2>
-                            <div id="matrixStats" class="no-print">
-                                <!-- Stats populated by JS -->
-                            </div>
+                    <!-- Header with filters - Topology Style -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">🔗 Connection Matrix</h2>
+                            <p class="text-xs text-slate-500">Interactive visualization - drag to scroll, use filters to focus</p>
                         </div>
-                        
-                        <!-- Right: Filters + Zoom + Actions -->
-                        <div class="flex items-center gap-2 flex-wrap no-print">
-                            <!-- Filters -->
-                            <select id="matrixLocationFilter" onchange="filterMatrixByLocation()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        <div class="flex gap-2 flex-wrap no-print">
+                            <!-- Location Filter -->
+                            <select id="matrixLocationFilter" onchange="filterMatrixByLocation()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                                 <option value="">📍 All Locations</option>
                             </select>
-                            <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <!-- Group Filter -->
+                            <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                                 <option value="">🗄️ All Groups</option>
                             </select>
-                            <label class="flex items-center gap-1.5 cursor-pointer bg-green-50 border border-green-300 rounded-lg px-2 py-1.5" title="Hide devices without connections">
-                                <input type="checkbox" id="matrixOnlyConnected" onchange="toggleMatrixOnlyConnected()" checked class="w-3.5 h-3.5 accent-green-600">
-                                <span class="text-xs text-green-700 font-medium">Connected</span>
+                            <!-- Only With Connections -->
+                            <label class="flex items-center gap-2 cursor-pointer bg-green-50 border border-green-300 rounded-lg px-3 py-1.5" title="Hide devices without connections">
+                                <input type="checkbox" id="matrixOnlyConnected" onchange="toggleMatrixOnlyConnected()" checked class="w-4 h-4 accent-green-600">
+                                <span class="text-sm text-green-700 font-medium">Only Connected</span>
                             </label>
-                            
-                            <!-- Zoom Controls -->
-                            <div class="flex items-center gap-1 border-l border-slate-300 pl-2">
-                                <button onclick="zoomMatrix(-1)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1 px-2 rounded text-sm" title="Zoom Out">−</button>
-                                <span id="matrixZoomLevel" class="text-xs text-slate-600 font-mono w-10 text-center">100%</span>
-                                <button onclick="zoomMatrix(1)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1 px-2 rounded text-sm" title="Zoom In">+</button>
-                                <button onclick="fitMatrixView()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-2.5 rounded text-sm" title="Fit to View">📊 Fit</button>
-                            </div>
-                            
-                            <!-- Actions -->
-                            <div class="flex items-center gap-1 border-l border-slate-300 pl-2">
-                                <button onclick="exportMatrixPNG()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-2.5 rounded-lg text-sm" title="Export as PNG">📷 PNG</button>
-                                <button onclick="printMatrix()" class="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-1 px-2.5 rounded-lg text-sm" title="Print">🖨️ Print</button>
-                            </div>
+                            <!-- Fit View Button -->
+                            <button onclick="fitMatrixView()" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                                ⊞ Fit View
+                            </button>
+                            <!-- Print Button -->
+                            <button onclick="printMatrix()" class="bg-slate-600 hover:bg-slate-700 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                                🖨️ Print
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Matrix Container - SVG based with native zoom/pan -->
-                    <div class="overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm" 
+                    <!-- Stats Bar - Compact inline style -->
+                    <div id="matrixStats" class="mb-4 no-print">
+                        <!-- Stats will be populated by JS -->
+                    </div>
+
+                    <!-- Matrix Container - Topology style with zoom/pan -->
+                    <div class="overflow-auto drag-scroll rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm" 
                          id="matrixContainer" 
                          style="height: 600px; width: 100%; position: relative; cursor: grab;">
                         <div class="text-center text-slate-500 py-8">Loading...</div>
                     </div>
+                    
+                    <!-- Zoom Controls -->
+                    <div class="flex items-center gap-2 mt-3 no-print">
+                        <span class="text-xs text-slate-500">Zoom:</span>
+                        <button onclick="zoomMatrix(-0.1)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1 px-3 rounded text-sm">−</button>
+                        <span id="matrixZoomLevel" class="text-xs text-slate-600 font-mono w-12 text-center">100%</span>
+                        <button onclick="zoomMatrix(0.1)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1 px-3 rounded text-sm">+</button>
+                        <button onclick="resetMatrixZoom()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs py-1 px-2 rounded">Reset</button>
+                    </div>
 
-                    <!-- Tip - Compact version -->
-                    <p class="mt-2 text-xs text-blue-600 no-print">💡 Scroll to zoom • Drag to pan • Click cell to edit • Headers stay fixed</p>
+                    <!-- Tip -->
+                    <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg no-print">
+                        <p class="text-sm text-blue-800"><strong>💡 Tip:</strong> Drag to scroll the matrix. Use <kbd class="px-1.5 py-0.5 bg-blue-100 rounded text-xs font-mono">Ctrl</kbd>+<kbd class="px-1.5 py-0.5 bg-blue-100 rounded text-xs font-mono">Scroll</kbd> to zoom. Click on a cell to edit the connection. Use filters to focus on specific locations or groups.</p>
+                    </div>
 
                     <!-- Tooltip container for hover details -->
-                    <div id="matrixTooltip" class="fixed hidden z-50 bg-slate-800 text-white text-sm rounded-xl shadow-2xl p-4 pointer-events-none" style="min-width:420px;max-width:500px;">
+                    <div id="matrixTooltip" class="fixed hidden z-50 bg-slate-800 text-white text-xs rounded-lg shadow-xl p-3 max-w-xs pointer-events-none">
                         <!-- Tooltip content populated by JS -->
                     </div>
                 </div>
@@ -818,7 +934,7 @@
                                     <div><strong>📍 Filtro Location:</strong> Mostra solo dispositivi di una sede</div>
                                     <div><strong>📦 Filtro Group:</strong> Mostra solo dispositivi di un raggruppamento</div>
                                     <div><strong>🔄 Layout:</strong> Auto, Circle, Grid, Hierarchical</div>
-                                    <div><strong>📊 Fit View:</strong> Centra e adatta la vista</div>
+                                    <div><strong>⊞ Fit View:</strong> Centra e adatta la vista</div>
                                     <div><strong>📋 Legend:</strong> Mostra legenda con conteggi dispositivi</div>
                                     <div><strong>📷 Export PNG:</strong> Scarica immagine della topologia</div>
                                     <div><strong>📥 Export .drawio:</strong> Esporta per Draw.io</div>
@@ -1088,7 +1204,7 @@
                     <!-- Footer -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.3.0</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.2.1</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -1096,43 +1212,36 @@
 
             <!-- Tab: SVG Topology with Cisco Icons -->
             <div id="content-drawio" class="tab-content">
-                <!-- Header with all controls in one line -->
-                <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
-                    <!-- Left: Title + Stats -->
-                    <div class="flex items-center gap-3">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
                         <h2 class="text-xl font-bold text-slate-800">🗺️ Network Topology</h2>
-                        <div id="topologyStats" class="flex items-center gap-2 text-xs">
-                            <!-- Stats populated by JS -->
-                        </div>
+                        <p class="text-xs text-slate-500">Interactive visualization - drag devices to reposition</p>
                     </div>
-                    
-                    <!-- Right: Filters + Zoom + Actions -->
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <!-- Filters -->
-                        <select id="topologyLocationFilter" onchange="filterTopologyByLocation()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
-                            <option value="">📍 All Locations</option>
+                    <div class="flex gap-2 flex-wrap">
+                        <select id="topologyLocationFilter" onchange="filterTopologyByLocation()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <option value="">All Locations</option>
                         </select>
-                        <select id="topologyRackFilter" onchange="filterTopologyByRack()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
-                            <option value="">🗄️ All Groups</option>
+                        <select id="topologyRackFilter" onchange="filterTopologyByRack()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <option value="">All Groups</option>
                         </select>
-                        <select id="drawioLayout" onchange="updateDrawioLayout()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        <select id="drawioLayout" onchange="updateDrawioLayout()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm">
                             <option value="auto">Auto Layout</option>
                             <option value="circle">Circle</option>
                             <option value="grid">Grid</option>
                             <option value="hierarchical">Hierarchical</option>
                         </select>
-                        
-                        <!-- Zoom/Fit Controls -->
-                        <div class="flex items-center gap-1 border-l border-slate-300 pl-2">
-                            <button onclick="fitDrawioView()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-2.5 rounded text-sm" title="Fit to View">🗺️ Fit</button>
-                            <button onclick="showTopologyLegend()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-1 px-2.5 rounded text-sm" title="Show Legend">📋 Legend</button>
-                        </div>
-                        
-                        <!-- Export Actions -->
-                        <div class="flex items-center gap-1 border-l border-slate-300 pl-2">
-                            <button onclick="exportDrawioPNG()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-2.5 rounded-lg text-sm" title="Export as PNG">📷 PNG</button>
-                            <button onclick="exportTopologyDrawio()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1 px-2.5 rounded-lg text-sm" title="Export as .drawio">📥 Drawio</button>
-                        </div>
+                        <button onclick="fitDrawioView()" class="bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                            ⊞ Fit View
+                        </button>
+                        <button onclick="showTopologyLegend()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                            📋 Legend
+                        </button>
+                        <button onclick="exportDrawioPNG()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                            📷 Export PNG
+                        </button>
+                        <button onclick="exportTopologyDrawio()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
+                            📥 Export .drawio
+                        </button>
                     </div>
                 </div>
                 <div id="drawioContainer" class="border border-slate-300 rounded-xl bg-white" style="height: 600px; width: 100%; overflow: hidden; position: relative;">
@@ -1141,8 +1250,9 @@
                     </div>
                 </div>
 
-                <!-- Tip - Compact version -->
-                <p class="mt-2 text-xs text-blue-600">💡 Drag devices to reposition • Export .drawio for <a href="https://app.diagrams.net" target="_blank" class="text-blue-700 hover:underline font-semibold">diagrams.net</a> • PNG includes title & date</p>
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800"><strong>💡 Tip:</strong> Drag devices to reposition. Use "Export .drawio" to open in <a href="https://app.diagrams.net" target="_blank" class="text-blue-600 hover:underline font-semibold">diagrams.net</a> for advanced editing.</p>
+                </div>
             </div>
 
             <!-- Tab 6: Activity Logs -->
@@ -1237,10 +1347,10 @@
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/auth.js?v=3.3.0"></script>
-    <script src="js/app.js?v=3.3.0"></script>
-    <script src="js/ui-updates.js?v=3.3.0"></script>
-    <script src="js/features.js?v=3.3.0"></script>
+    <script src="js/auth.js?v=3.2.2"></script>
+    <script src="js/app.js?v=3.2.2"></script>
+    <script src="js/ui-updates.js?v=3.2.2"></script>
+    <script src="js/features.js?v=3.2.2"></script>
     
     <!-- Update connections count when list lists -->
     <script>

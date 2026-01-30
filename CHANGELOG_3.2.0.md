@@ -1,3 +1,53 @@
+# CHANGELOG - Version 3.4.0
+
+**Data:** 30 Gennaio 2026  
+**Status:** ✅ Completato
+
+---
+
+## 📋 Riepilogo delle Modifiche v3.4.0
+
+### 🎨 SVG Matrix - Matrice Nativa in Grafica Vettoriale
+
+#### 1. Refactoring Completo della Matrice
+**Problema:** La matrice HTML usava `<table>` con CSS zoom, causando export PNG di bassa qualità non corrispondente allo schermo.
+
+**Soluzione:**
+- ✅ Nuovo modulo `SVGMatrix` completamente in SVG
+- ✅ Zoom/pan nativo con `viewBox` (come Topology)
+- ✅ Export PNG perfetto: ciò che vedi = ciò che esporti
+- ✅ Qualità vettoriale, perfetta anche stampando
+
+**Caratteristiche:**
+- Drag per pan (spostamento)
+- Ctrl+Scroll per zoom
+- Click su celle per modificare connessione
+- Tooltip su hover
+- Highlight riga/colonna su hover
+- Export PNG ad alta risoluzione (2x scale)
+
+**File modificati:**
+- `js/ui-updates.js` - Nuovo modulo `SVGMatrix` (~600 righe)
+- `index.html` - Container ottimizzato per SVG
+
+---
+
+### 🔧 Miglioramenti Tecnici
+
+#### 2. Controlli Zoom Aggiornati
+- Bottoni `-` e `+` ora usano zoom SVG viewBox
+- Bottone "Fit" per adattare vista al contenuto
+- Label zoom mostra percentuale calcolata
+
+#### 3. Export PNG Unificato
+- Usa stessa tecnica di Topology (SVG → Canvas → PNG)
+- Include titolo e filtri attivi nel nome file
+- Qualità 2x per stampa nitida
+
+---
+
+---
+
 # CHANGELOG - Version 3.2.0
 
 **Data:** 29 Gennaio 2026  

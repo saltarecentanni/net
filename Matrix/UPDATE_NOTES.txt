@@ -1,0 +1,144 @@
+================================================================================
+TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
+Version: 3.2.2 → Future Versions
+Last Updated: 2026-01-30
+================================================================================
+
+MIGRAÇÃO PLANEJADA: Ubuntu Server + Apache
+--------------------------------------------------------------------------------
+
+1. SEGURANÇA (PRIORIDADE ALTA)
+   □ Remover credenciais hardcoded do código fonte
+   □ Implementar variáveis de ambiente (.env) para:
+     - AUTH_USERNAME
+     - AUTH_PASSWORD
+     - SESSION_SECRET
+     - DATA_PATH
+   □ Configurar HTTPS/SSL obrigatório
+   □ Implementar rate limiting para prevenir brute force
+   □ Adicionar headers de segurança (CSP, X-Frame-Options, etc.)
+   □ Sanitização adicional de inputs
+
+2. AUTENTICAÇÃO E USUÁRIOS
+   □ Migrar de autenticação simples para sistema multi-usuário
+   □ Implementar banco de dados para usuários (MySQL/PostgreSQL)
+   □ Níveis de permissão:
+     - Admin: acesso total (criar, editar, deletar)
+     - Editor: editar dispositivos e conexões
+     - Viewer: apenas visualização
+   □ Log de auditoria por usuário
+   □ Recuperação de senha via email
+
+3. INFRAESTRUTURA APACHE
+   □ Configurar Virtual Host dedicado
+   □ Proxy reverso para Node.js (se mantiver backend Node)
+   OU
+   □ Migrar backend para PHP puro (eliminar dependência Node.js)
+   □ Configurar mod_rewrite para URLs amigáveis
+   □ Configurar compressão gzip
+   □ Cache de assets estáticos
+
+4. PERSISTÊNCIA DE DADOS
+   □ Migrar de JSON file para banco de dados
+   □ Opções recomendadas:
+     - SQLite (simples, sem servidor adicional)
+     - MySQL/MariaDB (para múltiplos usuários simultâneos)
+   □ Implementar backup automático diário
+   □ Versionamento de dados (histórico de alterações)
+   □ Resolver race condition com transações
+
+5. MELHORIAS DE INTERFACE
+   □ Corrigir z-index da matrix durante scroll (cabeçalhos fixos)
+   □ Melhorar tooltips com formato padronizado
+   □ Modo responsivo para tablets
+   □ Tema claro/escuro configurável
+   □ Exportação para PDF nativo
+
+6. PERFORMANCE
+   □ Lazy loading para listas grandes (>500 dispositivos)
+   □ Paginação na tabela de conexões
+   □ Cache de renderização da matrix
+   □ Web Workers para cálculos pesados
+
+7. NOVAS FUNCIONALIDADES SUGERIDAS
+   □ Dashboard com estatísticas
+   □ Alertas de dispositivos offline
+   □ Integração com SNMP para status real
+   □ API REST documentada (Swagger)
+   □ Importação de CSV/Excel
+   □ Mapas de rede interativos (além da topologia atual)
+   □ QR Codes para identificação física de equipamentos
+
+8. CONFIGURAÇÃO APACHE RECOMENDADA
+   -------------------------------------------------------------------------
+   <VirtualHost *:443>
+       ServerName matrix.seudominio.local
+       DocumentRoot /var/www/matrix
+       
+       SSLEngine on
+       SSLCertificateFile /etc/ssl/certs/matrix.crt
+       SSLCertificateKeyFile /etc/ssl/private/matrix.key
+       
+       <Directory /var/www/matrix>
+           AllowOverride All
+           Require all granted
+       </Directory>
+       
+       # Se mantiver Node.js como backend:
+       ProxyPass /api http://localhost:3000/api
+       ProxyPassReverse /api http://localhost:3000/api
+       
+       # Headers de segurança
+       Header always set X-Frame-Options "SAMEORIGIN"
+       Header always set X-Content-Type-Options "nosniff"
+       Header always set X-XSS-Protection "1; mode=block"
+   </VirtualHost>
+   -------------------------------------------------------------------------
+
+9. ESTRUTURA DE ARQUIVOS PARA PRODUÇÃO
+   /var/www/matrix/
+   ├── index.html
+   ├── .htaccess
+   ├── api/
+   │   ├── auth.php
+   │   ├── data.php
+   │   └── config.php (com variáveis de ambiente)
+   ├── assets/
+   │   └── vendor/
+   ├── js/
+   │   ├── app.min.js (minificado)
+   │   ├── auth.min.js
+   │   ├── ui-updates.min.js
+   │   └── features.min.js
+   ├── data/
+   │   └── (ou banco de dados externo)
+   └── backups/
+
+10. CHECKLIST PRÉ-DEPLOY
+    □ Minificar JavaScript e CSS
+    □ Remover console.log de produção
+    □ Testar em navegadores: Chrome, Firefox, Edge
+    □ Configurar firewall (portas 80/443 apenas)
+    □ Definir política de backup
+    □ Documentar credenciais em local seguro
+    □ Treinar usuários
+
+================================================================================
+BUGS CONHECIDOS A CORRIGIR
+================================================================================
+
+1. [CORRIGIDO v3.2.1] Matrix z-index - cabeçalhos sobrepostos
+2. [CORRIGIDO v3.2.2] Linhas de separação movendo com scroll do container
+   - Removida borda CSS interna do canto TO/FROM
+   - Linha diagonal agora é feita via gradient (mais estável)
+   - Adicionado box-shadow para separação visual
+3. [CORRIGIDO v3.2.2] Formato do tooltip nos cabeçalhos da matrix
+   - Agora mostra: Nome dispositivo, Location, Rack X, POSITION #N
+
+================================================================================
+CONTATO E SUPORTE
+================================================================================
+Desenvolvido para TIESSE Network Infrastructure Management
+Para sugestões e bugs: documentar neste arquivo ou criar issues
+
+================================================================================

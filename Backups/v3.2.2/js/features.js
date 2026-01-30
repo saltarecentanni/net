@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.3.0
+ * Version: 3.2.2
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -15,7 +15,6 @@
  * - Compact Wall Jack icons and thin connection lines
  * - GLOBAL connection indexing by source device (v3.1.0)
  * - PNG export with title header (v3.1.3)
- * - CSS Variables integration (v3.3.0)
  */
 
 'use strict';
@@ -1198,20 +1197,6 @@ var SVGTopology = (function() {
         };
     }
     
-    // Update topology stats display
-    function updateTopologyStats(devices, connections) {
-        var statsContainer = document.getElementById('topologyStats');
-        if (!statsContainer) return;
-        
-        var totalDevices = devices.length;
-        var totalConnections = connections.length;
-        
-        var html = '<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-500 text-white font-semibold text-xs" title="Devices">📱 ' + totalDevices + '</span>';
-        html += '<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-500 text-white font-semibold text-xs" title="Connections">⚡ ' + totalConnections + '</span>';
-        
-        statsContainer.innerHTML = html;
-    }
-    
     // Update topology location filter dropdown
     function updateLocationFilter() {
         var select = document.getElementById('topologyLocationFilter');
@@ -1229,8 +1214,11 @@ var SVGTopology = (function() {
         });
         select.innerHTML = html;
         
-        // Restore previous selection (topology filter is independent from global filter)
-        if (currentValue && locations[currentValue]) {
+        // Restore selection or sync with global filter
+        var globalFilter = document.getElementById('locationFilter');
+        if (globalFilter && globalFilter.value) {
+            select.value = globalFilter.value;
+        } else if (currentValue) {
             select.value = currentValue;
         }
         
@@ -1408,9 +1396,6 @@ var SVGTopology = (function() {
         
         var devices = getTopologyFilteredDevices();
         var connections = getTopologyFilteredConnections();
-        
-        // Update stats
-        updateTopologyStats(devices, connections);
         
         if (devices.length === 0) {
             container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400">' +
@@ -1627,7 +1612,7 @@ var SVGTopology = (function() {
         });
         
         var html = '<svg id="svgTopology" width="100%" height="100%" viewBox="' + vb + '" ' +
-            'style="background: linear-gradient(135deg, var(--color-bg-alt) 0%, var(--color-border) 100%); cursor: grab;">' +
+            'style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); cursor: grab;">' +
             '<defs>' +
             '<filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">' +
             '<feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.2"/>' +
@@ -3286,7 +3271,7 @@ function generateDevicesPrintContent(location) {
     });
     
     html += '</table>';
-    html += '<p style="margin-top:15px;color:var(--color-text-light);">Total: ' + devices.length + ' devices</p>';
+    html += '<p style="margin-top:15px;color:#666;">Total: ' + devices.length + ' devices</p>';
     
     return html;
 }
@@ -3320,7 +3305,7 @@ function generateConnectionsPrintContent(location) {
     });
     
     html += '</table>';
-    html += '<p style="margin-top:15px;color:var(--color-text-light);">Total: ' + connections.length + ' connections</p>';
+    html += '<p style="margin-top:15px;color:#666;">Total: ' + connections.length + ' connections</p>';
     
     return html;
 }

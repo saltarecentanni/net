@@ -1,18 +1,16 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.4.0
+ * Version: 3.2.2
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
- * - Connection matrix (SVG-based for better export quality)
+ * - Connection matrix
  * - Connections table
  * - Excel export
  * - Improved print styles
  * - Device and Connection filters
  * - XSS protection with escapeHtml (v3.1.3)
  * - Debounced filter inputs (v3.1.3)
- * - CSS Variables integration (v3.3.0)
- * - SVG Matrix with viewBox zoom/pan (v3.4.0)
  */
 
 'use strict';
@@ -157,7 +155,7 @@ function updateDeviceFilterBar() {
     }
     
     // Legend
-    html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> not connected · <span class="text-blue-500 font-bold">🌐</span> link</span>';
+    html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear</span>';
     
     html += '</div>';
     filterBar.innerHTML = html;
@@ -431,976 +429,11 @@ function getDevicesSortedBy(key, asc, devicesList) {
 }
 
 // ============================================================================
-// SVG MATRIX MODULE - Hybrid approach: Fixed headers + SVG content
-// ============================================================================
-var SVGMatrix = (function() {
-    var container = null;
-    var contentArea = null;
-    var svg = null;
-    var scale = 1;
-    var minScale = 0.3;
-    var maxScale = 2.0;
-    var cellSize = 90;
-    var headerWidth = 100;
-    var headerHeight = 90;
-    var isPanning = false;
-    var panStart = { x: 0, y: 0, scrollX: 0, scrollY: 0 };
-    
-    // Colors from CSS variables
-    var colors = {
-        headerBg: '#1e293b',
-        rowOdd: '#f8fafc',
-        rowEven: '#f1f5f9',
-        border: '#cbd5e1'
-    };
-    
-    function resolveColors() {
-        var root = document.documentElement;
-        var cs = getComputedStyle(root);
-        colors.headerBg = cs.getPropertyValue('--matrix-header-bg').trim() || '#1e293b';
-        colors.rowOdd = cs.getPropertyValue('--matrix-row-odd').trim() || '#f8fafc';
-        colors.rowEven = cs.getPropertyValue('--color-bg-alt').trim() || '#f1f5f9';
-        colors.border = cs.getPropertyValue('--color-border').trim() || '#cbd5e1';
-    }
-    
-    // Track if global window listeners have been attached
-    var windowListenersAttached = false;
-    
-    function init() {
-        container = document.getElementById('matrixContainer');
-        if (!container) return;
-        
-        // Attach window-level listeners only once (they handle pan globally)
-        if (!windowListenersAttached) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-            windowListenersAttached = true;
-        }
-    }
-    
-    function handleWheel(e) {
-        e.preventDefault();
-        
-        var delta = e.deltaY > 0 ? 0.9 : 1.1;
-        var newScale = Math.max(minScale, Math.min(maxScale, scale * delta));
-        
-        if (newScale !== scale) {
-            scale = newScale;
-            applyScale();
-            updateZoomLabel();
-        }
-    }
-    
-    function handleMouseDown(e) {
-        if (e.target.closest('.matrix-cell-clickable')) return;
-        
-        isPanning = true;
-        panStart.x = e.clientX;
-        panStart.y = e.clientY;
-        panStart.scrollX = contentArea.scrollLeft;
-        panStart.scrollY = contentArea.scrollTop;
-        contentArea.style.cursor = 'grabbing';
-        e.preventDefault();
-    }
-    
-    function handleMouseMove(e) {
-        if (!isPanning || !contentArea) return;
-        
-        var dx = e.clientX - panStart.x;
-        var dy = e.clientY - panStart.y;
-        
-        contentArea.scrollLeft = panStart.scrollX - dx;
-        contentArea.scrollTop = panStart.scrollY - dy;
-    }
-    
-    function handleMouseUp() {
-        if (isPanning && contentArea) {
-            isPanning = false;
-            contentArea.style.cursor = 'grab';
-        }
-    }
-    
-    function syncHeaders() {
-        if (!contentArea) return;
-        
-        var colHeader = container.querySelector('.matrix-col-headers');
-        var rowHeader = container.querySelector('.matrix-row-headers');
-        
-        if (colHeader) {
-            colHeader.scrollLeft = contentArea.scrollLeft;
-        }
-        if (rowHeader) {
-            rowHeader.scrollTop = contentArea.scrollTop;
-        }
-    }
-    
-    // Track currently highlighted elements
-    var highlightedCol = null;
-    var highlightedRow = null;
-    var highlightedCell = null;
-    
-    // Highlight row and column headers when hovering over a cell
-    function highlightMatrixHeaders(rowIdx, colIdx, cellElement) {
-        if (!container) return;
-        
-        // Clear previous highlights first
-        clearMatrixHeaderHighlight();
-        
-        var colHeaderInner = container.querySelector('.matrix-col-headers-inner');
-        var rowHeaderInner = container.querySelector('.matrix-row-headers-inner');
-        
-        // Column header - fade to amber with glow
-        if (colHeaderInner && colHeaderInner.children[colIdx]) {
-            var colEl = colHeaderInner.children[colIdx];
-            highlightedCol = colEl;
-            // Save original styles
-            colEl._originalBg = colEl.style.background;
-            colEl._childColors = [];
-            Array.from(colEl.children).forEach(function(child, i) {
-                colEl._childColors[i] = child.style.color;
-            });
-            // Apply highlight
-            colEl.style.transition = 'all 0.25s ease-out';
-            colEl.style.background = 'linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%)';
-            colEl.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3)';
-            colEl.style.zIndex = '20';
-            Array.from(colEl.children).forEach(function(child) {
-                child.style.transition = 'color 0.25s ease-out';
-                child.style.color = '#1e293b';
-                child.style.textShadow = '0 1px 2px rgba(255,255,255,0.5)';
-            });
-        }
-        
-        // Row header - fade to amber with glow
-        if (rowHeaderInner && rowHeaderInner.children[rowIdx]) {
-            var rowEl = rowHeaderInner.children[rowIdx];
-            highlightedRow = rowEl;
-            // Save original styles
-            rowEl._originalBg = rowEl.style.background;
-            rowEl._childColors = [];
-            Array.from(rowEl.children).forEach(function(child, i) {
-                rowEl._childColors[i] = child.style.color;
-            });
-            // Apply highlight
-            rowEl.style.transition = 'all 0.25s ease-out';
-            rowEl.style.background = 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)';
-            rowEl.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3)';
-            rowEl.style.zIndex = '20';
-            Array.from(rowEl.children).forEach(function(child) {
-                child.style.transition = 'color 0.25s ease-out';
-                child.style.color = '#1e293b';
-                child.style.textShadow = '0 1px 2px rgba(255,255,255,0.5)';
-            });
-        }
-        
-        // Cell effect - external glow + internal brightness + subtle pulse
-        if (cellElement) {
-            highlightedCell = cellElement;
-            // Save original fill for inner glow effect
-            cellElement._originalFill = cellElement.getAttribute('fill');
-            
-            // White border glow
-            cellElement.setAttribute('stroke', '#ffffff');
-            cellElement.setAttribute('stroke-width', '3');
-            
-            // Combined filter: external glow + brightness boost
-            cellElement.style.filter = 'drop-shadow(0 0 8px rgba(255,255,255,0.95)) drop-shadow(0 0 15px rgba(251,191,36,0.7)) brightness(1.15)';
-            
-            // Add inner highlight by adjusting the fill with overlay
-            var currentFill = cellElement._originalFill || '#3b82f6';
-            cellElement.setAttribute('fill', 'url(#cellGradientHover)');
-            
-            // Create hover gradient dynamically if needed
-            var svg = cellElement.closest('svg');
-            if (svg && !svg.querySelector('#cellGradientHover')) {
-                var defs = svg.querySelector('defs');
-                if (defs) {
-                    var hoverGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
-                    hoverGradient.setAttribute('id', 'cellGradientHover');
-                    hoverGradient.setAttribute('x1', '0%');
-                    hoverGradient.setAttribute('y1', '0%');
-                    hoverGradient.setAttribute('x2', '0%');
-                    hoverGradient.setAttribute('y2', '100%');
-                    hoverGradient.innerHTML = '<stop offset="0%" style="stop-color:rgba(255,255,255,0.4)"/>' +
-                        '<stop offset="30%" style="stop-color:' + currentFill + '"/>' +
-                        '<stop offset="70%" style="stop-color:' + currentFill + '"/>' +
-                        '<stop offset="100%" style="stop-color:rgba(0,0,0,0.2)"/>';
-                    defs.appendChild(hoverGradient);
-                }
-            }
-            // Just use brightness since gradient is complex - simpler and works better
-            cellElement.setAttribute('fill', currentFill);
-        }
-    }
-    
-    // Clear header highlights - only the tracked elements
-    function clearMatrixHeaderHighlight() {
-        // Restore column header
-        if (highlightedCol) {
-            highlightedCol.style.transition = 'all 0.3s ease-out';
-            highlightedCol.style.background = highlightedCol._originalBg || '';
-            highlightedCol.style.boxShadow = '';
-            highlightedCol.style.zIndex = '';
-            if (highlightedCol._childColors) {
-                Array.from(highlightedCol.children).forEach(function(child, i) {
-                    child.style.transition = 'color 0.3s ease-out';
-                    child.style.color = highlightedCol._childColors[i] || '';
-                    child.style.textShadow = '';
-                });
-            }
-            highlightedCol = null;
-        }
-        
-        // Restore row header
-        if (highlightedRow) {
-            highlightedRow.style.transition = 'all 0.3s ease-out';
-            highlightedRow.style.background = highlightedRow._originalBg || '';
-            highlightedRow.style.boxShadow = '';
-            highlightedRow.style.zIndex = '';
-            if (highlightedRow._childColors) {
-                Array.from(highlightedRow.children).forEach(function(child, i) {
-                    child.style.transition = 'color 0.3s ease-out';
-                    child.style.color = highlightedRow._childColors[i] || '';
-                    child.style.textShadow = '';
-                });
-            }
-            highlightedRow = null;
-        }
-        
-        // Restore cell
-        if (highlightedCell) {
-            highlightedCell.removeAttribute('stroke');
-            highlightedCell.removeAttribute('stroke-width');
-            highlightedCell.style.filter = '';
-            // Restore original fill if saved
-            if (highlightedCell._originalFill) {
-                highlightedCell.setAttribute('fill', highlightedCell._originalFill);
-            }
-            highlightedCell = null;
-        }
-    }
-    
-    function applyScale() {
-        // Get the wrapper that contains the entire grid (headers + content)
-        var wrapper = container.querySelector('.matrix-wrapper');
-        
-        if (wrapper) {
-            // Use CSS zoom to scale everything together - maintains alignment
-            wrapper.style.zoom = scale;
-        }
-    }
-    
-    function updateZoomLabel() {
-        var label = document.getElementById('matrixZoomLevel');
-        if (label) {
-            label.textContent = Math.round(scale * 100) + '%';
-        }
-    }
-    
-    function zoom(delta) {
-        var factor = delta > 0 ? 1.1 : 0.9;
-        scale = Math.max(minScale, Math.min(maxScale, scale * factor));
-        applyScale();
-        updateZoomLabel();
-    }
-    
-    function resetZoom() {
-        scale = 1;
-        applyScale();
-        updateZoomLabel();
-        if (contentArea) {
-            contentArea.scrollLeft = 0;
-            contentArea.scrollTop = 0;
-        }
-    }
-    
-    function fit() {
-        // Calculate scale to fit all content
-        if (!contentArea) return;
-        
-        var contentWidth = contentArea.scrollWidth / scale;
-        var contentHeight = contentArea.scrollHeight / scale;
-        var containerWidth = contentArea.clientWidth;
-        var containerHeight = contentArea.clientHeight;
-        
-        var scaleX = containerWidth / contentWidth;
-        var scaleY = containerHeight / contentHeight;
-        scale = Math.max(minScale, Math.min(maxScale, Math.min(scaleX, scaleY) * 0.95));
-        
-        applyScale();
-        updateZoomLabel();
-        contentArea.scrollLeft = 0;
-        contentArea.scrollTop = 0;
-    }
-    
-    function escapeXml(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-    
-    function getRackColor(rackId) {
-        if (typeof window.getRackColor === 'function') {
-            return window.getRackColor(rackId);
-        }
-        var rackColors = ['#3b82f6', '#22c55e', '#a855f7', '#ef4444', '#f97316', '#14b8a6', '#ec4899', '#6366f1'];
-        if (!rackId) return '#6b7280';
-        var hash = 0;
-        for (var i = 0; i < rackId.length; i++) {
-            hash = rackId.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        return rackColors[Math.abs(hash) % rackColors.length];
-    }
-    
-    function getConnectionIndex(fromId, toId) {
-        if (typeof window.getConnectionIndex === 'function') {
-            return window.getConnectionIndex(fromId, toId);
-        }
-        for (var i = 0; i < appState.connections.length; i++) {
-            var c = appState.connections[i];
-            if ((c.from === fromId && c.to === toId) || (c.from === toId && c.to === fromId)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
-    function render() {
-        container = document.getElementById('matrixContainer');
-        if (!container) return;
-        
-        resolveColors();
-        scale = 1;
-        
-        if (appState.devices.length === 0) {
-            container.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-400">' +
-                '<div class="text-6xl mb-4">📡</div>' +
-                '<div class="text-lg font-medium">No devices yet</div>' +
-                '<div class="text-sm">Add devices in the Devices tab to see the connection matrix</div>' +
-                '</div>';
-            return;
-        }
-        
-        var filteredDevices = getMatrixFilteredDevices();
-        var sorted = getDevicesSortedBy(appState.deviceSort.key, appState.deviceSort.asc, filteredDevices);
-        
-        if (sorted.length === 0) {
-            container.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-400">' +
-                '<div class="text-5xl mb-4">🔍</div>' +
-                '<div class="text-lg font-medium">No devices match the current filters</div>' +
-                '<div class="text-sm">Try adjusting filters above</div>' +
-                '</div>';
-            return;
-        }
-        
-        var deviceCount = sorted.length;
-        var filteredDeviceIds = {};
-        sorted.forEach(function(d) { filteredDeviceIds[d.id] = true; });
-        
-        // Check for special columns
-        var hasWallJack = false;
-        var hasExternal = false;
-        var wallJackConns = [];
-        var externalConns = [];
-        
-        appState.connections.forEach(function(c, idx) {
-            if (!filteredDeviceIds[c.from]) return;
-            if (c.to === null || c.to === undefined) {
-                if (c.isWallJack || c.type === 'wallport') {
-                    hasWallJack = true;
-                    wallJackConns.push({ conn: c, idx: idx });
-                } else if (c.externalDest || c.type === 'wan' || c.type === 'external') {
-                    hasExternal = true;
-                    externalConns.push({ conn: c, idx: idx });
-                }
-            }
-        });
-        
-        var extraCols = (hasWallJack ? 1 : 0) + (hasExternal ? 1 : 0);
-        var totalCols = deviceCount + extraCols;
-        var contentWidth = totalCols * cellSize;
-        var contentHeight = deviceCount * cellSize;
-        
-        // Build hybrid structure: Corner + Col Headers + Row Headers + Content
-        var html = '<div class="matrix-wrapper" style="display:grid;grid-template-columns:' + headerWidth + 'px 1fr;grid-template-rows:' + headerHeight + 'px 1fr;height:100%;overflow:hidden;">';
-        
-        // Corner cell (fixed)
-        html += '<div class="matrix-corner" style="background:' + colors.headerBg + ';z-index:30;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 0;">' +
-            '<div style="text-align:center;">' +
-            '<div style="color:#22d3ee;font-size:10px;font-weight:bold;">TO →</div>' +
-            '<div style="color:#fbbf24;font-size:10px;font-weight:bold;">FROM ↓</div>' +
-            '</div></div>';
-        
-        // Column headers (horizontal scroll synced with content)
-        html += '<div class="matrix-col-headers" style="overflow:hidden;background:' + colors.headerBg + ';">' +
-            '<div class="matrix-col-headers-inner" style="display:flex;width:' + contentWidth + 'px;height:' + headerHeight + 'px;">';
-        
-        for (var i = 0; i < sorted.length; i++) {
-            var d = sorted[i];
-            var rackColor = getRackColor(d.rackId);
-            var posNum = String(d.order || 0).padStart(2, '0');
-            var isDisabled = d.status === 'disabled';
-            
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid ' + rackColor + ';display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;box-sizing:border-box;" title="' + escapeXml(d.name) + '">' +
-                '<div style="font-size:8px;color:#a78bfa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(d.location || '-') + '</div>' +
-                '<div style="font-size:9px;font-weight:bold;color:' + (isDisabled ? '#94a3b8' : '#fff') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;' + (isDisabled ? 'text-decoration:line-through;' : '') + '">' + posNum + '-' + escapeXml(d.name) + '</div>' +
-                '<div style="font-size:8px;font-weight:600;color:' + rackColor + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(d.rackId || '-') + '</div>' +
-                '</div>';
-        }
-        
-        // Special column headers
-        if (hasWallJack) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid #854d0e;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
-                '<div style="font-size:20px;">🔌</div>' +
-                '<div style="font-size:9px;font-weight:600;color:#c4b5fd;">Wall Jack</div>' +
-                '</div>';
-        }
-        if (hasExternal) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid #ef4444;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
-                '<div style="font-size:20px;">🌐</div>' +
-                '<div style="font-size:9px;font-weight:600;color:#fca5a5;">External</div>' +
-                '</div>';
-        }
-        
-        html += '</div></div>'; // end col headers
-        
-        // Row headers (vertical scroll synced with content)
-        // Add +2px to height to ensure last row border is fully visible
-        html += '<div class="matrix-row-headers" style="overflow:hidden;background:' + colors.rowOdd + ';">' +
-            '<div class="matrix-row-headers-inner" style="width:' + headerWidth + 'px;height:' + (contentHeight + 2) + 'px;">';
-        
-        for (var r = 0; r < sorted.length; r++) {
-            var row = sorted[r];
-            var rowRackColor = getRackColor(row.rackId);
-            var rowPosNum = String(row.order || 0).padStart(2, '0');
-            var rowDisabled = row.status === 'disabled';
-            var rowBg = r % 2 === 0 ? colors.rowOdd : colors.rowEven;
-            
-            html += '<div style="width:100%;height:' + cellSize + 'px;background:' + rowBg + ';border-left:3px solid ' + rowRackColor + ';border-bottom:1px solid ' + colors.border + ';display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;box-sizing:border-box;" title="' + escapeXml(row.name) + '">' +
-                '<div style="font-size:8px;color:#9333ea;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(row.location || '-') + '</div>' +
-                '<div style="font-size:9px;font-weight:bold;color:' + (rowDisabled ? '#94a3b8' : '#1e293b') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;' + (rowDisabled ? 'text-decoration:line-through;' : '') + '">' + rowPosNum + '-' + escapeXml(row.name) + '</div>' +
-                '<div style="font-size:8px;font-weight:600;color:' + rowRackColor + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(row.rackId || '-') + '</div>' +
-                '</div>';
-        }
-        
-        html += '</div></div>'; // end row headers
-        
-        // Content area (scrollable, contains SVG)
-        // Add extra pixels to ensure last row/col borders and hover areas are fully visible
-        var svgWidth = contentWidth + 2;
-        var svgHeight = contentHeight + 2;
-        html += '<div class="matrix-content" style="overflow:auto;cursor:grab;background:linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">' +
-            '<div class="matrix-svg-content" style="width:' + svgWidth + 'px;height:' + svgHeight + 'px;">';
-        
-        // Build SVG for data cells - add extra space for borders
-        html += '<svg id="svgMatrix" width="' + svgWidth + '" height="' + svgHeight + '" ' +
-            'data-total-width="' + contentWidth + '" data-total-height="' + contentHeight + '" ' +
-            'style="display:block;" xmlns="http://www.w3.org/2000/svg">';
-        
-        // Defs
-        html += '<defs>' +
-            '<pattern id="diagonalStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
-            '<rect width="3" height="6" fill="#cbd5e1"/><rect x="3" width="3" height="6" fill="#e2e8f0"/>' +
-            '</pattern>' +
-            // Gradient for connection cells - makes them look 3D
-            '<linearGradient id="cellGradient" x1="0%" y1="0%" x2="0%" y2="100%">' +
-            '<stop offset="0%" style="stop-color:rgba(255,255,255,0.2)"/>' +
-            '<stop offset="50%" style="stop-color:rgba(255,255,255,0)"/>' +
-            '<stop offset="100%" style="stop-color:rgba(0,0,0,0.15)"/>' +
-            '</linearGradient>' +
-            // Inner glow filter for hover effect
-            '<filter id="innerGlow" x="-50%" y="-50%" width="200%" height="200%">' +
-            '<feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>' +
-            '<feOffset in="blur" dx="0" dy="0" result="offsetBlur"/>' +
-            '<feFlood flood-color="white" flood-opacity="0.7" result="color"/>' +
-            '<feComposite in="color" in2="offsetBlur" operator="in" result="shadow"/>' +
-            '<feComposite in="shadow" in2="SourceGraphic" operator="over"/>' +
-            '</filter>' +
-            '</defs>';
-        
-        // Data cells
-        for (var r = 0; r < sorted.length; r++) {
-            var row = sorted[r];
-            var y = r * cellSize;
-            var rowBg = r % 2 === 0 ? colors.rowOdd : colors.rowEven;
-            
-            for (var c = 0; c < sorted.length; c++) {
-                var col = sorted[c];
-                var x = c * cellSize;
-                
-                if (row.id === col.id) {
-                    // Diagonal
-                    html += '<rect x="' + x + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="url(#diagonalStripes)" stroke="' + colors.border + '"/>';
-                } else {
-                    var connIdx = getConnectionIndex(row.id, col.id);
-                    
-                    // Cell background
-                    html += '<rect x="' + x + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="' + rowBg + '" stroke="' + colors.border + '"/>';
-                    
-                    if (connIdx >= 0) {
-                        var conn = appState.connections[connIdx];
-                        var connColor = conn.color || (config.connColors ? config.connColors[conn.type] : null) || '#3b82f6';
-                        var isConnDisabled = conn.status === 'disabled';
-                        var portFrom = conn.from === row.id ? conn.fromPort : conn.toPort;
-                        var portTo = conn.from === row.id ? conn.toPort : conn.fromPort;
-                        var cableColor = conn.cableColor || '#fbbf24';
-                        
-                        // Main cell background with rounded corners and shadow
-                        html += '<rect class="matrix-cell-clickable" x="' + (x+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="' + connColor + '"' + (isConnDisabled ? ' opacity="0.4"' : '') + ' style="cursor:pointer" data-conn-idx="' + connIdx + '" data-row="' + r + '" data-col="' + c + '"/>';
-                        
-                        // Overlay gradient for 3D effect
-                        html += '<rect x="' + (x+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="url(#cellGradient)" style="pointer-events:none"/>';
-                        
-                        // Top port (TO/COLUMN) - cyan tint to match column header position (top)
-                        html += '<rect x="' + (x+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(34,211,238,0.35)" stroke="rgba(34,211,238,0.5)" stroke-width="1" style="pointer-events:none"/>';
-                        html += '<text x="' + (x+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portTo || '?').substring(0,8)) + '</text>';
-                        
-                        // Connection arrow/indicator
-                        html += '<text x="' + (x+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
-                        
-                        // Bottom port (FROM/ROW) - amber tint to match row header position (left side)
-                        html += '<rect x="' + (x+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
-                        html += '<text x="' + (x+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom || '?').substring(0,8)) + '</text>';
-                        
-                        // Cable marker - official pill style with black border (same as tooltip)
-                        if (conn.cableMarker) {
-                            var markerText = conn.cableMarker.toUpperCase().substring(0,4);
-                            var markerTextColor = (cableColor === '#ffffff' || cableColor === '' || cableColor === '#eab308') ? '#000000' : '#ffffff';
-                            // Pill with rounded ends and black border - compact size
-                            html += '<rect x="' + (x+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="#000000" stroke-width="1.5" style="pointer-events:none"/>';
-                            html += '<text x="' + (x+cellSize/2) + '" y="' + (y+80) + '" fill="' + markerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(markerText) + '</text>';
-                        }
-                    }
-                }
-            }
-            
-            // Wall Jack column
-            if (hasWallJack) {
-                var wjX = deviceCount * cellSize;
-                var wjConn = null, wjConnIdx = -1;
-                for (var wj = 0; wj < wallJackConns.length; wj++) {
-                    if (wallJackConns[wj].conn.from === row.id) { wjConn = wallJackConns[wj].conn; wjConnIdx = wallJackConns[wj].idx; break; }
-                }
-                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="#faf5ff" stroke="#d8b4fe"/>';
-                if (wjConn) {
-                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="#854d0e" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '"/>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="9" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjConn.fromPort || '-') + '</text>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="7" text-anchor="middle" style="pointer-events:none">→' + escapeXml((wjConn.externalDest || 'WJ').substring(0,6)) + '</text>';
-                }
-            }
-            
-            // External column
-            if (hasExternal) {
-                var extX = deviceCount * cellSize + (hasWallJack ? cellSize : 0);
-                var extConn = null, extConnIdx = -1;
-                for (var ex = 0; ex < externalConns.length; ex++) {
-                    if (externalConns[ex].conn.from === row.id) { extConn = externalConns[ex].conn; extConnIdx = externalConns[ex].idx; break; }
-                }
-                html += '<rect x="' + extX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="#fef2f2" stroke="#fecaca"/>';
-                if (extConn) {
-                    html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="#ef4444" style="cursor:pointer" data-conn-idx="' + extConnIdx + '"/>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="9" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(extConn.fromPort || '-') + '</text>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="7" text-anchor="middle" style="pointer-events:none">→' + escapeXml((extConn.externalDest || 'EXT').substring(0,6)) + '</text>';
-                }
-            }
-        }
-        
-        // Draw explicit grid lines for all rows and columns to ensure borders are always visible
-        // Horizontal lines (including top and bottom)
-        for (var hl = 0; hl <= sorted.length; hl++) {
-            var lineY = hl * cellSize;
-            html += '<line x1="0" y1="' + lineY + '" x2="' + contentWidth + '" y2="' + lineY + '" stroke="' + colors.border + '" stroke-width="1"/>';
-        }
-        // Vertical lines (including left and right)
-        for (var vl = 0; vl <= totalCols; vl++) {
-            var lineX = vl * cellSize;
-            html += '<line x1="' + lineX + '" y1="0" x2="' + lineX + '" y2="' + contentHeight + '" stroke="' + colors.border + '" stroke-width="1"/>';
-        }
-        
-        html += '</svg></div></div>'; // end content
-        html += '</div>'; // end wrapper
-        
-        container.innerHTML = html;
-        svg = document.getElementById('svgMatrix');
-        contentArea = container.querySelector('.matrix-content');
-        
-        // Setup click handlers
-        var cells = container.querySelectorAll('.matrix-cell-clickable');
-        cells.forEach(function(cell) {
-            cell.addEventListener('click', function() {
-                var connIdx = parseInt(this.dataset.connIdx);
-                if (!isNaN(connIdx) && typeof editConnection === 'function') {
-                    editConnection(connIdx);
-                }
-            });
-            cell.addEventListener('mouseenter', function(e) {
-                var connIdx = parseInt(this.dataset.connIdx);
-                var rowIdx = parseInt(this.dataset.row);
-                var colIdx = parseInt(this.dataset.col);
-                if (!isNaN(connIdx)) showMatrixTooltip(e, connIdx);
-                if (!isNaN(rowIdx) && !isNaN(colIdx)) highlightMatrixHeaders(rowIdx, colIdx, this);
-            });
-            cell.addEventListener('mouseleave', function() {
-                hideMatrixTooltip();
-                clearMatrixHeaderHighlight();
-            });
-        });
-        
-        // Re-attach event handlers EVERY render (since DOM is rebuilt)
-        if (contentArea) {
-            // Zoom on scroll
-            contentArea.addEventListener('wheel', handleWheel, { passive: false });
-            
-            // Pan by dragging
-            contentArea.addEventListener('mousedown', handleMouseDown);
-            
-            // Sync headers with scroll
-            contentArea.addEventListener('scroll', syncHeaders);
-            
-            // Set initial cursor
-            contentArea.style.cursor = 'grab';
-        }
-        
-        // Ensure global window listeners are attached (only once)
-        init();
-        
-        updateZoomLabel();
-    }
-    
-    function exportPNG() {
-        if (!container || !svg) {
-            Toast.warning('No matrix to export');
-            return;
-        }
-        
-        Toast.info('Generating PNG... Please wait');
-        
-        // Build filename
-        var parts = ['Matrix'];
-        var fileParts = ['matrix'];
-        
-        var locationFilter = document.getElementById('matrixLocationFilter');
-        if (locationFilter && locationFilter.value) {
-            parts.push(locationFilter.value);
-            fileParts.push(locationFilter.value.toLowerCase().replace(/\s+/g, '-'));
-        }
-        
-        var groupFilter = document.getElementById('matrixGroupFilter');
-        if (groupFilter && groupFilter.value) {
-            parts.push(groupFilter.value);
-            fileParts.push(groupFilter.value.toLowerCase().replace(/\s+/g, '-'));
-        }
-        
-        var now = new Date();
-        var dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-        fileParts.push(dateStr);
-        
-        var title = parts.join(' - ') + ' - ' + dateStr;
-        var filename = fileParts.join('_') + '.png';
-        
-        // Get the wrapper which contains everything
-        var wrapper = container.querySelector('.matrix-wrapper');
-        if (!wrapper) {
-            Toast.error('Matrix wrapper not found');
-            return;
-        }
-        
-        // Store original zoom and reset temporarily
-        var originalZoom = wrapper.style.zoom || '1';
-        wrapper.style.zoom = '1';
-        
-        // Get sorted devices and calculate dimensions exactly like render()
-        var filteredDevices = getMatrixFilteredDevices();
-        var sorted = getDevicesSortedBy(appState.deviceSort.key, appState.deviceSort.asc, filteredDevices);
-        var deviceCount = sorted.length;
-        
-        // Build device ID lookup
-        var filteredDeviceIds = {};
-        for (var fd = 0; fd < sorted.length; fd++) {
-            filteredDeviceIds[sorted[fd].id] = true;
-        }
-        
-        // Detect special columns (Wall Jack / External)
-        var hasWallJack = false, hasExternal = false;
-        appState.connections.forEach(function(c) {
-            if (!filteredDeviceIds[c.from]) return;
-            if (c.to === null || c.to === undefined) {
-                if (c.isWallJack || c.type === 'wallport') hasWallJack = true;
-                else if (c.externalDest || c.type === 'wan' || c.type === 'external') hasExternal = true;
-            }
-        });
-        
-        var extraCols = (hasWallJack ? 1 : 0) + (hasExternal ? 1 : 0);
-        var totalCols = deviceCount + extraCols;
-        
-        // Calculate full dimensions
-        var contentWidth = totalCols * cellSize;
-        var contentHeight = deviceCount * cellSize;
-        var fullWidth = headerWidth + contentWidth;
-        var fullHeight = headerHeight + contentHeight;
-        
-        // Canvas settings
-        var exportScale = 2;
-        var titleHeight = 60;
-        
-        // Protect against browser canvas limits
-        var maxCanvasSize = 16384;
-        var canvasWidth = fullWidth * exportScale;
-        var canvasHeight = (fullHeight + titleHeight) * exportScale;
-        
-        if (canvasWidth > maxCanvasSize || canvasHeight > maxCanvasSize) {
-            var scaleDown = Math.min(maxCanvasSize / canvasWidth, maxCanvasSize / canvasHeight);
-            canvasWidth = Math.floor(canvasWidth * scaleDown);
-            canvasHeight = Math.floor(canvasHeight * scaleDown);
-            exportScale = exportScale * scaleDown;
-            Toast.info('Large matrix - adjusting resolution');
-        }
-        
-        // Clone the SVG and prepare it for export
-        var svgClone = svg.cloneNode(true);
-        svgClone.setAttribute('width', contentWidth);
-        svgClone.setAttribute('height', contentHeight);
-        svgClone.removeAttribute('id');
-        
-        // Create a complete SVG document with headers
-        var exportSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        exportSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-        exportSvg.setAttribute('width', fullWidth);
-        exportSvg.setAttribute('height', fullHeight);
-        
-        // Add style definitions
-        var defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        var style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-        style.textContent = 'text, tspan { font-family: Arial, Helvetica, sans-serif; }';
-        defs.appendChild(style);
-        exportSvg.appendChild(defs);
-        
-        // Background
-        var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        bg.setAttribute('width', '100%');
-        bg.setAttribute('height', '100%');
-        bg.setAttribute('fill', '#f8fafc');
-        exportSvg.appendChild(bg);
-        
-        // Helper function to create SVG elements
-        function createSvgRect(x, y, w, h, fill, opts) {
-            var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            rect.setAttribute('x', x);
-            rect.setAttribute('y', y);
-            rect.setAttribute('width', w);
-            rect.setAttribute('height', h);
-            rect.setAttribute('fill', fill);
-            if (opts) {
-                if (opts.rx) rect.setAttribute('rx', opts.rx);
-                if (opts.stroke) rect.setAttribute('stroke', opts.stroke);
-            }
-            return rect;
-        }
-        
-        function createSvgText(x, y, text, fill, fontSize, opts) {
-            var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            t.setAttribute('x', x);
-            t.setAttribute('y', y);
-            t.setAttribute('fill', fill);
-            t.setAttribute('font-size', fontSize);
-            t.setAttribute('text-anchor', 'middle');
-            if (opts) {
-                if (opts.fontWeight) t.setAttribute('font-weight', opts.fontWeight);
-                if (opts.textDecoration) t.setAttribute('text-decoration', opts.textDecoration);
-            }
-            t.textContent = text;
-            return t;
-        }
-        
-        // Corner cell
-        exportSvg.appendChild(createSvgRect(0, 0, headerWidth, headerHeight, colors.headerBg, {rx: '8'}));
-        exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 - 8, 'TO →', '#22d3ee', '10', {fontWeight: 'bold'}));
-        exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 + 8, 'FROM ↓', '#fbbf24', '10', {fontWeight: 'bold'}));
-        
-        // Column headers
-        for (var i = 0; i < sorted.length; i++) {
-            var d = sorted[i];
-            var x = headerWidth + i * cellSize;
-            var rackColor = getRackColor(d.rackId);
-            var posNum = String(d.order || 0).padStart(2, '0');
-            var isDisabled = d.status === 'disabled';
-            var textColor = isDisabled ? '#94a3b8' : '#ffffff';
-            
-            exportSvg.appendChild(createSvgRect(x, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(x, 0, 3, headerHeight, rackColor));
-            exportSvg.appendChild(createSvgText(x + cellSize/2, 25, d.location || '-', '#a78bfa', '8'));
-            
-            var nameText = createSvgText(x + cellSize/2, 48, posNum + '-' + (d.name || '').substring(0,10), textColor, '9', {fontWeight: 'bold'});
-            if (isDisabled) nameText.setAttribute('text-decoration', 'line-through');
-            exportSvg.appendChild(nameText);
-            
-            exportSvg.appendChild(createSvgText(x + cellSize/2, 70, d.rackId || '-', rackColor, '8', {fontWeight: 'bold'}));
-        }
-        
-        // Wall Jack header
-        if (hasWallJack) {
-            var wjX = headerWidth + deviceCount * cellSize;
-            exportSvg.appendChild(createSvgRect(wjX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, '#854d0e'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', '#c4b5fd', '20'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', '#c4b5fd', '9', {fontWeight: '600'}));
-        }
-        
-        // External header
-        if (hasExternal) {
-            var extX = headerWidth + deviceCount * cellSize + (hasWallJack ? cellSize : 0);
-            exportSvg.appendChild(createSvgRect(extX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(extX, 0, 3, headerHeight, '#ef4444'));
-            exportSvg.appendChild(createSvgText(extX + cellSize/2, 40, '🌐', '#fca5a5', '20'));
-            exportSvg.appendChild(createSvgText(extX + cellSize/2, 65, 'External', '#fca5a5', '9', {fontWeight: '600'}));
-        }
-        
-        // Row headers
-        for (var r = 0; r < sorted.length; r++) {
-            var row = sorted[r];
-            var y = headerHeight + r * cellSize;
-            var rowRackColor = getRackColor(row.rackId);
-            var rowPosNum = String(row.order || 0).padStart(2, '0');
-            var rowBg = r % 2 === 0 ? colors.rowOdd : colors.rowEven;
-            var rowDisabled = row.status === 'disabled';
-            var rowTextColor = rowDisabled ? '#94a3b8' : '#1e293b';
-            
-            exportSvg.appendChild(createSvgRect(0, y, headerWidth, cellSize, rowBg));
-            exportSvg.appendChild(createSvgRect(0, y, 3, cellSize, rowRackColor));
-            
-            // Bottom border for row
-            var rowBorder = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            rowBorder.setAttribute('x1', 0);
-            rowBorder.setAttribute('y1', y + cellSize);
-            rowBorder.setAttribute('x2', fullWidth);
-            rowBorder.setAttribute('y2', y + cellSize);
-            rowBorder.setAttribute('stroke', colors.border);
-            rowBorder.setAttribute('stroke-width', '1');
-            exportSvg.appendChild(rowBorder);
-            
-            exportSvg.appendChild(createSvgText(headerWidth/2, y + 25, row.location || '-', '#9333ea', '8'));
-            
-            var rowNameText = createSvgText(headerWidth/2, y + 48, rowPosNum + '-' + (row.name || '').substring(0,10), rowTextColor, '9', {fontWeight: 'bold'});
-            if (rowDisabled) rowNameText.setAttribute('text-decoration', 'line-through');
-            exportSvg.appendChild(rowNameText);
-            
-            exportSvg.appendChild(createSvgText(headerWidth/2, y + 70, row.rackId || '-', rowRackColor, '8', {fontWeight: 'bold'}));
-        }
-        
-        // Add cloned SVG content (data cells) translated to correct position
-        var contentGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        contentGroup.setAttribute('transform', 'translate(' + headerWidth + ',' + headerHeight + ')');
-        
-        // Transfer all children from cloned SVG
-        while (svgClone.firstChild) {
-            contentGroup.appendChild(svgClone.firstChild);
-        }
-        exportSvg.appendChild(contentGroup);
-        
-        // Serialize using XMLSerializer for proper Unicode handling
-        var serializer = new XMLSerializer();
-        var svgStr = serializer.serializeToString(exportSvg);
-        
-        // Create canvas and image
-        var canvas = document.createElement('canvas');
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-        var ctx = canvas.getContext('2d');
-        
-        var img = new Image();
-        var drawWidth = canvasWidth;
-        var drawHeight = canvasHeight - (titleHeight * exportScale);
-        
-        img.onload = function() {
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw title
-            ctx.fillStyle = '#1e293b';
-            ctx.font = 'bold ' + Math.round(22 * exportScale) + 'px Arial, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(title, canvas.width / 2, Math.round(40 * exportScale));
-            
-            // Draw matrix
-            ctx.drawImage(img, 0, Math.round(titleHeight * exportScale), drawWidth, drawHeight);
-            
-            try {
-                var link = document.createElement('a');
-                link.download = filename;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                
-                wrapper.style.zoom = originalZoom;
-                Toast.success('PNG exported: ' + filename);
-            } catch (e) {
-                wrapper.style.zoom = originalZoom;
-                Toast.error('Export failed: ' + e.message);
-            }
-        };
-        
-        img.onerror = function(e) {
-            wrapper.style.zoom = originalZoom;
-            console.error('Image load error:', e);
-            Toast.error('Export failed - could not render image');
-        };
-        
-        // Use blob URL for better compatibility with Unicode
-        try {
-            var blob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
-            var url = URL.createObjectURL(blob);
-            img.onload = function() {
-                ctx.fillStyle = '#f8fafc';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#1e293b';
-                ctx.font = 'bold ' + Math.round(22 * exportScale) + 'px Arial, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(title, canvas.width / 2, Math.round(40 * exportScale));
-                
-                ctx.drawImage(img, 0, Math.round(titleHeight * exportScale), drawWidth, drawHeight);
-                
-                URL.revokeObjectURL(url);
-                
-                try {
-                    var link = document.createElement('a');
-                    link.download = filename;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    
-                    wrapper.style.zoom = originalZoom;
-                    Toast.success('PNG exported: ' + filename);
-                } catch (e) {
-                    wrapper.style.zoom = originalZoom;
-                    Toast.error('Export failed: ' + e.message);
-                }
-            };
-            img.src = url;
-        } catch (e) {
-            wrapper.style.zoom = originalZoom;
-            console.error('SVG encoding error:', e);
-            Toast.error('Export failed - encoding error');
-        }
-    }
-    
-    return {
-        init: init,
-        render: render,
-        zoom: zoom,
-        resetZoom: resetZoom,
-        fit: fit,
-        exportPNG: exportPNG
-    };
-})();
-
-// ============================================================================
-// MATRIX UPDATE (Wrapper for SVGMatrix module)
+// MATRIX UPDATE (Refactored - Clean, Modern Design with Topology-Style Features)
 // ============================================================================
 
 // Matrix view state
+var matrixZoom = 1.0;
 var matrixFilters = {
     location: '',
     group: '',
@@ -1453,7 +486,6 @@ function updateMatrixFilters() {
     });
 }
 
-// Filter handler functions - called from HTML onchange events
 function filterMatrixByLocation() {
     var select = document.getElementById('matrixLocationFilter');
     matrixFilters.location = select ? select.value : '';
@@ -1479,48 +511,38 @@ function toggleMatrixOnlyConnected() {
     updateMatrix();
 }
 
-// Zoom wrapper functions - delegate to SVGMatrix module
+// Zoom functions
 function zoomMatrix(delta) {
-    if (typeof SVGMatrix !== 'undefined' && SVGMatrix.zoom) {
-        SVGMatrix.zoom(delta);
-    }
+    matrixZoom = Math.max(0.5, Math.min(2.0, matrixZoom + delta));
+    applyMatrixZoom();
 }
 
 function resetMatrixZoom() {
-    if (typeof SVGMatrix !== 'undefined' && SVGMatrix.resetZoom) {
-        SVGMatrix.resetZoom();
+    matrixZoom = 1.0;
+    applyMatrixZoom();
+}
+
+function applyMatrixZoom() {
+    var container = document.getElementById('matrixContainer');
+    var table = document.getElementById('matrixTable');
+    var zoomLabel = document.getElementById('matrixZoomLevel');
+    
+    if (table) {
+        // Use CSS zoom instead of transform scale - this preserves sticky positioning
+        table.style.zoom = matrixZoom;
+    }
+    if (zoomLabel) {
+        zoomLabel.textContent = Math.round(matrixZoom * 100) + '%';
     }
 }
 
 function fitMatrixView() {
-    if (typeof SVGMatrix !== 'undefined' && SVGMatrix.fit) {
-        SVGMatrix.fit();
+    var container = document.getElementById('matrixContainer');
+    if (container) {
+        container.scrollLeft = 0;
+        container.scrollTop = 0;
     }
-}
-
-// Export Matrix PNG - wrapper for SVGMatrix module
-function exportMatrixPNG() {
-    if (typeof SVGMatrix !== 'undefined' && SVGMatrix.exportPNG) {
-        SVGMatrix.exportPNG();
-    } else {
-        Toast.warning('Matrix not ready for export');
-    }
-}
-
-// Helper function to get connection color by type
-function getConnTypeColor(type) {
-    var colors = {
-        'ethernet': '#3b82f6',
-        'fiber': '#22c55e',
-        'serial': '#a855f7',
-        'console': '#854d0e',
-        'usb': '#ec4899',
-        'wan': '#ef4444',
-        'trunk': '#14b8a6',
-        'crossover': '#f97316',
-        'other': '#6b7280'
-    };
-    return colors[type] || '#3b82f6';
+    resetMatrixZoom();
 }
 
 // Get filtered devices for matrix based on current filters
@@ -1575,17 +597,61 @@ function updateMatrixStats() {
     });
     
     var totalConnections = filteredConnections.length;
-    var totalAllConnections = appState.connections.length;
+    var activeConnections = 0;
+    var disabledConnections = 0;
+    var connectionsByType = {};
+    var groups = {};
+    
+    for (var i = 0; i < filteredConnections.length; i++) {
+        var conn = filteredConnections[i];
+        if (conn.status === 'active') activeConnections++;
+        else disabledConnections++;
+        
+        var type = conn.type || 'other';
+        connectionsByType[type] = (connectionsByType[type] || 0) + 1;
+    }
+    
+    for (var j = 0; j < filteredDevices.length; j++) {
+        var group = filteredDevices[j].rackId || 'Unassigned';
+        groups[group] = (groups[group] || 0) + 1;
+    }
+    
+    var html = '';
     
     // Show filtered vs total if filters are active
     var isFiltered = matrixFilters.location || matrixFilters.group || matrixFilters.onlyConnected;
-    var deviceLabel = isFiltered ? totalDevices + '/' + totalAllDevices : String(totalDevices);
-    var connLabel = isFiltered ? totalConnections + '/' + totalAllConnections : String(totalConnections);
+    var deviceLabel = isFiltered ? totalDevices + ' / ' + totalAllDevices : totalDevices;
     
-    // Simple stats: just devices and connections
-    var html = '<div class="flex items-center gap-2 text-xs">';
-    html += '<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-500 text-white font-semibold" title="Devices">📱 ' + deviceLabel + '</span>';
-    html += '<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-500 text-white font-semibold" title="Connections">⚡ ' + connLabel + '</span>';
+    // Official project style: solid color buttons like "📱 81 Devices ⚡ 89 Connections"
+    html += '<div class="flex flex-wrap items-center gap-2">';
+    
+    html += '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-white bg-blue-500 shadow-sm">' +
+        '📱 ' + deviceLabel + ' Devices' + (isFiltered ? ' <span class="text-blue-200 text-xs">(filtered)</span>' : '') + '</span>';
+    
+    html += '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-white bg-green-500 shadow-sm">' +
+        '⚡ ' + totalConnections + ' Connections</span>';
+    
+    html += '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-white bg-emerald-500 shadow-sm">' +
+        '✓ ' + activeConnections + ' Active</span>';
+    
+    html += '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-white bg-red-500 shadow-sm">' +
+        '✗ ' + disabledConnections + ' Disabled</span>';
+    
+    html += '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-white bg-purple-500 shadow-sm">' +
+        '🗄️ ' + Object.keys(groups).length + ' Groups</span>';
+    
+    // Most common connection type
+    var topType = 'N/A';
+    var topCount = 0;
+    for (var t in connectionsByType) {
+        if (connectionsByType[t] > topCount) {
+            topCount = connectionsByType[t];
+            topType = config.connLabels[t] || t;
+        }
+    }
+    html += '<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold text-white bg-amber-500 shadow-sm">' +
+        '🔗 ' + topType + ' (' + topCount + ')</span>';
+    
     html += '</div>';
     
     statsContainer.innerHTML = html;
@@ -1605,62 +671,59 @@ function showMatrixTooltip(event, connIdx) {
     }
     
     var typeName = config.connLabels[conn.type] || conn.type;
-    var connColor = conn.color || config.connColors[conn.type] || 'var(--color-secondary)';
+    var connColor = conn.color || config.connColors[conn.type] || '#6b7280';
     
-    // Build horizontal tooltip with two columns - LARGER SIZE
-    var html = '<div class="flex gap-6">';
+    // Build horizontal tooltip with two columns
+    var html = '<div class="flex gap-4">';
     
     // LEFT COLUMN - FROM
-    html += '<div class="flex-1 min-w-[180px]">';
-    html += '<div class="text-sm text-amber-400 font-bold mb-2 border-b border-amber-400/30 pb-2">📤 FROM</div>';
+    html += '<div class="flex-1 min-w-[150px]">';
+    html += '<div class="text-[11px] text-amber-400 font-bold mb-1 border-b border-amber-400/30 pb-1">📤 FROM</div>';
     if (fromDevice) {
-        html += '<div class="font-bold text-white text-base">' + fromDevice.name + '</div>';
-        html += '<div class="text-sm text-slate-400 mt-2 leading-relaxed space-y-1">';
-        html += '<div>📍 <span class="text-purple-300">' + (fromDevice.location || '-') + '</span></div>';
-        html += '<div>🗄️ <span class="text-cyan-300">' + (fromDevice.rackId || '-') + '</span></div>';
-        html += '<div>📊 <span class="text-slate-500">POS.</span> <span class="text-amber-300 font-bold">#' + (fromDevice.order || '-') + '</span></div>';
-        if (fromDevice.product) html += '<div>📦 <span class="text-green-300">' + fromDevice.product + '</span></div>';
-        html += '<div>🔌 <span class="text-amber-300 font-mono font-bold text-base">' + (conn.fromPort || '-') + '</span></div>';
+        html += '<div class="font-bold text-white text-[12px]">' + fromDevice.name + '</div>';
+        html += '<div class="text-[10px] text-slate-400 mt-1 leading-relaxed">';
+        html += '📍 <span class="text-purple-300">' + (fromDevice.location || '-') + '</span><br>';
+        html += '🗄️ <span class="text-cyan-300">' + (fromDevice.rackId || '-') + '</span> · <span class="text-slate-500">POS.</span> <span class="text-white font-semibold">#' + (fromDevice.order || '-') + '</span><br>';
+        if (fromDevice.product) html += '📦 <span class="text-green-300">' + fromDevice.product + '</span><br>';
+        html += '🔌 <span class="text-blue-300 font-mono font-bold">' + (conn.fromPort || '-') + '</span>';
         html += '</div>';
     }
     html += '</div>';
     
     // RIGHT COLUMN - TO
-    html += '<div class="flex-1 min-w-[180px]">';
-    html += '<div class="text-sm text-cyan-400 font-bold mb-2 border-b border-cyan-400/30 pb-2">📥 TO</div>';
+    html += '<div class="flex-1 min-w-[150px]">';
+    html += '<div class="text-[11px] text-cyan-400 font-bold mb-1 border-b border-cyan-400/30 pb-1">📥 TO</div>';
     if (toDevice) {
-        html += '<div class="font-bold text-white text-base">' + toDevice.name + '</div>';
-        html += '<div class="text-sm text-slate-400 mt-2 leading-relaxed space-y-1">';
-        html += '<div>📍 <span class="text-purple-300">' + (toDevice.location || '-') + '</span></div>';
-        html += '<div>🗄️ <span class="text-cyan-300">' + (toDevice.rackId || '-') + '</span></div>';
-        html += '<div>📊 <span class="text-slate-500">POS.</span> <span class="text-cyan-300 font-bold">#' + (toDevice.order || '-') + '</span></div>';
-        if (toDevice.product) html += '<div>📦 <span class="text-green-300">' + toDevice.product + '</span></div>';
-        html += '<div>🔌 <span class="text-cyan-300 font-mono font-bold text-base">' + (conn.toPort || '-') + '</span></div>';
+        html += '<div class="font-bold text-white text-[12px]">' + toDevice.name + '</div>';
+        html += '<div class="text-[10px] text-slate-400 mt-1 leading-relaxed">';
+        html += '📍 <span class="text-purple-300">' + (toDevice.location || '-') + '</span><br>';
+        html += '🗄️ <span class="text-cyan-300">' + (toDevice.rackId || '-') + '</span> · <span class="text-slate-500">POS.</span> <span class="text-white font-semibold">#' + (toDevice.order || '-') + '</span><br>';
+        if (toDevice.product) html += '📦 <span class="text-green-300">' + toDevice.product + '</span><br>';
+        html += '🔌 <span class="text-blue-300 font-mono font-bold">' + (conn.toPort || '-') + '</span>';
         html += '</div>';
     } else {
-        html += '<div class="font-bold text-white text-base">' + (conn.externalDest || 'External') + '</div>';
-        html += '<div class="text-sm mt-1">🔌 <span class="text-blue-300 font-mono font-bold">' + (conn.toPort || '-') + '</span></div>';
+        html += '<div class="font-bold text-white text-[12px]">' + (conn.externalDest || 'External') + '</div>';
+        html += '<div class="text-[10px]">🔌 <span class="text-blue-300 font-mono">' + (conn.toPort || '-') + '</span></div>';
     }
     html += '</div>';
     
     html += '</div>'; // end flex
     
     // Connection type and cable - bottom row
-    html += '<div class="mt-3 pt-3 border-t border-slate-600 flex items-center justify-between">';
-    html += '<div class="font-bold text-base" style="color:' + connColor + '">' + typeName + '</div>';
+    html += '<div class="mt-2 pt-2 border-t border-slate-600 flex items-center justify-between">';
+    html += '<div class="font-bold text-[13px]" style="color:' + connColor + '">' + typeName + '</div>';
     if (conn.cableMarker) {
-        html += '<div class="scale-110">' + createMarkerHtml(conn.cableMarker, conn.cableColor, false) + '</div>';
+        html += '<div>' + createMarkerHtml(conn.cableMarker, conn.cableColor, false) + '</div>';
     }
     html += '</div>';
     
     if (conn.notes) {
-        html += '<div class="text-xs text-slate-400 italic mt-2">📝 ' + conn.notes + '</div>';
+        html += '<div class="text-[9px] text-slate-400 italic mt-1">📝 ' + conn.notes + '</div>';
     }
     
-    html += '<div class="text-[10px] text-slate-500 mt-3 text-center">Click to edit</div>';
+    html += '<div class="text-[8px] text-slate-500 mt-2 text-center">Click to edit</div>';
     
     tooltip.innerHTML = html;
-    tooltip.classList.remove('hidden');
     tooltip.style.display = 'block';
     
     // Smart positioning - prevent tooltip from going off screen
@@ -1700,23 +763,311 @@ function showMatrixTooltip(event, connIdx) {
 
 function hideMatrixTooltip() {
     var tooltip = document.getElementById('matrixTooltip');
-    if (tooltip) {
-        tooltip.style.display = 'none';
-        tooltip.classList.add('hidden');
+    if (tooltip) tooltip.style.display = 'none';
+}
+
+// Highlight row and column when hovering over a connection cell
+function highlightRowCol(rowIdx, colIdx) {
+    var table = document.getElementById('matrixTable');
+    if (!table) return;
+    
+    // Get all rows
+    var rows = table.querySelectorAll('tbody tr');
+    var headerRow = table.querySelector('thead tr');
+    
+    // Highlight column header with yellow glow effect
+    if (headerRow) {
+        var colHeaders = headerRow.querySelectorAll('th');
+        // +1 because first th is corner cell
+        if (colHeaders[colIdx + 1]) {
+            colHeaders[colIdx + 1].style.outline = '3px solid #fbbf24';
+            colHeaders[colIdx + 1].style.outlineOffset = '-2px';
+            colHeaders[colIdx + 1].style.zIndex = '95';  // Higher than normal col headers (90)
+            colHeaders[colIdx + 1].style.boxShadow = 'inset 0 0 20px rgba(251, 191, 36, 0.4)';
+            colHeaders[colIdx + 1].style.transition = 'all 0.3s ease-in-out';
+        }
+    }
+    
+    // Highlight row header (first td of the row) with yellow glow effect
+    if (rows[rowIdx]) {
+        var rowHeader = rows[rowIdx].querySelector('td');
+        if (rowHeader) {
+            rowHeader.style.outline = '3px solid #fbbf24';
+            rowHeader.style.outlineOffset = '-2px';
+            rowHeader.style.zIndex = '55';  // Higher than normal row headers (50), but less than col headers
+            rowHeader.style.boxShadow = 'inset 0 0 20px rgba(251, 191, 36, 0.4)';
+            rowHeader.style.transition = 'all 0.3s ease-in-out';
+        }
     }
 }
 
+// Clear row/column highlight
+function clearRowColHighlight() {
+    var table = document.getElementById('matrixTable');
+    if (!table) return;
+    
+    // Clear column headers - restore original z-index (90)
+    var colHeaders = table.querySelectorAll('thead th');
+    colHeaders.forEach(function(th, idx) {
+        th.style.outline = '';
+        th.style.outlineOffset = '';
+        // Restore original z-index: corner cell is 110, others are 90
+        th.style.zIndex = idx === 0 ? '110' : '90';
+        th.style.boxShadow = '';
+    });
+    
+    // Clear row headers - restore original z-index (50)
+    var rowHeaders = table.querySelectorAll('tbody tr td:first-child');
+    rowHeaders.forEach(function(td) {
+        td.style.outline = '';
+        td.style.outlineOffset = '';
+        td.style.zIndex = '50';  // Restore original z-index for row headers
+        td.style.boxShadow = '';
+    });
+}
+
 function updateMatrix() {
+    var cont = document.getElementById('matrixContainer');
+    if (!cont) return;
+    
     // Update filters dropdowns
     updateMatrixFilters();
     
     // Update stats
     updateMatrixStats();
     
-    // Render SVG Matrix
-    if (typeof SVGMatrix !== 'undefined') {
-        SVGMatrix.render();
+    if (appState.devices.length === 0) {
+        cont.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-slate-400">' +
+            '<div class="text-6xl mb-4">📡</div>' +
+            '<div class="text-lg font-medium">No devices yet</div>' +
+            '<div class="text-sm">Add devices in the Devices tab to see the connection matrix</div>' +
+            '</div>';
+        return;
     }
+
+    // Use filtered devices instead of all devices
+    var filteredDevices = getMatrixFilteredDevices();
+    var sorted = getDevicesSortedBy(appState.deviceSort.key, appState.deviceSort.asc, filteredDevices);
+    
+    if (sorted.length === 0) {
+        cont.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-slate-400">' +
+            '<div class="text-5xl mb-4">🔍</div>' +
+            '<div class="text-lg font-medium">No devices match the current filters</div>' +
+            '<div class="text-sm">Try adjusting the Location, Group, or "Only Connected" filters above</div>' +
+            '</div>';
+        return;
+    }
+    
+    // Cell sizes - square headers for uniform layout
+    var cellSize = 90;      // Square cells for data and headers
+    var cellHeight = 90;
+    var headerWidth = 90;   // Same as cellSize for square headers
+
+    // Build a set of filtered device IDs for quick lookup
+    var filteredDeviceIds = {};
+    for (var f = 0; f < sorted.length; f++) {
+        filteredDeviceIds[sorted[f].id] = true;
+    }
+    
+    // Check for special connections (only for filtered devices)
+    var hasWallJackConnections = false;
+    var hasExternalConnections = false;
+    var wallJackConnections = [];
+    var externalConnections = [];
+    
+    for (var sc = 0; sc < appState.connections.length; sc++) {
+        var sconn = appState.connections[sc];
+        // Only include if the source device (from) is in the filtered list
+        if (!filteredDeviceIds[sconn.from]) continue;
+        
+        if (sconn.to === null || sconn.to === undefined) {
+            if (sconn.isWallJack || sconn.type === 'wallport') {
+                hasWallJackConnections = true;
+                wallJackConnections.push({ conn: sconn, idx: sc });
+            } else if (sconn.externalDest || sconn.type === 'wan' || sconn.type === 'external') {
+                hasExternalConnections = true;
+                externalConnections.push({ conn: sconn, idx: sc });
+            }
+        }
+    }
+
+    var html = '<table id="matrixTable" class="border-collapse text-xs" style="border-spacing:0;">';
+    
+    // HEADER ROW - sticky at top with high z-index
+    // Note: Use explicit z-index hierarchy: Corner(110) > ColHeaders(90) > RowHeaders(50) > DataCells(auto)
+    html += '<thead class="sticky top-0" style="z-index:100;"><tr>';
+    
+    // Corner cell with TO/FROM indicators - sticky both left and top, highest z-index
+    // Using box-shadow for diagonal line effect instead of border to prevent scroll artifacts
+    html += '<th class="sticky left-0 top-0 p-2 align-middle" style="z-index:110;width:' + headerWidth + 'px;min-width:' + headerWidth + 'px;height:' + cellHeight + 'px;background:linear-gradient(135deg,#1e293b 49.5%,#475569 49.5%,#475569 50.5%,#334155 50.5%);border-radius:8px 0 0 0;box-shadow:2px 2px 4px rgba(0,0,0,0.3);">' +
+        '<div class="flex flex-col h-full justify-between py-1">' +
+        '<div class="text-right text-cyan-400 font-bold text-[11px]">TO →</div>' +
+        '<div class="text-left text-amber-400 font-bold text-[11px]">FROM ↓</div>' +
+        '</div>' +
+        '</th>';
+
+    // Column headers (destination devices) - SQUARE FORMAT
+    // Format: Location / Order - Name / Group
+    for (var i = 0; i < sorted.length; i++) {
+        var d = sorted[i];
+        var rackColor = getRackColor(d.rackId);
+        var posNum = String(d.order || 0).padStart(2, '0');
+        var isDisabled = d.status === 'disabled';
+        var location = d.location || '-';
+        var group = d.rackId || '-';
+        
+        html += '<th class="sticky top-0 p-1 text-center align-middle" style="z-index:90;width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#1e293b;border-left:2px solid ' + rackColor + ';box-shadow:0 2px 4px rgba(0,0,0,0.3);" title="' + d.name + '\n' + location + '\nRack ' + group + '\nPOSITION #' + posNum + '">' +
+            '<div class="flex flex-col items-center justify-center h-full gap-0.5 overflow-hidden">' +
+            // Line 1: Location (purple)
+            '<div class="text-[8px] text-purple-400 truncate w-full text-center leading-tight">' + location + '</div>' +
+            // Line 2: Position + Name (white, bold)
+            '<div class="text-[9px] font-bold text-white text-center leading-tight' + (isDisabled ? ' opacity-50 line-through' : '') + '" style="word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + posNum + ' - ' + d.name + '</div>' +
+            // Line 3: Group (rack color)
+            '<div class="text-[8px] font-semibold truncate w-full text-center leading-tight" style="color:' + rackColor + ';">' + group + '</div>' +
+            '</div>' +
+            '</th>';
+    }
+    
+    // Special columns headers
+    if (hasWallJackConnections) {
+        html += '<th class="sticky top-0 p-1 text-center align-middle" style="z-index:90;width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#1e293b;border-left:2px solid #a78bfa;" title="Wall Jack">' +
+            '<div class="flex flex-col items-center justify-center h-full gap-1">' +
+            '<span class="text-lg">🔌</span>' +
+            '<div class="text-[9px] font-semibold text-purple-300">Wall Jack</div>' +
+            '</div></th>';
+    }
+    if (hasExternalConnections) {
+        html += '<th class="sticky top-0 p-1 text-center align-middle" style="z-index:90;width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#1e293b;border-left:2px solid #ef4444;" title="External">' +
+            '<div class="flex flex-col items-center justify-center h-full gap-1">' +
+            '<span class="text-lg">🌐</span>' +
+            '<div class="text-[9px] font-semibold text-red-300">External</div>' +
+            '</div></th>';
+    }
+    
+    html += '</tr></thead><tbody>';
+
+    // DATA ROWS
+    for (var r = 0; r < sorted.length; r++) {
+        var row = sorted[r];
+        var rowRackColor = getRackColor(row.rackId);
+        var rowPosNum = String(row.order || 0).padStart(2, '0');
+        var rowDisabled = row.status === 'disabled';
+        var rowBg = r % 2 === 0 ? '#ffffff' : '#f8fafc';
+        var rowLocation = row.location || '-';
+        var rowGroup = (row.rackId || '-').toUpperCase();
+        
+        html += '<tr style="height:' + cellHeight + 'px;">';
+        
+        // Row header (source device) - SQUARE FORMAT matching columns
+        // Format: Location / Order - Name / Group
+        // z-index:50 ensures row headers stay above data cells during horizontal scroll
+        // but below column headers (z-index:90) during vertical scroll
+        html += '<td class="sticky left-0 p-1 text-center align-middle" style="z-index:50;width:' + headerWidth + 'px;min-width:' + headerWidth + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border-left:3px solid ' + rowRackColor + ';border-bottom:1px solid #e2e8f0;box-shadow:2px 0 4px rgba(0,0,0,0.1);" title="' + row.name + '\n' + rowLocation + '\nRack ' + rowGroup + '\nPOSITION #' + rowPosNum + '">' +
+            '<div class="flex flex-col items-center justify-center h-full gap-0.5 overflow-hidden">' +
+            // Line 1: Location (purple)
+            '<div class="text-[8px] text-purple-600 truncate w-full text-center leading-tight">' + rowLocation + '</div>' +
+            // Line 2: Position + Name (dark, bold)
+            '<div class="text-[9px] font-bold text-slate-800 text-center leading-tight' + (rowDisabled ? ' opacity-50 line-through' : '') + '" style="word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + rowPosNum + ' - ' + row.name + '</div>' +
+            // Line 3: Group (rack color)
+            '<div class="text-[8px] font-semibold truncate w-full text-center leading-tight" style="color:' + rowRackColor + ';">' + rowGroup + '</div>' +
+            '</div></td>';
+
+        // Data cells
+        for (var c = 0; c < sorted.length; c++) {
+            var col = sorted[c];
+            var connIdx = getConnectionIndex(row.id, col.id);
+
+            if (row.id === col.id) {
+                // Diagonal - self reference
+                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;height:' + cellHeight + 'px;background:repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0 3px,#f1f5f9 3px,#f1f5f9 6px);border:1px solid #e2e8f0;"></td>';
+            } else if (connIdx >= 0) {
+                // Connection exists
+                var conn = appState.connections[connIdx];
+                var connColor = conn.color || config.connColors[conn.type] || '#6b7280';
+                var isConnDisabled = conn.status === 'disabled';
+                
+                // Determine ports - FROM (row) and TO (col)
+                var portFrom = conn.from === row.id ? conn.fromPort : conn.toPort;
+                var portTo = conn.from === row.id ? conn.toPort : conn.fromPort;
+                var portFromDisplay = portFrom || '?';
+                var portToDisplay = portTo || '?';
+                
+                html += '<td class="p-0.5 align-middle cursor-pointer transition-all hover:scale-105 hover:z-10 matrix-cell group" ' +
+                    'style="width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;" ' +
+                    'data-row="' + r + '" data-col="' + c + '" ' +
+                    'onclick="editConnection(' + connIdx + ')" ' +
+                    'onmouseenter="showMatrixTooltip(event,' + connIdx + ');highlightRowCol(' + r + ',' + c + ')" ' +
+                    'onmouseleave="hideMatrixTooltip();clearRowColHighlight()">' +
+                    '<div class="w-full h-full rounded flex flex-col items-center justify-center gap-1 relative overflow-hidden' + (isConnDisabled ? ' opacity-40' : '') + '" style="background-color:' + connColor + ';">' +
+                    // Hover overlay - white fade
+                    '<div class="absolute inset-0 bg-white/0 group-hover:bg-white/30 transition-all duration-300 ease-in-out rounded pointer-events-none"></div>' +
+                    // Port FROM (row)
+                    '<div class="text-[11px] font-mono font-bold text-white leading-tight text-center relative z-10">' + portFromDisplay + '</div>' +
+                    '<div class="text-[9px] text-white/60 relative z-10">↕</div>' +
+                    // Port TO (column)
+                    '<div class="text-[11px] font-mono font-bold text-white leading-tight text-center relative z-10">' + portToDisplay + '</div>' +
+                    // Cable marker with color
+                    (conn.cableMarker ? '<div class="mt-1 relative z-10">' + createMarkerHtml(conn.cableMarker, conn.cableColor, true) + '</div>' : '') +
+                    '</div></td>';
+            } else {
+                // No connection - empty cell
+                html += '<td class="p-0 align-middle" style="width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:' + rowBg + ';border:1px solid #e2e8f0;"></td>';
+            }
+        }
+        
+        // Wall Jack column
+        if (hasWallJackConnections) {
+            var wjConn = null;
+            var wjConnIdx = -1;
+            for (var wj = 0; wj < wallJackConnections.length; wj++) {
+                if (wallJackConnections[wj].conn.from === row.id) {
+                    wjConn = wallJackConnections[wj].conn;
+                    wjConnIdx = wallJackConnections[wj].idx;
+                    break;
+                }
+            }
+            if (wjConn) {
+                html += '<td class="p-0.5 align-middle cursor-pointer transition-all hover:scale-110" ' +
+                    'style="width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#faf5ff;border:1px solid #e9d5ff;" ' +
+                    'onclick="editConnection(' + wjConnIdx + ')">' +
+                    '<div class="w-full h-full rounded flex flex-col items-center justify-center" style="background-color:#a78bfa;">' +
+                    '<div class="text-[9px] font-bold text-white">' + (wjConn.fromPort || '-') + '</div>' +
+                    '<div class="text-[7px] text-white/80 truncate max-w-full px-0.5">→' + (wjConn.externalDest || 'WJ').substring(0,6) + '</div>' +
+                    '</div></td>';
+            } else {
+                html += '<td class="p-0" style="width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#faf5ff;border:1px solid #e9d5ff;"></td>';
+            }
+        }
+        
+        // External column
+        if (hasExternalConnections) {
+            var extConn = null;
+            var extConnIdx = -1;
+            for (var ex = 0; ex < externalConnections.length; ex++) {
+                if (externalConnections[ex].conn.from === row.id) {
+                    extConn = externalConnections[ex].conn;
+                    extConnIdx = externalConnections[ex].idx;
+                    break;
+                }
+            }
+            if (extConn) {
+                html += '<td class="p-0.5 align-middle cursor-pointer transition-all hover:scale-110" ' +
+                    'style="width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#fef2f2;border:1px solid #fecaca;" ' +
+                    'onclick="editConnection(' + extConnIdx + ')">' +
+                    '<div class="w-full h-full rounded flex flex-col items-center justify-center" style="background-color:#ef4444;">' +
+                    '<div class="text-[9px] font-bold text-white">' + (extConn.fromPort || '-') + '</div>' +
+                    '<div class="text-[7px] text-white/80 truncate max-w-full px-0.5">→' + (extConn.externalDest || 'EXT').substring(0,6) + '</div>' +
+                    '</div></td>';
+            } else {
+                html += '<td class="p-0" style="width:' + cellSize + 'px;height:' + cellHeight + 'px;background-color:#fef2f2;border:1px solid #fecaca;"></td>';
+            }
+        }
+        
+        html += '</tr>';
+    }
+    
+    html += '</tbody></table>';
+    cont.innerHTML = html;
 }
 
 // ============================================================================
@@ -2057,7 +1408,7 @@ function renderConnectionsTable(cont) {
         var statusText = disabled ? 'Off' : 'On';
 
         // Connection color with fallback
-        var connColor = c.color || config.connColors[c.type] || 'var(--color-secondary)';
+        var connColor = c.color || config.connColors[c.type] || '#64748b';
 
         var fromRackColor = getRackColor(fromDevice ? fromDevice.rackId : '');
         var toRackColor = getRackColor(toDevice ? toDevice.rackId : '');
@@ -2153,7 +1504,7 @@ function renderConnectionsTable(cont) {
                 (fromIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + fromIPs + '</div>' : '') +
             '</td>' +
             '<td class="px-3 py-2 align-top font-mono text-center">' + escapeHtml(displayFromPort || '-') + '</td>' +
-            '<td class="px-1 py-2 align-top text-center"><span style="font-size:18px;font-weight:bold;color:' + (isMirrored ? 'var(--color-danger-hover)' : 'var(--color-primary-hover)') + ';">⟷</span></td>' +
+            '<td class="px-1 py-2 align-top text-center"><span style="font-size:18px;font-weight:bold;color:' + (isMirrored ? '#dc2626' : '#2563eb') + ';">⟷</span></td>' +
             '<td class="px-3 py-2 align-top font-mono text-center">' + escapeHtml(displayToPort || '-') + '</td>' +
             '<td class="px-3 py-2 align-top">' +
                 '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + toDeviceNameEscaped + '\')">' + toDisabledIndicator + toDisplayName + '</div>' +
@@ -2304,4 +1655,67 @@ function exportExcel() {
     }
 }
 
-// Note: Drag-to-scroll and zoom are handled by SVGMatrix module (init function)
+// ============================================================================
+// DRAG-TO-SCROLL
+// ============================================================================
+function initDragToScroll() {
+    var matrixContainer = document.getElementById('matrixContainer');
+    if (!matrixContainer) return;
+    
+    var isDragging = false;
+    var startX, startY, scrollLeft, scrollTop;
+
+    matrixContainer.addEventListener('mousedown', function(e) {
+        if (e.target.closest('button, a, input, select, td[onclick]')) return;
+        isDragging = true;
+        matrixContainer.style.cursor = 'grabbing';
+        matrixContainer.style.userSelect = 'none';
+        startX = e.pageX - matrixContainer.offsetLeft;
+        startY = e.pageY - matrixContainer.offsetTop;
+        scrollLeft = matrixContainer.scrollLeft;
+        scrollTop = matrixContainer.scrollTop;
+    });
+
+    matrixContainer.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        var x = e.pageX - matrixContainer.offsetLeft;
+        var y = e.pageY - matrixContainer.offsetTop;
+        var walkX = (x - startX) * 1.5;
+        var walkY = (y - startY) * 1.5;
+        matrixContainer.scrollLeft = scrollLeft - walkX;
+        matrixContainer.scrollTop = scrollTop - walkY;
+    });
+
+    matrixContainer.addEventListener('mouseup', function() {
+        isDragging = false;
+        matrixContainer.style.cursor = 'grab';
+        matrixContainer.style.userSelect = '';
+    });
+
+    matrixContainer.addEventListener('mouseleave', function() {
+        isDragging = false;
+        matrixContainer.style.cursor = 'grab';
+        matrixContainer.style.userSelect = '';
+    });
+
+    // Mouse wheel zoom (Ctrl+Scroll)
+    matrixContainer.addEventListener('wheel', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            var delta = e.deltaY > 0 ? -0.1 : 0.1;
+            if (typeof zoomMatrix === 'function') {
+                zoomMatrix(delta);
+            }
+        }
+    }, { passive: false });
+
+    matrixContainer.style.cursor = 'grab';
+}
+
+// Initialize drag-to-scroll when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDragToScroll);
+} else {
+    initDragToScroll();
+}
