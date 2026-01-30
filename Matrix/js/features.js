@@ -464,7 +464,7 @@ var SVGTopology = (function() {
         // Patch Panel - Vista frontal 24 portas
         patch: function(color) {
             return '<g transform="translate(0,12) scale(0.8)">' +
-                // Chassi principal (cinza claro típico de patch)
+                // Main chassis (typical light gray patch)
                 '<rect x="0" y="18" width="100" height="28" rx="1" fill="#dfe6e9"/>' +
                 '<rect x="1" y="19" width="98" height="26" fill="#b2bec3"/>' +
                 // Fileira superior (12 portas keystone)
@@ -504,7 +504,7 @@ var SVGTopology = (function() {
                 // Chassi principal (vermelho escuro)
                 '<rect x="0" y="15" width="100" height="35" rx="2" fill="#c0392b"/>' +
                 '<rect x="2" y="17" width="96" height="31" rx="1" fill="#e74c3c"/>' +
-                // Área de portas (fundo escuro)
+                // Port area (dark background)
                 '<rect x="5" y="20" width="55" height="24" fill="#2d3436" rx="2"/>' +
                 // Portas Ethernet
                 '<rect x="8" y="23" width="7" height="8" fill="#1e272e" stroke="#b2bec3" stroke-width="0.5"/>' +
@@ -553,7 +553,7 @@ var SVGTopology = (function() {
                 '<rect x="65" y="10" width="18" height="22" fill="#1e272e" stroke="#636e72" stroke-width="0.5" rx="1"/>' +
                 '<rect x="67" y="12" width="14" height="18" fill="#0c0c0c" rx="0.5"/>' +
                 '<circle cx="74" cy="28" r="1.5" fill="#00b894"/>' +
-                // Painel frontal - área de controle
+                // Front panel - control area
                 '<rect x="85" y="10" width="16" height="22" fill="#1e272e" rx="1"/>' +
                 '<circle cx="93" cy="15" r="2.5" fill="#00b894"/>' +
                 '<circle cx="93" cy="22" r="2.5" fill="#0984e3"/>' +

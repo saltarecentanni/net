@@ -6,13 +6,15 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.3.1">
+    <meta name="app-version" content="3.3.2">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%231e40af'/><circle cx='25' cy='25' r='8' fill='%2360a5fa'/><circle cx='75' cy='25' r='8' fill='%2360a5fa'/><circle cx='25' cy='75' r='8' fill='%2360a5fa'/><circle cx='75' cy='75' r='8' fill='%2360a5fa'/><circle cx='50' cy='50' r='10' fill='%23fbbf24'/><line x1='25' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='25' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/></svg>">
     <!-- Local libraries for offline/intranet use -->
     <script src="assets/vendor/tailwind.min.js"></script>
     <script src="assets/vendor/xlsx.full.min.js"></script>
+    <!-- SweetAlert2 para modais -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Custom CSS with CSS Variables (v3.3.0) -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -48,7 +50,7 @@
                     </button>
                     <div class="text-right text-xs text-slate-500">
                         <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
-                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.3.1</span></div>
+                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.3.2</span></div>
                     </div>
                 </div>
             </div>
@@ -124,6 +126,9 @@
                 <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
                     📊 Matrix
                 </button>
+                <button class="tab-btn" onclick="switchTab('floorplan')" id="tab-floorplan">
+                    🏢 Floor Plan
+                </button>
                 <button class="tab-btn" onclick="switchTab('help')" id="tab-help">
                     ❓ Help
                 </button>
@@ -142,9 +147,13 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 xl:grid-cols-12 gap-2 items-end">
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block">📍 Location *</label>
-                            <input type="text" id="deviceLocation" list="locationList" placeholder="Sala Server, Riparazione, Hardware, Ufficio-12"
-                                class="w-full px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs">
-                            <datalist id="locationList"></datalist>
+                            <div class="flex gap-1">
+                                <select id="deviceLocation" class="flex-1 px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs">
+                                    <option value="">-- Select Location --</option>
+                                </select>
+                                <button type="button" onclick="openLocationManager()" title="Manage Locations" 
+                                    class="px-2 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-bold transition-colors">⚙️</button>
+                            </div>
                         </div>
                         <div class="col-span-1">
                             <!-- rackId nel codice, label visuale 'Group' per rack/uffici/sale/zone -->
@@ -263,8 +272,6 @@
                             Clear
                         </button>
                     </div>
-                    <!-- Legend -->
-                    <p class="text-xs text-slate-500 mt-2">Legend: <span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> no connections · <span class="text-blue-500 font-bold">🌐</span> links</p>
                 </div>
 
                 <!-- Devices List -->
@@ -444,8 +451,6 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Legend -->
-                    <p class="text-xs text-slate-500 mt-2">Legend: <span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> no connections · <span class="text-blue-500 font-bold">🌐</span> links</p>
                 </div>
 
                 <!-- Connections List -->
@@ -526,7 +531,77 @@
                 </div>
             </div>
 
-            <!-- Tab 4: Help -->
+            <!-- Tab 4: Floor Plan -->
+            <div id="content-floorplan" class="tab-content">
+                <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+                    <!-- Left: Title + Stats -->
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-xl font-bold text-slate-800">🏢 Floor Plan</h2>
+                        <div id="floorplanStats" class="flex items-center gap-2 text-xs">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-semibold">
+                                📍 <span id="totalRoomsCount">0</span> Rooms
+                            </span>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">
+                                📱 <span id="roomDevicesCount">0</span> Devices Placed
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Filters + Zoom + Actions -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <!-- Zoom Controls -->
+                        <div class="flex items-center gap-1">
+                            <button onclick="FloorPlan.zoom(-0.2)" class="bg-slate-500 hover:bg-slate-600 text-white font-bold py-1 px-2.5 rounded text-sm">−</button>
+                            <span id="floorplanZoomLevel" class="text-sm font-semibold text-slate-700 min-w-12 text-center">100%</span>
+                            <button onclick="FloorPlan.zoom(0.2)" class="bg-slate-500 hover:bg-slate-600 text-white font-bold py-1 px-2.5 rounded text-sm">+</button>
+                            <button onclick="FloorPlan.resetZoom()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1 px-2.5 rounded text-sm ml-1">Reset</button>
+                        </div>
+                        
+                        <!-- Room Management (Edit Mode Only) -->
+                        <div class="edit-mode-only flex items-center gap-1 border-l border-slate-300 pl-2" style="display:none;">
+                            <button onclick="FloorPlan.showAddRoomModal()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-2.5 rounded-lg text-sm">+ Room</button>
+                            <button onclick="FloorPlan.toggleEditMode()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1 px-2.5 rounded-lg text-sm" id="floorplanEditBtn">✏️ Edit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floor Plan Container Wrapper -->
+                <div style="position: relative;">
+                    <!-- Floor Plan Container -->
+                    <div id="floorplanContainer" class="border border-slate-300 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100" style="height: 600px; width: 100%; overflow: hidden; position: relative; cursor: grab;">
+                        <div class="flex items-center justify-center h-full text-slate-400">
+                            <p>Loading floor plan...</p>
+                        </div>
+                    </div>
+                    <!-- Floating Room Legend (Vertical) -->
+                    <div id="roomLegend" style="position: absolute; top: 12px; right: 12px; max-height: calc(100% - 24px); overflow-y: auto; background: rgba(255,255,255,0.92); backdrop-filter: blur(4px); border-radius: 10px; padding: 10px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 140px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                            <span style="font-size: 11px; font-weight: 700; color: #7c3aed;">📍 Rooms</span>
+                            <button onclick="toggleRoomLegend()" id="roomLegendToggle" style="font-size: 9px; color: #7c3aed; background: none; border: none; cursor: pointer; opacity: 0.7;">▼</button>
+                        </div>
+                        <div id="roomLegendContent" style="display: flex; flex-direction: column; gap: 3px;"></div>
+                    </div>
+                </div>
+
+                <!-- Room Info Panel (Hidden by default) -->
+                <div id="roomInfoPanel" class="mt-4 bg-white border border-slate-300 rounded-lg p-4" style="display:none;">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800" id="roomInfoName">Room Name</h3>
+                            <p class="text-sm text-slate-600" id="roomInfoType">Type</p>
+                        </div>
+                        <button onclick="FloorPlan.closeRoomPanel()" class="text-slate-400 hover:text-slate-600">✕</button>
+                    </div>
+                    <div id="roomInfoContent" class="text-sm text-slate-700">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <p class="mt-2 text-xs text-blue-600">💡 Click on rooms to view details • Drag to pan • Scroll to zoom • Edit Mode: manage rooms and place devices</p>
+            </div>
+
+            <!-- Tab 5: Help -->
             <div id="content-help" class="tab-content">
                 <div class="max-w-4xl mx-auto">
                     <div class="text-center mb-6">
@@ -1241,6 +1316,7 @@
     <script src="js/app.js?v=3.3.0"></script>
     <script src="js/ui-updates.js?v=3.3.0"></script>
     <script src="js/features.js?v=3.3.0"></script>
+    <script src="js/floorplan.js?v=3.4.0"></script>
     
     <!-- Update connections count when list lists -->
     <script>
