@@ -2800,8 +2800,8 @@ function showTopologyLegend() {
     // Build HTML - Summary cards at top
     var html = '';
     
-    // Summary Stats Row
-    html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;">';
+    // Summary Stats Row (6 cards now including Wall Jacks)
+    html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px;">';
     
     // Total Devices
     html += '<div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);padding:16px;border-radius:12px;text-align:center;">';
@@ -2819,6 +2819,12 @@ function showTopologyLegend() {
     html += '<div style="background:linear-gradient(135deg,#fef2f2,#fecaca);padding:16px;border-radius:12px;text-align:center;">';
     html += '<div style="font-size:28px;font-weight:700;color:#dc2626;">' + totalOff + '</div>';
     html += '<div style="font-size:11px;color:#ef4444;font-weight:600;">Disabled</div>';
+    html += '</div>';
+    
+    // Wall Jacks (dedicated card)
+    html += '<div style="background:linear-gradient(135deg,#ecf0f1,#bdc3c7);padding:16px;border-radius:12px;text-align:center;">';
+    html += '<div style="font-size:28px;font-weight:700;color:#2d3436;">' + wallJackCount + '</div>';
+    html += '<div style="font-size:11px;color:#636e72;font-weight:600;">🔌 Wall Jacks</div>';
     html += '</div>';
     
     // Connections
