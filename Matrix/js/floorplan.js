@@ -429,17 +429,30 @@ var FloorPlan = (function() {
         // Build modal content HTML - Horizontal expanded layout
         var html = '<div class="room-info-modal" style="min-width:900px;">';
         
+        // Check if user is authenticated
+        var isAuth = typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn();
+        
         // Top row: Nickname edit + Stats cards
         html += '<div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;">';
         
         // Nickname section
         html += '<div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);padding:16px;border-radius:12px;">';
         html += '<label style="font-size:11px;font-weight:600;color:#166534;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Room Nickname</label>';
-        html += '<input type="text" id="roomNicknameInput" value="' + escapeHtml(room.nickname || '') + '" ';
-        html += 'placeholder="Ex: Sala Server, Data Center, Office 12" ';
-        html += 'style="width:100%;padding:10px 14px;border:2px solid #86efac;border-radius:8px;font-size:14px;background:white;outline:none;" ';
-        html += 'onfocus="this.style.borderColor=\'#22c55e\';this.style.boxShadow=\'0 0 0 3px rgba(34,197,94,0.1)\'" ';
-        html += 'onblur="this.style.borderColor=\'#86efac\';this.style.boxShadow=\'none\'">';
+        
+        if (isAuth) {
+            // Editable input for authenticated users
+            html += '<input type="text" id="roomNicknameInput" value="' + escapeHtml(room.nickname || '') + '" ';
+            html += 'placeholder="Ex: Sala Server, Data Center, Office 12" ';
+            html += 'style="width:100%;padding:10px 14px;border:2px solid #86efac;border-radius:8px;font-size:14px;background:white;outline:none;" ';
+            html += 'onfocus="this.style.borderColor=\'#22c55e\';this.style.boxShadow=\'0 0 0 3px rgba(34,197,94,0.1)\'" ';
+            html += 'onblur="this.style.borderColor=\'#86efac\';this.style.boxShadow=\'none\'">';
+        } else {
+            // Read-only display for guests
+            html += '<div style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;background:#f8fafc;color:#64748b;">';
+            html += escapeHtml(room.nickname || '(not set)');
+            html += '</div>';
+            html += '<div style="font-size:10px;color:#94a3b8;margin-top:4px;">🔒 Login to edit</div>';
+        }
         html += '</div>';
         
         // Stats cards row
@@ -579,10 +592,10 @@ var FloorPlan = (function() {
                 title: '<span style="color:#166534">🏢 ' + escapeHtml(titleText) + '</span>',
                 html: html,
                 showCloseButton: true,
-                showConfirmButton: true,
+                showConfirmButton: isAuth,
                 showCancelButton: true,
                 confirmButtonText: '💾 Save Nickname',
-                cancelButtonText: 'Close',
+                cancelButtonText: isAuth ? 'Cancel' : 'Close',
                 confirmButtonColor: '#22c55e',
                 cancelButtonColor: '#64748b',
                 width: 'auto',
@@ -592,9 +605,9 @@ var FloorPlan = (function() {
                     title: 'text-lg',
                     htmlContainer: 'text-left'
                 },
-                preConfirm: function() {
+                preConfirm: isAuth ? function() {
                     return document.getElementById('roomNicknameInput').value;
-                }
+                } : null
             }).then(function(result) {
                 if (result.isConfirmed) {
                     var oldNickname = room.nickname;
