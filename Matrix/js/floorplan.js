@@ -401,31 +401,22 @@ var FloorPlan = (function() {
         // Get devices using global helper function
         var roomDevices = typeof getDevicesInRoom === 'function' ? getDevicesInRoom(room) : [];
         
-        // Get Wall Jacks in this room (connections where externalDest zone matches room ID)
-        // Format: "Z{number} - description" -> extract zone number and match with room.id
+        // Get Wall Jacks in this room
+        // Wall Jacks have a 'roomId' field that indicates which room they are physically located in
+        // If roomId is not set, the Wall Jack won't appear in any room until assigned
         var roomWallJacks = [];
         if (typeof appState !== 'undefined' && appState.connections) {
             var roomId = room.id.toString();
             
             roomWallJacks = appState.connections.filter(function(c) {
-                if (!c.isWallJack || !c.externalDest) return false;
+                if (!c.isWallJack) return false;
                 
-                // Extract zone number from "Z{number} - description" format
-                var zoneMatch = c.externalDest.match(/^Z(\d+)\s*-/i);
-                if (zoneMatch) {
-                    // Compare extracted zone number with room ID
-                    return zoneMatch[1] === roomId;
+                // Use explicit roomId field if set
+                if (c.roomId !== undefined && c.roomId !== null && c.roomId !== '') {
+                    return c.roomId.toString() === roomId;
                 }
                 
-                // Fallback: check if nickname matches (case insensitive, exact word)
-                if (room.nickname) {
-                    var dest = c.externalDest.toLowerCase();
-                    var nick = room.nickname.toLowerCase();
-                    // Check for exact word match (not substring)
-                    var nickRegex = new RegExp('\\b' + nick.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
-                    return nickRegex.test(c.externalDest);
-                }
-                
+                // No roomId set - Wall Jack not yet assigned to a room
                 return false;
             });
         }
