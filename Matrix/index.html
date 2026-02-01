@@ -677,7 +677,7 @@
                                 <span class="font-bold text-teal-300">14.</span> ❓ FAQ
                             </a>
                             <a href="#help-install" class="block bg-gradient-to-r from-orange-500/30 to-red-500/30 hover:from-orange-500/50 hover:to-red-500/50 rounded-lg p-3 transition-colors border border-orange-400/50">
-                                <span class="font-bold text-orange-300">15.</span> 🛠️ Instalação do Sistema
+                                <span class="font-bold text-orange-300">15.</span> 🛠️ Installazione del Sistema
                             </a>
                         </div>
                     </div>
@@ -2311,190 +2311,179 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-teal-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 15. INSTALAÇÃO DO SISTEMA ========== -->
+                    <!-- ========== 15. INSTALLAZIONE DEL SISTEMA ========== -->
                     <div class="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 rounded-r-xl p-5 mb-6" id="help-install">
                         <h2 class="text-xl font-bold text-orange-800 mb-3 flex items-center gap-2">
                             <span class="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">15</span>
-                            🛠️ Instalação do Sistema (Guia para Administradores)
+                            🛠️ Installazione del Sistema (Guida per Amministratori)
                         </h2>
                         
                         <div class="space-y-4">
-                            <!-- Introdução -->
+                            <!-- Introduzione -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-2">📋 Visão Geral</h3>
-                                <p class="text-orange-800 text-sm mb-3">Esta seção explica como instalar o TIESSE Matrix Network em um servidor Ubuntu com Apache. O sistema é uma aplicação web que roda em servidor interno (intranet) e não requer conexão com internet após a instalação.</p>
+                                <h3 class="font-bold text-orange-900 mb-2">📋 Panoramica</h3>
+                                <p class="text-orange-800 text-sm mb-3">Questa sezione spiega come installare TIESSE Matrix Network su un server Ubuntu con Apache. Il sistema è un'applicazione web che funziona su server interno (intranet) e non richiede connessione internet dopo l'installazione.</p>
                                 
                                 <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                                    <p class="font-semibold text-orange-900 text-sm mb-2">📌 Requisitos do Sistema:</p>
+                                    <p class="font-semibold text-orange-900 text-sm mb-2">📌 Requisiti di Sistema:</p>
                                     <ul class="text-orange-700 text-sm ml-4 list-disc space-y-1">
-                                        <li><strong>Sistema Operacional:</strong> Ubuntu 22.04 LTS ou 24.04 LTS (recomendado)</li>
-                                        <li><strong>Servidor Web:</strong> Apache 2.4+ com mod_rewrite</li>
-                                        <li><strong>PHP:</strong> PHP 8.1+ com extensões JSON e mbstring</li>
-                                        <li><strong>Ferramentas:</strong> unzip (para extrair arquivos)</li>
-                                        <li><strong>Memória:</strong> Mínimo 512MB RAM</li>
-                                        <li><strong>Disco:</strong> Mínimo 100MB espaço livre</li>
-                                        <li><strong>Rede:</strong> IP fixo na rede local</li>
+                                        <li><strong>Sistema Operativo:</strong> Ubuntu 22.04 LTS o 24.04 LTS (consigliato)</li>
+                                        <li><strong>Server Web:</strong> Apache 2.4+ con mod_rewrite</li>
+                                        <li><strong>PHP:</strong> PHP 8.1+ con estensioni JSON e mbstring</li>
+                                        <li><strong>Strumenti:</strong> unzip (per estrarre file)</li>
+                                        <li><strong>Memoria:</strong> Minimo 512MB RAM</li>
+                                        <li><strong>Disco:</strong> Minimo 100MB spazio libero</li>
+                                        <li><strong>Rete:</strong> IP fisso nella rete locale</li>
                                     </ul>
                                 </div>
                             </div>
 
-                            <!-- Passo 1: Preparação do Ubuntu -->
+                            <!-- Passo 1: Preparazione Ubuntu -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">📦 Passo 1: Preparação do Servidor Ubuntu</h3>
-                                <p class="text-orange-800 text-sm mb-3">Primeiro, atualize o sistema e instale os pacotes necessários:</p>
+                                <h3 class="font-bold text-orange-900 mb-3">📦 Passo 1: Preparazione del Server Ubuntu</h3>
+                                <p class="text-orange-800 text-sm mb-3">Prima di tutto, aggiornare il sistema e installare i pacchetti necessari:</p>
                                 
                                 <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 mb-3 overflow-x-auto">
-<pre><span class="text-slate-500"># Atualizar lista de pacotes e sistema</span>
+<pre><span class="text-slate-500"># Aggiornare lista pacchetti e sistema</span>
 <span class="text-cyan-400">sudo</span> apt update && <span class="text-cyan-400">sudo</span> apt upgrade -y
 
-<span class="text-slate-500"># Instalar Apache, PHP e ferramentas</span>
+<span class="text-slate-500"># Installare Apache, PHP e strumenti</span>
 <span class="text-cyan-400">sudo</span> apt install -y apache2 php php-json php-mbstring unzip
 
-<span class="text-slate-500"># Verificar se Apache está rodando</span>
+<span class="text-slate-500"># Verificare se Apache è in esecuzione</span>
 <span class="text-cyan-400">sudo</span> systemctl status apache2
 
-<span class="text-slate-500"># Habilitar Apache para iniciar com o sistema</span>
+<span class="text-slate-500"># Abilitare Apache all'avvio del sistema</span>
 <span class="text-cyan-400">sudo</span> systemctl enable apache2</pre>
                                 </div>
 
                                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs">
-                                    <p class="font-semibold text-blue-900 mb-1">💡 Verificando a instalação:</p>
-                                    <p class="text-blue-700">Abra um navegador e acesse <code class="bg-blue-200 px-1 rounded">http://IP_DO_SERVIDOR</code>. Você deve ver a página padrão do Apache "It works!".</p>
+                                    <p class="font-semibold text-blue-900 mb-1">💡 Verifica dell'installazione:</p>
+                                    <p class="text-blue-700">Aprire un browser e accedere a <code class="bg-blue-200 px-1 rounded">http://IP_DEL_SERVER</code>. Dovresti vedere la pagina predefinita di Apache "It works!".</p>
                                 </div>
                             </div>
 
-                            <!-- Passo 2: Instalar Matrix -->
+                            <!-- Passo 2: Installare Matrix -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">📂 Passo 2: Instalar o Matrix Network</h3>
-                                <p class="text-orange-800 text-sm mb-3">Copie a pasta <code class="bg-orange-200 px-1 rounded">Matrix</code> para o servidor e configure permissões:</p>
+                                <h3 class="font-bold text-orange-900 mb-3">📂 Passo 2: Installare Matrix Network</h3>
+                                <p class="text-orange-800 text-sm mb-3">Copiare la cartella <code class="bg-orange-200 px-1 rounded">Matrix</code> sul server e configurare i permessi:</p>
                                 
                                 <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 mb-3 overflow-x-auto">
-<pre><span class="text-slate-500"># Opção A: Se você tem a pasta Matrix em um pendrive/HD externo</span>
-<span class="text-slate-500"># Monte o dispositivo e copie:</span>
-<span class="text-cyan-400">sudo</span> cp -r /media/seu_usuario/PENDRIVE/Matrix /var/www/html/matrix
+<pre><span class="text-slate-500"># Opzione A: Se hai la cartella Matrix su pendrive/HD esterno</span>
+<span class="text-slate-500"># Montare il dispositivo e copiare:</span>
+<span class="text-cyan-400">sudo</span> cp -r /media/utente/PENDRIVE/Matrix /var/www/html/matrix
 
-<span class="text-slate-500"># Opção B: Se você tem um arquivo matrix.zip</span>
+<span class="text-slate-500"># Opzione B: Se hai un file matrix.zip</span>
 <span class="text-cyan-400">sudo</span> unzip matrix.zip -d /var/www/html/
 
-<span class="text-slate-500"># Renomear para letras minúsculas (padronização)</span>
+<span class="text-slate-500"># Rinominare in minuscolo (standardizzazione)</span>
 <span class="text-cyan-400">sudo</span> mv /var/www/html/Matrix /var/www/html/matrix 2>/dev/null || true</pre>
                                 </div>
 
                                 <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs">
-                                    <p class="font-semibold text-amber-900 mb-1">⚠️ Estrutura de pastas esperada:</p>
+                                    <p class="font-semibold text-amber-900 mb-1">⚠️ Struttura cartelle prevista:</p>
                                     <div class="bg-slate-800 rounded p-2 font-mono text-green-400 mt-2">
 <pre>/var/www/html/matrix/
-├── index.html          <span class="text-slate-500"># Página principal</span>
-├── data.php            <span class="text-slate-500"># API de dados</span>
+├── index.html          <span class="text-slate-500"># Pagina principale</span>
+├── data.php            <span class="text-slate-500"># API dati</span>
 ├── api/
-│   └── auth.php        <span class="text-slate-500"># API de autenticação</span>
+│   └── auth.php        <span class="text-slate-500"># API autenticazione</span>
 ├── config/
-│   └── config.php      <span class="text-slate-500"># Configurações (senha)</span>
+│   └── config.php      <span class="text-slate-500"># Configurazione</span>
 ├── data/
-│   └── network_manager.json  <span class="text-slate-500"># Dados da rede</span>
-├── js/                 <span class="text-slate-500"># Scripts JavaScript</span>
-├── css/                <span class="text-slate-500"># Estilos CSS</span>
-└── assets/             <span class="text-slate-500"># Bibliotecas e recursos</span></pre>
+│   └── network_manager.json  <span class="text-slate-500"># Dati della rete</span>
+├── js/                 <span class="text-slate-500"># Script JavaScript</span>
+├── css/                <span class="text-slate-500"># Stili CSS</span>
+└── assets/             <span class="text-slate-500"># Librerie e risorse</span></pre>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Passo 3: Permissões -->
+                            <!-- Passo 3: Permessi -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">🔐 Passo 3: Configurar Permissões</h3>
-                                <p class="text-orange-800 text-sm mb-3">Configure as permissões corretas para que o Apache possa ler e escrever os dados:</p>
+                                <h3 class="font-bold text-orange-900 mb-3">🔐 Passo 3: Configurare i Permessi</h3>
+                                <p class="text-orange-800 text-sm mb-3">Configurare i permessi corretti affinché Apache possa leggere e scrivere i dati:</p>
                                 
                                 <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 mb-3 overflow-x-auto">
-<pre><span class="text-slate-500"># Definir proprietário para o usuário do Apache</span>
+<pre><span class="text-slate-500"># Impostare proprietario per l'utente Apache</span>
 <span class="text-cyan-400">sudo</span> chown -R www-data:www-data /var/www/html/matrix
 
-<span class="text-slate-500"># Definir permissões: 755 para pastas, 644 para arquivos</span>
+<span class="text-slate-500"># Impostare permessi: 755 per cartelle, 644 per file</span>
 <span class="text-cyan-400">sudo</span> find /var/www/html/matrix -type d -exec chmod 755 {} \;
 <span class="text-cyan-400">sudo</span> find /var/www/html/matrix -type f -exec chmod 644 {} \;
 
-<span class="text-slate-500"># Permissão de escrita para a pasta de dados (importante!)</span>
+<span class="text-slate-500"># Permesso di scrittura per la cartella dati (importante!)</span>
 <span class="text-cyan-400">sudo</span> chmod 775 /var/www/html/matrix/data
 <span class="text-cyan-400">sudo</span> chmod 664 /var/www/html/matrix/data/network_manager.json</pre>
                                 </div>
 
                                 <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs">
-                                    <p class="font-semibold text-red-900 mb-1">⚠️ Muito Importante:</p>
-                                    <p class="text-red-700">A pasta <code class="bg-red-200 px-1 rounded">/var/www/html/matrix/data</code> DEVE ter permissão de escrita para o usuário <code class="bg-red-200 px-1 rounded">www-data</code>. Sem isso, o sistema não conseguirá salvar as alterações!</p>
+                                    <p class="font-semibold text-red-900 mb-1">⚠️ Molto Importante:</p>
+                                    <p class="text-red-700">La cartella <code class="bg-red-200 px-1 rounded">/var/www/html/matrix/data</code> DEVE avere permesso di scrittura per l'utente <code class="bg-red-200 px-1 rounded">www-data</code>. Senza questo, il sistema non potrà salvare le modifiche!</p>
                                 </div>
                             </div>
 
-                            <!-- Passo 4: Testar -->
+                            <!-- Passo 4: Testare -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">✅ Passo 4: Testar a Instalação</h3>
-                                <p class="text-orange-800 text-sm mb-3">Acesse o sistema pelo navegador:</p>
+                                <h3 class="font-bold text-orange-900 mb-3">✅ Passo 4: Testare l'Installazione</h3>
+                                <p class="text-orange-800 text-sm mb-3">Accedere al sistema tramite browser:</p>
                                 
                                 <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-3">
-                                    <p class="font-semibold text-green-900 text-center text-lg mb-2">🌐 Endereço de Acesso:</p>
+                                    <p class="font-semibold text-green-900 text-center text-lg mb-2">🌐 Indirizzo di Accesso:</p>
                                     <p class="text-center">
-                                        <code class="bg-green-200 text-green-900 px-4 py-2 rounded-lg text-lg font-bold">http://IP_DO_SERVIDOR/matrix/</code>
+                                        <code class="bg-green-200 text-green-900 px-4 py-2 rounded-lg text-lg font-bold">http://IP_DEL_SERVER/matrix/</code>
                                     </p>
-                                    <p class="text-green-700 text-xs text-center mt-2">Exemplo: <code class="bg-green-200 px-1 rounded">http://192.168.1.100/matrix/</code></p>
+                                    <p class="text-green-700 text-xs text-center mt-2">Esempio: <code class="bg-green-200 px-1 rounded">http://192.168.1.100/matrix/</code></p>
                                 </div>
 
                                 <div class="grid md:grid-cols-2 gap-3 text-xs">
                                     <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">✅ Se funcionou:</span>
-                                        <p class="text-slate-600 mt-1">Você verá a interface do Matrix Network. Clique em "Edit Mode" e faça login para testar modificações.</p>
+                                        <span class="font-bold text-slate-800">✅ Se ha funzionato:</span>
+                                        <p class="text-slate-600 mt-1">Vedrai l'interfaccia di Matrix Network. Clicca su "Edit Mode" e accedi per testare le modifiche.</p>
                                     </div>
                                     <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">❌ Se deu erro:</span>
-                                        <p class="text-slate-600 mt-1">Verifique os logs: <code class="bg-slate-200 px-1 rounded">sudo tail -f /var/log/apache2/error.log</code></p>
+                                        <span class="font-bold text-slate-800">❌ Se c'è un errore:</span>
+                                        <p class="text-slate-600 mt-1">Verifica i log: <code class="bg-slate-200 px-1 rounded">sudo tail -f /var/log/apache2/error.log</code></p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Credenciais Padrão -->
-                            <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">🔑 Credenciais de Acesso Padrão</h3>
-                                
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                                        <p class="font-bold text-blue-900 mb-2">👤 Usuário:</p>
-                                        <code class="bg-blue-200 text-blue-900 px-4 py-2 rounded-lg text-lg font-bold">tiesse</code>
-                                    </div>
-                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                                        <p class="font-bold text-blue-900 mb-2">🔐 Senha:</p>
-                                        <code class="bg-blue-200 text-blue-900 px-4 py-2 rounded-lg text-lg font-bold">tiesseadm</code>
-                                    </div>
-                                </div>
-
-                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3 text-xs">
-                                    <p class="font-semibold text-amber-900 mb-1">⚠️ Alterar a Senha:</p>
-                                    <p class="text-amber-700 mb-2">Para segurança, altere a senha padrão editando o arquivo <code class="bg-amber-200 px-1 rounded">/var/www/html/matrix/config/config.php</code></p>
+                            <!-- Credenziali - SOLO nota per admin -->
+                            <div class="bg-amber-50 border border-amber-300 rounded-lg p-4">
+                                <h3 class="font-bold text-amber-900 mb-2">🔑 Credenziali di Accesso</h3>
+                                <p class="text-amber-800 text-sm">Le credenziali di accesso predefinite sono configurate nel file <code class="bg-amber-200 px-1 rounded">/var/www/html/matrix/config/config.php</code>. Contattare l'amministratore di sistema per ottenere le credenziali.</p>
+                                <div class="bg-white border border-amber-200 rounded-lg p-3 mt-3 text-xs">
+                                    <p class="font-semibold text-amber-900 mb-1">⚠️ Modifica della Password:</p>
+                                    <p class="text-amber-700 mb-2">Per sicurezza, modificare la password predefinita:</p>
                                     <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
-<pre><span class="text-slate-500">// Gerar novo hash de senha no terminal:</span>
-php -r "echo password_hash('SuaNovaSenha', PASSWORD_DEFAULT);"
-<span class="text-slate-500">// Copie o resultado e substitua no config.php</span></pre>
+<pre><span class="text-slate-500"># Generare nuovo hash password nel terminale:</span>
+php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
+<span class="text-slate-500"># Copiare il risultato e sostituire in config.php</span></pre>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Importar Dados -->
+                            <!-- Importare Dati -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">📥 Passo 5: Importar Dados Existentes</h3>
-                                <p class="text-orange-800 text-sm mb-3">Se você já tem dados de uma instalação anterior, importe-os:</p>
+                                <h3 class="font-bold text-orange-900 mb-3">📥 Passo 5: Importare Dati Esistenti</h3>
+                                <p class="text-orange-800 text-sm mb-3">Se hai già dati da un'installazione precedente, importali:</p>
                                 
                                 <div class="grid md:grid-cols-2 gap-3 text-xs">
                                     <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">📋 Opção A: Via Interface</span>
+                                        <span class="font-bold text-slate-800">📋 Opzione A: Via Interfaccia</span>
                                         <ol class="text-slate-600 mt-2 ml-4 list-decimal space-y-1">
-                                            <li>Acesse o Matrix Network pelo navegador</li>
-                                            <li>Clique em "Edit Mode" e faça login</li>
-                                            <li>Clique em "Import JSON"</li>
-                                            <li>Selecione o arquivo .json exportado anteriormente</li>
-                                            <li>Clique em "Save Now" para confirmar</li>
+                                            <li>Accedi a Matrix Network dal browser</li>
+                                            <li>Clicca su "Edit Mode" e fai login</li>
+                                            <li>Clicca su "Import JSON"</li>
+                                            <li>Seleziona il file .json esportato precedentemente</li>
+                                            <li>Clicca su "Save Now" per confermare</li>
                                         </ol>
                                     </div>
                                     <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">📋 Opção B: Via Terminal</span>
+                                        <span class="font-bold text-slate-800">📋 Opzione B: Via Terminale</span>
                                         <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mt-2">
-<pre><span class="text-slate-500"># Copiar arquivo de dados diretamente</span>
-<span class="text-cyan-400">sudo</span> cp /caminho/backup.json \
+<pre><span class="text-slate-500"># Copiare file dati direttamente</span>
+<span class="text-cyan-400">sudo</span> cp /percorso/backup.json \
   /var/www/html/matrix/data/network_manager.json
 <span class="text-cyan-400">sudo</span> chown www-data:www-data \
   /var/www/html/matrix/data/network_manager.json</pre>
@@ -2503,25 +2492,25 @@ php -r "echo password_hash('SuaNovaSenha', PASSWORD_DEFAULT);"
                                 </div>
                             </div>
 
-                            <!-- Configurações Opcionais -->
+                            <!-- Configurazioni Opzionali -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">⚙️ Configurações Opcionais (Avançado)</h3>
+                                <h3 class="font-bold text-orange-900 mb-3">⚙️ Configurazioni Opzionali (Avanzato)</h3>
                                 
                                 <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
-                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🌐 Configurar DNS/Hostname personalizado</summary>
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🌐 Configurare DNS/Hostname personalizzato</summary>
                                     <div class="p-3 pt-0 text-xs text-slate-700">
-                                        <p class="mb-2">Para acessar via nome ao invés de IP (ex: <code class="bg-slate-200 px-1 rounded">http://matrix.empresa.local</code>):</p>
+                                        <p class="mb-2">Per accedere tramite nome invece di IP (es: <code class="bg-slate-200 px-1 rounded">http://matrix.azienda.local</code>):</p>
                                         <ol class="ml-4 list-decimal space-y-1">
-                                            <li>Configure o registro DNS no seu servidor DNS interno</li>
-                                            <li>Ou adicione no arquivo hosts de cada computador cliente</li>
+                                            <li>Configurare il record DNS nel server DNS interno</li>
+                                            <li>Oppure aggiungere nel file hosts di ogni computer client</li>
                                         </ol>
                                     </div>
                                 </details>
 
                                 <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
-                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🔒 Habilitar HTTPS (Certificado SSL)</summary>
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🔒 Abilitare HTTPS (Certificato SSL)</summary>
                                     <div class="p-3 pt-0 text-xs text-slate-700">
-                                        <p class="mb-2">Para redes com certificado SSL interno:</p>
+                                        <p class="mb-2">Per reti con certificato SSL interno:</p>
                                         <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
 <pre><span class="text-cyan-400">sudo</span> a2enmod ssl
 <span class="text-cyan-400">sudo</span> a2ensite default-ssl
@@ -2531,14 +2520,14 @@ php -r "echo password_hash('SuaNovaSenha', PASSWORD_DEFAULT);"
                                 </details>
 
                                 <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
-                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">💾 Configurar Backup Automático</summary>
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">💾 Configurare Backup Automatico</summary>
                                     <div class="p-3 pt-0 text-xs text-slate-700">
-                                        <p class="mb-2">Crie um cron job para backup diário dos dados:</p>
+                                        <p class="mb-2">Creare un cron job per backup giornaliero dei dati:</p>
                                         <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
-<pre><span class="text-slate-500"># Editar crontab</span>
+<pre><span class="text-slate-500"># Modificare crontab</span>
 <span class="text-cyan-400">sudo</span> crontab -e
 
-<span class="text-slate-500"># Adicionar linha (backup às 2h da manhã):</span>
+<span class="text-slate-500"># Aggiungere riga (backup alle 2 di notte):</span>
 0 2 * * * cp /var/www/html/matrix/data/network_manager.json \
   /backup/matrix_$(date +\%Y\%m\%d).json</pre>
                                         </div>
@@ -2546,9 +2535,9 @@ php -r "echo password_hash('SuaNovaSenha', PASSWORD_DEFAULT);"
                                 </details>
 
                                 <details class="bg-slate-50 rounded-lg border border-slate-200">
-                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🛡️ Restringir Acesso por IP</summary>
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🛡️ Limitare Accesso per IP</summary>
                                     <div class="p-3 pt-0 text-xs text-slate-700">
-                                        <p class="mb-2">Para limitar acesso apenas à rede interna, edite <code class="bg-slate-200 px-1 rounded">/etc/apache2/sites-available/000-default.conf</code>:</p>
+                                        <p class="mb-2">Per limitare l'accesso solo alla rete interna, modificare <code class="bg-slate-200 px-1 rounded">/etc/apache2/sites-available/000-default.conf</code>:</p>
                                         <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
 <pre>&lt;Directory /var/www/html/matrix&gt;
     Require ip 192.168.1.0/24
@@ -2561,74 +2550,74 @@ php -r "echo password_hash('SuaNovaSenha', PASSWORD_DEFAULT);"
 
                             <!-- Troubleshooting -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">🔧 Solução de Problemas Comuns</h3>
+                                <h3 class="font-bold text-orange-900 mb-3">🔧 Risoluzione Problemi Comuni</h3>
                                 
                                 <div class="space-y-3 text-xs">
                                     <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                        <p class="font-bold text-red-900 mb-1">❌ Erro 403 Forbidden</p>
-                                        <p class="text-red-700">Permissões incorretas. Execute: <code class="bg-red-200 px-1 rounded">sudo chown -R www-data:www-data /var/www/html/matrix</code></p>
+                                        <p class="font-bold text-red-900 mb-1">❌ Errore 403 Forbidden</p>
+                                        <p class="text-red-700">Permessi errati. Eseguire: <code class="bg-red-200 px-1 rounded">sudo chown -R www-data:www-data /var/www/html/matrix</code></p>
                                     </div>
                                     <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                        <p class="font-bold text-red-900 mb-1">❌ Erro 500 Internal Server Error</p>
-                                        <p class="text-red-700">Verifique logs: <code class="bg-red-200 px-1 rounded">sudo tail -50 /var/log/apache2/error.log</code></p>
+                                        <p class="font-bold text-red-900 mb-1">❌ Errore 500 Internal Server Error</p>
+                                        <p class="text-red-700">Verificare log: <code class="bg-red-200 px-1 rounded">sudo tail -50 /var/log/apache2/error.log</code></p>
                                     </div>
                                     <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                        <p class="font-bold text-red-900 mb-1">❌ Não salva as alterações</p>
-                                        <p class="text-red-700">Pasta data sem permissão de escrita: <code class="bg-red-200 px-1 rounded">sudo chmod 775 /var/www/html/matrix/data</code></p>
+                                        <p class="font-bold text-red-900 mb-1">❌ Non salva le modifiche</p>
+                                        <p class="text-red-700">Cartella data senza permesso di scrittura: <code class="bg-red-200 px-1 rounded">sudo chmod 775 /var/www/html/matrix/data</code></p>
                                     </div>
                                     <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                        <p class="font-bold text-red-900 mb-1">❌ Página em branco</p>
-                                        <p class="text-red-700">PHP não instalado corretamente. Verifique: <code class="bg-red-200 px-1 rounded">php -v</code> e <code class="bg-red-200 px-1 rounded">sudo a2enmod php8.3</code></p>
+                                        <p class="font-bold text-red-900 mb-1">❌ Pagina bianca</p>
+                                        <p class="text-red-700">PHP non installato correttamente. Verificare: <code class="bg-red-200 px-1 rounded">php -v</code> e <code class="bg-red-200 px-1 rounded">sudo a2enmod php8.3</code></p>
                                     </div>
                                     <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                        <p class="font-bold text-red-900 mb-1">❌ Login não funciona</p>
-                                        <p class="text-red-700">Verifique se o arquivo config.php existe e está legível. Usuário padrão: <code class="bg-red-200 px-1 rounded">tiesse</code> / Senha: <code class="bg-red-200 px-1 rounded">tiesseadm</code></p>
+                                        <p class="font-bold text-red-900 mb-1">❌ Login non funziona</p>
+                                        <p class="text-red-700">Verificare che il file config.php esista e sia leggibile. Contattare l'amministratore per le credenziali.</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Comandos Úteis -->
+                            <!-- Comandi Utili -->
                             <div class="bg-white rounded-lg p-4 border border-orange-200">
-                                <h3 class="font-bold text-orange-900 mb-3">📋 Comandos Úteis para Administradores</h3>
+                                <h3 class="font-bold text-orange-900 mb-3">📋 Comandi Utili per Amministratori</h3>
                                 
                                 <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 overflow-x-auto">
-<pre><span class="text-slate-500"># Verificar status do Apache</span>
+<pre><span class="text-slate-500"># Verificare stato Apache</span>
 <span class="text-cyan-400">sudo</span> systemctl status apache2
 
-<span class="text-slate-500"># Reiniciar Apache (após alterações)</span>
+<span class="text-slate-500"># Riavviare Apache (dopo modifiche)</span>
 <span class="text-cyan-400">sudo</span> systemctl restart apache2
 
-<span class="text-slate-500"># Ver logs de erro do Apache</span>
+<span class="text-slate-500"># Vedere log errori Apache</span>
 <span class="text-cyan-400">sudo</span> tail -f /var/log/apache2/error.log
 
-<span class="text-slate-500"># Ver logs de acesso</span>
+<span class="text-slate-500"># Vedere log accessi</span>
 <span class="text-cyan-400">sudo</span> tail -f /var/log/apache2/access.log
 
-<span class="text-slate-500"># Verificar permissões da pasta matrix</span>
+<span class="text-slate-500"># Verificare permessi cartella matrix</span>
 ls -la /var/www/html/matrix/
 
-<span class="text-slate-500"># Verificar espaço em disco</span>
+<span class="text-slate-500"># Verificare spazio disco</span>
 df -h /var/www/html/
 
-<span class="text-slate-500"># Verificar versão do PHP</span>
+<span class="text-slate-500"># Verificare versione PHP</span>
 php -v
 
-<span class="text-slate-500"># Fazer backup manual dos dados</span>
+<span class="text-slate-500"># Fare backup manuale dei dati</span>
 <span class="text-cyan-400">sudo</span> cp /var/www/html/matrix/data/network_manager.json \
    ~/backup_matrix_$(date +%Y%m%d_%H%M%S).json
 
-<span class="text-slate-500"># Verificar IP do servidor</span>
+<span class="text-slate-500"># Verificare IP del server</span>
 ip addr show | grep "inet "</pre>
                                 </div>
                             </div>
 
-                            <!-- Suporte -->
+                            <!-- Supporto -->
                             <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-4 border border-blue-300">
-                                <h3 class="font-bold text-blue-900 mb-2">📞 Suporte</h3>
-                                <p class="text-blue-800 text-sm">Para suporte técnico ou dúvidas sobre a instalação, entre em contato com o departamento de TI da Tiesse S.P.A.</p>
+                                <h3 class="font-bold text-blue-900 mb-2">📞 Supporto</h3>
+                                <p class="text-blue-800 text-sm">Per supporto tecnico o domande sull'installazione, contattare il dipartimento IT di Tiesse S.P.A.</p>
                                 <div class="mt-3 flex gap-4 text-xs">
-                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📧 suporte@tiesse.com</span>
-                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versão: 3.4.3</span>
+                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📧 supporto@tiesse.com</span>
+                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versione: 3.4.3</span>
                                 </div>
                             </div>
                         </div>
