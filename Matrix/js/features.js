@@ -5,7 +5,7 @@
  * Features:
  * - Activity Logs (last 200 changes)
  * - Location/Department filtering
- * - Network Topology visualization (Cytoscape.js)
+ * - Network Topology visualization (SVG-based)
  * - Device Links management
  * - Filtered printing
  * - Orthogonal connection routing (Draw.io style)
@@ -17,6 +17,7 @@
  * - PNG export with title header (v3.1.3)
  * - CSS Variables integration (v3.3.0)
  * - Debug mode support (v3.4.1)
+ * - 100% Offline: No external CDN dependencies (v3.4.1)
  */
 
 // Debug logger fallback (defined in app.js)
