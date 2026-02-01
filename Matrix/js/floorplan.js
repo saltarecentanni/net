@@ -374,6 +374,21 @@ var FloorPlan = (function() {
         // Get devices using global helper function
         var roomDevices = typeof getDevicesInRoom === 'function' ? getDevicesInRoom(room) : [];
         
+        // Get Wall Jacks in this room (connections where externalDest matches room)
+        var roomWallJacks = [];
+        if (typeof appState !== 'undefined' && appState.connections) {
+            var roomIdentifiers = [room.id.toString(), room.name];
+            if (room.nickname) roomIdentifiers.push(room.nickname);
+            
+            roomWallJacks = appState.connections.filter(function(c) {
+                if (!c.isWallJack || !c.externalDest) return false;
+                var dest = c.externalDest.toLowerCase();
+                return roomIdentifiers.some(function(id) {
+                    return dest.indexOf(id.toString().toLowerCase()) >= 0;
+                });
+            });
+        }
+        
         // Get connections for these devices
         var roomConnections = [];
         if (typeof appState !== 'undefined' && appState.connections) {
@@ -490,6 +505,14 @@ var FloorPlan = (function() {
         html += '<div style="font-size:10px;color:#d97706;font-weight:600;">CONNECTIONS</div>';
         html += '</div>';
         
+        // Wall Jacks
+        if (roomWallJacks.length > 0) {
+            html += '<div style="background:linear-gradient(135deg,#ecf0f1,#bdc3c7);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
+            html += '<div style="font-size:22px;font-weight:700;color:#2c3e50;">' + roomWallJacks.length + '</div>';
+            html += '<div style="font-size:10px;color:#7f8c8d;font-weight:600;">WALL JACKS</div>';
+            html += '</div>';
+        }
+
         html += '</div></div>'; // End stats + nickname row
         
         // Devices section - horizontal grid layout
@@ -579,6 +602,56 @@ var FloorPlan = (function() {
             html += '<div style="color:#991b1b;font-weight:600;font-size:15px;">No devices assigned to this room</div>';
             html += '<div style="color:#b91c1c;font-size:12px;margin-top:6px;">Set device location to "<strong>' + escapeHtml(room.nickname || room.id) + '</strong>" to assign it here</div>';
             html += '</div>';
+        }
+        
+        // Wall Jacks section
+        if (roomWallJacks.length > 0) {
+            html += '<div style="margin-top:16px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">';
+            
+            // Wall Jacks header
+            html += '<div style="background:linear-gradient(135deg,#ecf0f1,#bdc3c7);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #bdc3c7;">';
+            html += '<div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;">🔌</div>';
+            html += '<span style="font-weight:600;color:#2c3e50;font-size:13px;flex-grow:1;">Wall Jacks</span>';
+            html += '<span style="background:#7f8c8d;color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;">' + roomWallJacks.length + '</span>';
+            html += '</div>';
+            
+            // Wall Jacks list
+            html += '<div style="padding:8px;max-height:180px;overflow-y:auto;">';
+            
+            roomWallJacks.forEach(function(wj) {
+                var isActive = wj.status === 'active';
+                var bgColor = isActive ? '#f0fdf4' : '#fef2f2';
+                var dotColor = isActive ? '#22c55e' : '#ef4444';
+                
+                // Get source device name
+                var sourceDevice = '';
+                if (typeof appState !== 'undefined' && appState.devices && wj.from) {
+                    var dev = appState.devices.find(function(d) { return d.id === wj.from; });
+                    if (dev) sourceDevice = dev.name;
+                }
+                
+                html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;margin:4px 0;border-radius:8px;background:' + bgColor + ';">';
+                
+                // Status dot
+                html += '<span style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;"></span>';
+                
+                // Wall Jack info
+                html += '<div style="flex-grow:1;min-width:0;">';
+                html += '<div style="font-weight:500;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + escapeHtml(wj.externalDest) + '">' + escapeHtml(wj.externalDest) + '</div>';
+                
+                var infoItems = [];
+                if (wj.cableMarker) infoItems.push('Cable: ' + wj.cableMarker);
+                if (sourceDevice) infoItems.push('From: ' + sourceDevice);
+                if (wj.fromPort) infoItems.push('Port: ' + wj.fromPort);
+                if (infoItems.length > 0) {
+                    html += '<div style="font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + infoItems.join(' • ') + '</div>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+            });
+            
+            html += '</div></div>';
         }
         
         html += '</div>';
