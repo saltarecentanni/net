@@ -322,11 +322,11 @@ var FloorPlan = (function() {
             4: { x: 0, y: 20 },     // down
             5: { x: -20, y: 20 },   // left + down
             6: { x: -20, y: 20 },   // left + down
-            7: { x: 0, y: 20 },     // down
+            7: { x: 0, y: 35 },     // more down
             8: { x: 0, y: 20 },     // down
             9: { x: 0, y: 20 },     // down
-            10: { x: 20, y: 20 },   // right + down
-            11: { x: 20, y: 20 },   // right + down
+            10: { x: 25, y: 35 },   // more right + more down
+            11: { x: 25, y: 35 },   // more right + more down
             12: { x: 20, y: 20 },   // right + down
             13: { x: 0, y: 20 },    // down
             14: { x: -20, y: 20 },  // left + down
@@ -334,7 +334,7 @@ var FloorPlan = (function() {
             16: { x: 0, y: 20 },    // down
             17: { x: 0, y: 20 },    // down
             18: { x: 0, y: 20 },    // down
-            19: { x: 0, y: 10 }     // slight down
+            19: { x: 0, y: -25 }    // UP (above the number)
         };
         
         var offset = markerOffsets[room.id] || { x: 0, y: 20 };
