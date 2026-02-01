@@ -402,21 +402,34 @@ var FloorPlan = (function() {
         var roomDevices = typeof getDevicesInRoom === 'function' ? getDevicesInRoom(room) : [];
         
         // Get Wall Jacks in this room
-        // Wall Jacks have a 'roomId' field that indicates which room they are physically located in
-        // If roomId is not set, the Wall Jack won't appear in any room until assigned
+        // Logic: Match Wall Jack's location description with room nickname
+        // Wall Jack externalDest format: "Z4 - Sala Reunioni" -> location is "Sala Reunioni"
+        // If room.nickname = "Sala Reunioni", this Wall Jack belongs to this room
         var roomWallJacks = [];
         if (typeof appState !== 'undefined' && appState.connections) {
-            var roomId = room.id.toString();
+            var roomNickname = (room.nickname || '').toLowerCase().trim();
             
             roomWallJacks = appState.connections.filter(function(c) {
-                if (!c.isWallJack) return false;
+                if (!c.isWallJack || !c.externalDest) return false;
                 
-                // Use explicit roomId field if set
+                // 1. First check explicit roomId if set (manual override)
                 if (c.roomId !== undefined && c.roomId !== null && c.roomId !== '') {
-                    return c.roomId.toString() === roomId;
+                    return c.roomId.toString() === room.id.toString();
                 }
                 
-                // No roomId set - Wall Jack not yet assigned to a room
+                // 2. Auto-match by location description in externalDest
+                // Extract location from "Z* - Location Description" format
+                var parts = c.externalDest.split(' - ');
+                if (parts.length < 2) return false;
+                
+                var locationDesc = parts.slice(1).join(' - ').toLowerCase().trim();
+                
+                // Match if room nickname is contained in location description or vice versa
+                if (roomNickname && locationDesc) {
+                    return locationDesc.indexOf(roomNickname) >= 0 || 
+                           roomNickname.indexOf(locationDesc) >= 0;
+                }
+                
                 return false;
             });
         }
