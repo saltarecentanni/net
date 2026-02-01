@@ -313,26 +313,38 @@ var FloorPlan = (function() {
         // Add 📍 marker at room center with custom offsets for specific rooms
         var center = calculatePolygonCenter(room.polygon);
         
-        // Custom position adjustments per room
+        // Custom position adjustments per room (move down to not overlap numbers)
         var markerOffsets = {
-            0: { x: -15, y: 0 },   // more left
-            5: { x: -15, y: 0 },   // more left
-            6: { x: -15, y: 0 },   // more left
-            10: { x: 15, y: 0 },   // more right
-            11: { x: 15, y: 0 },   // more right
-            12: { x: 15, y: 0 },   // more right
-            14: { x: -15, y: 0 },  // more left
-            19: { x: 0, y: -15 }   // more up
+            0: { x: -20, y: 25 },   // left + down
+            1: { x: 0, y: 20 },     // down
+            2: { x: 0, y: 20 },     // down
+            3: { x: 0, y: 20 },     // down
+            4: { x: 0, y: 20 },     // down
+            5: { x: -20, y: 20 },   // left + down
+            6: { x: -20, y: 20 },   // left + down
+            7: { x: 0, y: 20 },     // down
+            8: { x: 0, y: 20 },     // down
+            9: { x: 0, y: 20 },     // down
+            10: { x: 20, y: 20 },   // right + down
+            11: { x: 20, y: 20 },   // right + down
+            12: { x: 20, y: 20 },   // right + down
+            13: { x: 0, y: 20 },    // down
+            14: { x: -20, y: 20 },  // left + down
+            15: { x: 0, y: 20 },    // down
+            16: { x: 0, y: 20 },    // down
+            17: { x: 0, y: 20 },    // down
+            18: { x: 0, y: 20 },    // down
+            19: { x: 0, y: 10 }     // slight down
         };
         
-        var offset = markerOffsets[room.id] || { x: 0, y: 0 };
+        var offset = markerOffsets[room.id] || { x: 0, y: 20 };
         
         var marker = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         marker.setAttribute('x', center.x + offset.x);
         marker.setAttribute('y', center.y + offset.y);
         marker.setAttribute('text-anchor', 'middle');
         marker.setAttribute('dominant-baseline', 'central');
-        marker.setAttribute('font-size', '28');
+        marker.setAttribute('font-size', '32');
         marker.setAttribute('cursor', 'pointer');
         marker.setAttribute('class', 'room-marker');
         marker.setAttribute('data-room-id', room.id);
