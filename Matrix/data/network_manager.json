@@ -1949,7 +1949,7 @@
           "status": "active"
         }
       ],
-      "notes": "\u00e8 Morto?",
+      "notes": "è Morto?",
       "location": "Sala Server"
     },
     {
@@ -5703,7 +5703,8 @@
       "cableMarker": "",
       "cableColor": "#3b82f6",
       "notes": "Fiber TIM",
-      "externalDest": "External/WAN"
+      "externalDest": "External/WAN",
+      "isWallJack": false
     },
     {
       "from": 1,
@@ -5744,7 +5745,8 @@
       "cableMarker": "A5",
       "cableColor": "#ef4444",
       "notes": "POE WIND FWA",
-      "externalDest": "External/WAN"
+      "externalDest": "External/WAN",
+      "isWallJack": false
     },
     {
       "from": 7,
@@ -6204,7 +6206,7 @@
       "status": "active",
       "cableMarker": "C8",
       "cableColor": "#eab308",
-      "notes": "Non c'\u00e8 nulla connesso al questo router"
+      "notes": "Non c'è nulla connesso al questo router"
     },
     {
       "from": 49,
@@ -6907,12 +6909,11 @@
       "notes": ""
     }
   ],
-  "nextDeviceId": 86,
   "rooms": [
     {
       "id": "1",
       "name": "1",
-      "nickname": "",
+      "nickname": "Amministrazione",
       "type": "office",
       "area": 154806,
       "capacity": 10,
@@ -7601,5 +7602,6 @@
       "notes": "",
       "floor": 0
     }
-  ]
+  ],
+  "nextDeviceId": 117
 }

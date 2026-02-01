@@ -1,7 +1,7 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.2.0  
-**Date:** January 29, 2026  
+**Version:** 3.4.0  
+**Date:** February 1, 2026  
 **Author:** Tiesse S.P.A.
 
 ---
@@ -9,76 +9,55 @@
 ## 1. OVERVIEW
 
 ### 1.1 Description
-A web-based network infrastructure management system for enterprise environments. Allows users to register network devices, map connections between them, and visualize the topology in matrix and graphical formats.
+A web-based network infrastructure management system for enterprise environments. Allows users to register network devices, map connections between them, visualize the topology in matrix and graphical formats, and manage room/floor plans with device associations.
 
 ### 1.2 Objectives
 - Centralized documentation of network infrastructure
-- Visual connection matrix between devices
+- Visual connection matrix between devices (SVG with zoom/pan)
 - Interactive network topology map with Cisco-style icons
+- Floor Plan with room management and device placement
 - Activity logging for audit trail
-- Export data to Excel/JSON/Draw.io for documentation
+- Export data to Excel/JSON/Draw.io/PNG for documentation
 - Multi-user access via local network with authentication
+- Complete data import/export including rooms
 
-### 1.3 What's New in v3.2.0
+### 1.3 What's New in v3.4.0
 
-#### 🌐 Offline/Intranet Preparation
+#### 🏢 Floor Plan & Room Management
 | Enhancement | Description |
 |-------------|-------------|
-| **Local Libraries** | Tailwind CSS and XLSX.js served locally (`/assets/vendor/`) |
-| **CDN Independence** | Works without internet connection |
-| **Apache/Linux Ready** | Tested for Linux server deployment |
+| **Room-Device Association** | Devices linked to rooms via location field |
+| **Room Nicknames** | Editable nicknames with automatic device sync |
+| **Professional Room Modal** | SweetAlert2-based modal with device list |
+| **Room Statistics** | Device count, connection status per room |
+| **Export Rooms** | JSON/Excel exports now include rooms data |
+| **setRooms() API** | FloorPlan module accepts external room data |
 
-#### 🔒 Multi-User Concurrency Improvements
-| Enhancement | Description |
-|-------------|-------------|
-| **File Locking** | Implemented `LOCK_EX` for safe writing |
-| **Unique Temp File** | Uses `uniqid()` to avoid collisions |
-| **Atomic Rename** | Atomic operation for data integrity |
-
-#### 📊 Excel Export Improvements
-| Enhancement | Description |
-|-------------|-------------|
-| **Clean Data** | Removed emojis from columns (uses `[WJ]` and `[EXT]` instead) |
-| **Compatibility** | Export works correctly in offline environment |
-
-#### 🔧 Script Fixes
+#### 🔧 Import/Export Critical Fixes
 | Fix | Description |
 |-----|-------------|
-| **start-server.bat** | Fixed path (was `intranet/`, now root) |
-| **PHP Fallback** | Tries local php, then php in PATH |
-| **Generic IP** | Removed hardcoded IP |
+| **exportJSON()** | Now includes `rooms`, `exportedAt`, `version` |
+| **importData()** | Validates and imports rooms with FloorPlan sync |
+| **exportExcel()** | New "Rooms" sheet with all room data |
+| **clearAll()** | Backup includes rooms, clear syncs FloorPlan |
+| **saveToStorage()** | Now saves rooms to localStorage |
 
-#### 📁 New Assets Structure
-```
-assets/
-├── logoTiesse.png          # Company logo
-└── vendor/                 # Local libraries (NEW)
-    ├── tailwind.min.js     # Tailwind CSS v3.x
-    └── xlsx.full.min.js    # SheetJS XLSX v0.18.5
-```
-
-#### 🔮 Future Migration Preparation
-| Preparation | Description |
+#### 🎨 UI/UX Improvements
+| Enhancement | Description |
 |-------------|-------------|
-| **Data Access Layer** | Structure prepared for JSON → Database migration |
-| **Documentation** | Architecture documented for easier maintenance |
+| **CSS Variables** | Standardized color system with variables |
+| **Topology Legend** | Professional modal with SVG icons |
+| **Room Modal** | Device list with icons, links, status badges |
+| **Tab Colors** | Fixed primary-light blue color (#eff6ff) |
+| **SVG Matrix** | ViewBox-based zoom and pan |
 
-### 1.4 What's New in Previous Versions
-
-#### v3.1.23 - UI/UX Standardization
-- Standardized Forms with identical styling
-- Consistent Icons in all labels
-- Connection Form colors differentiated
-
-#### v3.1.20 - Cascading Connection Form
-- Cascading selection: Location → Group → Device → Port
-- Color picker with custom hex input
-- Quick filters for groups in connections
-
-#### v3.1.8 - Code Cleanup & Verification
-- Removed 183 lines of duplicate code
-- 28 test scenarios executed successfully
-- 100% import/export validation
+#### 🔧 Bug Fixes
+| Fix | Description |
+|-----|-------------|
+| **Room Nickname Save** | Fixed `save()` → `serverSave()` |
+| **Device Links** | Changed from `link/link2` to `links[]` array |
+| **External Connections** | Normalized `isWallJack: undefined` → `false` |
+| **deviceBelongsToRoom()** | Case-insensitive, space-normalized matching |
 
 ---
 
@@ -91,6 +70,7 @@ assets/
 | Frontend | HTML5 + Tailwind CSS | Local (v3.x) |
 | JavaScript | ES6 (Vanilla) | - |
 | Icons | Custom SVG (Cisco-style) | - |
+| Modals | SweetAlert2 | CDN |
 | Excel | SheetJS (XLSX) | 0.18.5 (Local) |
 | Backend | PHP (Apache) or Node.js | 7.4+ / 14+ |
 | Authentication | Session-based | - |
@@ -99,25 +79,26 @@ assets/
 
 ### 2.2 File Structure
 
-\`\`\`
+```
 Matrix/
-├── index.html              # Main page (v3.2.0, ~1360 lines)
-├── index.html              # Main page (v3.2.0, ~1364 lines)
-│                           # - Structural HTML
-│                           # - Inline CSS (Tailwind)
-│                           # - 6 tabs: Devices, Connections, Matrix, Topology, Logs, Help
+├── index.html              # Main page (v3.4.0, ~1346 lines)
+│                           # - Structural HTML with 7 tabs
+│                           # - CSS Variables integration
+│                           # - SweetAlert2 modals
 │
-├── server.js               # Node.js server (v3.2.0, ~251 lines)
+├── server.js               # Node.js server (v3.2.0, ~250 lines)
 │                           # - No external dependencies
 │                           # - Port 3000
 │                           # - REST API for data persistence
 │                           # - Session-based authentication
 │
-├── data.php                # REST API (PHP - recommended for Apache)
+├── data.php                # REST API (PHP - for Apache)
 │                           # - GET: returns data
-│                           # - POST: saves data with validation + file locking
+│                           # - POST: saves data with file locking
 │
-├── start-server.bat        # Windows quick-start script (fixed path)
+├── draw-rooms-v2.html      # Room polygon mapping tool
+│
+├── start-server.bat        # Windows quick-start script
 │
 ├── deploy.sh               # Linux deploy script
 │
@@ -133,88 +114,92 @@ Matrix/
 ├── config/
 │   └── config.php          # Configuration (AUTH_USER, SESSION_TIMEOUT)
 │
+├── css/
+│   └── styles.css          # CSS Variables and custom styles (~200 lines)
+│
 ├── data/
-│   └── network_manager.json  # Persisted data (devices, connections)
+│   └── network_manager.json  # Persisted data (devices, connections, rooms)
 │
 ├── doc/
 │   ├── README.md           # User documentation
-│   └── BLUEPRINT.md        # Technical documentation (this file)
+│   ├── BLUEPRINT.md        # Technical documentation (this file)
+│   └── ROOM_STRUCTURE.md   # Room data structure documentation
 │
 └── js/
-    ├── app.js              # Main logic (v3.2.1, ~2821 lines)
+    ├── app.js              # Main logic (v3.3.0, ~3259 lines)
     │                       # - Global state (appState)
     │                       # - Device/Connection CRUD
-    │                       # - Cascading selects
-    │                       # - Persistence (localStorage + server)
-    │                       # - escapeHtml() utility
-    │                       # - exportJSON/importData functions
-    │                       # - requireAuth() with fallback
-    │                       # - Debounce timers for filters
-    │                       # - toggleRearOrder() function
+    │                       # - Room-device association helpers
+    │                       # - Import/Export with rooms
     │                       # - Toast notification system
     │
-    ├── ui-updates.js       # UI Rendering (v3.1.5, ~1719 lines)
+    ├── ui-updates.js       # UI Rendering (v3.4.0, ~2350 lines)
     │                       # - Device list (cards/table)
-    │                       # - Connection matrix
-    │                       # - Connection table
-    │                       # - Excel export (3 sheets, clean data)
-    │                       # - XSS protection with escapeHtml
-    │                       # - c.color fallback handling
+    │                       # - SVG Matrix with zoom/pan
+    │                       # - Excel export (4 sheets)
+    │                       # - XSS protection
     │
-    ├── features.js         # Extended Features (v3.1.5, ~3347 lines)
+    ├── features.js         # Extended Features (v3.3.0, ~3416 lines)
     │                       # - ActivityLog module
-    │                       # - LocationFilter module
     │                       # - SVGTopology module (Cisco icons)
     │                       # - DrawioExport module
-    │                       # - showTopologyLegend() function
-    │                       # - escapeHtml fallback
+    │                       # - Topology legend modal
     │
-    └── auth.js             # Authentication module (v3.1.5, ~216 lines)
+    ├── floorplan.js        # Floor Plan module (v3.4.0, ~986 lines)
+    │                       # - Room rendering on SVG
+    │                       # - Room CRUD operations
+    │                       # - Device-room associations
+    │                       # - Room info modal (showRoomInfo)
+    │                       # - PNG export
+    │
+    └── auth.js             # Authentication module (v3.1.5, ~215 lines)
                             # - Login/logout functions
                             # - Session management
-\`\`\`
+```
 
 ### 2.3 Version Summary
 
 | File | Version | Lines | Description |
 |------|---------|-------|-------------|
-| index.html | 3.2.0 | ~1364 | Main HTML with 6 tabs, standardized forms |
-| server.js | 3.2.0 | ~251 | Node.js REST server with auth |
-| app.js | 3.2.1 | ~2821 | Core logic, CRUD, cascading, toggleRearOrder |
-| ui-updates.js | 3.1.5 | ~1719 | UI rendering, XSS protection |
-| features.js | 3.1.5 | ~3347 | Extended features, SVGTopology |
-| auth.js | 3.1.5 | ~216 | Authentication module |
+| index.html | 3.4.0 | ~1346 | Main HTML with 7 tabs |
+| server.js | 3.2.0 | ~250 | Node.js REST server with auth |
+| app.js | 3.3.0 | ~3259 | Core logic, CRUD, import/export |
+| ui-updates.js | 3.4.0 | ~2350 | UI rendering, SVG Matrix |
+| features.js | 3.3.0 | ~3416 | Extended features, topology |
+| floorplan.js | 3.4.0 | ~986 | Floor plan and room management |
+| auth.js | 3.1.5 | ~215 | Authentication module |
+| styles.css | 3.3.0 | ~200 | CSS Variables |
 
 ---
 
 ## 3. DATA MODEL
 
-### 3.1 Main Structure (Persisted)
+### 3.1 Main Structure (Persisted in network_manager.json)
 
-\`\`\`json
+```json
 {
   "devices": [...],
   "connections": [...],
-  "nextDeviceId": 1
+  "rooms": [...],
+  "nextDeviceId": 117
 }
-\`\`\`
+```
 
-### 3.1.1 Application State (Runtime)
+### 3.2 Application State (Runtime)
 
-The application maintains a runtime state object (`appState`) with the following structure:
-
-\`\`\`javascript
+```javascript
 var appState = {
     devices: [],                    // Array of device objects
     connections: [],                // Array of connection objects
+    rooms: [],                      // Array of room objects
     nextDeviceId: 1,                // Auto-increment ID counter
-    connSort: [{ key: 'id', asc: true }],  // Multi-level sorting (up to 3 levels)
-    deviceSort: { key: 'rack', asc: true }, // Device sorting
+    connSort: [{ key: 'id', asc: true }],  // Multi-level sorting
+    deviceSort: { key: 'rack', asc: true },
     deviceView: 'table',            // 'table' or 'cards'
     matrixLimit: 12,                // Matrix pagination limit
-    matrixExpanded: false,          // Matrix expanded state
+    matrixExpanded: false,
     rackColorMap: {},               // Rack color assignments
-    deviceFilters: {                // Device list filters
+    deviceFilters: {
         location: '',
         source: '',
         name: '',
@@ -222,7 +207,7 @@ var appState = {
         status: '',
         hasConnections: ''          // '', 'yes', 'no'
     },
-    connFilters: {                  // Connection list filters
+    connFilters: {
         source: '',
         anyDevice: '',
         fromDevice: '',
@@ -231,124 +216,146 @@ var appState = {
         type: '',
         status: '',
         cable: '',
-        normalizeView: false        // Bidirectional view toggle
+        normalizeView: false
     }
 };
-\`\`\`
+```
 
-### 3.2 Device Object
+### 3.3 Device Object
 
-\`\`\`json
+```json
 {
-  "id": 1,                          // Positive integer, auto-increment
-  "rackId": "RACK01",               // Source/Origin (rack, location, group)
-  "rack": "RACK01",                 // Alias for compatibility
-  "order": 1,                       // Position in rack (0 = scattered device)
-  "isRear": false,                  // true = device on rear side
-  "name": "SW-CORE-01",             // Device name
-  "brandModel": "Cisco Catalyst",   // Brand/model (optional)
-  "type": "switch",                 // See Device Types below
-  "status": "active",               // Status: active|disabled
-  "location": "Server Room",        // Physical location/department
-  "ip1": "192.168.1.1/24",          // IP Address 1 with mask
-  "ip2": "10.0.0.1/8",              // IP Address 2 with mask
-  "ip3": "",                        // IP Address 3 (optional)
-  "ip4": "",                        // IP Address 4 (optional)
-  "ips": ["192.168.1.1/24"],        // Array format (backward compatible)
-  "links": [                        // Documentation links
-    { "label": "Manual", "url": "https://..." }
+  "id": 1,
+  "rackId": "Rack-Network-01",
+  "order": 1,
+  "isRear": false,
+  "name": "Tiesse-Wifi",
+  "brandModel": "Imola IPQ-GW-WIFI",
+  "type": "router_wifi",
+  "status": "active",
+  "location": "Sala Server",
+  "addresses": [
+    { "network": "10.10.100.220", "ip": "", "vlan": null }
   ],
-  "service": "DHCP",                // Service (optional)
-  "ports": [                        // Array of ports
-    { "name": "GbE01", "type": "GbE", "status": "active" }
+  "service": "ssid: TIESSE",
+  "ports": [
+    { "name": "LAN1", "type": "eth", "status": "active" }
   ],
-  "notes": "Core switch"            // Notes (optional)
+  "links": [
+    { "label": "WebUI", "url": "http://10.10.100.220" }
+  ],
+  "notes": "Main WiFi router"
 }
-\`\`\`
-
-### 3.3 Device Types
-
-| Type | Label | Icon | Badge Color |
-|------|-------|------|-------------|
-| router | Router | 📡 | #3498db (Blue) |
-| switch | Switch | 🔀 | #2ecc71 (Green) |
-| patch | Patch Panel | 📌 | #9b59b6 (Purple) |
-| walljack | Wall Jack | 🔌 | #8e44ad |
-| firewall | Firewall | 🛡️ | #e74c3c (Red) |
-| server | Server | 🖥️ | #1abc9c |
-| wifi | WiFi AP | 📶 | #f39c12 |
-| isp | ISP/Provider | 🌐 | #34495e |
-| pc | PC/Desktop | 💻 | #3498db |
-| printer | Printer | 🖨️ | #95a5a6 |
-| nas | NAS/Storage | 🗄️ | #2c3e50 |
-| camera | IP Camera | 📹 | #16a085 |
-| ups | UPS | 🔋 | #27ae60 |
-| others | Others | 📦 | #7f8c8d |
+```
 
 ### 3.4 Connection Object
 
-\`\`\`json
+```json
 {
-  "from": {
-    "device": 1,                    // Device ID
-    "port": "GbE01"                 // Port name
-  },
-  "to": {
-    "device": 2,                    // Device ID
-    "port": "GbE24"                 // Port name
-  },
-  "type": "trunk",                  // Connection type
-  "status": "active",               // Status: active|disabled
-  "cableMarker": "A001",            // Physical cable label
-  "color": "#3b82f6",               // Custom color (optional)
-  "notes": "Uplink to core"         // Notes (optional)
+  "from": 1,
+  "to": 2,
+  "fromPort": "LAN1",
+  "toPort": "Gi0/1",
+  "type": "lan",
+  "status": "active",
+  "cableMarker": "A001",
+  "cableColor": "#3b82f6",
+  "isWallJack": false,
+  "externalDest": null,
+  "notes": "Uplink connection"
 }
-\`\`\`
+```
 
-### 3.5 Connection Types
+### 3.5 Room Object
 
-| Type | Label | Icon | Color |
-|------|-------|------|-------|
-| lan | LAN | ↔️ | #3b82f6 (Blue) |
-| wan | WAN/Internet | 🌐 | #10b981 (Green) |
-| dmz | DMZ | 🛡️ | #f59e0b (Amber) |
-| trunk | Trunk/Uplink | ⬆️ | #8b5cf6 (Purple) |
-| management | Management | ⚙️ | #06b6d4 (Cyan) |
-| backup | Backup | 💾 | #64748b (Gray) |
-| fiber | Fiber Optic | 💡 | #ec4899 (Pink) |
-| wallport | Wall Jack | 🔌 | #84cc16 (Lime) |
-| external | External | 📡 | #f97316 (Orange) |
-| other | Other | 📦 | #64748b (Gray) |
+```json
+{
+  "id": "8",
+  "name": "8",
+  "nickname": "Sala Server",
+  "type": "server",
+  "area": 50,
+  "capacity": 20,
+  "description": "Main server room",
+  "color": "rgba(239,68,68,0.15)",
+  "polygon": [
+    {"x": 760, "y": 281},
+    {"x": 1010, "y": 281},
+    {"x": 1010, "y": 521},
+    {"x": 760, "y": 521}
+  ],
+  "notes": "Temperature controlled"
+}
+```
 
-### 3.6 Port Types
+### 3.6 Device Types
 
-| Value | Label | Icon | Category |
-|-------|-------|------|----------|
-| eth | Eth/RJ45 | 🔌 | copper |
-| GbE | GbE 1G | 🌐 | copper |
-| 2.5GbE | 2.5GbE | ⚡ | copper |
-| 5GbE | 5GbE | ⚡ | copper |
-| 10GbE | 10GbE-T | 🚀 | copper |
-| PoE | PoE/PoE+ | 🔋 | copper |
-| SFP | SFP 1G | 💎 | fiber |
-| SFP/SFP+ | SFP+ 10G | 💠 | fiber |
-| SFP28 | SFP28 25G | 💠 | fiber |
-| QSFP/QSFP+ | QSFP+ 40G | 🔷 | fiber |
-| QSFP28 | QSFP28 100G | 🔷 | fiber |
-| QSFP-DD | QSFP-DD 400G | 💎 | fiber |
-| fiber | Fiber LC/SC | 🔴 | fiber |
-| WAN | WAN | 🌍 | wan |
-| eth/wan | ETH/WAN | 🌐 | wan |
-| MGMT | MGMT | ⚙️ | management |
-| TTY | Console/TTY | 🖥️ | management |
-| USB | USB | 🔗 | management |
-| USB-C | USB-C | 🔗 | management |
-| RJ11 | RJ11/Phone | 📞 | telecom |
-| ISDN | ISDN BRI | 📠 | telecom |
-| E1/T1 | E1/T1 | 📡 | telecom |
-| serial | Serial RS232 | 📟 | legacy |
-| aux | AUX | 🔧 | legacy |
-| others | Others | ❓ | other |
+| Type | Label | Description |
+|------|-------|-------------|
+| router | Router | Standard router |
+| router_wifi | Router WiFi | Router with WiFi |
+| switch | Switch | Network switch |
+| patch | Patch Panel | Patch panel |
+| walljack | Wall Jack | Wall outlet |
+| firewall | Firewall | Firewall device |
+| server | Server | Server |
+| wifi | WiFi AP | Access point |
+| isp | ISP/Provider | Internet provider |
+| pc | PC/Desktop | Computer |
+| printer | Printer | Printer |
+| nas | NAS/Storage | Network storage |
+| camera | IP Camera | Security camera |
+| ups | UPS | Uninterruptible power |
+| others | Others | Generic device |
+
+### 3.7 Connection Types
+
+| Type | Label | Color |
+|------|-------|-------|
+| lan | LAN | #3b82f6 (Blue) |
+| wan | WAN/Internet | #10b981 (Green) |
+| dmz | DMZ | #f59e0b (Amber) |
+| trunk | Trunk/Uplink | #8b5cf6 (Purple) |
+| management | Management | #06b6d4 (Cyan) |
+| backup | Backup | #64748b (Gray) |
+| fiber | Fiber Optic | #ec4899 (Pink) |
+| wallport | Wall Jack | #84cc16 (Lime) |
+| external | External | #f97316 (Orange) |
+| other | Other | #64748b (Gray) |
+
+### 3.8 Room Types
+
+| Type | Label | Color |
+|------|-------|-------|
+| server | Server Room | rgba(239,68,68,0.15) |
+| office | Office | rgba(59,130,246,0.15) |
+| storage | Storage | rgba(34,197,94,0.15) |
+| meeting | Meeting Room | rgba(168,85,247,0.15) |
+| production | Production | rgba(249,115,22,0.15) |
+| datacenter | Data Center | rgba(185,28,28,0.15) |
+| network | Network Room | rgba(6,182,212,0.15) |
+| other | Other | rgba(107,114,128,0.15) |
+
+### 3.9 Port Types
+
+| Value | Label | Category |
+|-------|-------|----------|
+| eth | Eth/RJ45 | copper |
+| GbE | GbE 1G | copper |
+| 2.5GbE | 2.5GbE | copper |
+| 10GbE | 10GbE-T | copper |
+| PoE | PoE/PoE+ | copper |
+| SFP | SFP 1G | fiber |
+| SFP+ | SFP+ 10G | fiber |
+| SFP28 | SFP28 25G | fiber |
+| QSFP+ | QSFP+ 40G | fiber |
+| QSFP28 | QSFP28 100G | fiber |
+| WAN | WAN | wan |
+| MGMT | MGMT | management |
+| TTY | Console/TTY | management |
+| USB | USB | management |
+| serial | Serial | legacy |
+| others | Others | other |
 
 ---
 
@@ -360,37 +367,52 @@ var appState = {
 |-----|------|---------|
 | Devices | 📋 | Device management (cards/table view) |
 | Active Connections | ⚡ | Connection management with cascading forms |
-| Matrix | 🔀 | Connection matrix (compact/detailed) |
+| Matrix | 🔀 | SVG Connection matrix with zoom/pan |
 | Topology | 🗺️ | Visual network map with Cisco icons |
+| Floor Plan | 🏢 | Room management and device placement |
 | Logs | 📝 | Activity log with filters |
 | Help | ❓ | Integrated help |
 
-### 4.2 Visual Indicators
+### 4.2 CSS Variables
 
-| Indicator | Meaning | Style |
-|-----------|---------|-------|
-| ✗ | Device/connection disabled | text-red-500 font-bold |
-| ↩ | Device on rear side of rack | text-amber-500 font-bold |
-| ✕ | Close/delete button | text-red-500 hover:bg-red-100 |
+```css
+:root {
+    --color-primary: #3b82f6;
+    --color-primary-light: #eff6ff;
+    --color-primary-dark: #1e40af;
+    --color-secondary: #64748b;
+    --color-success: #22c55e;
+    --color-success-light: #dcfce7;
+    --color-danger: #ef4444;
+    --color-danger-light: #fee2e2;
+    --color-warning: #f59e0b;
+    --color-warning-light: #fef3c7;
+    --color-info: #06b6d4;
+    --color-text: #1e293b;
+    --color-text-light: #64748b;
+    --color-text-inverse: #ffffff;
+    --color-border: #e2e8f0;
+    --color-bg: #f8fafc;
+    --color-bg-alt: #f1f5f9;
+}
+```
 
-### 4.3 Rack Numbering Convention
+### 4.3 Visual Indicators
+
+| Indicator | Meaning |
+|-----------|---------|
+| ✗ | Device/connection disabled |
+| ↩ | Device on rear side of rack |
+| 🟢 | Active status |
+| 🔴 | Disabled status |
+
+### 4.4 Rack Numbering Convention
 
 | Position | Range | Description |
 |----------|-------|-------------|
-| FRONT | 01-98 | Top to bottom (01, 02, 03...) |
-| REAR (↩) | 99-01 | Bottom to top (99, 98, 97...) |
+| FRONT | 01-98 | Top to bottom |
+| REAR (↩) | 99-01 | Bottom to top |
 | Scattered | 00 | Device not in rack |
-
-### 4.4 Form Standardization (v3.1.23)
-
-| Element | Style |
-|---------|-------|
-| Labels | text-xs text-gray-700 |
-| Inputs | text-xs py-1.5 rounded |
-| Checkboxes | w-4 h-4 |
-| Legends | text-xs mt-2 text-gray-500 |
-| SOURCE Section | bg-orange-50 border-orange-200 |
-| DESTINATION Section | bg-amber-50 border-amber-200 |
 
 ---
 
@@ -400,74 +422,62 @@ var appState = {
 
 | Function | Description |
 |----------|-------------|
-| \`initializeApp()\` | Initialize application and load data |
+| `initializeApp()` | Initialize application and load data |
 | `saveDevice()` | Save device from form |
 | `editDevice(id)` | Edit device by ID |
 | `removeDevice(id)` | Delete device and related connections |
-| `clearDeviceForm()` | Clear device form |
 | `saveConnection()` | Save connection from form |
 | `editConnection(idx)` | Edit connection by index |
 | `removeConnection(idx)` | Delete connection |
-| `toggleRearOrder()` | Toggle order 00↔99 when Rear changes |
-| `showToast(msg, type)` | Show notification toast |
-| `escapeHtml(str)` | XSS protection utility |
-| `requireAuth()` | Check authentication status |
-| `copyToClipboard(text)` | Copy text to clipboard |
-| `exportJSON()` | Export data as JSON file |
-| `importData(e)` | Import data from JSON file |
-| `clearAll()` | Clear all data with backup |
-| `saveToStorage()` | Save to localStorage |
-| `serverLoad()` | Load data from server |
-| `serverSave()` | Save data to server |
-| `saveNow()` | Manual save button handler |
-| `updateDeviceFilter(key, value)` | Update device filter |
-| `getFilteredDevices()` | Get devices matching filters |
-| `updateConnFilter(key, value)` | Update connection filter |
-| `getFilteredConnections()` | Get connections matching filters |
-| `getRackColor(rackId)` | Get color for rack |
+| `exportJSON()` | Export data as JSON (includes rooms, version) |
+| `importData(e)` | Import data from JSON (validates and imports rooms) |
+| `clearAll()` | Clear all data with mandatory backup (includes rooms) |
+| `saveToStorage()` | Save to localStorage (includes rooms) |
+| `serverSave()` | Save to server (includes rooms) |
+| `serverLoad()` | Load from server (includes rooms) |
+| `loadFromStorage()` | Load from localStorage (includes rooms) |
+| `deviceBelongsToRoom(device, room)` | Check if device belongs to room (normalized) |
+| `countDevicesInRoom(room)` | Count devices in a room |
+| `getDevicesInRoom(room)` | Get all devices in a room |
+| `updateLocationSelect()` | Update location dropdown with room nicknames |
+| `Toast.success/error/warning/info(msg)` | Show notification |
 
 ### 5.2 ui-updates.js - UI Functions
 
 | Function | Description |
 |----------|-------------|
 | `updateDevicesList()` | Render device list (cards or table) |
-| `updateDevicesListOnly()` | Render list without rebuilding filters |
-| `updateDeviceFilterBar()` | Render device filter bar |
 | `updateConnectionsList()` | Render connections table |
-| `updateConnFilterBar()` | Render connection filter bar |
-| `updateMatrix()` | Render connection matrix |
-| `updateMatrixFilters()` | Render matrix filter controls |
-| `updateMatrixStats()` | Update matrix statistics display |
-| `exportExcel()` | Export to Excel with 3 sheets |
-| `printDeviceCards()` | Print device cards |
-| `printMatrix()` | Print matrix view |
+| `updateMatrix()` | Render SVG connection matrix |
+| `exportExcel()` | Export to Excel (4 sheets: Devices, Connections, Matrix, Rooms) |
 | `updateGlobalCounters()` | Update header counters |
 
-### 5.3 features.js - Extended Features
+### 5.3 floorplan.js - Floor Plan Functions
+
+| Function | Description |
+|----------|-------------|
+| `FloorPlan.init()` | Initialize floor plan module |
+| `FloorPlan.setRooms(rooms)` | Set rooms array (for import) |
+| `FloorPlan.getRooms()` | Get current rooms array |
+| `FloorPlan.zoom(delta)` | Zoom in/out |
+| `FloorPlan.resetZoom()` | Reset zoom to default |
+| `FloorPlan.toggleEditMode()` | Toggle edit mode |
+| `FloorPlan.exportToPNG()` | Export floor plan as PNG |
+| `showRoomInfo(roomId)` | Show room info modal with devices |
+| `saveRoomsData()` | Save rooms to appState and server |
+| `renderRooms()` | Render room polygons on SVG |
+| `updateStats()` | Update room statistics |
+
+### 5.4 features.js - Extended Features
 
 | Module/Function | Description |
-|--------|-------------|
-| `ActivityLog` | Track and display changes (max 200 logs) |
-| `LocationFilter` | Filter by physical location |
-| `SVGTopology` | Render network topology with Cisco icons |
-| `DrawioExport` | Export topology to Draw.io format |
+|-----------------|-------------|
+| `ActivityLog.add(action, type, details)` | Add activity log entry |
+| `ActivityLog.get()` | Get all log entries |
+| `SVGTopology.render()` | Render network topology |
+| `SVGTopology.getMiniIcon(type)` | Get mini SVG icon for device type |
+| `DrawioExport.export()` | Export to Draw.io XML |
 | `showTopologyLegend()` | Show device type legend modal |
-| `filterTopologyByRack()` | Filter topology by selected rack |
-| `updateDrawioLayout()` | Update topology layout |
-| `fitDrawioView()` | Fit topology to view |
-| `exportDrawioPNG()` | Export topology as PNG |
-| `exportTopologyDrawio()` | Export to Draw.io XML |
-
-### 5.4 Toast Notification System
-
-The application uses a centralized Toast notification system for user feedback.
-
-| Method | Description |
-|--------|-------------|
-| `Toast.success(msg, duration)` | Green success message (default 3s) |
-| `Toast.error(msg, duration)` | Red error message (default 5s) |
-| `Toast.warning(msg, duration)` | Yellow warning message (default 4s) |
-| `Toast.info(msg, duration)` | Blue info message (default 3s) |
 
 ---
 
@@ -477,7 +487,7 @@ The application uses a centralized Toast notification system for user feedback.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | /data | Get all network data |
+| GET | /data | Get all network data (devices, connections, rooms) |
 | POST | /data | Save network data |
 | GET | /api/auth.php?action=check | Check session status |
 | POST | /api/auth.php?action=login | Authenticate user |
@@ -486,76 +496,145 @@ The application uses a centralized Toast notification system for user feedback.
 
 ### 6.2 PHP API (data.php)
 
-| Method | Description |
-|--------|-------------|
-| GET | Returns network_manager.json |
-| POST | Saves data with validation |
+| Method | Action | Description |
+|--------|--------|-------------|
+| GET | - | Returns network_manager.json |
+| POST | - | Saves data with validation and file locking |
+| POST | verify_password | Verify admin password (for clearAll) |
 
-### 6.3 Auth API (api/auth.php)
+### 6.3 Data Response Format
 
-| Action | Description |
-|--------|-------------|
-| login | Authenticate user |
-| logout | End session |
-| check | Check session status |
+```json
+{
+  "devices": [...],
+  "connections": [...],
+  "rooms": [...],
+  "nextDeviceId": 117
+}
+```
 
 ---
 
-## 7. SECURITY
+## 7. EXPORT FORMATS
 
-### 7.1 XSS Protection
-All user input is sanitized using \`escapeHtml()\` function before rendering in HTML.
+### 7.1 JSON Export Structure
 
-### 7.2 Authentication
-- Edit operations require authentication
+```json
+{
+  "devices": [...],
+  "connections": [...],
+  "rooms": [...],
+  "nextDeviceId": 117,
+  "exportedAt": "2026-02-01T12:00:00.000Z",
+  "version": "3.3.2"
+}
+```
+
+### 7.2 Excel Export (4 Sheets)
+
+| Sheet | Columns |
+|-------|---------|
+| **Devices** | Location, Group, Order, Position, Name, Type/Brand, Category, Status, IP Addresses, Service, Ports, Notes |
+| **Connections** | ID, Src Rack, Src Pos, Src Device, Src Port, Dst Port, Dst Device, Dst Pos, Dst Rack, Type, Cable ID, Cable Color, Status, Notes |
+| **Matrix** | Device connection matrix (AOA format) |
+| **Rooms** | ID, Name, Nickname, Width, Height, X, Y, Color, Devices (count), Notes |
+
+### 7.3 Backup Format (clearAll)
+
+```json
+{
+  "devices": [...],
+  "connections": [...],
+  "rooms": [...],
+  "nextDeviceId": 117,
+  "exportedAt": "2026-02-01T12:00:00.000Z",
+  "backupReason": "Pre-Clear All Backup",
+  "version": "3.3.2"
+}
+```
+
+---
+
+## 8. SECURITY
+
+### 8.1 Authentication
 - Session-based with configurable timeout
+- Default credentials: `tiesse` / `tiesseadm`
 - Public access for read-only operations
+- Protected operations: add, edit, delete, import, clearAll
 
-### 7.3 Data Validation
-- Import validation with type checking
-- Required field validation
-- Backward compatibility handling
+### 8.2 XSS Protection
+All user input sanitized via `escapeHtml()` before rendering.
+
+### 8.3 Data Validation
+
+**Import Validation:**
+- `devices` must be array
+- `connections` must be array
+- `rooms` must be array (if present)
+- Each device: id (number), rackId/rack, name (string), type, status, ports (array)
+- Each connection: from (number), type, status
+- Each room: id, name (required)
 
 ---
 
-## 8. DEPLOYMENT
+## 9. DEPLOYMENT
 
-### 8.1 Node.js (Recommended)
-\`\`\`bash
+### 9.1 Node.js (Recommended)
+```bash
 cd Matrix
 node server.js
 # Access: http://localhost:3000/
-\`\`\`
+```
 
-### 8.2 PHP
-\`\`\`bash
+### 9.2 PHP Development
+```bash
 cd Matrix
 php -S 0.0.0.0:8080
 # Access: http://localhost:8080/
-\`\`\`
+```
 
-### 8.3 Production (Apache)
-\`\`\`bash
+### 9.3 Production (Apache)
+```bash
 sudo cp -r Matrix/* /var/www/html/matrix/
 sudo chown -R www-data:www-data /var/www/html/matrix
 sudo chmod -R 755 /var/www/html/matrix
 sudo chmod -R 775 /var/www/html/matrix/data
-\`\`\`
+```
+
+### 9.4 Windows Quick Start
+```batch
+start-server.bat
+```
 
 ---
 
-## 9. CHANGELOG
+## 10. CHANGELOG
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 3.2.1 | 2026-01-30 | app.js: Improved sticky headers and zoom |
+| 3.4.0 | 2026-02-01 | Room management, import/export with rooms, FloorPlan setRooms API |
+| 3.3.0 | 2026-01-31 | CSS Variables architecture, UI standardization |
 | 3.2.0 | 2026-01-29 | Offline/Intranet preparation, local libraries, file locking |
-| 3.1.23 | 2026-01-29 | UI/UX standardization, icon consistency, project restructure |
-| 3.1.20 | 2026-01-28 | Cascading connection form, color picker |
-| 3.1.8 | 2026-01-28 | Code cleanup, duplicate removal |
-| 3.1.5 | 2026-01-28 | Topology position persistence |
-| 3.1.3 | 2026-01-27 | Security improvements, XSS protection |
+| 3.1.x | 2026-01-27-28 | Cascading forms, code cleanup, security, XSS protection |
 | 3.0.0 | 2026-01-26 | Major release with topology, locations, auth |
+
+---
+
+## 11. CURRENT DATA STATISTICS
+
+| Entity | Count |
+|--------|-------|
+| Devices | 81 |
+| Connections | 89 |
+| Rooms | 20 |
+| Next Device ID | 117 |
+
+**Device Types in Use:** router_wifi, isp, router, switch, firewall, patch, others, server, wifi
+
+**Connection Types in Use:** lan, wan, other, wallport, trunk
+
+**Locations in Use:** Sala Server (75 devices), Ufficio12 (6 devices)
 
 ---
 

@@ -20,6 +20,7 @@
     --color-primary: #3b82f6;        /* Blue-500 */
     --color-primary-hover: #2563eb;  /* Blue-600 */
     --color-primary-light: #eff6ff;  /* Blue-50 */
+    --color-primary-lightest: #f0f9ff; /* Sky-50 */
     --color-primary-100: #dbeafe;    /* Blue-100 */
     
     /* Secondary Colors */
@@ -38,12 +39,14 @@
     --color-danger: #ef4444;         /* Red-500 */
     --color-danger-hover: #dc2626;   /* Red-600 */
     --color-danger-dark: #b91c1c;    /* Red-700 */
-    --color-danger-light: #fee2e2;   /* Red-100 */
+    --color-danger-light: #fecaca;   /* Red-200 */
+    --color-danger-lightest: #fef2f2; /* Red-50 */
     --color-danger-text: #991b1b;    /* Red-800 */
     
     /* Warning Colors */
     --color-warning: #f59e0b;        /* Amber-500 */
     --color-warning-hover: #d97706;  /* Amber-600 */
+    --color-warning-dark: #854d0e;   /* Amber-800 */
     --color-warning-light: #fef3c7;  /* Amber-100 */
     --color-warning-bg: #fffbeb;     /* Amber-50 */
     
@@ -67,7 +70,9 @@
     /* Neutral Colors */
     --color-text: #1e293b;           /* Slate-800 */
     --color-text-light: #64748b;     /* Slate-500 */
+    --color-text-lighter: #cbd5e1;   /* Slate-300 */
     --color-text-muted: #94a3b8;     /* Slate-400 */
+    --color-text-inverse: #ffffff;   /* White for dark backgrounds */
     --color-border: #e2e8f0;         /* Slate-200 */
     --color-border-dark: #cbd5e1;    /* Slate-300 */
     --color-bg: #ffffff;
@@ -80,6 +85,8 @@
     --matrix-row-even: #f1f5f9;      /* Slate-100 */
     --matrix-row-odd: #ffffff;
     --matrix-border: #cbd5e1;        /* Slate-300 */
+    --matrix-row-location: #9333ea;  /* Purple-600 for row location text */
+    --matrix-col-location: #a78bfa;  /* Violet-400 for column location text */
     
     /* Connection Type Colors */
     --conn-fiber: #22c55e;           /* Green */

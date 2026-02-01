@@ -446,12 +446,12 @@ var SVGMatrix = (function() {
     var isPanning = false;
     var panStart = { x: 0, y: 0, scrollX: 0, scrollY: 0 };
     
-    // Colors from CSS variables
+    // Colors from CSS variables (with fallbacks matching styles.css)
     var colors = {
-        headerBg: '#1e293b',
-        rowOdd: '#f8fafc',
-        rowEven: '#f1f5f9',
-        border: '#cbd5e1'
+        headerBg: 'var(--matrix-header-bg)',
+        rowOdd: 'var(--matrix-row-odd)',
+        rowEven: 'var(--color-bg-alt)',
+        border: 'var(--color-border)'
     };
     
     function resolveColors() {
@@ -559,14 +559,14 @@ var SVGMatrix = (function() {
             Array.from(colEl.children).forEach(function(child, i) {
                 colEl._childColors[i] = child.style.color;
             });
-            // Apply highlight
+            // Apply highlight with CSS variable colors
             colEl.style.transition = 'all 0.25s ease-out';
-            colEl.style.background = 'linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%)';
+            colEl.style.background = 'linear-gradient(180deg, var(--color-warning) 0%, var(--color-warning-hover) 100%)';
             colEl.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3)';
             colEl.style.zIndex = '20';
             Array.from(colEl.children).forEach(function(child) {
                 child.style.transition = 'color 0.25s ease-out';
-                child.style.color = '#1e293b';
+                child.style.color = 'var(--color-text)';
                 child.style.textShadow = '0 1px 2px rgba(255,255,255,0.5)';
             });
         }
@@ -581,14 +581,14 @@ var SVGMatrix = (function() {
             Array.from(rowEl.children).forEach(function(child, i) {
                 rowEl._childColors[i] = child.style.color;
             });
-            // Apply highlight
+            // Apply highlight with CSS variable colors
             rowEl.style.transition = 'all 0.25s ease-out';
-            rowEl.style.background = 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)';
+            rowEl.style.background = 'linear-gradient(90deg, var(--color-warning) 0%, var(--color-warning-hover) 100%)';
             rowEl.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3)';
             rowEl.style.zIndex = '20';
             Array.from(rowEl.children).forEach(function(child) {
                 child.style.transition = 'color 0.25s ease-out';
-                child.style.color = '#1e293b';
+                child.style.color = 'var(--color-text)';
                 child.style.textShadow = '0 1px 2px rgba(255,255,255,0.5)';
             });
         }
@@ -600,14 +600,14 @@ var SVGMatrix = (function() {
             cellElement._originalFill = cellElement.getAttribute('fill');
             
             // White border glow
-            cellElement.setAttribute('stroke', '#ffffff');
+            cellElement.setAttribute('stroke', 'var(--color-text-inverse)');
             cellElement.setAttribute('stroke-width', '3');
             
             // Combined filter: external glow + brightness boost
             cellElement.style.filter = 'drop-shadow(0 0 8px rgba(255,255,255,0.95)) drop-shadow(0 0 15px rgba(251,191,36,0.7)) brightness(1.15)';
             
             // Add inner highlight by adjusting the fill with overlay
-            var currentFill = cellElement._originalFill || '#3b82f6';
+            var currentFill = cellElement._originalFill || 'var(--color-info)';
             cellElement.setAttribute('fill', 'url(#cellGradientHover)');
             
             // Create hover gradient dynamically if needed
@@ -747,8 +747,18 @@ var SVGMatrix = (function() {
         if (typeof window.getRackColor === 'function') {
             return window.getRackColor(rackId);
         }
-        var rackColors = ['#3b82f6', '#22c55e', '#a855f7', '#ef4444', '#f97316', '#14b8a6', '#ec4899', '#6366f1'];
-        if (!rackId) return '#6b7280';
+        // Using semantic color names that match CSS variables
+        var rackColors = [
+            'var(--color-primary)',    // Blue
+            'var(--color-success)',    // Green
+            'var(--color-accent)',     // Purple
+            'var(--color-danger)',     // Red
+            'var(--color-orange)',     // Orange
+            'var(--conn-lag)',         // Cyan
+            'var(--conn-management)',  // Pink
+            'var(--color-info)'        // Indigo
+        ];
+        if (!rackId) return 'var(--color-secondary)';
         var hash = 0;
         for (var i = 0; i < rackId.length; i++) {
             hash = rackId.charCodeAt(i) + ((hash << 5) - hash);
@@ -831,8 +841,8 @@ var SVGMatrix = (function() {
         // Corner cell (fixed)
         html += '<div class="matrix-corner" style="background:' + colors.headerBg + ';z-index:30;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 0;">' +
             '<div style="text-align:center;">' +
-            '<div style="color:#22d3ee;font-size:10px;font-weight:bold;">TO →</div>' +
-            '<div style="color:#fbbf24;font-size:10px;font-weight:bold;">FROM ↓</div>' +
+            '<div style="color:var(--color-info);font-size:10px;font-weight:bold;">TO →</div>' +
+            '<div style="color:var(--color-warning);font-size:10px;font-weight:bold;">FROM ↓</div>' +
             '</div></div>';
         
         // Column headers (horizontal scroll synced with content)
@@ -846,23 +856,23 @@ var SVGMatrix = (function() {
             var isDisabled = d.status === 'disabled';
             
             html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid ' + rackColor + ';display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;box-sizing:border-box;" title="' + escapeXml(d.name) + '">' +
-                '<div style="font-size:8px;color:#a78bfa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(d.location || '-') + '</div>' +
-                '<div style="font-size:9px;font-weight:bold;color:' + (isDisabled ? '#94a3b8' : '#fff') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;' + (isDisabled ? 'text-decoration:line-through;' : '') + '">' + posNum + '-' + escapeXml(d.name) + '</div>' +
+                '<div style="font-size:8px;color:var(--matrix-col-location);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(d.location || '-') + '</div>' +
+                '<div style="font-size:9px;font-weight:bold;color:' + (isDisabled ? 'var(--color-text-light)' : 'var(--color-text-inverse)') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;' + (isDisabled ? 'text-decoration:line-through;' : '') + '">' + posNum + '-' + escapeXml(d.name) + '</div>' +
                 '<div style="font-size:8px;font-weight:600;color:' + rackColor + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(d.rackId || '-') + '</div>' +
                 '</div>';
         }
         
         // Special column headers
         if (hasWallJack) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid #854d0e;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-warning-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
                 '<div style="font-size:20px;">🔌</div>' +
-                '<div style="font-size:9px;font-weight:600;color:#c4b5fd;">Wall Jack</div>' +
+                '<div style="font-size:9px;font-weight:600;color:var(--color-primary-light);">Wall Jack</div>' +
                 '</div>';
         }
         if (hasExternal) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid #ef4444;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-danger);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
                 '<div style="font-size:20px;">🌐</div>' +
-                '<div style="font-size:9px;font-weight:600;color:#fca5a5;">External</div>' +
+                '<div style="font-size:9px;font-weight:600;color:var(--color-danger-light);">External</div>' +
                 '</div>';
         }
         
@@ -881,8 +891,8 @@ var SVGMatrix = (function() {
             var rowBg = r % 2 === 0 ? colors.rowOdd : colors.rowEven;
             
             html += '<div style="width:100%;height:' + cellSize + 'px;background:' + rowBg + ';border-left:3px solid ' + rowRackColor + ';border-bottom:1px solid ' + colors.border + ';display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;box-sizing:border-box;" title="' + escapeXml(row.name) + '">' +
-                '<div style="font-size:8px;color:#9333ea;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(row.location || '-') + '</div>' +
-                '<div style="font-size:9px;font-weight:bold;color:' + (rowDisabled ? '#94a3b8' : '#1e293b') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;' + (rowDisabled ? 'text-decoration:line-through;' : '') + '">' + rowPosNum + '-' + escapeXml(row.name) + '</div>' +
+                '<div style="font-size:8px;color:var(--matrix-row-location);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(row.location || '-') + '</div>' +
+                '<div style="font-size:9px;font-weight:bold;color:' + (rowDisabled ? 'var(--color-text-light)' : 'var(--color-text)') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;' + (rowDisabled ? 'text-decoration:line-through;' : '') + '">' + rowPosNum + '-' + escapeXml(row.name) + '</div>' +
                 '<div style="font-size:8px;font-weight:600;color:' + rowRackColor + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(row.rackId || '-') + '</div>' +
                 '</div>';
         }
@@ -893,7 +903,7 @@ var SVGMatrix = (function() {
         // Add extra pixels to ensure last row/col borders and hover areas are fully visible
         var svgWidth = contentWidth + 2;
         var svgHeight = contentHeight + 2;
-        html += '<div class="matrix-content" style="overflow:auto;cursor:grab;background:linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">' +
+        html += '<div class="matrix-content" style="overflow:auto;cursor:grab;background:linear-gradient(135deg, var(--color-bg) 0%, var(--color-border) 100%);">' +
             '<div class="matrix-svg-content" style="width:' + svgWidth + 'px;height:' + svgHeight + 'px;">';
         
         // Build SVG for data cells - add extra space for borders
@@ -904,7 +914,7 @@ var SVGMatrix = (function() {
         // Defs
         html += '<defs>' +
             '<pattern id="diagonalStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
-            '<rect width="3" height="6" fill="#cbd5e1"/><rect x="3" width="3" height="6" fill="#e2e8f0"/>' +
+            '<rect width="3" height="6" fill="var(--color-text-lighter)"/><rect x="3" width="3" height="6" fill="var(--color-border)"/>' +
             '</pattern>' +
             // Gradient for connection cells - makes them look 3D
             '<linearGradient id="cellGradient" x1="0%" y1="0%" x2="0%" y2="100%">' +
@@ -943,11 +953,11 @@ var SVGMatrix = (function() {
                     
                     if (connIdx >= 0) {
                         var conn = appState.connections[connIdx];
-                        var connColor = conn.color || (config.connColors ? config.connColors[conn.type] : null) || '#3b82f6';
+                        var connColor = conn.color || (config.connColors ? config.connColors[conn.type] : null) || 'var(--color-info)';
                         var isConnDisabled = conn.status === 'disabled';
                         var portFrom = conn.from === row.id ? conn.fromPort : conn.toPort;
                         var portTo = conn.from === row.id ? conn.toPort : conn.fromPort;
-                        var cableColor = conn.cableColor || '#fbbf24';
+                        var cableColor = conn.cableColor || 'var(--color-warning)';
                         
                         // Main cell background with rounded corners and shadow
                         html += '<rect class="matrix-cell-clickable" x="' + (x+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="' + connColor + '"' + (isConnDisabled ? ' opacity="0.4"' : '') + ' style="cursor:pointer" data-conn-idx="' + connIdx + '" data-row="' + r + '" data-col="' + c + '"/>';
@@ -969,9 +979,9 @@ var SVGMatrix = (function() {
                         // Cable marker - official pill style with black border (same as tooltip)
                         if (conn.cableMarker) {
                             var markerText = conn.cableMarker.toUpperCase().substring(0,4);
-                            var markerTextColor = (cableColor === '#ffffff' || cableColor === '' || cableColor === '#eab308') ? '#000000' : '#ffffff';
+                            var markerTextColor = (cableColor === 'var(--color-text-inverse)' || cableColor === '' || cableColor === 'var(--color-warning)') ? 'var(--color-text)' : 'var(--color-text-inverse)';
                             // Pill with rounded ends and black border - compact size
-                            html += '<rect x="' + (x+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="#000000" stroke-width="1.5" style="pointer-events:none"/>';
+                            html += '<rect x="' + (x+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
                             html += '<text x="' + (x+cellSize/2) + '" y="' + (y+80) + '" fill="' + markerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(markerText) + '</text>';
                         }
                     }
@@ -985,9 +995,9 @@ var SVGMatrix = (function() {
                 for (var wj = 0; wj < wallJackConns.length; wj++) {
                     if (wallJackConns[wj].conn.from === row.id) { wjConn = wallJackConns[wj].conn; wjConnIdx = wallJackConns[wj].idx; break; }
                 }
-                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="#faf5ff" stroke="#d8b4fe"/>';
+                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-primary-lightest)" stroke="var(--color-primary-light)"/>';
                 if (wjConn) {
-                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="#854d0e" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
+                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-warning-dark)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
                     html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjConn.fromPort || '-') + '</text>';
                     html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((wjConn.externalDest || 'WJ').substring(0,6)) + '</text>';
                 }
@@ -1000,10 +1010,10 @@ var SVGMatrix = (function() {
                 for (var ex = 0; ex < externalConns.length; ex++) {
                     if (externalConns[ex].conn.from === row.id) { extConn = externalConns[ex].conn; extConnIdx = externalConns[ex].idx; break; }
                 }
-                html += '<rect x="' + extX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="#fef2f2" stroke="#fecaca"/>';
+                html += '<rect x="' + extX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-danger-lightest)" stroke="var(--color-danger-light)"/>';
                 if (extConn) {
                     var extColIdx = deviceCount + (hasWallJack ? 1 : 0);
-                    html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="#ef4444" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
+                    html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-danger)" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
                     html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(extConn.fromPort || '-') + '</text>';
                     html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((extConn.externalDest || 'EXT').substring(0,6)) + '</text>';
                 }
@@ -1184,7 +1194,7 @@ var SVGMatrix = (function() {
         var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         bg.setAttribute('width', '100%');
         bg.setAttribute('height', '100%');
-        bg.setAttribute('fill', '#f8fafc');
+        bg.setAttribute('fill', 'var(--color-bg)');
         exportSvg.appendChild(bg);
         
         // Helper function to create SVG elements
@@ -1219,8 +1229,8 @@ var SVGMatrix = (function() {
         
         // Corner cell
         exportSvg.appendChild(createSvgRect(0, 0, headerWidth, headerHeight, colors.headerBg, {rx: '8'}));
-        exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 - 8, 'TO →', '#22d3ee', '10', {fontWeight: 'bold'}));
-        exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 + 8, 'FROM ↓', '#fbbf24', '10', {fontWeight: 'bold'}));
+        exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 - 8, 'TO →', 'var(--color-info)', '10', {fontWeight: 'bold'}));
+        exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 + 8, 'FROM ↓', 'var(--color-warning)', '10', {fontWeight: 'bold'}));
         
         // Column headers
         for (var i = 0; i < sorted.length; i++) {
@@ -1229,11 +1239,11 @@ var SVGMatrix = (function() {
             var rackColor = getRackColor(d.rackId);
             var posNum = String(d.order || 0).padStart(2, '0');
             var isDisabled = d.status === 'disabled';
-            var textColor = isDisabled ? '#94a3b8' : '#ffffff';
+            var textColor = isDisabled ? 'var(--color-text-light)' : 'var(--color-text-inverse)';
             
             exportSvg.appendChild(createSvgRect(x, 0, cellSize, headerHeight, colors.headerBg));
             exportSvg.appendChild(createSvgRect(x, 0, 3, headerHeight, rackColor));
-            exportSvg.appendChild(createSvgText(x + cellSize/2, 25, d.location || '-', '#a78bfa', '8'));
+            exportSvg.appendChild(createSvgText(x + cellSize/2, 25, d.location || '-', 'var(--matrix-col-location)', '8'));
             
             var nameText = createSvgText(x + cellSize/2, 48, posNum + '-' + (d.name || '').substring(0,10), textColor, '9', {fontWeight: 'bold'});
             if (isDisabled) nameText.setAttribute('text-decoration', 'line-through');
@@ -1246,18 +1256,18 @@ var SVGMatrix = (function() {
         if (hasWallJack) {
             var wjX = headerWidth + deviceCount * cellSize;
             exportSvg.appendChild(createSvgRect(wjX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, '#854d0e'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', '#c4b5fd', '20'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', '#c4b5fd', '9', {fontWeight: '600'}));
+            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-warning-dark)'));
+            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', 'var(--color-primary-light)', '20'));
+            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', 'var(--color-primary-light)', '9', {fontWeight: '600'}));
         }
         
         // External header
         if (hasExternal) {
             var extX = headerWidth + deviceCount * cellSize + (hasWallJack ? cellSize : 0);
             exportSvg.appendChild(createSvgRect(extX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(extX, 0, 3, headerHeight, '#ef4444'));
-            exportSvg.appendChild(createSvgText(extX + cellSize/2, 40, '🌐', '#fca5a5', '20'));
-            exportSvg.appendChild(createSvgText(extX + cellSize/2, 65, 'External', '#fca5a5', '9', {fontWeight: '600'}));
+            exportSvg.appendChild(createSvgRect(extX, 0, 3, headerHeight, 'var(--color-danger)'));
+            exportSvg.appendChild(createSvgText(extX + cellSize/2, 40, '🌐', 'var(--color-danger-light)', '20'));
+            exportSvg.appendChild(createSvgText(extX + cellSize/2, 65, 'External', 'var(--color-danger-light)', '9', {fontWeight: '600'}));
         }
         
         // Row headers
@@ -1268,7 +1278,7 @@ var SVGMatrix = (function() {
             var rowPosNum = String(row.order || 0).padStart(2, '0');
             var rowBg = r % 2 === 0 ? colors.rowOdd : colors.rowEven;
             var rowDisabled = row.status === 'disabled';
-            var rowTextColor = rowDisabled ? '#94a3b8' : '#1e293b';
+            var rowTextColor = rowDisabled ? 'var(--color-text-light)' : 'var(--color-text)';
             
             exportSvg.appendChild(createSvgRect(0, y, headerWidth, cellSize, rowBg));
             exportSvg.appendChild(createSvgRect(0, y, 3, cellSize, rowRackColor));
@@ -1283,7 +1293,7 @@ var SVGMatrix = (function() {
             rowBorder.setAttribute('stroke-width', '1');
             exportSvg.appendChild(rowBorder);
             
-            exportSvg.appendChild(createSvgText(headerWidth/2, y + 25, row.location || '-', '#9333ea', '8'));
+            exportSvg.appendChild(createSvgText(headerWidth/2, y + 25, row.location || '-', 'var(--matrix-row-location)', '8'));
             
             var rowNameText = createSvgText(headerWidth/2, y + 48, rowPosNum + '-' + (row.name || '').substring(0,10), rowTextColor, '9', {fontWeight: 'bold'});
             if (rowDisabled) rowNameText.setAttribute('text-decoration', 'line-through');
@@ -1317,11 +1327,11 @@ var SVGMatrix = (function() {
         var drawHeight = canvasHeight - (titleHeight * exportScale);
         
         img.onload = function() {
-            ctx.fillStyle = '#f8fafc';
+            ctx.fillStyle = 'var(--color-bg)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw title
-            ctx.fillStyle = '#1e293b';
+            ctx.fillStyle = 'var(--color-text)';
             ctx.font = 'bold ' + Math.round(22 * exportScale) + 'px Arial, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(title, canvas.width / 2, Math.round(40 * exportScale));
@@ -1354,10 +1364,10 @@ var SVGMatrix = (function() {
             var blob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
             var url = URL.createObjectURL(blob);
             img.onload = function() {
-                ctx.fillStyle = '#f8fafc';
+                ctx.fillStyle = 'var(--color-bg)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                ctx.fillStyle = '#1e293b';
+                ctx.fillStyle = 'var(--color-text)';
                 ctx.font = 'bold ' + Math.round(22 * exportScale) + 'px Arial, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(title, canvas.width / 2, Math.round(40 * exportScale));
@@ -2290,11 +2300,43 @@ function exportExcel() {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{Message: 'No devices for matrix'}]), 'Matrix');
         }
 
+        // Add Rooms sheet
+        var roomsData = [];
+        var rooms = appState.rooms || [];
+        if (rooms.length > 0) {
+            for (var rm = 0; rm < rooms.length; rm++) {
+                var room = rooms[rm];
+                var deviceCount = 0;
+                // Count devices in this room
+                for (var di = 0; di < appState.devices.length; di++) {
+                    if (deviceBelongsToRoom && deviceBelongsToRoom(appState.devices[di], room)) {
+                        deviceCount++;
+                    }
+                }
+                roomsData.push({
+                    'ID': room.id,
+                    'Name': room.name,
+                    'Nickname': room.nickname || '',
+                    'Width': room.width || '',
+                    'Height': room.height || '',
+                    'X': room.x || 0,
+                    'Y': room.y || 0,
+                    'Color': room.color || '',
+                    'Devices': deviceCount,
+                    'Notes': room.notes || ''
+                });
+            }
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(roomsData), 'Rooms');
+        } else {
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{Message: 'No rooms configured'}]), 'Rooms');
+        }
+
         XLSX.writeFile(wb, 'network_manager.xlsx');
         
         // Log the export
         if (typeof ActivityLog !== 'undefined') {
-            ActivityLog.add('export', 'export', 'Exported Excel with ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections');
+            var roomCount = (appState.rooms || []).length;
+            ActivityLog.add('export', 'export', 'Exported Excel with ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms');
         }
         
         Toast.success('Excel exported successfully!');

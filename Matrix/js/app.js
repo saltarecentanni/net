@@ -180,6 +180,60 @@ var config = {
 // DEVICE FILTERS
 // ============================================================================
 
+/**
+ * Check if a device belongs to a room
+ * Matches against room id, name, or nickname (case-insensitive, ignoring spaces)
+ */
+function deviceBelongsToRoom(device, room) {
+    if (!device.location) return false;
+    
+    // Normalize function: lowercase + remove all spaces
+    function normalize(str) {
+        return (str || '').toLowerCase().replace(/\s+/g, '');
+    }
+    
+    var locRaw = device.location;
+    var locNorm = normalize(locRaw);
+    
+    // Exact matches first
+    if (locRaw === room.id || locRaw === room.name || locRaw === room.nickname) {
+        return true;
+    }
+    
+    // Normalized matches (ignoring spaces and case)
+    var roomIdNorm = normalize(room.id);
+    var roomNameNorm = normalize(room.name);
+    var roomNicknameNorm = normalize(room.nickname);
+    
+    // Match: "Ufficio12" == normalize("Ufficio 12") or "ufficio 12" == normalize("Ufficio12")
+    if (locNorm === roomIdNorm || locNorm === roomNameNorm || locNorm === roomNicknameNorm) {
+        return true;
+    }
+    
+    // Also check if room nickname/name contains room id pattern
+    // e.g., nickname "Ufficio 12" should match location "Ufficio12" or "ufficio12"
+    
+    return false;
+}
+
+/**
+ * Count devices belonging to a room
+ */
+function countDevicesInRoom(room) {
+    return appState.devices.filter(function(d) {
+        return deviceBelongsToRoom(d, room);
+    }).length;
+}
+
+/**
+ * Get devices belonging to a room
+ */
+function getDevicesInRoom(room) {
+    return appState.devices.filter(function(d) {
+        return deviceBelongsToRoom(d, room);
+    });
+}
+
 // Debounce timer for text input filters
 var deviceFilterDebounceTimer = null;
 
@@ -883,6 +937,7 @@ function saveToStorage() {
     try {
         localStorage.setItem('networkDevices', JSON.stringify(appState.devices));
         localStorage.setItem('networkConnections', JSON.stringify(appState.connections));
+        localStorage.setItem('networkRooms', JSON.stringify(appState.rooms || []));
         localStorage.setItem('nextDeviceId', String(appState.nextDeviceId));
         showSyncIndicator('saved', '✓ Saved');
         serverSave();
@@ -2341,11 +2396,16 @@ function updateLocationSelect() {
     });
     
     // Collect existing locations from devices that are not mapped rooms
-    var roomIds = rooms.map(function(r) { return r.id; });
     var otherLocations = [];
     appState.devices.forEach(function(d) {
-        if (d.location && roomIds.indexOf(d.location) === -1 && otherLocations.indexOf(d.location) === -1) {
-            otherLocations.push(d.location);
+        if (d.location) {
+            // Check if this location matches any room
+            var isRoomLocation = rooms.some(function(room) {
+                return deviceBelongsToRoom(d, room);
+            });
+            if (!isRoomLocation && otherLocations.indexOf(d.location) === -1) {
+                otherLocations.push(d.location);
+            }
         }
     });
     otherLocations.sort();
@@ -2357,11 +2417,13 @@ function updateLocationSelect() {
         for (var i = 0; i < rooms.length; i++) {
             var room = rooms[i];
             var label = room.id;
+            // Use nickname as value if it exists (for better sync)
+            var value = room.nickname || room.id;
             if (room.nickname) {
                 label = room.id + ' - ' + room.nickname;
             }
             var option = document.createElement('option');
-            option.value = room.id;
+            option.value = value;
             option.textContent = label;
             optgroup1.appendChild(option);
         }
@@ -2419,6 +2481,7 @@ function openLocationManager() {
         return parseInt(a.id) - parseInt(b.id);
     });
     var roomIds = rooms.map(function(r) { return r.id; });
+    var roomNicknames = rooms.map(function(r) { return r.nickname || ''; }).filter(function(n) { return n; });
     
     // Collect custom locations (not mapped rooms)
     var otherLocations = [];
@@ -2426,7 +2489,11 @@ function openLocationManager() {
     appState.devices.forEach(function(d) {
         if (d.location) {
             locationCounts[d.location] = (locationCounts[d.location] || 0) + 1;
-            if (roomIds.indexOf(d.location) === -1 && otherLocations.indexOf(d.location) === -1) {
+            // Check if location is NOT a mapped room (by id, name, or nickname)
+            var isRoomLocation = rooms.some(function(room) {
+                return deviceBelongsToRoom(d, room);
+            });
+            if (!isRoomLocation && otherLocations.indexOf(d.location) === -1) {
                 otherLocations.push(d.location);
             }
         }
@@ -2441,7 +2508,7 @@ function openLocationManager() {
     if (rooms.length > 0) {
         html += '<div style="margin-bottom:16px; display:grid; gap:4px;">';
         rooms.forEach(function(room) {
-            var count = locationCounts[room.id] || 0;
+            var count = countDevicesInRoom(room);
             var label = room.nickname ? room.id + ' - ' + room.nickname : room.id;
             html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:#f3e8ff; border-radius:6px;">';
             html += '<span style="font-size:13px;">' + label + '</span>';
@@ -2748,7 +2815,10 @@ function exportJSON() {
     var data = JSON.stringify({
         devices: appState.devices,
         connections: appState.connections,
-        nextDeviceId: appState.nextDeviceId
+        rooms: appState.rooms || [],
+        nextDeviceId: appState.nextDeviceId,
+        exportedAt: new Date().toISOString(),
+        version: '3.3.2'
     }, null, 2);
     
     var blob = new Blob([data], { type: 'application/json' });
@@ -2764,7 +2834,8 @@ function exportJSON() {
     
     // Log the export
     if (typeof ActivityLog !== 'undefined') {
-        ActivityLog.add('export', 'export', 'Exported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections to ' + filename);
+        var roomCount = (appState.rooms || []).length;
+        ActivityLog.add('export', 'export', 'Exported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms to ' + filename);
     }
     
     Toast.success('JSON exported successfully');
@@ -2836,9 +2907,27 @@ function importData(e) {
                 }
             }
             
+            // Validate rooms if present
+            if (data.rooms && !Array.isArray(data.rooms)) {
+                Toast.error('Invalid JSON: "rooms" must be an array');
+                return;
+            }
+            
+            // Validate each room has required fields
+            if (data.rooms && data.rooms.length > 0) {
+                for (var r = 0; r < data.rooms.length; r++) {
+                    var room = data.rooms[r];
+                    if (!room.id || !room.name) {
+                        Toast.error('Invalid room at index ' + r + ': missing required fields (id, name)');
+                        return;
+                    }
+                }
+            }
+            
             // All validations passed - import data
             appState.devices = data.devices;
             appState.connections = data.connections;
+            appState.rooms = data.rooms || [];
             
             // Calculate nextDeviceId
             if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
@@ -2853,13 +2942,19 @@ function importData(e) {
             
             // Log the import
             if (typeof ActivityLog !== 'undefined') {
-                ActivityLog.add('import', 'import', 'Imported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections from ' + file.name);
+                var roomCount = (appState.rooms || []).length;
+                ActivityLog.add('import', 'import', 'Imported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms from ' + file.name);
+            }
+            
+            // Sync rooms with FloorPlan module if available
+            if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
+                FloorPlan.setRooms(appState.rooms);
             }
             
             // Save to storage and server
             saveToStorage();
             updateUI();
-            Toast.success('Imported: ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections');
+            Toast.success('Imported: ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections' + (appState.rooms.length ? ', ' + appState.rooms.length + ' rooms' : ''));
             
         } catch (err) {
             console.error('Error importing data:', err);
@@ -2894,9 +2989,11 @@ function clearAll() {
     var data = {
         devices: appState.devices,
         connections: appState.connections,
+        rooms: appState.rooms || [],
         nextDeviceId: appState.nextDeviceId,
         exportedAt: new Date().toISOString(),
-        backupReason: 'Pre-Clear All Backup'
+        backupReason: 'Pre-Clear All Backup',
+        version: '3.3.2'
     };
     
     var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2913,10 +3010,11 @@ function clearAll() {
     
     // Step 3: Ask for admin password
     setTimeout(function() {
+        var roomCount = (appState.rooms || []).length;
         var password = prompt(
             'CONFIRM CLEAR ALL\n\n' +
             'Enter admin password to confirm deletion of ALL data:\n' +
-            '(' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections)'
+            '(' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms)'
         );
         
         if (!password) {
@@ -2940,14 +3038,21 @@ function clearAll() {
                 // Password correct - proceed with clear
                 var deviceCount = appState.devices.length;
                 var connCount = appState.connections.length;
+                var roomCount = (appState.rooms || []).length;
                 
                 appState.devices = [];
                 appState.connections = [];
+                appState.rooms = [];
                 appState.nextDeviceId = 1;
+                
+                // Sync rooms with FloorPlan module
+                if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
+                    FloorPlan.setRooms([]);
+                }
                 
                 // Log the action
                 if (typeof ActivityLog !== 'undefined') {
-                    ActivityLog.add('clear', 'system', 'Cleared all data: ' + deviceCount + ' devices, ' + connCount + ' connections (backup downloaded)');
+                    ActivityLog.add('clear', 'system', 'Cleared all data: ' + deviceCount + ' devices, ' + connCount + ' connections, ' + roomCount + ' rooms (backup downloaded)');
                 }
                 
                 clearConnectionForm();

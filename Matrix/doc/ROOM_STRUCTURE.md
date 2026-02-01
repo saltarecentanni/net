@@ -1,327 +1,423 @@
-# 🏢 Estrutura de Dados das Salas (Rooms)
+# 🏢 Room Data Structure (Struttura Dati Stanze)
 
-## Estrutura Completa de uma Sala
-
-Cada sala no Floor Plan possui a seguinte estrutura de dados:
-
-```json
-{
-  "id": "room-001",                    // ID único da sala (formato: room-XXX)
-  "name": "Server Room",               // Nome da sala
-  "type": "server",                    // Tipo de sala (ver tipos abaixo)
-  "area": 25,                          // Área em m² (opcional)
-  "capacity": 8,                       // Capacidade de dispositivos
-  "description": "Sala de servidores principal com racks e equipamentos de rede",
-  "color": "rgba(239,68,68,0.15)",    // Cor da sala no SVG (semi-transparente)
-  "polygon": [                         // Coordenadas do polígono da sala no SVG
-    {"x": 50, "y": 50},
-    {"x": 150, "y": 50},
-    {"x": 150, "y": 150},
-    {"x": 50, "y": 150}
-  ],
-  "devices": [1, 2, 3, 4, 5],         // Array de IDs dos dispositivos nesta sala
-  "notes": "Temperatura controlada, acesso restrito",
-  "floor": 0                           // Andar da sala (0=térreo, 1=primeiro, etc)
-}
-```
-
-## Tipos de Salas (Room Types)
-
-| Tipo | Descrição | Cor Padrão |
-|------|-----------|------------|
-| `server` | Sala de servidores | Vermelho (`rgba(239,68,68,0.15)`) |
-| `office` | Escritório | Azul (`rgba(59,130,246,0.15)`) |
-| `storage` | Almoxarifado | Verde (`rgba(34,197,94,0.15)`) |
-| `meeting` | Sala de reunião | Roxo (`rgba(168,85,247,0.15)`) |
-| `production` | Área de produção | Laranja (`rgba(249,115,22,0.15)`) |
-| `datacenter` | Data Center | Vermelho escuro (`rgba(185,28,28,0.15)`) |
-| `network` | Sala de rede | Ciano (`rgba(6,182,212,0.15)`) |
-| `other` | Outro | Cinza (`rgba(107,114,128,0.15)`) |
-
-## Exemplo: Sala Server (Sala 0)
-
-### Dados JSON
-```json
-{
-  "id": "room-001",
-  "name": "Server Room",
-  "type": "server",
-  "area": 25,
-  "capacity": 8,
-  "description": "Sala de servidores principal com racks e equipamentos de rede",
-  "color": "rgba(239,68,68,0.15)",
-  "polygon": [
-    {"x": 50, "y": 50},
-    {"x": 150, "y": 50},
-    {"x": 150, "y": 150},
-    {"x": 50, "y": 150}
-  ],
-  "devices": [1, 2, 3, 4, 5],
-  "notes": "Temperatura controlada, acesso restrito",
-  "floor": 0
-}
-```
-
-### Como as Informações Aparecem
-
-#### Na Lista de Salas:
-```
-📍 Server Room
-   Tipo: server
-   Dispositivos: 5
-```
-
-#### No Painel de Informações (ao clicar na sala):
-```
-═══════════════════════════════════════
-🏢 Server Room
-═══════════════════════════════════════
-
-📌 Tipo: server
-📏 Área: 25 m²
-👥 Capacidade: 8 dispositivos
-📝 Descrição: Sala de servidores principal 
-              com racks e equipamentos de rede
-🔢 Andar: Térreo (0)
-
-───────────────────────────────────────
-💻 Dispositivos nesta Sala (5):
-───────────────────────────────────────
-• Tiesse-Wifi (Router WiFi)
-• Switch-Core-01 (Switch)
-• Firewall-01 (Firewall)
-• Server-DB-01 (Server)
-• Switch-Access-02 (Switch)
-
-───────────────────────────────────────
-📋 Notas:
-───────────────────────────────────────
-Temperatura controlada, acesso restrito
-```
-
-#### No SVG (Planta Baixa):
-- Polígono vermelho semi-transparente sobreposto na área da sala
-- Label "Server Room" no centro
-- Ícone 💻 com número "5" indicando quantidade de dispositivos
-- Efeito hover: destaque amarelo ao passar o mouse
-- Click: seleciona e exibe informações no painel lateral
-
-## Como Obter as Coordenadas do Polígono
-
-Para definir o polígono de uma sala na planta SVG:
-
-1. **Abra a planta**: Visualize o arquivo `assets/plant.svg` ou use a aba Floor Plan
-2. **Identifique a sala**: Localize visualmente os limites da sala
-3. **Determine os pontos**: Anote as coordenadas X,Y dos vértices do polígono
-   - O SVG tem viewBox `0 0 735 599` (largura x altura)
-   - Coordenadas começam no canto superior esquerdo (0,0)
-4. **Lista os pontos**: Crie o array `polygon` com os pontos em sequência (sentido horário ou anti-horário)
-
-### Exemplo: Sala Retangular
-```
-Canto superior esquerdo:  x=100, y=50
-Canto superior direito:   x=200, y=50
-Canto inferior direito:   x=200, y=150
-Canto inferior esquerdo:  x=100, y=150
-
-Polígono:
-[
-  {"x": 100, "y": 50},
-  {"x": 200, "y": 50},
-  {"x": 200, "y": 150},
-  {"x": 100, "y": 150}
-]
-```
-
-### Exemplo: Sala em Forma de L
-```
-Ponto 1: x=50,  y=50
-Ponto 2: x=150, y=50
-Ponto 3: x=150, y=100
-Ponto 4: x=100, y=100
-Ponto 5: x=100, y=150
-Ponto 6: x=50,  y=150
-
-Polígono:
-[
-  {"x": 50, "y": 50},
-  {"x": 150, "y": 50},
-  {"x": 150, "y": 100},
-  {"x": 100, "y": 100},
-  {"x": 100, "y": 150},
-  {"x": 50, "y": 150}
-]
-```
-
-## Atribuindo Dispositivos às Salas
-
-### Método 1: Edição Manual do JSON
-Adicione o ID do dispositivo no array `devices`:
-```json
-"devices": [1, 2, 3, 4, 5]
-```
-
-### Método 2: Interface (Futuro)
-- Modo de edição ativado
-- Arrastar dispositivo da lista para a sala no SVG
-- Click duplo no dispositivo para atribuir manualmente
-
-## Integração com Dispositivos
-
-Os IDs no array `devices` correspondem aos dispositivos em `network_manager.json`:
-
-```json
-{
-  "devices": [
-    {
-      "id": 1,                          // ← Este ID
-      "name": "Tiesse-Wifi",
-      "type": "router_wifi",
-      ...
-    }
-  ],
-  "rooms": [
-    {
-      "id": "room-001",
-      "devices": [1, 2, 3]              // ← Referência aqui
-    }
-  ]
-}
-```
-
-## Estatísticas Calculadas
-
-O sistema calcula automaticamente:
-- **Total de Salas**: Quantidade de salas cadastradas
-- **Dispositivos Atribuídos**: Soma de todos os dispositivos em todas as salas
-- **Utilização**: Porcentagem de dispositivos atribuídos vs. total
-- **Salas por Tipo**: Agrupamento por categoria
-
-## Exemplo Completo: 3 Salas
-
-```json
-{
-  "devices": [ /* ... dispositivos ... */ ],
-  "connections": [ /* ... conexões ... */ ],
-  "rooms": [
-    {
-      "id": "room-001",
-      "name": "Server Room",
-      "type": "server",
-      "area": 25,
-      "capacity": 8,
-      "description": "Sala principal de servidores",
-      "color": "rgba(239,68,68,0.15)",
-      "polygon": [
-        {"x": 50, "y": 50},
-        {"x": 150, "y": 50},
-        {"x": 150, "y": 150},
-        {"x": 50, "y": 150}
-      ],
-      "devices": [1, 2, 3, 4, 5],
-      "notes": "Temperatura controlada",
-      "floor": 0
-    },
-    {
-      "id": "room-002",
-      "name": "Network Closet",
-      "type": "network",
-      "area": 12,
-      "capacity": 5,
-      "description": "Closet de rede com switches de acesso",
-      "color": "rgba(6,182,212,0.15)",
-      "polygon": [
-        {"x": 200, "y": 50},
-        {"x": 280, "y": 50},
-        {"x": 280, "y": 120},
-        {"x": 200, "y": 120}
-      ],
-      "devices": [10, 11, 12],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "room-003",
-      "name": "Office 1",
-      "type": "office",
-      "area": 30,
-      "capacity": 10,
-      "description": "Escritório principal",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {"x": 300, "y": 50},
-        {"x": 450, "y": 50},
-        {"x": 450, "y": 200},
-        {"x": 300, "y": 200}
-      ],
-      "devices": [20, 21, 22, 23, 24, 25],
-      "notes": "6 estações de trabalho",
-      "floor": 0
-    }
-  ]
-}
-```
-
-## Funções Disponíveis no FloorPlan.js
-
-### Carregar Salas
-```javascript
-FloorPlan.init(); // Carrega salas de appState.rooms
-```
-
-### Adicionar Sala
-```javascript
-// Via interface: botão "➕ Add Room"
-// Ou programaticamente:
-rooms.push({
-  id: "room-" + Date.now(),
-  name: "Nova Sala",
-  type: "office",
-  polygon: [],
-  devices: []
-});
-```
-
-### Editar Sala
-```javascript
-// Via interface: click no ícone ✏️ ao lado da sala
-// Ou programaticamente:
-var room = rooms.find(r => r.id === "room-001");
-room.name = "Novo Nome";
-room.devices.push(10); // Adiciona dispositivo ID 10
-```
-
-### Remover Sala
-```javascript
-// Via interface: botão "🗑️ Delete" no painel de informações
-// Ou programaticamente:
-rooms = rooms.filter(r => r.id !== "room-001");
-```
-
-### Salvar Alterações
-```javascript
-FloorPlan.saveRoomsData(); // Salva no appState e chama save()
-```
-
-## Validação de Dados
-
-Campos obrigatórios:
-- ✅ `id` (string, formato "room-XXX")
-- ✅ `name` (string, não vazio)
-- ✅ `type` (string, um dos tipos válidos)
-- ✅ `polygon` (array de {x, y}, mínimo 3 pontos)
-
-Campos opcionais:
-- `area` (number)
-- `capacity` (number)
-- `description` (string)
-- `color` (string, formato RGBA)
-- `devices` (array de numbers)
-- `notes` (string)
-- `floor` (number, default: 0)
+**Version:** 3.4.0  
+**Date:** February 1, 2026
 
 ---
 
-**Última atualização**: 30/01/2026  
-**Versão**: 3.4.0  
-**Autor**: TIESSE Matrix Network Team
+## 1. Overview
+
+Le stanze (rooms) nel Floor Plan permettono di:
+- Mappare aree fisiche sulla pianta
+- Associare dispositivi alle stanze
+- Visualizzare statistiche per stanza
+- Gestire nickname per identificazione facile
+
+---
+
+## 2. Struttura Dati Completa
+
+### 2.1 Room Object
+
+```json
+{
+  "id": "8",
+  "name": "8",
+  "nickname": "Sala Server",
+  "type": "server",
+  "area": 50,
+  "capacity": 20,
+  "description": "Sala server principale con rack e apparecchiature di rete",
+  "color": "rgba(239,68,68,0.15)",
+  "polygon": [
+    {"x": 760, "y": 281},
+    {"x": 1010, "y": 281},
+    {"x": 1010, "y": 521},
+    {"x": 760, "y": 521}
+  ],
+  "notes": "Temperatura controllata, accesso ristretto"
+}
+```
+
+### 2.2 Campi
+
+| Campo | Tipo | Obbligatorio | Descrizione |
+|-------|------|--------------|-------------|
+| `id` | string | ✅ | ID univoco della stanza |
+| `name` | string | ✅ | Nome originale/numero |
+| `nickname` | string | ❌ | Nome descrittivo (es. "Sala Server") |
+| `type` | string | ❌ | Tipo di stanza (vedi sezione 3) |
+| `area` | number | ❌ | Area in m² |
+| `capacity` | number | ❌ | Capacità dispositivi |
+| `description` | string | ❌ | Descrizione dettagliata |
+| `color` | string | ❌ | Colore RGBA del poligono |
+| `polygon` | array | ❌ | Coordinate vertici [{x,y}] |
+| `notes` | string | ❌ | Note aggiuntive |
+
+---
+
+## 3. Tipi di Stanza
+
+| Tipo | Label | Colore Default |
+|------|-------|----------------|
+| `server` | Sala Server | `rgba(239,68,68,0.15)` (rosso) |
+| `office` | Ufficio | `rgba(59,130,246,0.15)` (blu) |
+| `storage` | Magazzino | `rgba(34,197,94,0.15)` (verde) |
+| `meeting` | Sala Riunioni | `rgba(168,85,247,0.15)` (viola) |
+| `production` | Produzione | `rgba(249,115,22,0.15)` (arancio) |
+| `datacenter` | Data Center | `rgba(185,28,28,0.15)` (rosso scuro) |
+| `network` | Sala Rete | `rgba(6,182,212,0.15)` (ciano) |
+| `other` | Altro | `rgba(107,114,128,0.15)` (grigio) |
+
+---
+
+## 4. Associazione Dispositivo-Stanza
+
+### 4.1 Come Funziona
+
+I dispositivi sono associati alle stanze tramite il campo `location`:
+
+```
+Device.location ←→ Room.nickname (o Room.name)
+```
+
+**Esempio:**
+- Stanza: `{ id: "8", nickname: "Sala Server" }`
+- Dispositivo: `{ location: "Sala Server" }` → Appartiene alla stanza
+
+### 4.2 Funzione Helper
+
+```javascript
+function deviceBelongsToRoom(device, room) {
+    if (!device || !device.location || !room) return false;
+    var normalize = function(str) {
+        return (str || '').toLowerCase().replace(/\s+/g, '');
+    };
+    var deviceLoc = normalize(device.location);
+    var roomNickname = normalize(room.nickname || room.name || room.id);
+    return deviceLoc === roomNickname;
+}
+```
+
+**Caratteristiche:**
+- Case-insensitive ("Sala Server" = "sala server")
+- Ignora spazi extra ("Sala  Server" = "SalaServer")
+- Fallback: nickname → name → id
+
+### 4.3 Funzioni Utili
+
+```javascript
+// Conta dispositivi in una stanza
+function countDevicesInRoom(room) {
+    return appState.devices.filter(function(d) {
+        return deviceBelongsToRoom(d, room);
+    }).length;
+}
+
+// Ottieni tutti i dispositivi di una stanza
+function getDevicesInRoom(room) {
+    return appState.devices.filter(function(d) {
+        return deviceBelongsToRoom(d, room);
+    });
+}
+```
+
+---
+
+## 5. Sincronizzazione Nickname
+
+Quando il nickname di una stanza viene modificato, tutti i dispositivi associati vengono aggiornati automaticamente:
+
+```javascript
+// Nel salvataggio del nickname
+var oldNickname = room.nickname || room.name;
+var newNickname = input.value.trim();
+
+// Aggiorna location di tutti i dispositivi
+appState.devices.forEach(function(device) {
+    if (deviceBelongsToRoom(device, { nickname: oldNickname, name: room.name })) {
+        device.location = newNickname;
+    }
+});
+
+room.nickname = newNickname;
+```
+
+---
+
+## 6. Modal Info Stanza
+
+Quando si clicca su una stanza nel Floor Plan, appare un modal con:
+
+### 6.1 Header
+- Nome stanza (nickname o name)
+- Badge tipo stanza
+
+### 6.2 Statistiche
+| Statistica | Descrizione |
+|------------|-------------|
+| 📊 Total Devices | Numero dispositivi nella stanza |
+| 🔗 Connections | Numero connessioni dei dispositivi |
+| 📦 Capacity | Capacità configurata |
+| ⚠️ Errors | Dispositivi con problemi (se presenti) |
+| 📍 Area | Area in m² |
+
+### 6.3 Lista Dispositivi
+Per ogni dispositivo:
+- Icona SVG del tipo
+- Nome dispositivo
+- Badge stato (Active/Disabled)
+- Link (se presenti)
+- Info rack/position
+
+### 6.4 Campo Nickname
+- Input editabile
+- Salvataggio con Enter o blur
+- Sincronizza automaticamente i dispositivi
+
+---
+
+## 7. Floor Plan API
+
+### 7.1 Inizializzazione
+
+```javascript
+FloorPlan.init();  // Carica stanze da appState.rooms
+```
+
+### 7.2 Gestione Stanze
+
+```javascript
+// Imposta stanze (per import)
+FloorPlan.setRooms(newRoomsArray);
+
+// Ottieni stanze
+var rooms = FloorPlan.getRooms();
+
+// Salva stanze
+saveRoomsData();  // Interno, chiama serverSave()
+```
+
+### 7.3 Zoom e Navigazione
+
+```javascript
+FloorPlan.zoom(0.1);    // Zoom in
+FloorPlan.zoom(-0.1);   // Zoom out
+FloorPlan.resetZoom();  // Reset al default
+```
+
+### 7.4 Export
+
+```javascript
+FloorPlan.exportToPNG();  // Esporta come immagine PNG
+```
+
+---
+
+## 8. Persistenza
+
+### 8.1 Dove Viene Salvato
+
+Le stanze sono salvate in `network_manager.json`:
+
+```json
+{
+  "devices": [...],
+  "connections": [...],
+  "rooms": [...],
+  "nextDeviceId": 117
+}
+```
+
+### 8.2 Flusso di Salvataggio
+
+```
+User modifica stanza
+       ↓
+saveRoomsData()
+       ↓
+appState.rooms = rooms
+       ↓
+serverSave()  →  POST /data
+       ↓
+network_manager.json aggiornato
+```
+
+### 8.3 Flusso di Caricamento
+
+```
+Page load
+    ↓
+serverLoad()  →  GET /data
+    ↓
+appState.rooms = data.rooms
+    ↓
+FloorPlan.init()
+    ↓
+renderRooms()
+```
+
+---
+
+## 9. Import/Export
+
+### 9.1 JSON Export
+
+Le stanze sono incluse nell'export JSON:
+
+```json
+{
+  "devices": [...],
+  "connections": [...],
+  "rooms": [...],
+  "nextDeviceId": 117,
+  "exportedAt": "2026-02-01T12:00:00.000Z",
+  "version": "3.3.2"
+}
+```
+
+### 9.2 JSON Import
+
+L'import valida le stanze:
+
+```javascript
+// Validazione
+if (data.rooms && !Array.isArray(data.rooms)) {
+    Toast.error('Invalid JSON: "rooms" must be an array');
+    return;
+}
+
+// Validazione singola stanza
+for (var r = 0; r < data.rooms.length; r++) {
+    var room = data.rooms[r];
+    if (!room.id || !room.name) {
+        Toast.error('Invalid room at index ' + r);
+        return;
+    }
+}
+
+// Import
+appState.rooms = data.rooms || [];
+
+// Sincronizza FloorPlan
+if (FloorPlan.setRooms) {
+    FloorPlan.setRooms(appState.rooms);
+}
+```
+
+### 9.3 Excel Export
+
+Le stanze hanno un foglio dedicato:
+
+| Colonna | Descrizione |
+|---------|-------------|
+| ID | ID univoco |
+| Name | Nome originale |
+| Nickname | Nome descrittivo |
+| Width | Larghezza |
+| Height | Altezza |
+| X | Coordinata X |
+| Y | Coordinata Y |
+| Color | Colore RGBA |
+| Devices | Numero dispositivi |
+| Notes | Note |
+
+---
+
+## 10. Polygon (Poligono)
+
+### 10.1 Formato
+
+Array di punti {x, y} che definiscono i vertici:
+
+```json
+"polygon": [
+  {"x": 760, "y": 281},
+  {"x": 1010, "y": 281},
+  {"x": 1010, "y": 521},
+  {"x": 760, "y": 521}
+]
+```
+
+### 10.2 Sistema di Coordinate
+
+- Origine (0,0): angolo superiore sinistro
+- X: cresce verso destra
+- Y: cresce verso il basso
+- ViewBox SVG: dipende dalla pianta
+
+### 10.3 Tool di Mappatura
+
+Usa `/draw-rooms-v2.html` per creare poligoni:
+1. Carica la pianta
+2. Clicca per aggiungere punti
+3. Chiudi il poligono
+4. Esporta le coordinate
+
+---
+
+## 11. Statistiche Attuali
+
+| Statistica | Valore |
+|------------|--------|
+| Stanze totali | 20 |
+| Dispositivi totali | 81 |
+| Dispositivi in "Sala Server" | 75 |
+| Dispositivi in "Ufficio12" | 6 |
+
+### Stanze con Nickname
+
+| ID | Nickname |
+|----|----------|
+| 1 | Amministrazione |
+| 8 | Sala Server |
+| ... | ... |
+
+---
+
+## 12. Esempi
+
+### 12.1 Creare una Nuova Stanza
+
+```javascript
+var newRoom = {
+    id: "new-" + Date.now(),
+    name: "Nuova Stanza",
+    nickname: "Sala Riunioni 1",
+    type: "meeting",
+    color: "rgba(168,85,247,0.15)",
+    polygon: [],
+    notes: ""
+};
+appState.rooms.push(newRoom);
+saveRoomsData();
+```
+
+### 12.2 Modificare Nickname
+
+```javascript
+var room = appState.rooms.find(r => r.id === "8");
+var oldNickname = room.nickname;
+
+// Aggiorna dispositivi
+appState.devices.forEach(function(d) {
+    if (d.location === oldNickname) {
+        d.location = "Nuovo Nome";
+    }
+});
+
+room.nickname = "Nuovo Nome";
+saveRoomsData();
+```
+
+### 12.3 Contare Dispositivi
+
+```javascript
+var room = appState.rooms.find(r => r.nickname === "Sala Server");
+var count = countDevicesInRoom(room);
+console.log("Dispositivi in Sala Server:", count);
+```
+
+---
+
+**© 2026 Tiesse S.P.A. - Tutti i diritti riservati**

@@ -2755,20 +2755,85 @@ function showTopologyLegend() {
         wallJackCount = Object.keys(wallJackSet).length;
     }
     
-    // Count devices by type and status
+    // Count devices by type, status, and collect by location
     var typeCounts = {};
     var typeOffCounts = {};
-    if (typeof appState !== 'undefined' && appState.devices) {
-        for (var d = 0; d < appState.devices.length; d++) {
-            var dev = appState.devices[d];
-            var t = dev.type || 'others';
-            var isOff = dev.status === 'disabled' || dev.status === 'off';
-            typeCounts[t] = (typeCounts[t] || 0) + 1;
-            if (isOff) {
-                typeOffCounts[t] = (typeOffCounts[t] || 0) + 1;
+    var locationCounts = {};
+    var totalConnections = 0;
+    
+    if (typeof appState !== 'undefined') {
+        if (appState.devices) {
+            for (var d = 0; d < appState.devices.length; d++) {
+                var dev = appState.devices[d];
+                var t = dev.type || 'others';
+                var isOff = dev.status === 'disabled' || dev.status === 'off';
+                typeCounts[t] = (typeCounts[t] || 0) + 1;
+                if (isOff) {
+                    typeOffCounts[t] = (typeOffCounts[t] || 0) + 1;
+                }
+                if (dev.location) {
+                    locationCounts[dev.location] = (locationCounts[dev.location] || 0) + 1;
+                }
             }
         }
+        if (appState.connections) {
+            totalConnections = appState.connections.length;
+        }
     }
+    
+    // Calculate totals
+    var totalDevices = appState.devices ? appState.devices.length : 0;
+    var totalOff = 0;
+    var usedTypes = 0;
+    var usedSet = {};
+    if (appState.devices) {
+        for (var m = 0; m < appState.devices.length; m++) {
+            usedSet[appState.devices[m].type] = true;
+            if (appState.devices[m].status === 'disabled' || appState.devices[m].status === 'off') {
+                totalOff++;
+            }
+        }
+        usedTypes = Object.keys(usedSet).length;
+    }
+    if (wallJackCount > 0) usedTypes++;
+    
+    // Build HTML - Summary cards at top
+    var html = '';
+    
+    // Summary Stats Row
+    html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;">';
+    
+    // Total Devices
+    html += '<div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);padding:16px;border-radius:12px;text-align:center;">';
+    html += '<div style="font-size:28px;font-weight:700;color:#1d4ed8;">' + totalDevices + '</div>';
+    html += '<div style="font-size:11px;color:#3b82f6;font-weight:600;">Total Devices</div>';
+    html += '</div>';
+    
+    // Active Devices
+    html += '<div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);padding:16px;border-radius:12px;text-align:center;">';
+    html += '<div style="font-size:28px;font-weight:700;color:#166534;">' + (totalDevices - totalOff) + '</div>';
+    html += '<div style="font-size:11px;color:#22c55e;font-weight:600;">Active</div>';
+    html += '</div>';
+    
+    // Disabled Devices
+    html += '<div style="background:linear-gradient(135deg,#fef2f2,#fecaca);padding:16px;border-radius:12px;text-align:center;">';
+    html += '<div style="font-size:28px;font-weight:700;color:#dc2626;">' + totalOff + '</div>';
+    html += '<div style="font-size:11px;color:#ef4444;font-weight:600;">Disabled</div>';
+    html += '</div>';
+    
+    // Connections
+    html += '<div style="background:linear-gradient(135deg,#fef3c7,#fde68a);padding:16px;border-radius:12px;text-align:center;">';
+    html += '<div style="font-size:28px;font-weight:700;color:#b45309;">' + totalConnections + '</div>';
+    html += '<div style="font-size:11px;color:#d97706;font-weight:600;">Connections</div>';
+    html += '</div>';
+    
+    // Types in Use
+    html += '<div style="background:linear-gradient(135deg,#f3e8ff,#e9d5ff);padding:16px;border-radius:12px;text-align:center;">';
+    html += '<div style="font-size:28px;font-weight:700;color:#7c3aed;">' + usedTypes + '</div>';
+    html += '<div style="font-size:11px;color:#8b5cf6;font-weight:600;">Types in Use</div>';
+    html += '</div>';
+    
+    html += '</div>';
     
     // Group types by category
     var categories = {
@@ -2780,7 +2845,8 @@ function showTopologyLegend() {
         '⚡ Power & ISP': ['ups', 'isp', 'others']
     };
     
-    var html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    // Device Types Grid
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">';
     
     var categoryKeys = Object.keys(categories);
     for (var c = 0; c < categoryKeys.length; c++) {
@@ -2789,17 +2855,24 @@ function showTopologyLegend() {
         
         // Check if any type in this category exists
         var hasTypes = false;
+        var categoryDeviceCount = 0;
         for (var i = 0; i < types.length; i++) {
             if (allTypes.indexOf(types[i]) >= 0) {
                 hasTypes = true;
-                break;
+                var tc = (types[i] === 'walljack') ? wallJackCount : (typeCounts[types[i]] || 0);
+                categoryDeviceCount += tc;
             }
         }
         if (!hasTypes) continue;
         
-        html += '<div class="bg-slate-50 rounded-lg p-3">';
-        html += '<h3 class="font-semibold text-slate-700 text-sm mb-2 border-b border-slate-200 pb-1">' + category + '</h3>';
-        html += '<div class="space-y-1">';
+        html += '<div style="background:#f8fafc;border-radius:12px;padding:16px;border:1px solid #e2e8f0;">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;">';
+        html += '<h3 style="font-weight:600;color:#334155;font-size:13px;">' + category + '</h3>';
+        if (categoryDeviceCount > 0) {
+            html += '<span style="background:#3b82f6;color:white;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;">' + categoryDeviceCount + '</span>';
+        }
+        html += '</div>';
+        html += '<div style="display:grid;gap:6px;">';
         
         for (var j = 0; j < types.length; j++) {
             var type = types[j];
@@ -2812,31 +2885,34 @@ function showTopologyLegend() {
             
             var icon = '';
             try {
-                icon = SVGTopology.getMiniIcon(type, 32);
+                icon = SVGTopology.getMiniIcon(type, 36);
             } catch(e) {
-                icon = '<span class="text-lg">📦</span>';
+                icon = '<span style="font-size:24px;">📦</span>';
             }
             
             // Get count - special handling for walljack
             var count = (type === 'walljack') ? wallJackCount : (typeCounts[type] || 0);
             var offCount = (type === 'walljack') ? 0 : (typeOffCounts[type] || 0);
             
-            html += '<div class="flex items-center gap-2 bg-white rounded px-2 py-1 border border-slate-200">';
-            html += '<div class="flex-shrink-0 w-8">' + icon + '</div>';
-            html += '<div class="flex-grow text-sm font-medium text-slate-700">' + (info.label || type) + '</div>';
+            html += '<div style="display:flex;align-items:center;gap:10px;background:white;border-radius:8px;padding:8px 12px;border:1px solid #e2e8f0;">';
+            html += '<div style="flex-shrink:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;">' + icon + '</div>';
+            html += '<div style="flex-grow:1;font-size:13px;font-weight:500;color:#475569;">' + (info.label || type) + '</div>';
             
             // Show count badges
             if (count > 0) {
+                html += '<div style="display:flex;gap:4px;">';
                 if (offCount > 0) {
-                    // Show active and off separately
                     var activeCount = count - offCount;
                     if (activeCount > 0) {
-                        html += '<span class="bg-green-100 text-green-700 text-xs font-bold px-1.5 py-0.5 rounded" title="Active">' + activeCount + '</span>';
+                        html += '<span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;">' + activeCount + '</span>';
                     }
-                    html += '<span class="bg-red-100 text-red-600 text-xs font-bold px-1.5 py-0.5 rounded" title="Off/Disabled">' + offCount + ' off</span>';
+                    html += '<span style="background:#fecaca;color:#dc2626;font-size:10px;font-weight:600;padding:3px 6px;border-radius:6px;">' + offCount + ' off</span>';
                 } else {
-                    html += '<span class="bg-blue-100 text-blue-700 text-xs font-bold px-1.5 py-0.5 rounded">' + count + '</span>';
+                    html += '<span style="background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;">' + count + '</span>';
                 }
+                html += '</div>';
+            } else {
+                html += '<span style="color:#94a3b8;font-size:11px;">—</span>';
             }
             html += '</div>';
         }
@@ -2846,40 +2922,19 @@ function showTopologyLegend() {
     
     html += '</div>';
     
-    // Add summary footer
-    var totalTypes = allTypes.length;
-    var usedTypes = 0;
-    var totalDevices = 0;
-    var totalOff = 0;
-    if (typeof appState !== 'undefined' && appState.devices) {
-        var usedSet = {};
-        for (var m = 0; m < appState.devices.length; m++) {
-            usedSet[appState.devices[m].type] = true;
-            totalDevices++;
-            if (appState.devices[m].status === 'disabled' || appState.devices[m].status === 'off') {
-                totalOff++;
-            }
-        }
-        usedTypes = Object.keys(usedSet).length;
+    // Locations summary (if multiple locations)
+    var locationKeys = Object.keys(locationCounts);
+    if (locationKeys.length > 1) {
+        html += '<div style="margin-top:20px;padding-top:16px;border-top:2px solid #e2e8f0;">';
+        html += '<h3 style="font-weight:600;color:#334155;font-size:14px;margin-bottom:12px;">📍 Devices by Location</h3>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+        locationKeys.sort().forEach(function(loc) {
+            html += '<span style="background:#f1f5f9;color:#475569;font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid #e2e8f0;">';
+            html += '<strong>' + loc + '</strong>: ' + locationCounts[loc];
+            html += '</span>';
+        });
+        html += '</div></div>';
     }
-    // Add walljack to used count if any
-    if (wallJackCount > 0) usedTypes++;
-    
-    html += '<div class="mt-4 pt-3 border-t border-slate-200">';
-    html += '<div class="flex items-center justify-between text-xs text-slate-500">';
-    html += '<span>' + totalTypes + ' types available</span>';
-    html += '<span>' + usedTypes + ' types in use</span>';
-    html += '</div>';
-    html += '<div class="flex items-center justify-between text-xs mt-1">';
-    html += '<span class="text-slate-600 font-medium">' + totalDevices + ' devices total</span>';
-    if (totalOff > 0) {
-        html += '<span class="text-red-500 font-medium">' + totalOff + ' device' + (totalOff > 1 ? 's' : '') + ' off</span>';
-    }
-    if (wallJackCount > 0) {
-        html += '<span class="text-gray-500 font-medium">' + wallJackCount + ' wall jack' + (wallJackCount > 1 ? 's' : '') + '</span>';
-    }
-    html += '</div>';
-    html += '</div>';
     
     content.innerHTML = html;
     modal.classList.remove('hidden');
