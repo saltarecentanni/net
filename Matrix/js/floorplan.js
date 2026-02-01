@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Floor Plan Module
- * Version: 3.4.0
+ * Version: 3.4.1
  * 
  * Interactive floor plan visualization with:
  * - SVG rendering and manipulation
@@ -8,11 +8,21 @@
  * - Device placement on floor plan
  * - Zoom/Pan controls
  * - Click interactions
+ * - SweetAlert2 modals (v3.4.1)
  * 
  * NOTE: Mapping tool available at /draw-rooms-v2.html (undocumented)
  */
 
 'use strict';
+
+// Debug logger fallback (defined in app.js)
+if (typeof Debug === 'undefined') {
+    var Debug = {
+        log: function() {},
+        warn: function() {},
+        error: function() {}
+    };
+}
 
 var FloorPlan = (function() {
     // ============================================================================
@@ -751,7 +761,7 @@ var FloorPlan = (function() {
                 }
             });
         } else {
-            alert('Room: ' + room.name + '\nDevices: ' + roomDevices.length);
+            Toast.info('Room: ' + room.name + ' - ' + roomDevices.length + ' devices');
         }
     }
     
@@ -806,7 +816,7 @@ var FloorPlan = (function() {
     
     function showAddRoomModal() {
         if (typeof Swal === 'undefined') {
-            alert('Please draw a polygon on the floor plan to create a room.\nEdit mode will be implemented in the next version.');
+            Toast.info('Room editing will be available in the next version.');
             return;
         }
         
@@ -842,8 +852,7 @@ var FloorPlan = (function() {
             }
         }).then(function(result) {
             if (result.isConfirmed && result.value.name) {
-                // In a full implementation, this would activate polygon drawing mode
-                alert('Polygon drawing mode coming soon!\nFor now, rooms can be added programmatically.');
+                Toast.info('Polygon drawing mode coming soon!');
             }
         });
     }
@@ -906,12 +915,23 @@ var FloorPlan = (function() {
     }
     
     function deleteRoom(roomId) {
-        if (!confirm('Delete this room?')) return;
-        
-        rooms = rooms.filter(function(r) { return r.id !== roomId; });
-        saveRoomsData();
-        closeRoomPanel();
-        renderRooms();
+        Swal.fire({
+            title: 'Delete Room?',
+            text: 'This room will be permanently deleted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Yes, delete',
+            cancelButtonText: 'Cancel'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                rooms = rooms.filter(function(r) { return r.id !== roomId; });
+                saveRoomsData();
+                closeRoomPanel();
+                renderRooms();
+                Toast.success('Room deleted');
+            }
+        });
     }
     
     function toggleEditMode() {
@@ -969,7 +989,7 @@ var FloorPlan = (function() {
     
     function exportPNG() {
         if (!svgElement) {
-            alert('No floor plan loaded');
+            Toast.warning('No floor plan loaded');
             return;
         }
         

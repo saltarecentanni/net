@@ -2,8 +2,46 @@
 
 Applicazione web di gestione della rete per deploy in intranet aziendale.
 
-**Versione:** 3.4.0  
+**Versione:** 3.4.1  
 **Data:** 1 Febbraio 2026
+
+---
+
+## 🆕 Novità della Versione 3.4.1
+
+### 🔒 Security Improvements
+| Funzionalità | Descrizione |
+|--------------|-------------|
+| **Rate Limiting** | Max 5 tentativi login, blocco 15 minuti |
+| **Environment Variables** | Supporto .env per credenziali |
+| **Debug Mode** | console.* avvolti in DEBUG_MODE flag |
+| **Input Validation** | maxlength su tutti i campi form |
+
+### 🎨 UX Improvements
+| Miglioramento | Descrizione |
+|---------------|-------------|
+| **SweetAlert2 Modals** | Sostituiti tutti confirm/alert nativi |
+| **Better Error Messages** | Info sui tentativi rimanenti al login |
+| **Toast Notifications** | Notifiche uniformi con Toast.* |
+
+### 🔧 Code Quality
+| Fix | Descrizione |
+|-----|-------------|
+| **Version Unification** | Tutti i file ora v3.4.1 |
+| **Debug Logger** | Debug.log/warn/error wrappers |
+| **.gitignore** | Previene commit di .env |
+| **.env.example** | Template per configurazione |
+
+### 📁 Files Modified
+- `server.js` - Rate limiting, .env loading
+- `js/app.js` - Debug mode, SweetAlert2 modals
+- `js/features.js` - Debug fallback, SweetAlert2
+- `js/floorplan.js` - Debug fallback, Toast notifications
+- `js/ui-updates.js` - Debug fallback
+- `index.html` - Version update, maxlength
+- `config/config.php` - Version update
+- `.env.example` - NEW
+- `.gitignore` - NEW
 
 ---
 
@@ -69,12 +107,36 @@ Applicazione web di gestione della rete per deploy in intranet aziendale.
 L'applicazione ha un sistema di autenticazione:
 - **Accesso Pubblico:** Visualizzazione, stampa, esportazione
 - **Accesso Autenticato:** Aggiungere, modificare, eliminare, importare, cancellare tutto
+- **Rate Limiting (v3.4.1):** Max 5 tentativi, blocco 15 minuti
 
 ### Credenziali Predefinite
 - **Utente:** tiesse
 - **Password:** tiesseadm
 
-Per cambiare la password, modifica il file `config/config.php`:
+### ⚠️ Configurazione Sicura (v3.4.1+)
+
+**Raccomandato: Usa file .env**
+```bash
+# Copia il template
+cp .env.example .env
+
+# Modifica le credenziali
+nano .env
+
+# Contenuto .env:
+AUTH_USERNAME=mio_utente
+AUTH_PASSWORD=mia_password_sicura
+DEBUG_MODE=false
+```
+
+**In alternativa: Variabili di ambiente**
+```bash
+export AUTH_USERNAME=mio_utente
+export AUTH_PASSWORD=mia_password_sicura
+node server.js
+```
+
+Per cambiare la password PHP, modifica il file `config/config.php`:
 ```bash
 php -r "echo password_hash('nuova_password', PASSWORD_DEFAULT);"
 ```

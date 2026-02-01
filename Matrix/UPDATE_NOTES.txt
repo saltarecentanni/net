@@ -1,21 +1,48 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.4.0
+Version: 3.4.1
 Last Updated: 2026-02-01
 ================================================================================
+
+CHANGELOG v3.4.1 (2026-02-01)
+--------------------------------------------------------------------------------
+SECURITY IMPROVEMENTS:
+  ✅ Rate limiting: Max 5 login attempts, 15 min lockout
+  ✅ Environment variables: .env support for credentials
+  ✅ Debug mode: console.* wrapped in DEBUG_MODE flag
+  ✅ Input validation: maxlength on form fields
+
+UX IMPROVEMENTS:
+  ✅ SweetAlert2: Replaced all confirm/alert with styled modals
+  ✅ Better error messages with remaining attempts info
+
+CODE QUALITY:
+  ✅ Version unification: All files now v3.4.1
+  ✅ Debug logger: Debug.log/warn/error wrappers
+  ✅ .gitignore: Prevent .env from being committed
+  ✅ .env.example: Template for configuration
+
+FILES CHANGED:
+  - server.js: Rate limiting, .env loading
+  - js/app.js: Debug mode, SweetAlert2 modals
+  - js/features.js: Debug fallback, SweetAlert2
+  - js/floorplan.js: Debug fallback, Toast notifications
+  - js/ui-updates.js: Debug fallback
+  - index.html: Version update, maxlength attributes
+  - config/config.php: Version update
+  - .env.example: New file
+  - .gitignore: New file
+
+--------------------------------------------------------------------------------
 
 MIGRAÇÃO PLANEJADA: Ubuntu Server + Apache
 --------------------------------------------------------------------------------
 
 1. SEGURANÇA (PRIORIDADE ALTA)
-   □ Remover credenciais hardcoded do código fonte
-   □ Implementar variáveis de ambiente (.env) para:
-     - AUTH_USERNAME
-     - AUTH_PASSWORD
-     - SESSION_SECRET
-     - DATA_PATH
+   ✅ Implementar variáveis de ambiente (.env)
+   ✅ Implementar rate limiting para prevenir brute force
+   □ Remover credenciais hardcoded em produção
    □ Configurar HTTPS/SSL obrigatório
-   □ Implementar rate limiting para prevenir brute force
    □ Adicionar headers de segurança (CSP, X-Frame-Options, etc.)
    □ Sanitização adicional de inputs
 

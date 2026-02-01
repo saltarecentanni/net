@@ -50,7 +50,7 @@
                     </button>
                     <div class="text-right text-xs text-slate-500">
                         <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
-                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.4.0</span></div>
+                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.4.1</span></div>
                     </div>
                 </div>
             </div>
@@ -181,11 +181,13 @@
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block">📟 Device Name *</label>
                             <input type="text" id="deviceName" placeholder="Router-GW, SW-Core" 
+                                maxlength="100" required
                                 class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-xs">
                         </div>
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block">🔧 Brand/Model</label>
                             <input type="text" id="deviceBrandModel" placeholder="HPE Aruba 2930F" 
+                                maxlength="100"
                                 class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
                         </div>
                         <div class="col-span-1">
@@ -257,6 +259,7 @@
                         <div class="flex-1 min-w-[200px]">
                             <label class="text-xs text-slate-600 mb-1 block">📝 Notes</label>
                             <input type="text" id="deviceNotes" placeholder="Notes (optional)"
+                                maxlength="500"
                                 class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
                         </div>
                         <button onclick="saveDevice()" 
@@ -444,6 +447,7 @@
                         <div class="flex-1 min-w-[200px]">
                             <label class="text-xs text-slate-600 mb-1 block">📝 Notes</label>
                             <input type="text" id="connNotes" placeholder="Notes (optional)"
+                                maxlength="500"
                                 class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
                         </div>
                         <div class="flex gap-2">
@@ -615,7 +619,7 @@
                     <!-- ========== HEADER ========== -->
                     <div class="text-center mb-6">
                         <h1 class="text-3xl font-bold text-slate-800 mb-2">📚 Guida Utente Completa</h1>
-                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.4.0</p>
+                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.4.1</p>
                         <p class="text-slate-500 text-sm mt-1">Documentazione completa per la gestione dell'infrastruttura di rete</p>
                     </div>
 

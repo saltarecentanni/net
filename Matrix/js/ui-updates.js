@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.4.0
+ * Version: 3.4.1
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -13,9 +13,19 @@
  * - Debounced filter inputs (v3.1.3)
  * - CSS Variables integration (v3.3.0)
  * - SVG Matrix with viewBox zoom/pan (v3.4.0)
+ * - Debug mode support (v3.4.1)
  */
 
 'use strict';
+
+// Debug logger fallback (defined in app.js)
+if (typeof Debug === 'undefined') {
+    var Debug = {
+        log: function() {},
+        warn: function() {},
+        error: function() {}
+    };
+}
 
 // Fallback escapeHtml if app.js not loaded yet
 var escapeHtml = window.escapeHtml || function(str) {
@@ -1355,7 +1365,7 @@ var SVGMatrix = (function() {
         
         img.onerror = function(e) {
             wrapper.style.zoom = originalZoom;
-            console.error('Image load error:', e);
+            Debug.error('Image load error:', e);
             Toast.error('Export failed - could not render image');
         };
         
@@ -1392,7 +1402,7 @@ var SVGMatrix = (function() {
             img.src = url;
         } catch (e) {
             wrapper.style.zoom = originalZoom;
-            console.error('SVG encoding error:', e);
+            Debug.error('SVG encoding error:', e);
             Toast.error('Export failed - encoding error');
         }
     }
@@ -2342,7 +2352,7 @@ function exportExcel() {
         Toast.success('Excel exported successfully!');
 
     } catch (e) {
-        console.error('Error exporting Excel:', e);
+        Debug.error('Error exporting Excel:', e);
         Toast.error('Error exporting Excel: ' + e.message);
     }
 }

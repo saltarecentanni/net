@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.3.0
+ * Version: 3.4.1
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  */
@@ -10,13 +10,31 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data', 'network_manager.json');
+// Load .env file if exists (simple implementation)
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    envContent.split('\n').forEach(line => {
+        const match = line.match(/^([^#=]+)=(.*)$/);
+        if (match && !process.env[match[1].trim()]) {
+            process.env[match[1].trim()] = match[2].trim();
+        }
+    });
+}
 
-// Authentication settings
-const AUTH_USERNAME = 'tiesse';
-const AUTH_PASSWORD = 'tiesseadm';
-const SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours in ms
+const PORT = process.env.PORT || 3000;
+const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'data/network_manager.json');
+
+// Authentication settings (use environment variables in production!)
+const AUTH_USERNAME = process.env.AUTH_USERNAME || 'tiesse';
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'tiesseadm';
+const SESSION_TIMEOUT = parseInt(process.env.SESSION_TIMEOUT) || 8 * 60 * 60 * 1000; // 8 hours in ms
+const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
+
+// Rate limiting for login attempts
+const loginAttempts = new Map(); // IP -> { count, lastAttempt }
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
 
 // Simple in-memory session store
 const sessions = new Map();
@@ -124,6 +142,8 @@ function handleDataRequest(req, res) {
 
 // Authentication handlers
 function handleAuthRequest(req, res, action) {
+    const clientIP = req.socket.remoteAddress || 'unknown';
+    
     if (action === 'check') {
         // Check auth status
         const session = getSessionFromCookie(req);
@@ -136,6 +156,21 @@ function handleAuthRequest(req, res, action) {
             return sendJSON(res, 405, { error: 'Method not allowed' });
         }
         
+        // Rate limiting check
+        const attempts = loginAttempts.get(clientIP);
+        if (attempts && attempts.count >= MAX_LOGIN_ATTEMPTS) {
+            const timeSinceLast = Date.now() - attempts.lastAttempt;
+            if (timeSinceLast < LOGIN_LOCKOUT_TIME) {
+                const remainingTime = Math.ceil((LOGIN_LOCKOUT_TIME - timeSinceLast) / 60000);
+                return sendJSON(res, 429, { 
+                    error: `Too many login attempts. Try again in ${remainingTime} minutes.`,
+                    retryAfter: remainingTime
+                });
+            } else {
+                loginAttempts.delete(clientIP); // Reset after lockout period
+            }
+        }
+        
         let body = '';
         req.on('data', chunk => body += chunk);
         req.on('end', () => {
@@ -144,6 +179,9 @@ function handleAuthRequest(req, res, action) {
                 const { username, password } = data;
                 
                 if (username === AUTH_USERNAME && password === AUTH_PASSWORD) {
+                    // Successful login - clear attempts
+                    loginAttempts.delete(clientIP);
+                    
                     const sessionId = generateSessionId();
                     sessions.set(sessionId, {
                         username: username,
@@ -161,11 +199,23 @@ function handleAuthRequest(req, res, action) {
                         user: username
                     }));
                 } else {
-                    sendJSON(res, 401, { error: 'Invalid credentials' });
+                    // Track failed login attempt
+                    const current = loginAttempts.get(clientIP) || { count: 0, lastAttempt: 0 };
+                    current.count++;
+                    current.lastAttempt = Date.now();
+                    loginAttempts.set(clientIP, current);
+                    
+                    const remaining = MAX_LOGIN_ATTEMPTS - current.count;
+                    if (DEBUG_MODE) console.log(`Failed login from ${clientIP}. Attempts: ${current.count}`);
+                    
+                    sendJSON(res, 401, { 
+                        error: 'Invalid credentials',
+                        attemptsRemaining: remaining > 0 ? remaining : 0
+                    });
                 }
             } catch (e) {
-                console.error('Login error:', e.message);
-                sendJSON(res, 400, { error: 'Invalid request: ' + e.message });
+                if (DEBUG_MODE) console.error('Login error:', e.message);
+                sendJSON(res, 400, { error: 'Invalid request' });
             }
         });
     } else if (action === 'logout') {
@@ -240,7 +290,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.2.0           ║');
+    console.log('║     TIESSE Matrix Network Server v3.4.1           ║');
     console.log('╠════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                  ║`);
     console.log('║  Network:  http://<YOUR-IP>:' + PORT + '/                  ║');

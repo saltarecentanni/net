@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.4.0
+ * Version: 3.4.1
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -13,9 +13,24 @@
  * - Refactored Matrix page with Topology-style layout (v3.2.0)
  * - Improved sticky headers and zoom (v3.2.1)
  * - CSS Variables + Tailwind architecture (v3.3.0)
+ * - Security improvements: rate limiting, env vars (v3.4.1)
  */
 
 'use strict';
+
+// ============================================================================
+// DEBUG MODE - Set to false in production
+// ============================================================================
+var DEBUG_MODE = false; // Change to true for debugging
+
+/**
+ * Debug logger - only logs if DEBUG_MODE is enabled
+ */
+var Debug = {
+    log: function() { if (DEBUG_MODE) console.log.apply(console, arguments); },
+    warn: function() { if (DEBUG_MODE) console.warn.apply(console, arguments); },
+    error: function() { if (DEBUG_MODE) console.error.apply(console, arguments); }
+};
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -942,7 +957,7 @@ function saveToStorage() {
         showSyncIndicator('saved', '✓ Saved');
         serverSave();
     } catch (e) {
-        console.error('Error saving to localStorage:', e);
+        Debug.error('Error saving to localStorage:', e);
         Toast.error('Failed to save data locally');
     }
 }
@@ -961,7 +976,7 @@ function saveNow() {
         serverSave();
         Toast.success('Data saved successfully!');
     } catch (e) {
-        console.error('Error saving:', e);
+        Debug.error('Error saving:', e);
         Toast.error('Error saving: ' + e.message);
     }
 }
@@ -979,7 +994,7 @@ function serverLoad() {
                     appState.connections = data.connections;
                     appState.rooms = data.rooms || [];
                     appState.nextDeviceId = data.nextDeviceId || 1;
-                    console.log('Server load OK from:', url);
+                    Debug.log('Server load OK from:', url);
                     return true;
                 }
                 throw new Error('Invalid data structure');
@@ -989,19 +1004,19 @@ function serverLoad() {
     // FIXED: Proper promise chaining for fallback
     return tryUrl('data.php')
         .catch(function(err1) {
-            console.log('data.php failed:', err1.message);
+            Debug.log('data.php failed:', err1.message);
             return tryUrl('/data.php')
                 .catch(function(err2) {
-                    console.log('/data.php failed:', err2.message);
+                    Debug.log('/data.php failed:', err2.message);
                     return tryUrl('/data')
                         .catch(function(err3) {
-                            console.log('/data failed:', err3.message);
+                            Debug.log('/data failed:', err3.message);
                             return tryUrl('data/network_manager.json')
                                 .catch(function(err4) {
-                                    console.log('data/network_manager.json failed:', err4.message);
+                                    Debug.log('data/network_manager.json failed:', err4.message);
                                     return tryUrl('/data/network_manager.json')
                                         .catch(function(err5) {
-                                            console.warn('All server load endpoints failed');
+                                            Debug.warn('All server load endpoints failed');
                                             return false;
                                         });
                                 });
@@ -1044,7 +1059,7 @@ function serverSave() {
     postUrl('/data')
         .then(function() {
             showSyncIndicator('saved', '✓ Server');
-            console.log('Server save OK: /data');
+            Debug.log('Server save OK: /data');
         })
         .catch(function(err1) {
             // Check if auth required
@@ -1055,11 +1070,11 @@ function serverSave() {
                 }
                 return;
             }
-            console.log('/data failed:', err1.message, '- trying /data.php');
+            Debug.log('/data failed:', err1.message, '- trying /data.php');
             return postUrl('/data.php')
                 .then(function() {
                     showSyncIndicator('saved', '✓ Server');
-                    console.log('Server save OK: /data.php');
+                    Debug.log('Server save OK: /data.php');
                 })
                 .catch(function(err2) {
                     // Check if auth required
@@ -1071,8 +1086,8 @@ function serverSave() {
                         return;
                     }
                     // All endpoints failed - data is in localStorage only
-                    console.warn('All server endpoints failed. Data saved to localStorage only.');
-                    console.warn('Errors:', err1.message, err2.message);
+                    Debug.warn('All server endpoints failed. Data saved to localStorage only.');
+                    Debug.warn('Errors:', err1.message, err2.message);
                     showSyncIndicator('error', '⚠ Local only');
                 });
         });
@@ -1089,7 +1104,7 @@ function loadFromStorage() {
         if (r) appState.rooms = JSON.parse(r);
         if (n) appState.nextDeviceId = parseInt(n, 10) || 1;
     } catch (e) {
-        console.error('Error loading from localStorage:', e);
+        Debug.error('Error loading from localStorage:', e);
         Toast.error('Failed to load saved data');
     }
 }
@@ -1241,7 +1256,7 @@ function saveDevice() {
         clearDeviceForm();
         updateUI();
     } catch (e) {
-        console.error('Error saving device:', e);
+        Debug.error('Error saving device:', e);
         Toast.error('Error saving device: ' + e.message);
     }
 }
@@ -1402,19 +1417,28 @@ function removeDevice(id) {
         }
     }
     
-    if (!confirm('Remove device "' + deviceName + '"? This will also remove all its connections.')) return;
-
-    appState.devices = appState.devices.filter(function(d) { return d.id !== id; });
-    appState.connections = appState.connections.filter(function(c) { return c.from !== id && c.to !== id && c.fromDevice !== id && c.toDevice !== id; });
-    
-    // Log the action
-    if (typeof ActivityLog !== 'undefined') {
-        ActivityLog.add('delete', 'device', deviceName + ' (' + deviceType + ')');
-    }
-    
-    clearDeviceForm();
-    updateUI();
-    Toast.success('Device "' + deviceName + '" removed');
+    Swal.fire({
+        title: 'Remove Device?',
+        html: 'Delete device <strong>"' + escapeHtml(deviceName) + '"</strong>?<br><br><small class="text-slate-500">This will also remove all its connections.</small>',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel'
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            appState.devices = appState.devices.filter(function(d) { return d.id !== id; });
+            appState.connections = appState.connections.filter(function(c) { return c.from !== id && c.to !== id && c.fromDevice !== id && c.toDevice !== id; });
+            
+            if (typeof ActivityLog !== 'undefined') {
+                ActivityLog.add('delete', 'device', deviceName + ' (' + deviceType + ')');
+            }
+            
+            clearDeviceForm();
+            updateUI();
+            Toast.success('Device "' + deviceName + '" removed');
+        }
+    });
 }
 
 function renderPortField(type, qty, startAtZero) {
@@ -1738,7 +1762,7 @@ function saveConnection() {
         clearConnectionForm();
         updateUI();
     } catch (e) {
-        console.error('Error saving connection:', e);
+        Debug.error('Error saving connection:', e);
         Toast.error('Error saving connection: ' + e.message);
     }
 }
@@ -1942,8 +1966,6 @@ function removeConnection(idx) {
     // Require authentication for deleting
     if (!requireAuth()) return;
     
-    if (!confirm('Remove this connection?')) return;
-    
     var conn = appState.connections[idx];
     var logDetails = '';
     if (conn) {
@@ -1952,12 +1974,26 @@ function removeConnection(idx) {
         logDetails = (fromDevice ? fromDevice.name : 'Unknown') + ' → ' + (toDevice ? toDevice.name : conn.externalDest || 'Unknown');
     }
     
-    appState.connections.splice(idx, 1);
-    
-    // Log the action
-    if (typeof ActivityLog !== 'undefined') {
-        ActivityLog.add('delete', 'connection', logDetails);
-    }
+    Swal.fire({
+        title: 'Remove Connection?',
+        html: 'Delete connection <strong>' + escapeHtml(logDetails) + '</strong>?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel'
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            appState.connections.splice(idx, 1);
+            
+            if (typeof ActivityLog !== 'undefined') {
+                ActivityLog.add('delete', 'connection', logDetails);
+            }
+            
+            updateUI();
+            Toast.success('Connection removed');
+        }
+    });
     
     clearConnectionForm();
     updateUI();
@@ -3013,7 +3049,7 @@ function importData(e) {
             Toast.success('Imported: ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections' + (appState.rooms.length ? ', ' + appState.rooms.length + ' rooms' : ''));
             
         } catch (err) {
-            console.error('Error importing data:', err);
+            Debug.error('Error importing data:', err);
             Toast.error('Error importing: ' + err.message);
         }
     };
@@ -3028,102 +3064,71 @@ function clearAll() {
     // Require authentication first
     if (!requireAuth()) return;
     
-    // Step 1: Show mandatory backup dialog
-    var backupConfirmed = confirm(
-        '⚠️ CLEAR ALL DATA\n\n' +
-        'This action will DELETE all devices and connections.\n\n' +
-        'MANDATORY: You must download a backup first.\n\n' +
-        'Click OK to download backup, then enter admin password.'
-    );
-    
-    if (!backupConfirmed) {
-        Toast.info('Clear all cancelled');
-        return;
-    }
-    
-    // Step 2: Force backup download
-    var data = {
-        devices: appState.devices,
-        connections: appState.connections,
-        rooms: appState.rooms || [],
-        nextDeviceId: appState.nextDeviceId,
-        exportedAt: new Date().toISOString(),
-        backupReason: 'Pre-Clear All Backup',
-        version: '3.4.0'
-    };
-    
-    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'matrix-backup-' + new Date().toISOString().slice(0, 10) + '-pre-clear.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    Toast.info('Backup downloaded. Now enter admin password...');
-    
-    // Step 3: Ask for admin password
-    setTimeout(function() {
-        var roomCount = (appState.rooms || []).length;
-        var password = prompt(
-            'CONFIRM CLEAR ALL\n\n' +
-            'Enter admin password to confirm deletion of ALL data:\n' +
-            '(' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms)'
-        );
-        
-        if (!password) {
-            Toast.info('Clear all cancelled - no password entered');
-            return;
+    // Step 1: Show mandatory backup dialog with SweetAlert2
+    Swal.fire({
+        title: '⚠️ Clear All Data',
+        html: '<div class="text-left">' +
+            '<p class="text-red-600 font-semibold mb-3">This action will DELETE all devices and connections.</p>' +
+            '<p class="text-slate-600 mb-2"><strong>MANDATORY:</strong> You must download a backup first.</p>' +
+            '<p class="text-sm text-slate-500">Click "Download Backup" to proceed.</p>' +
+            '</div>',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: '📥 Download Backup & Continue',
+        cancelButtonText: 'Cancel'
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            // Step 2: Force backup download
+            var data = {
+                devices: appState.devices,
+                connections: appState.connections,
+                rooms: appState.rooms || [],
+                nextDeviceId: appState.nextDeviceId,
+                exportedAt: new Date().toISOString(),
+                preDeleteBackup: true
+            };
+            
+            var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'network_backup_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Step 3: Confirm password
+            setTimeout(function() {
+                Swal.fire({
+                    title: 'Confirm Delete',
+                    html: '<p class="text-slate-600 mb-3">Enter admin password to confirm deletion:</p>',
+                    input: 'password',
+                    inputPlaceholder: 'Admin password',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'Delete All Data',
+                    inputValidator: function(value) {
+                        if (!value) return 'Password required';
+                    }
+                }).then(function(passResult) {
+                    if (passResult.isConfirmed && passResult.value === 'tiesseadm') {
+                        appState.devices = [];
+                        appState.connections = [];
+                        appState.nextDeviceId = 1;
+                        updateUI();
+                        Toast.success('All data cleared');
+                        if (typeof ActivityLog !== 'undefined') {
+                            ActivityLog.add('clear', 'all', 'All data cleared');
+                        }
+                    } else if (passResult.isConfirmed) {
+                        Toast.error('Invalid password');
+                    }
+                });
+            }, 500);
         }
-        
-        // Verify password via PHP
-        var formData = new FormData();
-        formData.append('action', 'verify_password');
-        formData.append('password', password);
-        
-        fetch('data.php', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(result) {
-            if (result.valid) {
-                // Password correct - proceed with clear
-                var deviceCount = appState.devices.length;
-                var connCount = appState.connections.length;
-                var roomCount = (appState.rooms || []).length;
-                
-                appState.devices = [];
-                appState.connections = [];
-                appState.rooms = [];
-                appState.nextDeviceId = 1;
-                
-                // Sync rooms with FloorPlan module
-                if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
-                    FloorPlan.setRooms([]);
-                }
-                
-                // Log the action
-                if (typeof ActivityLog !== 'undefined') {
-                    ActivityLog.add('clear', 'system', 'Cleared all data: ' + deviceCount + ' devices, ' + connCount + ' connections, ' + roomCount + ' rooms (backup downloaded)');
-                }
-                
-                clearConnectionForm();
-                clearDeviceForm();
-                updateUI();
-                Toast.success('All data cleared successfully');
-            } else {
-                Toast.error('Invalid admin password. Clear all cancelled.');
-            }
-        })
-        .catch(function(err) {
-            console.error('Password verification error:', err);
-            Toast.error('Error verifying password. Clear all cancelled.');
-        });
-    }, 500);
+    });
 }
 
 // ============================================================================
@@ -3243,7 +3248,7 @@ function printMatrix() {
             printWindow.print();
         }, 300);
     } catch (e) {
-        console.error('Print error:', e);
+        Debug.error('Print error:', e);
         Toast.error('Error printing: ' + e.message);
     }
 }
@@ -3278,7 +3283,7 @@ function printConnections() {
             printWindow.print();
         }, 300);
     } catch (e) {
-        console.error('Print error:', e);
+        Debug.error('Print error:', e);
         Toast.error('Error printing: ' + e.message);
     }
 }

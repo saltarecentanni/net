@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.4.0
+ * Version: 3.4.1
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -16,8 +16,17 @@
  * - GLOBAL connection indexing by source device (v3.1.0)
  * - PNG export with title header (v3.1.3)
  * - CSS Variables integration (v3.3.0)
+ * - Debug mode support (v3.4.1)
  */
 
+// Debug logger fallback (defined in app.js)
+if (typeof Debug === 'undefined') {
+    var Debug = {
+        log: function() {},
+        warn: function() {},
+        error: function() {}
+    };
+}
 'use strict';
 
 // Fallback escapeHtml if app.js not loaded yet
@@ -50,7 +59,7 @@ var ActivityLog = (function() {
                 logs = JSON.parse(stored);
             }
         } catch (e) {
-            console.error('Error loading logs:', e);
+            Debug.error('Error loading logs:', e);
             logs = [];
         }
     }
@@ -59,7 +68,7 @@ var ActivityLog = (function() {
         try {
             localStorage.setItem('activityLogs', JSON.stringify(logs));
         } catch (e) {
-            console.error('Error saving logs:', e);
+            Debug.error('Error saving logs:', e);
         }
     }
     
@@ -137,12 +146,22 @@ var ActivityLog = (function() {
         // Require authentication for clearing logs
         if (typeof requireAuth === 'function' && !requireAuth()) return;
         
-        if (confirm('Are you sure you want to clear all logs?')) {
-            logs = [];
-            saveLogs();
-            renderLogs();
-            Toast.success('Logs cleared');
-        }
+        Swal.fire({
+            title: 'Clear All Logs?',
+            text: 'This will permanently delete all activity logs.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Yes, clear all',
+            cancelButtonText: 'Cancel'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                logs = [];
+                saveLogs();
+                renderLogs();
+                Toast.success('Logs cleared');
+            }
+        });
     }
     
     function exportLogs() {
@@ -1277,7 +1296,7 @@ var SVGTopology = (function() {
         try {
             localStorage.setItem(POSITIONS_KEY, JSON.stringify(customPositions));
         } catch (e) {
-            console.warn('Could not save topology positions:', e);
+            Debug.warn('Could not save topology positions:', e);
         }
     }
     
@@ -1288,7 +1307,7 @@ var SVGTopology = (function() {
                 customPositions = JSON.parse(saved);
             }
         } catch (e) {
-            console.warn('Could not load topology positions:', e);
+            Debug.warn('Could not load topology positions:', e);
             customPositions = {};
         }
     }
@@ -2724,7 +2743,7 @@ function showTopologyLegend() {
     var modal = document.getElementById('legendModal');
     var content = document.getElementById('legendModalContent');
     if (!modal || !content) {
-        console.error('Legend modal elements not found');
+        Debug.error('Legend modal elements not found');
         return;
     }
     
@@ -2733,7 +2752,7 @@ function showTopologyLegend() {
     try {
         allTypes = SVGTopology.getAllDeviceTypes();
     } catch(e) {
-        console.error('Error getting device types:', e);
+        Debug.error('Error getting device types:', e);
         allTypes = ['router', 'switch', 'patch', 'firewall', 'server', 'wifi', 'isp', 'router_wifi', 'modem', 'hub', 'pc', 'ip_phone', 'printer', 'nas', 'camera', 'ups', 'walljack', 'others'];
     }
     
