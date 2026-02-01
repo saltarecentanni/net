@@ -78,12 +78,13 @@ var CURRENT_VERSION = '3.4.3';
 
 /**
  * Valid enum values for schema validation
+ * NOTE: These include both legacy values (active/disabled) and new values for backward compatibility
  */
 var VALID_ENUMS = {
-    deviceTypes: ['server', 'switch', 'router', 'firewall', 'workstation', 'laptop', 'phone', 'access_point', 'printer', 'storage', 'nas', 'pdu', 'camera', 'sensor', 'patch_panel', 'other'],
-    deviceStatus: ['online', 'offline', 'maintenance', 'warning', 'error'],
-    connectionTypes: ['lan', 'wan', 'dmz', 'trunk', 'management', 'backup', 'fiber', 'wallport', 'external', 'other'],
-    connectionStatus: ['active', 'inactive', 'maintenance', 'reserved', 'planned']
+    deviceTypes: ['server', 'switch', 'router', 'firewall', 'workstation', 'laptop', 'phone', 'access_point', 'printer', 'storage', 'nas', 'pdu', 'camera', 'sensor', 'patch_panel', 'patch', 'wifi', 'isp', 'router_wifi', 'modem', 'hub', 'pc', 'ip_phone', 'ups', 'walljack', 'others', 'other'],
+    deviceStatus: ['active', 'disabled', 'online', 'offline', 'maintenance', 'warning', 'error'],
+    connectionTypes: ['lan', 'wan', 'dmz', 'trunk', 'management', 'backup', 'fiber', 'wallport', 'walljack', 'external', 'other', 'LAN', 'WAN', 'DMZ', 'Trunk', 'Management', 'Backup', 'Fiber', 'Wall Jack', 'External'],
+    connectionStatus: ['active', 'disabled', 'inactive', 'maintenance', 'reserved', 'planned']
 };
 
 /**
