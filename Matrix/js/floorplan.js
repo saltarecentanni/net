@@ -310,14 +310,29 @@ var FloorPlan = (function() {
         
         g.appendChild(polygon);
         
-        // Add 📍 marker at room center
+        // Add 📍 marker at room center with custom offsets for specific rooms
         var center = calculatePolygonCenter(room.polygon);
+        
+        // Custom position adjustments per room
+        var markerOffsets = {
+            0: { x: -15, y: 0 },   // more left
+            5: { x: -15, y: 0 },   // more left
+            6: { x: -15, y: 0 },   // more left
+            10: { x: 15, y: 0 },   // more right
+            11: { x: 15, y: 0 },   // more right
+            12: { x: 15, y: 0 },   // more right
+            14: { x: -15, y: 0 },  // more left
+            19: { x: 0, y: -15 }   // more up
+        };
+        
+        var offset = markerOffsets[room.id] || { x: 0, y: 0 };
+        
         var marker = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        marker.setAttribute('x', center.x);
-        marker.setAttribute('y', center.y);
+        marker.setAttribute('x', center.x + offset.x);
+        marker.setAttribute('y', center.y + offset.y);
         marker.setAttribute('text-anchor', 'middle');
         marker.setAttribute('dominant-baseline', 'central');
-        marker.setAttribute('font-size', '24');
+        marker.setAttribute('font-size', '28');
         marker.setAttribute('cursor', 'pointer');
         marker.setAttribute('class', 'room-marker');
         marker.setAttribute('data-room-id', room.id);
