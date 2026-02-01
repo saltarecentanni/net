@@ -1257,7 +1257,7 @@ Device-C   │          │   🟢     │    -     │</pre>
                             </div>
 
                             <div class="bg-white rounded-lg p-4 border border-emerald-200">
-                                <h3 class="font-bold text-emerald-900 mb-3">📝 Gestione Stanze - Tutti i Campi</h3>
+                                <h3 class="font-bold text-emerald-900 mb-3">📝 Struttura delle Stanze</h3>
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-xs">
                                         <thead class="bg-emerald-100">
@@ -1268,61 +1268,64 @@ Device-C   │          │   🟢     │    -     │</pre>
                                         </thead>
                                         <tbody class="divide-y divide-emerald-100">
                                             <tr>
-                                                <td class="px-2 py-2 font-semibold text-emerald-800">📛 Name</td>
-                                                <td class="px-2 py-2 text-emerald-700">Nome completo della stanza</td>
+                                                <td class="px-2 py-2 font-semibold text-emerald-800">🆔 ID</td>
+                                                <td class="px-2 py-2 text-emerald-700">Identificativo numerico automatico (1, 2, 3...)</td>
                                             </tr>
                                             <tr class="bg-emerald-50">
                                                 <td class="px-2 py-2 font-semibold text-emerald-800">🏷️ Nickname</td>
-                                                <td class="px-2 py-2 text-emerald-700">Abbreviazione mostrata nella planimetria</td>
+                                                <td class="px-2 py-2 text-emerald-700">Nome descrittivo (es. "Sala Server", "Ufficio 12"). <strong class="text-red-600">Usato per associare dispositivi!</strong></td>
                                             </tr>
                                             <tr>
-                                                <td class="px-2 py-2 font-semibold text-emerald-800">📐 Width/Height</td>
-                                                <td class="px-2 py-2 text-emerald-700">Dimensioni della stanza (pixel)</td>
+                                                <td class="px-2 py-2 font-semibold text-emerald-800">🔷 Polygon</td>
+                                                <td class="px-2 py-2 text-emerald-700">Forma della stanza (poligono con coordinate X/Y)</td>
                                             </tr>
                                             <tr class="bg-emerald-50">
-                                                <td class="px-2 py-2 font-semibold text-emerald-800">📍 X/Y</td>
-                                                <td class="px-2 py-2 text-emerald-700">Posizione nella planimetria</td>
-                                            </tr>
-                                            <tr>
                                                 <td class="px-2 py-2 font-semibold text-emerald-800">🎨 Color</td>
-                                                <td class="px-2 py-2 text-emerald-700">Colore di sfondo della stanza</td>
-                                            </tr>
-                                            <tr class="bg-emerald-50">
-                                                <td class="px-2 py-2 font-semibold text-emerald-800">📱 Devices</td>
-                                                <td class="px-2 py-2 text-emerald-700">Dispositivi associati (selezionabili)</td>
+                                                <td class="px-2 py-2 text-emerald-700">Colore di riempimento (RGBA per trasparenza)</td>
                                             </tr>
                                             <tr>
-                                                <td class="px-2 py-2 font-semibold text-emerald-800">📝 Notes</td>
-                                                <td class="px-2 py-2 text-emerald-700">Note libere sulla stanza</td>
+                                                <td class="px-2 py-2 font-semibold text-emerald-800">📐 Area</td>
+                                                <td class="px-2 py-2 text-emerald-700">Area calcolata automaticamente dal poligono</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
 
+                            <div class="bg-amber-100 rounded-lg p-4 border border-amber-300">
+                                <h3 class="font-bold text-amber-900 mb-2">🔗 Come Associare Dispositivi a una Stanza</h3>
+                                <p class="text-amber-800 text-sm mb-2">L'associazione <strong>NON</strong> è diretta dalla stanza. Invece:</p>
+                                <ol class="text-amber-700 text-xs list-decimal ml-4 space-y-1">
+                                    <li>Vai nella stanza e imposta un <strong>Nickname</strong> (es. "Sala Server")</li>
+                                    <li>Vai alla scheda <strong>Devices</strong></li>
+                                    <li>Modifica il dispositivo e imposta <strong>Location</strong> = "Sala Server" (stesso nickname)</li>
+                                    <li>Il dispositivo apparirà automaticamente nella stanza!</li>
+                                </ol>
+                                <p class="text-amber-600 text-xs mt-2">💡 La Location del dispositivo deve corrispondere esattamente al Nickname della stanza.</p>
+                            </div>
+
                             <div class="bg-white rounded-lg p-4 border border-emerald-200">
                                 <h3 class="font-bold text-emerald-900 mb-2">🎛️ Controlli</h3>
                                 <div class="flex flex-wrap gap-2 text-xs">
                                     <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded">➕/➖ Zoom</span>
-                                    <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded">🔄 Reset Zoom</span>
-                                    <span class="bg-green-500 text-white px-2 py-1 rounded">+ Room</span>
-                                    <span class="bg-orange-500 text-white px-2 py-1 rounded">✏️ Edit Mode</span>
+                                    <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded">🔄 Reset</span>
                                 </div>
+                                <p class="text-emerald-600 text-xs mt-2">💡 Le stanze sono mappate tramite uno strumento separato (draw-rooms-v2.html)</p>
                             </div>
 
                             <div class="bg-white rounded-lg p-4 border border-emerald-200">
-                                <h3 class="font-bold text-emerald-900 mb-2">🖱️ Interazioni (Edit Mode)</h3>
+                                <h3 class="font-bold text-emerald-900 mb-2">🖱️ Interazioni</h3>
                                 <ul class="text-emerald-700 text-xs space-y-1">
-                                    <li><strong>Click su stanza:</strong> Seleziona per modifica</li>
-                                    <li><strong>Drag stanza:</strong> Riposiziona</li>
-                                    <li><strong>Drag bordi:</strong> Ridimensiona</li>
-                                    <li><strong>Double-click:</strong> Apri dettagli stanza</li>
+                                    <li><strong>Click su stanza:</strong> Mostra dettagli e dispositivi associati</li>
+                                    <li><strong>Hover su stanza:</strong> Evidenzia la stanza</li>
+                                    <li><strong>Scroll:</strong> Zoom in/out</li>
+                                    <li><strong>Drag sfondo:</strong> Pan (sposta vista)</li>
                                 </ul>
                             </div>
 
                             <div class="bg-white rounded-lg p-4 border border-emerald-200">
                                 <h3 class="font-bold text-emerald-900 mb-2">📍 Legenda Stanze</h3>
-                                <p class="text-emerald-700 text-xs">In alto a destra appare una legenda con tutte le stanze e il conteggio dei dispositivi associati a ciascuna.</p>
+                                <p class="text-emerald-700 text-xs">In alto a destra appare la legenda con ID e Nickname di ogni stanza. Stanze con dispositivi mostrano un badge numerico.</p>
                             </div>
                         </div>
                         <a href="#help-index" class="text-emerald-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
@@ -1629,7 +1632,7 @@ Device-C   │          │   🟢     │    -     │</pre>
 
                             <details class="bg-white rounded-lg border border-teal-200">
                                 <summary class="font-semibold text-teal-900 p-3 cursor-pointer hover:bg-teal-50">Come associo dispositivi a una stanza?</summary>
-                                <p class="text-teal-700 text-sm p-3 pt-0">Nel Floor Plan, crea o modifica una stanza e seleziona i dispositivi dal menu multi-selezione nel form.</p>
+                                <p class="text-teal-700 text-sm p-3 pt-0">Imposta il <strong>Nickname</strong> della stanza nel Floor Plan, poi modifica il dispositivo nella scheda Devices e imposta <strong>Location</strong> con lo stesso valore del Nickname.</p>
                             </details>
 
                             <details class="bg-white rounded-lg border border-teal-200">
