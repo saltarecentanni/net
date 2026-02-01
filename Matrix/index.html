@@ -373,11 +373,19 @@
                                 </div>
                             </div>
                             <div class="hidden mt-2" id="externalDestContainer">
-                                <label class="text-xs text-slate-600 mb-1 block" id="externalDestLabel">🔌 External Destination</label>
-                                <input type="text" id="externalDest" placeholder="Z1 - Sala Reunioni, Z2 - Reception..."
-                                    class="w-full px-2 py-1.5 border border-amber-300 rounded-lg text-xs bg-white">
-                                <input type="hidden" id="wallJackRoomId" value="">
-                                <p class="text-xs text-slate-500 mt-1" id="externalDestHint"></p>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-xs text-slate-600 mb-1 block" id="externalDestLabel">🔌 Wall Jack ID</label>
+                                        <input type="text" id="externalDest" placeholder="Z1, Z2, Z3..."
+                                            class="w-full px-2 py-1.5 border border-amber-300 rounded-lg text-xs bg-white">
+                                    </div>
+                                    <div id="wallJackRoomContainer">
+                                        <label class="text-xs text-slate-600 mb-1 block">🏠 Room</label>
+                                        <select id="wallJackRoomId" class="w-full px-2 py-1.5 border border-amber-300 rounded-lg text-xs bg-white">
+                                            <option value="">(não associado)</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -401,36 +401,18 @@ var FloorPlan = (function() {
         // Get devices using global helper function
         var roomDevices = typeof getDevicesInRoom === 'function' ? getDevicesInRoom(room) : [];
         
-        // Get Wall Jacks in this room
-        // Logic: Match Wall Jack's location description with room nickname
-        // Wall Jack externalDest format: "Z4 - Sala Reunioni" -> location is "Sala Reunioni"
-        // If room.nickname = "Sala Reunioni", this Wall Jack belongs to this room
+        // Get Wall Jacks assigned to this room via roomId field
+        // Simple logic: Wall Jack has roomId -> appears in that room
+        // No roomId -> doesn't appear anywhere (until assigned)
         var roomWallJacks = [];
         if (typeof appState !== 'undefined' && appState.connections) {
-            var roomNickname = (room.nickname || '').toLowerCase().trim();
+            var roomId = room.id.toString();
             
             roomWallJacks = appState.connections.filter(function(c) {
-                if (!c.isWallJack || !c.externalDest) return false;
-                
-                // 1. First check explicit roomId if set (manual override)
-                if (c.roomId !== undefined && c.roomId !== null && c.roomId !== '') {
-                    return c.roomId.toString() === room.id.toString();
-                }
-                
-                // 2. Auto-match by location description in externalDest
-                // Extract location from "Z* - Location Description" format
-                var parts = c.externalDest.split(' - ');
-                if (parts.length < 2) return false;
-                
-                var locationDesc = parts.slice(1).join(' - ').toLowerCase().trim();
-                
-                // Match if room nickname is contained in location description or vice versa
-                if (roomNickname && locationDesc) {
-                    return locationDesc.indexOf(roomNickname) >= 0 || 
-                           roomNickname.indexOf(locationDesc) >= 0;
-                }
-                
-                return false;
+                if (!c.isWallJack) return false;
+                // Only show if explicitly assigned to this room
+                return c.roomId !== undefined && c.roomId !== null && 
+                       c.roomId !== '' && c.roomId.toString() === roomId;
             });
         }
         

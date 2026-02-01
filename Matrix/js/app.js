@@ -1693,6 +1693,15 @@ function saveConnection() {
             return;
         }
 
+        // Get roomId for Wall Jacks
+        var roomId = null;
+        if (isWallJack) {
+            var roomSelect = document.getElementById('wallJackRoomId');
+            if (roomSelect && roomSelect.value) {
+                roomId = roomSelect.value;
+            }
+        }
+
         var connData = {
             from: from,
             fromPort: fromPort || '',
@@ -1700,6 +1709,7 @@ function saveConnection() {
             toPort: (isExternal || isWallJack) ? '' : (toPort || ''),
             externalDest: (isExternal || isWallJack) ? externalDest : '',
             isWallJack: isWallJack,
+            roomId: roomId,
             type: isWallJack ? 'wallport' : type,
             color: config.connColors[isWallJack ? 'wallport' : type],
             status: status,
@@ -1770,6 +1780,10 @@ function editConnection(idx) {
         document.getElementById('toDevice').value = 'walljack';
         document.getElementById('externalDest').value = c.externalDest;
         toggleExternalDest();
+        // Set the room after dropdown is populated
+        if (c.roomId !== undefined && c.roomId !== null) {
+            document.getElementById('wallJackRoomId').value = c.roomId;
+        }
     } else if (c.externalDest && !c.to) {
         document.getElementById('toLocation').value = '';
         updateToGroups();
@@ -1858,6 +1872,7 @@ function clearConnectionForm() {
     document.getElementById('toDevice').value = '';
     document.getElementById('toPort').innerHTML = '<option value="">Port</option>';
     document.getElementById('externalDest').value = '';
+    document.getElementById('wallJackRoomId').value = '';
     toggleExternalDest();
     document.getElementById('connType').value = 'lan';
     document.getElementById('connStatus').value = 'active';
@@ -1955,23 +1970,62 @@ function toggleExternalDest() {
     var externalDestContainer = document.getElementById('externalDestContainer');
     var externalDestLabel = document.getElementById('externalDestLabel');
     var externalDestInput = document.getElementById('externalDest');
-    var externalDestHint = document.getElementById('externalDestHint');
+    var wallJackRoomContainer = document.getElementById('wallJackRoomContainer');
     
     if (toDevice === 'external') {
         toPortContainer.classList.add('hidden');
         externalDestContainer.classList.remove('hidden');
         if (externalDestLabel) externalDestLabel.textContent = '🌐 External Destination';
         if (externalDestInput) externalDestInput.placeholder = 'ISP Name, Fiber Provider...';
-        if (externalDestHint) externalDestHint.textContent = '';
+        if (wallJackRoomContainer) wallJackRoomContainer.classList.add('hidden');
     } else if (toDevice === 'walljack') {
         toPortContainer.classList.add('hidden');
         externalDestContainer.classList.remove('hidden');
-        if (externalDestLabel) externalDestLabel.textContent = '🔌 Wall Jack (ID - Location)';
-        if (externalDestInput) externalDestInput.placeholder = 'Z1 - Sala Server, Z4 - Sala Reunioni...';
-        if (externalDestHint) externalDestHint.innerHTML = '💡 Use format: <b>Z* - Room Name</b> to auto-link with Floor Plan rooms';
+        if (externalDestLabel) externalDestLabel.textContent = '🔌 Wall Jack ID';
+        if (externalDestInput) externalDestInput.placeholder = 'Z1, Z2, Z3...';
+        if (wallJackRoomContainer) {
+            wallJackRoomContainer.classList.remove('hidden');
+            populateWallJackRoomSelect();
+        }
     } else {
         toPortContainer.classList.remove('hidden');
         externalDestContainer.classList.add('hidden');
+    }
+}
+
+/**
+ * Populate the Wall Jack room dropdown with available rooms
+ */
+function populateWallJackRoomSelect() {
+    var select = document.getElementById('wallJackRoomId');
+    if (!select) return;
+    
+    var currentValue = select.value;
+    select.innerHTML = '<option value="">(não associado)</option>';
+    
+    // Get rooms from FloorPlan
+    var rooms = [];
+    if (typeof FloorPlan !== 'undefined' && FloorPlan.getRooms) {
+        rooms = FloorPlan.getRooms();
+    }
+    
+    // Sort rooms by id
+    rooms.sort(function(a, b) { 
+        return parseInt(a.id) - parseInt(b.id); 
+    });
+    
+    rooms.forEach(function(room) {
+        var option = document.createElement('option');
+        option.value = room.id;
+        option.textContent = room.nickname 
+            ? room.nickname + ' (Room ' + room.id + ')' 
+            : 'Room ' + room.id;
+        select.appendChild(option);
+    });
+    
+    // Restore previous value
+    if (currentValue) {
+        select.value = currentValue;
     }
 }
 function isPortUsed(deviceId, portName, excludeConnIdx) {
