@@ -401,18 +401,32 @@ var FloorPlan = (function() {
         // Get devices using global helper function
         var roomDevices = typeof getDevicesInRoom === 'function' ? getDevicesInRoom(room) : [];
         
-        // Get Wall Jacks in this room (connections where externalDest matches room)
+        // Get Wall Jacks in this room (connections where externalDest zone matches room ID)
+        // Format: "Z{number} - description" -> extract zone number and match with room.id
         var roomWallJacks = [];
         if (typeof appState !== 'undefined' && appState.connections) {
-            var roomIdentifiers = [room.id.toString(), room.name];
-            if (room.nickname) roomIdentifiers.push(room.nickname);
+            var roomId = room.id.toString();
             
             roomWallJacks = appState.connections.filter(function(c) {
                 if (!c.isWallJack || !c.externalDest) return false;
-                var dest = c.externalDest.toLowerCase();
-                return roomIdentifiers.some(function(id) {
-                    return dest.indexOf(id.toString().toLowerCase()) >= 0;
-                });
+                
+                // Extract zone number from "Z{number} - description" format
+                var zoneMatch = c.externalDest.match(/^Z(\d+)\s*-/i);
+                if (zoneMatch) {
+                    // Compare extracted zone number with room ID
+                    return zoneMatch[1] === roomId;
+                }
+                
+                // Fallback: check if nickname matches (case insensitive, exact word)
+                if (room.nickname) {
+                    var dest = c.externalDest.toLowerCase();
+                    var nick = room.nickname.toLowerCase();
+                    // Check for exact word match (not substring)
+                    var nickRegex = new RegExp('\\b' + nick.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+                    return nickRegex.test(c.externalDest);
+                }
+                
+                return false;
             });
         }
         
