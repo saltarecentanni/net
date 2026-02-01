@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.4.3
+ * Version: 3.4.4
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -15,7 +15,7 @@
  * - CSS Variables + Tailwind architecture (v3.3.0)
  * - Security improvements: rate limiting, env vars (v3.4.1)
  * - Reliability improvements: async save, checksum, validation (v3.4.2)
- * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.3)
+ * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.4)
  */
 
 'use strict';
@@ -73,8 +73,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.4.3', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.4.3';
+var SUPPORTED_VERSIONS = ['3.4.4', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.4.4';
 
 /**
  * Valid enum values for schema validation
