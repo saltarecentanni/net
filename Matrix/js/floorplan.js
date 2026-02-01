@@ -723,9 +723,25 @@ var FloorPlan = (function() {
                     var oldNickname = room.nickname;
                     var newNickname = result.value;
                     
-                    // Update room nickname
+                    // Update room nickname in local array
                     room.nickname = newNickname;
-                    saveRoomsData();
+                    
+                    // ALSO update in appState.rooms to ensure sync (compare as strings)
+                    if (typeof appState !== 'undefined' && appState.rooms) {
+                        var roomIdStr = String(room.id);
+                        var appRoom = appState.rooms.find(function(r) { return String(r.id) === roomIdStr; });
+                        if (appRoom && appRoom !== room) {
+                            appRoom.nickname = newNickname;
+                        }
+                    }
+                    
+                    // Save to server - call serverSave directly to ensure it runs
+                    if (typeof appState !== 'undefined') {
+                        appState.rooms = rooms; // Ensure sync
+                    }
+                    if (typeof serverSave === 'function') {
+                        serverSave();
+                    }
                     
                     // Sync devices: Update device.location if it matched old nickname
                     if (oldNickname && newNickname && oldNickname !== newNickname) {

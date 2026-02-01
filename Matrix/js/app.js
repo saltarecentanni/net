@@ -2780,8 +2780,13 @@ function editRoomNickname(roomId) {
     }).then(function(result) {
         if (result.isConfirmed) {
             room.nickname = result.value.trim() || '';
-            saveData();
+            serverSave();
             updateLocationSelect();
+            
+            // Sync FloorPlan module if loaded
+            if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
+                FloorPlan.setRooms(appState.rooms);
+            }
             
             Swal.fire({
                 icon: 'success',
@@ -2884,7 +2889,7 @@ function deleteLocation(locationToDelete) {
             });
             
             // Save and update UI
-            saveData();
+            serverSave();
             updateUI();
             updateLocationSelect();
             
