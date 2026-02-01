@@ -613,13 +613,18 @@
 
             <!-- Tab 5: Help -->
             <div id="content-help" class="tab-content">
-                <div class="max-w-5xl mx-auto">
+                <div class="max-w-6xl mx-auto">
                     
                     <!-- ========== HEADER ========== -->
                     <div class="text-center mb-6">
                         <h1 class="text-3xl font-bold text-slate-800 mb-2">📚 Guida Utente Completa</h1>
                         <p class="text-slate-600">TIESSE Matrix Network Manager v3.4.3</p>
-                        <p class="text-slate-500 text-sm mt-1">Documentazione completa per la gestione dell'infrastruttura di rete</p>
+                        <p class="text-slate-500 text-sm mt-1">Documentazione completa per utenti e amministratori di sistema</p>
+                        <div class="flex justify-center gap-2 mt-3">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">Guida Operativa</span>
+                            <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">Manuale Tecnico</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full">Installazione</span>
+                        </div>
                     </div>
 
                     <!-- ========== INDICE NAVIGABILE ========== -->
@@ -629,44 +634,50 @@
                             <a href="#help-intro" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
                                 <span class="font-bold text-blue-300">0.</span> Introduzione e Concetti Base
                             </a>
+                            <a href="#help-interface" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
+                                <span class="font-bold text-sky-300">1.</span> 🖥️ Interfaccia Utente
+                            </a>
                             <a href="#help-auth" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-green-300">1.</span> Autenticazione e Permessi
+                                <span class="font-bold text-green-300">2.</span> 🔐 Autenticazione e Permessi
                             </a>
                             <a href="#help-devices" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-purple-300">2.</span> 📱 Scheda Devices
+                                <span class="font-bold text-purple-300">3.</span> 📱 Scheda Devices
                             </a>
                             <a href="#help-connections" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-orange-300">3.</span> ⚡ Scheda Connections
+                                <span class="font-bold text-orange-300">4.</span> ⚡ Scheda Connections
                             </a>
                             <a href="#help-topology" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-cyan-300">4.</span> 🗺️ Scheda Topology
+                                <span class="font-bold text-cyan-300">5.</span> 🗺️ Scheda Topology
                             </a>
                             <a href="#help-matrix" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-pink-300">5.</span> 📊 Scheda Matrix
+                                <span class="font-bold text-pink-300">6.</span> 📊 Scheda Matrix
                             </a>
                             <a href="#help-floorplan" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-emerald-300">6.</span> 🏢 Scheda Floor Plan
+                                <span class="font-bold text-emerald-300">7.</span> 🏢 Scheda Floor Plan
                             </a>
                             <a href="#help-logs" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-amber-300">7.</span> 📋 Scheda Logs
+                                <span class="font-bold text-amber-300">8.</span> 📋 Scheda Logs
                             </a>
                             <a href="#help-export" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-red-300">8.</span> 💾 Import/Export e Backup
+                                <span class="font-bold text-red-300">9.</span> 💾 Import/Export e Backup
                             </a>
                             <a href="#help-locations" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-violet-300">9.</span> 📍 Location Manager
+                                <span class="font-bold text-violet-300">10.</span> 📍 Location Manager
                             </a>
                             <a href="#help-print" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-rose-300">10.</span> 🖨️ Stampa
+                                <span class="font-bold text-rose-300">11.</span> 🖨️ Stampa e Esportazione PNG
                             </a>
                             <a href="#help-workflow" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-yellow-300">11.</span> 🔄 Flusso di Lavoro
+                                <span class="font-bold text-yellow-300">12.</span> 🔄 Flusso di Lavoro
                             </a>
                             <a href="#help-glossary" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-indigo-300">12.</span> 📖 Glossario Termini
+                                <span class="font-bold text-indigo-300">13.</span> 📖 Glossario Termini
                             </a>
                             <a href="#help-faq" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-teal-300">13.</span> ❓ FAQ
+                                <span class="font-bold text-teal-300">14.</span> ❓ FAQ
+                            </a>
+                            <a href="#help-install" class="block bg-gradient-to-r from-orange-500/30 to-red-500/30 hover:from-orange-500/50 hover:to-red-500/50 rounded-lg p-3 transition-colors border border-orange-400/50">
+                                <span class="font-bold text-orange-300">15.</span> 🛠️ Instalação do Sistema
                             </a>
                         </div>
                     </div>
@@ -681,51 +692,98 @@
                         <div class="space-y-4">
                             <div class="bg-white rounded-lg p-4 border border-blue-200">
                                 <h3 class="font-bold text-blue-900 mb-2">🎯 Cos'è TIESSE Matrix Network?</h3>
-                                <p class="text-blue-800 text-sm">È un sistema di <strong>documentazione visuale</strong> per infrastrutture di rete. Permette di:</p>
-                                <ul class="text-blue-700 text-sm mt-2 ml-4 list-disc space-y-1">
-                                    <li>Catalogare tutti i dispositivi di rete (router, switch, server, PC, ecc.)</li>
-                                    <li>Documentare le connessioni fisiche tra dispositivi (cavi)</li>
-                                    <li>Visualizzare la topologia di rete in modo grafico</li>
-                                    <li>Organizzare i dispositivi per Location (sede) e Group (rack/stanza)</li>
-                                    <li>Gestire le stanze nel Floor Plan con associazione dispositivi</li>
-                                    <li>Esportare documentazione in Excel, JSON, PNG</li>
-                                </ul>
+                                <p class="text-blue-800 text-sm mb-3">TIESSE Matrix Network è un'applicazione web progettata per <strong>documentare e visualizzare</strong> l'infrastruttura di rete aziendale. È pensata per tecnici di rete, amministratori di sistema e personale IT che hanno bisogno di mantenere una documentazione aggiornata della rete.</p>
+                                
+                                <div class="bg-blue-50 rounded-lg p-3 mb-3">
+                                    <p class="font-semibold text-blue-900 text-sm mb-2">📌 Cosa puoi fare con Matrix Network:</p>
+                                    <ul class="text-blue-700 text-sm ml-4 list-disc space-y-1">
+                                        <li><strong>Catalogare dispositivi:</strong> Router, switch, server, access point, PC, stampanti, telecamere IP, UPS e qualsiasi apparecchiatura di rete</li>
+                                        <li><strong>Documentare connessioni:</strong> Registrare ogni cavo che collega un dispositivo a un altro, con porta di origine e destinazione</li>
+                                        <li><strong>Visualizzare la topologia:</strong> Vedere un diagramma grafico interattivo di tutta la rete</li>
+                                        <li><strong>Organizzare per sede:</strong> Raggruppare dispositivi per Location (sede/edificio) e Group (rack/stanza)</li>
+                                        <li><strong>Mappare planimetrie:</strong> Associare dispositivi a stanze fisiche nel Floor Plan</li>
+                                        <li><strong>Esportare documentazione:</strong> Generare report Excel, backup JSON, immagini PNG e file per Draw.io</li>
+                                        <li><strong>Stampare inventari:</strong> Stampare elenchi di dispositivi e connessioni filtrati per sede</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                    <p class="text-amber-800 text-sm">⚠️ <strong>Importante:</strong> Matrix Network è un sistema di <u>documentazione</u>, non di monitoraggio. Non rileva automaticamente i dispositivi né verifica se sono online. I dati vengono inseriti e aggiornati manualmente dagli operatori.</p>
+                                </div>
                             </div>
 
                             <div class="bg-white rounded-lg p-4 border border-blue-200">
                                 <h3 class="font-bold text-blue-900 mb-2">🏗️ Struttura Gerarchica dei Dati</h3>
-                                <div class="bg-slate-50 rounded-lg p-3 font-mono text-xs text-slate-700">
-<pre>📍 LOCATION (Sede/Reparto)
- └── 🗂️ GROUP (Rack/Stanza/Zona)
-      └── 📱 DEVICE (Dispositivo)
-           ├── 🔌 PORTS (Porte fisiche)
-           └── ⚡ CONNECTIONS (Connessioni)
+                                <p class="text-blue-800 text-sm mb-3">I dati sono organizzati in una gerarchia logica che riflette l'organizzazione fisica della rete:</p>
+                                <div class="bg-slate-800 rounded-lg p-4 font-mono text-sm text-green-400 mb-3">
+<pre>📍 <span class="text-yellow-300">LOCATION</span> (Sede/Edificio/Reparto)
+ │   Esempio: "Sede Centrale", "Filiale Milano", "Magazzino"
+ │
+ └── 🗂️ <span class="text-cyan-300">GROUP</span> (Rack/Stanza/Armadio/Zona)
+      │   Esempio: "Rack-01", "Sala Server", "Ufficio Direzione"
+      │
+      └── 📱 <span class="text-pink-300">DEVICE</span> (Dispositivo di rete)
+           │   Esempio: "SW-Core-01", "Router-Gateway", "Server-DC"
+           │
+           ├── 🔌 <span class="text-orange-300">PORTS</span> (Porte fisiche del dispositivo)
+           │   Esempio: 24 porte Ethernet + 4 porte SFP
+           │
+           └── ⚡ <span class="text-blue-300">CONNECTIONS</span> (Cavi collegati)
+               Esempio: Porta 1 → Switch-02 Porta 48
 
-🏢 FLOOR PLAN
- └── 🚪 ROOM (Stanza)
-      └── 📱 DEVICES (Dispositivi associati)</pre>
+<span class="text-slate-400">─────────────────────────────────────────────</span>
+
+🏢 <span class="text-emerald-300">FLOOR PLAN</span> (Planimetria dell'edificio)
+ │
+ └── 🚪 <span class="text-violet-300">ROOM</span> (Stanza fisica)
+      │   Ha: ID, Nickname, Poligono, Colore
+      │
+      └── 📱 <span class="text-pink-300">DEVICES</span> (Dispositivi associati)
+          (collegati tramite Location = Nickname)</pre>
                                 </div>
-                                <p class="text-blue-600 text-xs mt-2">💡 Ogni dispositivo appartiene a una Location e un Group. Le stanze del Floor Plan possono avere dispositivi associati.</p>
+                                <div class="grid md:grid-cols-2 gap-3 text-xs">
+                                    <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                                        <span class="font-bold text-yellow-900">📍 Location</span>
+                                        <p class="text-yellow-800 mt-1">Rappresenta una sede fisica, un edificio o un reparto. È il livello più alto di organizzazione. Tutti i dispositivi devono appartenere a una Location.</p>
+                                    </div>
+                                    <div class="bg-cyan-50 p-3 rounded-lg border border-cyan-200">
+                                        <span class="font-bold text-cyan-900">🗂️ Group</span>
+                                        <p class="text-cyan-800 mt-1">Rappresenta un raggruppamento all'interno della Location: rack, armadio, stanza, area. Permette di organizzare dispositivi vicini fisicamente.</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="bg-white rounded-lg p-4 border border-blue-200">
-                                <h3 class="font-bold text-blue-900 mb-2">🖥️ Panoramica dell'Interfaccia</h3>
-                                <div class="grid md:grid-cols-2 gap-3 text-sm">
-                                    <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">Header (Intestazione)</span>
-                                        <p class="text-slate-600 text-xs mt-1">Logo, titolo, pulsanti Login/Logout, versione</p>
+                                <h3 class="font-bold text-blue-900 mb-2">🔄 Come Funziona il Sistema</h3>
+                                <div class="grid md:grid-cols-3 gap-3 text-xs">
+                                    <div class="bg-slate-50 p-3 rounded-lg text-center">
+                                        <div class="text-3xl mb-2">📝</div>
+                                        <span class="font-bold text-slate-800">1. Inserimento</span>
+                                        <p class="text-slate-600 mt-1">Aggiungi dispositivi con tutte le informazioni: nome, tipo, IP, porte disponibili</p>
                                     </div>
-                                    <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">Barra Azioni</span>
-                                        <p class="text-slate-600 text-xs mt-1">Filtro Location, contatori, pulsanti Export/Import</p>
+                                    <div class="bg-slate-50 p-3 rounded-lg text-center">
+                                        <div class="text-3xl mb-2">🔗</div>
+                                        <span class="font-bold text-slate-800">2. Collegamento</span>
+                                        <p class="text-slate-600 mt-1">Crea connessioni specificando: da quale dispositivo/porta a quale dispositivo/porta</p>
                                     </div>
-                                    <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">Tab Navigation</span>
-                                        <p class="text-slate-600 text-xs mt-1">Devices, Connections, Topology, Matrix, Floor Plan, Help</p>
+                                    <div class="bg-slate-50 p-3 rounded-lg text-center">
+                                        <div class="text-3xl mb-2">👁️</div>
+                                        <span class="font-bold text-slate-800">3. Visualizzazione</span>
+                                        <p class="text-slate-600 mt-1">Consulta topologia, matrice, planimetria. Esporta e stampa documentazione</p>
                                     </div>
-                                    <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-slate-800">Area Contenuto</span>
-                                        <p class="text-slate-600 text-xs mt-1">Contenuto della scheda attiva</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-blue-200">
+                                <h3 class="font-bold text-blue-900 mb-2">💾 Salvataggio dei Dati</h3>
+                                <div class="grid md:grid-cols-2 gap-3">
+                                    <div class="bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
+                                        <span class="font-bold text-green-800">✅ Dove vengono salvati?</span>
+                                        <p class="text-green-700 text-xs mt-1">I dati sono salvati in un file JSON sul server (<code class="bg-green-200 px-1 rounded">data/network_manager.json</code>). Quando clicchi "Save Now", il browser invia i dati al server che li scrive nel file.</p>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg border-l-4 border-red-500">
+                                        <span class="font-bold text-red-800">⚠️ Attenzione!</span>
+                                        <p class="text-red-700 text-xs mt-1">Le modifiche NON vengono salvate automaticamente! Devi sempre cliccare <span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs">💾 Save Now</span> dopo ogni sessione di modifiche.</p>
                                     </div>
                                 </div>
                             </div>
@@ -733,11 +791,234 @@
                         <a href="#help-index" class="text-blue-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 1. AUTENTICAZIONE ========== -->
+                    <!-- ========== 1. INTERFACCIA UTENTE ========== -->
+                    <div class="bg-sky-50 border-l-4 border-sky-500 rounded-r-xl p-5 mb-6" id="help-interface">
+                        <h2 class="text-xl font-bold text-sky-800 mb-3 flex items-center gap-2">
+                            <span class="bg-sky-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">1</span>
+                            🖥️ Interfaccia Utente
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4 border border-sky-200">
+                                <h3 class="font-bold text-sky-900 mb-3">🖼️ Layout della Pagina</h3>
+                                <p class="text-sky-800 text-sm mb-3">L'interfaccia è divisa in aree funzionali ben definite:</p>
+                                
+                                <div class="bg-slate-100 rounded-lg p-4 mb-3">
+                                    <div class="border-2 border-slate-400 rounded-lg overflow-hidden">
+                                        <!-- Header -->
+                                        <div class="bg-white p-2 border-b-2 border-slate-400">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="bg-blue-600 text-white px-2 py-1 rounded">LOGO</span>
+                                                    <span class="font-bold">Matrix Network</span>
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">🔓 Edit Mode</span>
+                                                    <span class="bg-slate-200 px-2 py-0.5 rounded text-xs">📋</span>
+                                                    <span class="text-slate-500 text-xs">v3.4.3</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Actions Bar -->
+                                        <div class="bg-slate-50 p-2 border-b-2 border-slate-400">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <div class="flex gap-2">
+                                                    <span class="bg-orange-100 px-2 py-0.5 rounded border border-orange-300 text-xs">📍 Location Filter</span>
+                                                    <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">📱 Devices</span>
+                                                    <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">⚡ Connections</span>
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <span class="bg-green-600 text-white px-1 py-0.5 rounded text-xs">💾</span>
+                                                    <span class="bg-indigo-500 text-white px-1 py-0.5 rounded text-xs">📊</span>
+                                                    <span class="bg-slate-500 text-white px-1 py-0.5 rounded text-xs">💾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Tabs -->
+                                        <div class="bg-white p-1 border-b border-slate-300">
+                                            <div class="flex gap-1 text-xs">
+                                                <span class="bg-blue-100 px-2 py-1 rounded border-b-2 border-blue-500">📱 Devices</span>
+                                                <span class="px-2 py-1">⚡ Connections</span>
+                                                <span class="px-2 py-1">🗺️ Topology</span>
+                                                <span class="px-2 py-1">📊 Matrix</span>
+                                                <span class="px-2 py-1">🏢 Floor Plan</span>
+                                                <span class="px-2 py-1">❓ Help</span>
+                                            </div>
+                                        </div>
+                                        <!-- Content -->
+                                        <div class="bg-white p-4 text-center text-slate-400 text-xs h-24 flex items-center justify-center">
+                                            [Contenuto della scheda attiva]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-sky-200">
+                                <h3 class="font-bold text-sky-900 mb-3">📍 Descrizione delle Aree</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-xs">
+                                        <thead class="bg-sky-100">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left font-bold text-sky-900 w-1/4">Area</th>
+                                                <th class="px-3 py-2 text-left font-bold text-sky-900">Descrizione</th>
+                                                <th class="px-3 py-2 text-left font-bold text-sky-900">Elementi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-sky-100">
+                                            <tr class="bg-sky-50">
+                                                <td class="px-3 py-2 font-semibold text-sky-800">🔝 Header (Intestazione)</td>
+                                                <td class="px-3 py-2 text-sky-700">Barra superiore sempre visibile con logo e controlli principali</td>
+                                                <td class="px-3 py-2 text-sky-700">Logo Tiesse, titolo, pulsante Login/Logout, pulsante Logs, versione</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-3 py-2 font-semibold text-sky-800">⚡ Actions Bar</td>
+                                                <td class="px-3 py-2 text-sky-700">Barra delle azioni rapide e filtri globali</td>
+                                                <td class="px-3 py-2 text-sky-700">Filtro Location, contatori, pulsanti Export/Import, Save</td>
+                                            </tr>
+                                            <tr class="bg-sky-50">
+                                                <td class="px-3 py-2 font-semibold text-sky-800">📑 Tab Navigation</td>
+                                                <td class="px-3 py-2 text-sky-700">Schede per navigare tra le diverse sezioni</td>
+                                                <td class="px-3 py-2 text-sky-700">Devices, Connections, Topology, Matrix, Floor Plan, Help</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-3 py-2 font-semibold text-sky-800">📄 Content Area</td>
+                                                <td class="px-3 py-2 text-sky-700">Area principale che mostra il contenuto della scheda selezionata</td>
+                                                <td class="px-3 py-2 text-sky-700">Varia in base alla scheda attiva</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-sky-200">
+                                <h3 class="font-bold text-sky-900 mb-3">🔘 Pulsanti dell'Header</h3>
+                                <div class="grid md:grid-cols-2 gap-3 text-xs">
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="bg-blue-500 text-white px-2 py-1 rounded">🔓 Edit Mode</span>
+                                        </div>
+                                        <p class="text-slate-700"><strong>Funzione:</strong> Apre il popup di login per accedere alla modalità di modifica.</p>
+                                        <p class="text-slate-600 mt-1"><strong>Quando visibile:</strong> Sempre, se non sei autenticato.</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="bg-slate-500 text-white px-2 py-1 rounded">🔒 Logout</span>
+                                        </div>
+                                        <p class="text-slate-700"><strong>Funzione:</strong> Esce dalla modalità di modifica e torna in sola lettura.</p>
+                                        <p class="text-slate-600 mt-1"><strong>Quando visibile:</strong> Solo dopo aver effettuato il login.</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="bg-slate-200 text-slate-700 px-2 py-1 rounded">📋</span>
+                                        </div>
+                                        <p class="text-slate-700"><strong>Funzione:</strong> Apre la scheda Activity Logs con lo storico delle modifiche.</p>
+                                        <p class="text-slate-600 mt-1"><strong>Quando visibile:</strong> Sempre.</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-slate-500 px-2 py-1 bg-slate-100 rounded">v3.4.3</span>
+                                        </div>
+                                        <p class="text-slate-700"><strong>Funzione:</strong> Mostra la versione corrente del sistema.</p>
+                                        <p class="text-slate-600 mt-1"><strong>Quando visibile:</strong> Sempre.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-sky-200">
+                                <h3 class="font-bold text-sky-900 mb-3">⚡ Pulsanti della Barra Azioni</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-xs">
+                                        <thead class="bg-sky-100">
+                                            <tr>
+                                                <th class="px-2 py-2 text-left font-bold text-sky-900">Pulsante</th>
+                                                <th class="px-2 py-2 text-left font-bold text-sky-900">Funzione</th>
+                                                <th class="px-2 py-2 text-left font-bold text-sky-900">Visibilità</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-sky-100">
+                                            <tr>
+                                                <td class="px-2 py-2"><span class="bg-orange-100 border border-orange-300 px-2 py-0.5 rounded text-xs">🌐 All Locations ▾</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Filtro globale per Location. Filtra TUTTI i dati visualizzati in ogni scheda.</td>
+                                                <td class="px-2 py-2 text-sky-600">Sempre</td>
+                                            </tr>
+                                            <tr class="bg-sky-50">
+                                                <td class="px-2 py-2"><span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">📱 N Devices</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Mostra il totale dispositivi. Click per andare alla scheda Devices.</td>
+                                                <td class="px-2 py-2 text-sky-600">Sempre</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-2"><span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">⚡ N Connections</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Mostra il totale connessioni. Click per andare alla scheda Connections.</td>
+                                                <td class="px-2 py-2 text-sky-600">Sempre</td>
+                                            </tr>
+                                            <tr class="bg-sky-50">
+                                                <td class="px-2 py-2"><span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs">💾 Save Now</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Salva tutte le modifiche sul server. <strong class="text-red-600">ESSENZIALE!</strong></td>
+                                                <td class="px-2 py-2 text-sky-600">Solo Edit Mode</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-2"><span class="bg-indigo-500 text-white px-2 py-0.5 rounded text-xs">📊 Export to Excel</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Scarica file Excel con tutti i dati (dispositivi, connessioni, stanze).</td>
+                                                <td class="px-2 py-2 text-sky-600">Sempre</td>
+                                            </tr>
+                                            <tr class="bg-sky-50">
+                                                <td class="px-2 py-2"><span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">💾 Export JSON</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Scarica backup JSON completo. Usalo per backup e ripristini!</td>
+                                                <td class="px-2 py-2 text-sky-600">Sempre</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-2"><span class="bg-slate-500 text-white px-2 py-0.5 rounded text-xs">📥 Import JSON</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Carica un file JSON di backup. <strong class="text-red-600">SOVRASCRIVE tutto!</strong></td>
+                                                <td class="px-2 py-2 text-sky-600">Solo Edit Mode</td>
+                                            </tr>
+                                            <tr class="bg-sky-50">
+                                                <td class="px-2 py-2"><span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">Clear All</span></td>
+                                                <td class="px-2 py-2 text-sky-700">Elimina TUTTI i dati. Crea backup automatico prima della cancellazione.</td>
+                                                <td class="px-2 py-2 text-sky-600">Solo Edit Mode</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-sky-200">
+                                <h3 class="font-bold text-sky-900 mb-3">📑 Le Schede (Tabs)</h3>
+                                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                                    <div class="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                                        <span class="font-bold text-purple-900">📱 Devices</span>
+                                        <p class="text-purple-700 mt-1">Elenco di tutti i dispositivi di rete. Qui aggiungi, modifichi ed elimini dispositivi.</p>
+                                    </div>
+                                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                                        <span class="font-bold text-orange-900">⚡ Active Connections</span>
+                                        <p class="text-orange-700 mt-1">Elenco di tutti i cavi/collegamenti. Qui documenti le connessioni fisiche.</p>
+                                    </div>
+                                    <div class="bg-cyan-50 p-3 rounded-lg border border-cyan-200">
+                                        <span class="font-bold text-cyan-900">🗺️ Topology</span>
+                                        <p class="text-cyan-700 mt-1">Mappa grafica interattiva della rete con icone stile Cisco.</p>
+                                    </div>
+                                    <div class="bg-pink-50 p-3 rounded-lg border border-pink-200">
+                                        <span class="font-bold text-pink-900">📊 Matrix</span>
+                                        <p class="text-pink-700 mt-1">Matrice delle connessioni: griglia visuale che mostra chi è collegato a chi.</p>
+                                    </div>
+                                    <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                                        <span class="font-bold text-emerald-900">🏢 Floor Plan</span>
+                                        <p class="text-emerald-700 mt-1">Planimetria delle stanze con dispositivi associati.</p>
+                                    </div>
+                                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                        <span class="font-bold text-blue-900">❓ Help</span>
+                                        <p class="text-blue-700 mt-1">Questa guida che stai leggendo!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#help-index" class="text-sky-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
+                    </div>
+
+                    <!-- ========== 2. AUTENTICAZIONE ========== -->
                     <div class="bg-green-50 border-l-4 border-green-500 rounded-r-xl p-5 mb-6" id="help-auth">
                         <h2 class="text-xl font-bold text-green-800 mb-3 flex items-center gap-2">
-                            <span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">1</span>
-                            Autenticazione e Permessi
+                            <span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">2</span>
+                            🔐 Autenticazione e Permessi
                         </h2>
                         
                         <div class="space-y-4">
@@ -784,117 +1065,305 @@
                         <a href="#help-index" class="text-green-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 2. SCHEDA DEVICES ========== -->
+                    <!-- ========== 3. SCHEDA DEVICES ========== -->
                     <div class="bg-purple-50 border-l-4 border-purple-500 rounded-r-xl p-5 mb-6" id="help-devices">
                         <h2 class="text-xl font-bold text-purple-800 mb-3 flex items-center gap-2">
-                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">2</span>
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">3</span>
                             📱 Scheda Devices (Dispositivi)
                         </h2>
                         
                         <div class="space-y-4">
                             <!-- Descrizione della scheda -->
                             <div class="bg-white rounded-lg p-4 border border-purple-200">
-                                <h3 class="font-bold text-purple-900 mb-2">📋 Descrizione</h3>
-                                <p class="text-purple-800 text-sm">La scheda <strong>Devices</strong> è il cuore del sistema. Qui gestisci tutti i dispositivi della tua rete: router, switch, server, patch panel, access point, PC, stampanti, ecc.</p>
+                                <h3 class="font-bold text-purple-900 mb-2">📋 Cos'è la Scheda Devices?</h3>
+                                <p class="text-purple-800 text-sm mb-3">La scheda <strong>Devices</strong> è il cuore del sistema. Qui gestisci <u>tutti</u> i dispositivi della tua rete: router, switch, server, patch panel, access point, PC, stampanti, telecamere IP, UPS, e qualsiasi altro apparecchio collegato alla rete.</p>
+                                
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                    <p class="font-semibold text-purple-900 text-sm mb-2">📌 In questa scheda puoi:</p>
+                                    <ul class="text-purple-700 text-xs ml-4 list-disc space-y-1">
+                                        <li><strong>Visualizzare</strong> l'elenco completo di tutti i dispositivi registrati</li>
+                                        <li><strong>Aggiungere</strong> nuovi dispositivi compilando il form (richiede login)</li>
+                                        <li><strong>Modificare</strong> dispositivi esistenti cliccando il pulsante "Edit"</li>
+                                        <li><strong>Eliminare</strong> dispositivi cliccando il pulsante "Del" (attenzione: elimina anche le connessioni!)</li>
+                                        <li><strong>Filtrare</strong> per Location, Group, Type, Status o cercare per nome/IP</li>
+                                        <li><strong>Cambiare vista</strong> tra Cards (schede) e Table (tabella)</li>
+                                    </ul>
+                                </div>
                             </div>
 
-                            <!-- Form Add Device - Tutti i campi -->
+                            <!-- Form Add Device - Tutti i campi DETTAGLIATI -->
                             <div class="bg-white rounded-lg p-4 border border-purple-200">
-                                <h3 class="font-bold text-purple-900 mb-3">📝 Formulario "Add Device" - Tutti i Campi</h3>
+                                <h3 class="font-bold text-purple-900 mb-3">📝 Formulario "Add Device" - Spiegazione Dettagliata di Ogni Campo</h3>
+                                <p class="text-purple-700 text-xs mb-3">Il form per aggiungere un dispositivo appare solo in <strong>Edit Mode</strong> (dopo il login). Ecco cosa significa ogni campo:</p>
                                 
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-xs">
-                                        <thead class="bg-purple-100">
-                                            <tr>
-                                                <th class="px-2 py-1 text-left font-bold text-purple-900">Campo</th>
-                                                <th class="px-2 py-1 text-left font-bold text-purple-900">Obbl.</th>
-                                                <th class="px-2 py-1 text-left font-bold text-purple-900">Descrizione</th>
-                                                <th class="px-2 py-1 text-left font-bold text-purple-900">Esempio</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-purple-100">
-                                            <tr class="bg-purple-50">
-                                                <td class="px-2 py-2 font-semibold text-purple-800">📍 Location</td>
-                                                <td class="px-2 py-2 text-red-600 font-bold">*</td>
-                                                <td class="px-2 py-2 text-purple-700">Sede/reparto dove si trova il dispositivo</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">Sede Ivrea</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-2 font-semibold text-purple-800">🗂️ Group</td>
-                                                <td class="px-2 py-2 text-red-600 font-bold">*</td>
-                                                <td class="px-2 py-2 text-purple-700">Raggruppamento (rack, stanza, zona)</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">Rack-01</code>, <code class="bg-purple-200 px-1 rounded">Ufficio-12</code></td>
-                                            </tr>
-                                            <tr class="bg-purple-50">
-                                                <td class="px-2 py-2 font-semibold text-purple-800">🔢 Order</td>
-                                                <td class="px-2 py-2 text-red-600 font-bold">*</td>
-                                                <td class="px-2 py-2 text-purple-700">Posizione nel rack (01-99) o 00 per sparsi</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">01</code>, <code class="bg-purple-200 px-1 rounded">00</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-2 font-semibold text-purple-800">↩️ Rear (R)</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">Checkbox: dispositivo sul retro del rack</td>
-                                                <td class="px-2 py-2">☑️ selezionato = retro</td>
-                                            </tr>
-                                            <tr class="bg-purple-50">
-                                                <td class="px-2 py-2 font-semibold text-purple-800">📟 Device Name</td>
-                                                <td class="px-2 py-2 text-red-600 font-bold">*</td>
-                                                <td class="px-2 py-2 text-purple-700">Nome univoco del dispositivo</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">SW-Core-01</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-2 font-semibold text-purple-800">🔧 Brand/Model</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">Marca e modello hardware</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">HPE Aruba 2930F</code></td>
-                                            </tr>
-                                            <tr class="bg-purple-50">
-                                                <td class="px-2 py-2 font-semibold text-purple-800">🏷️ Type</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">Tipo dispositivo (icona nella topology)</td>
-                                                <td class="px-2 py-2">Router, Switch, Server, Patch, WiFi...</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-2 font-semibold text-purple-800">⚡ Status</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">Stato operativo</td>
-                                                <td class="px-2 py-2"><span class="bg-green-100 text-green-800 px-1 rounded">Active</span> / <span class="bg-red-100 text-red-800 px-1 rounded">Disabled</span></td>
-                                            </tr>
-                                            <tr class="bg-purple-50">
-                                                <td class="px-2 py-2 font-semibold text-purple-800">⚙️ Service</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">Servizi/ruoli del dispositivo</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">DHCP, DNS, Gateway</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-2 font-semibold text-purple-800">🌐 IP Addresses</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">Fino a 4 indirizzi IP (formato CIDR)</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">192.168.1.1/24</code></td>
-                                            </tr>
-                                            <tr class="bg-purple-50">
-                                                <td class="px-2 py-2 font-semibold text-purple-800">🔌 Port Config</td>
-                                                <td class="px-2 py-2 text-orange-600 font-bold">!</td>
-                                                <td class="px-2 py-2 text-purple-700">Configurazione porte (tipo + quantità)</td>
-                                                <td class="px-2 py-2">Eth × 24, SFP × 4</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-2 font-semibold text-purple-800">🔗 Links</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">URL esterni (interfaccia web, docs)</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">https://192.168.1.1</code></td>
-                                            </tr>
-                                            <tr class="bg-purple-50">
-                                                <td class="px-2 py-2 font-semibold text-purple-800">📝 Notes</td>
-                                                <td class="px-2 py-2 text-slate-400">-</td>
-                                                <td class="px-2 py-2 text-purple-700">Note libere</td>
-                                                <td class="px-2 py-2"><code class="bg-purple-200 px-1 rounded">Installato 15/01/2026</code></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <!-- Campo Location -->
+                                <div class="bg-purple-50 rounded-lg p-3 mb-3 border-l-4 border-purple-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs font-bold">📍 Location</span>
+                                        <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">OBBLIGATORIO</span>
+                                    </div>
+                                    <p class="text-purple-800 text-sm mb-2"><strong>Cosa significa:</strong> La sede, edificio o reparto dove si trova fisicamente il dispositivo.</p>
+                                    <div class="grid md:grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-purple-900">✅ Esempi corretti:</p>
+                                            <ul class="text-purple-700 ml-3 list-disc">
+                                                <li>"Sede Centrale"</li>
+                                                <li>"Filiale Milano"</li>
+                                                <li>"Magazzino Zona Nord"</li>
+                                                <li>"Edificio A - Piano 2"</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-purple-900">📌 Note:</p>
+                                            <ul class="text-purple-700 ml-3 list-disc">
+                                                <li>Seleziona da elenco o crea nuova</li>
+                                                <li>Usa il pulsante ⚙️ per gestire le location</li>
+                                                <li>Le location delle stanze (Floor Plan) appaiono qui</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p class="text-purple-600 text-xs mt-2">* = Obbligatorio | ! = Importante per connessioni</p>
+
+                                <!-- Campo Group -->
+                                <div class="bg-blue-50 rounded-lg p-3 mb-3 border-l-4 border-blue-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold">🗂️ Group</span>
+                                        <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">OBBLIGATORIO</span>
+                                    </div>
+                                    <p class="text-blue-800 text-sm mb-2"><strong>Cosa significa:</strong> Il raggruppamento all'interno della location: rack, armadio, stanza specifica, zona.</p>
+                                    <div class="grid md:grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-blue-900">✅ Esempi corretti:</p>
+                                            <ul class="text-blue-700 ml-3 list-disc">
+                                                <li>"Rack-01" (armadio rack numero 1)</li>
+                                                <li>"Rack-02" (armadio rack numero 2)</li>
+                                                <li>"Ufficio Direzione" (stanza)</li>
+                                                <li>"Sala Server" (stanza)</li>
+                                                <li>"Standalone" (dispositivi sparsi)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-blue-900">📌 Note:</p>
+                                            <ul class="text-blue-700 ml-3 list-disc">
+                                                <li>Puoi digitare liberamente o selezionare</li>
+                                                <li>L'elenco mostra i gruppi già usati</li>
+                                                <li>Usa nomi coerenti per raggruppare</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campo Order -->
+                                <div class="bg-amber-50 rounded-lg p-3 mb-3 border-l-4 border-amber-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-amber-600 text-white px-2 py-1 rounded text-xs font-bold">🔢 Order</span>
+                                        <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">OBBLIGATORIO</span>
+                                    </div>
+                                    <p class="text-amber-800 text-sm mb-2"><strong>Cosa significa:</strong> La posizione fisica del dispositivo all'interno del rack (unità U). Serve per ordinare i dispositivi nella visualizzazione.</p>
+                                    <div class="grid md:grid-cols-3 gap-2 text-xs">
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-amber-900">✅ Valori:</p>
+                                            <ul class="text-amber-700 ml-3 list-disc">
+                                                <li><code class="bg-amber-200 px-1 rounded">01</code> - <code class="bg-amber-200 px-1 rounded">99</code> = Posizione nel rack</li>
+                                                <li><code class="bg-amber-200 px-1 rounded">00</code> = Dispositivo "sparso" (non in rack)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-amber-900">📌 Convezione:</p>
+                                            <ul class="text-amber-700 ml-3 list-disc">
+                                                <li>01 = In alto nel rack</li>
+                                                <li>42 = In basso (rack standard)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-amber-900">▲▼ Pulsanti:</p>
+                                            <p class="text-amber-700">Usa le frecce per incrementare/decrementare velocemente</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Checkbox Rear -->
+                                <div class="bg-orange-50 rounded-lg p-3 mb-3 border-l-4 border-orange-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-orange-600 text-white px-2 py-1 rounded text-xs font-bold">↩️ Rear (R)</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-orange-800 text-sm mb-2"><strong>Cosa significa:</strong> Checkbox che indica se il dispositivo è montato sul <u>retro</u> del rack invece che sul fronte.</p>
+                                    <div class="grid md:grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-orange-900">☑️ Quando selezionare:</p>
+                                            <ul class="text-orange-700 ml-3 list-disc">
+                                                <li>Patch panel montato sul retro</li>
+                                                <li>PDU (ciabatta elettrica) posteriore</li>
+                                                <li>Organizer cavi posteriore</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-orange-900">📌 Effetto:</p>
+                                            <ul class="text-orange-700 ml-3 list-disc">
+                                                <li>Il numero Order diventa negativo (es. -05)</li>
+                                                <li>Visivamente distinto nella lista</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campo Device Name -->
+                                <div class="bg-green-50 rounded-lg p-3 mb-3 border-l-4 border-green-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">📟 Device Name</span>
+                                        <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">OBBLIGATORIO</span>
+                                    </div>
+                                    <p class="text-green-800 text-sm mb-2"><strong>Cosa significa:</strong> Il nome identificativo del dispositivo. Deve essere <u>univoco</u> in tutto il sistema.</p>
+                                    <div class="grid md:grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-green-900">✅ Esempi corretti:</p>
+                                            <ul class="text-green-700 ml-3 list-disc">
+                                                <li>"SW-Core-01" (Switch Core 1)</li>
+                                                <li>"RT-Gateway" (Router Gateway)</li>
+                                                <li>"SRV-DC01" (Server Domain Controller)</li>
+                                                <li>"AP-Sala-Riunioni" (Access Point)</li>
+                                                <li>"PP-01-A" (Patch Panel 1 lato A)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-green-900">📌 Suggerimenti:</p>
+                                            <ul class="text-green-700 ml-3 list-disc">
+                                                <li>Usa prefissi: SW=Switch, RT=Router, SRV=Server</li>
+                                                <li>Aggiungi numeri progressivi</li>
+                                                <li>Evita spazi (usa trattini -)</li>
+                                                <li>Max 100 caratteri</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campo Brand/Model -->
+                                <div class="bg-slate-50 rounded-lg p-3 mb-3 border-l-4 border-slate-500">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-slate-600 text-white px-2 py-1 rounded text-xs font-bold">🔧 Brand/Model</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-slate-800 text-sm mb-2"><strong>Cosa significa:</strong> Marca e modello dell'hardware. Utile per inventario e supporto tecnico.</p>
+                                    <div class="bg-white p-2 rounded text-xs">
+                                        <p class="font-semibold text-slate-900">✅ Esempi: </p>
+                                        <span class="text-slate-600">"Cisco Catalyst 2960", "HPE Aruba 2930F-48G", "Dell PowerEdge R740", "Ubiquiti UniFi AP-AC-Pro"</span>
+                                    </div>
+                                </div>
+
+                                <!-- Campo Type -->
+                                <div class="bg-cyan-50 rounded-lg p-3 mb-3 border-l-4 border-cyan-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-cyan-600 text-white px-2 py-1 rounded text-xs font-bold">🏷️ Type</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-cyan-800 text-sm mb-2"><strong>Cosa significa:</strong> Categoria del dispositivo. Determina l'icona mostrata nella Topology e aiuta a filtrare.</p>
+                                    <p class="text-cyan-700 text-xs mb-1">Vedi sezione "Tipi di Dispositivo" più sotto per l'elenco completo.</p>
+                                </div>
+
+                                <!-- Campo Status -->
+                                <div class="bg-emerald-50 rounded-lg p-3 mb-3 border-l-4 border-emerald-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold">⚡ Status</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-emerald-800 text-sm mb-2"><strong>Cosa significa:</strong> Stato operativo del dispositivo.</p>
+                                    <div class="flex gap-4 text-xs">
+                                        <div class="bg-green-100 px-3 py-1 rounded border border-green-300">
+                                            <span class="font-bold text-green-800">🟢 Active</span>
+                                            <p class="text-green-700">Dispositivo attivo e funzionante</p>
+                                        </div>
+                                        <div class="bg-red-100 px-3 py-1 rounded border border-red-300">
+                                            <span class="font-bold text-red-800">🔴 Disabled</span>
+                                            <p class="text-red-700">Dispositivo disattivato/spento/in manutenzione</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-emerald-600 text-xs mt-2">💡 I dispositivi Disabled appaiono con asterisco (*) prima del nome e sfondo grigio.</p>
+                                </div>
+
+                                <!-- Campo Service -->
+                                <div class="bg-pink-50 rounded-lg p-3 mb-3 border-l-4 border-pink-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-pink-600 text-white px-2 py-1 rounded text-xs font-bold">⚙️ Service</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-pink-800 text-sm mb-2"><strong>Cosa significa:</strong> Servizi o ruoli forniti dal dispositivo. Testo libero.</p>
+                                    <div class="bg-white p-2 rounded text-xs">
+                                        <p class="font-semibold text-pink-900">✅ Esempi: </p>
+                                        <span class="text-pink-600">"DHCP, DNS", "Gateway Internet", "File Server", "Domain Controller", "Backup", "VoIP PBX", "Videosorveglianza"</span>
+                                    </div>
+                                </div>
+
+                                <!-- Campo IP Addresses -->
+                                <div class="bg-indigo-50 rounded-lg p-3 mb-3 border-l-4 border-indigo-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-bold">🌐 IP Addresses</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-indigo-800 text-sm mb-2"><strong>Cosa significa:</strong> Indirizzi IP assegnati al dispositivo. Puoi inserire fino a 4 IP.</p>
+                                    <div class="grid md:grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-indigo-900">✅ Formato corretto:</p>
+                                            <ul class="text-indigo-700 ml-3 list-disc">
+                                                <li><code class="bg-indigo-200 px-1 rounded">192.168.1.1/24</code> (con subnet mask)</li>
+                                                <li><code class="bg-indigo-200 px-1 rounded">10.0.0.1</code> (senza mask)</li>
+                                                <li><code class="bg-indigo-200 px-1 rounded">172.16.0.1/16</code></li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white p-2 rounded">
+                                            <p class="font-semibold text-indigo-900">📌 Pulsante +:</p>
+                                            <p class="text-indigo-700">Clicca "+" per aggiungere altri campi IP (max 4 per dispositivo)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campo Port Config -->
+                                <div class="bg-red-50 rounded-lg p-3 mb-3 border-l-4 border-red-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold">🔌 Port Config</span>
+                                        <span class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs">IMPORTANTE!</span>
+                                    </div>
+                                    <p class="text-red-800 text-sm mb-2"><strong>Cosa significa:</strong> Configurazione delle porte fisiche del dispositivo. <u>Fondamentale per poter creare connessioni!</u></p>
+                                    <div class="bg-white p-2 rounded text-xs mb-2">
+                                        <p class="font-semibold text-red-900 mb-1">Come funziona:</p>
+                                        <ol class="text-red-700 ml-4 list-decimal space-y-1">
+                                            <li>Seleziona il <strong>tipo di porta</strong> dal menu (es. "Eth", "GbE", "SFP")</li>
+                                            <li>Inserisci la <strong>quantità</strong> (es. 24, 48)</li>
+                                            <li>Clicca <span class="bg-green-500 text-white px-1 rounded">+ Add</span></li>
+                                            <li>Ripeti per ogni tipo di porta presente</li>
+                                        </ol>
+                                    </div>
+                                    <div class="bg-amber-100 border border-amber-300 rounded p-2 text-xs">
+                                        <p class="font-bold text-amber-900">⚠️ Attenzione:</p>
+                                        <p class="text-amber-800">Se non configuri le porte, non potrai creare connessioni da/verso questo dispositivo! Le porte generano automaticamente gli ID (es. Eth-1, Eth-2, ... Eth-24)</p>
+                                    </div>
+                                </div>
+
+                                <!-- Campo Links -->
+                                <div class="bg-violet-50 rounded-lg p-3 mb-3 border-l-4 border-violet-600">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-violet-600 text-white px-2 py-1 rounded text-xs font-bold">🔗 Links</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-violet-800 text-sm mb-2"><strong>Cosa significa:</strong> URL esterni relativi al dispositivo (interfaccia web, documentazione, ecc.).</p>
+                                    <div class="bg-white p-2 rounded text-xs">
+                                        <p class="font-semibold text-violet-900">✅ Esempi: </p>
+                                        <span class="text-violet-600">"https://192.168.1.1" (interfaccia web switch), "http://10.0.0.1:8080" (console), "https://docs.vendor.com/model123"</span>
+                                    </div>
+                                </div>
+
+                                <!-- Campo Notes -->
+                                <div class="bg-gray-50 rounded-lg p-3 border-l-4 border-gray-500">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="bg-gray-600 text-white px-2 py-1 rounded text-xs font-bold">📝 Notes</span>
+                                        <span class="bg-slate-400 text-white px-2 py-0.5 rounded text-xs">OPZIONALE</span>
+                                    </div>
+                                    <p class="text-gray-800 text-sm mb-2"><strong>Cosa significa:</strong> Note libere. Qualsiasi informazione aggiuntiva utile.</p>
+                                    <div class="bg-white p-2 rounded text-xs">
+                                        <p class="font-semibold text-gray-900">✅ Esempi: </p>
+                                        <span class="text-gray-600">"Installato 15/01/2026", "Contratto manutenzione scade 12/2027", "Password console: admin/admin", "SN: ABC123456"</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Tipi di dispositivo -->
@@ -988,10 +1457,10 @@
                         <a href="#help-index" class="text-purple-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 3. SCHEDA CONNECTIONS ========== -->
+                    <!-- ========== 4. SCHEDA CONNECTIONS ========== -->
                     <div class="bg-orange-50 border-l-4 border-orange-500 rounded-r-xl p-5 mb-6" id="help-connections">
                         <h2 class="text-xl font-bold text-orange-800 mb-3 flex items-center gap-2">
-                            <span class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">3</span>
+                            <span class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">4</span>
                             ⚡ Scheda Active Connections
                         </h2>
                         
@@ -1154,10 +1623,10 @@
                         <a href="#help-index" class="text-orange-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 4. SCHEDA TOPOLOGY ========== -->
+                    <!-- ========== 5. SCHEDA TOPOLOGY ========== -->
                     <div class="bg-cyan-50 border-l-4 border-cyan-500 rounded-r-xl p-5 mb-6" id="help-topology">
                         <h2 class="text-xl font-bold text-cyan-800 mb-3 flex items-center gap-2">
-                            <span class="bg-cyan-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">4</span>
+                            <span class="bg-cyan-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">5</span>
                             🗺️ Scheda Topology (Mappa di Rete)
                         </h2>
                         
@@ -1207,10 +1676,10 @@
                         <a href="#help-index" class="text-cyan-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 5. SCHEDA MATRIX ========== -->
+                    <!-- ========== 6. SCHEDA MATRIX ========== -->
                     <div class="bg-pink-50 border-l-4 border-pink-500 rounded-r-xl p-5 mb-6" id="help-matrix">
                         <h2 class="text-xl font-bold text-pink-800 mb-3 flex items-center gap-2">
-                            <span class="bg-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">5</span>
+                            <span class="bg-pink-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">6</span>
                             📊 Scheda Matrix (Matrice Connessioni)
                         </h2>
                         
@@ -1262,10 +1731,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-pink-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 6. SCHEDA FLOOR PLAN ========== -->
+                    <!-- ========== 7. SCHEDA FLOOR PLAN ========== -->
                     <div class="bg-emerald-50 border-l-4 border-emerald-500 rounded-r-xl p-5 mb-6" id="help-floorplan">
                         <h2 class="text-xl font-bold text-emerald-800 mb-3 flex items-center gap-2">
-                            <span class="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">6</span>
+                            <span class="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">7</span>
                             🏢 Scheda Floor Plan (Planimetria)
                         </h2>
                         
@@ -1350,10 +1819,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-emerald-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 7. SCHEDA LOGS ========== -->
+                    <!-- ========== 8. SCHEDA LOGS ========== -->
                     <div class="bg-amber-50 border-l-4 border-amber-500 rounded-r-xl p-5 mb-6" id="help-logs">
                         <h2 class="text-xl font-bold text-amber-800 mb-3 flex items-center gap-2">
-                            <span class="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">7</span>
+                            <span class="bg-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">8</span>
                             📋 Scheda Activity Logs
                         </h2>
                         
@@ -1396,10 +1865,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-amber-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 8. IMPORT/EXPORT ========== -->
+                    <!-- ========== 9. IMPORT/EXPORT ========== -->
                     <div class="bg-red-50 border-l-4 border-red-500 rounded-r-xl p-5 mb-6" id="help-export">
                         <h2 class="text-xl font-bold text-red-800 mb-3 flex items-center gap-2">
-                            <span class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">8</span>
+                            <span class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">9</span>
                             💾 Import/Export e Backup
                         </h2>
                         
@@ -1497,10 +1966,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-red-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 9. LOCATION MANAGER ========== -->
+                    <!-- ========== 10. LOCATION MANAGER ========== -->
                     <div class="bg-violet-50 border-l-4 border-violet-500 rounded-r-xl p-5 mb-6" id="help-locations">
                         <h2 class="text-xl font-bold text-violet-800 mb-3 flex items-center gap-2">
-                            <span class="bg-violet-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">9</span>
+                            <span class="bg-violet-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">10</span>
                             📍 Location Manager (Gestione Sedi)
                         </h2>
                         
@@ -1567,11 +2036,11 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-violet-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 10. STAMPA ========== -->
+                    <!-- ========== 11. STAMPA ========== -->
                     <div class="bg-rose-50 border-l-4 border-rose-500 rounded-r-xl p-5 mb-6" id="help-print">
                         <h2 class="text-xl font-bold text-rose-800 mb-3 flex items-center gap-2">
-                            <span class="bg-rose-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">10</span>
-                            🖨️ Stampa
+                            <span class="bg-rose-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">11</span>
+                            🖨️ Stampa e Esportazione PNG
                         </h2>
                         
                         <div class="space-y-4">
@@ -1648,10 +2117,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-rose-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 11. FLUSSO DI LAVORO ========== -->
+                    <!-- ========== 12. FLUSSO DI LAVORO ========== -->
                     <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-r-xl p-5 mb-6" id="help-workflow">
                         <h2 class="text-xl font-bold text-yellow-800 mb-3 flex items-center gap-2">
-                            <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">11</span>
+                            <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">12</span>
                             🔄 Flusso di Lavoro Consigliato
                         </h2>
                         
@@ -1719,10 +2188,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-yellow-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 12. GLOSSARIO ========== -->
+                    <!-- ========== 13. GLOSSARIO ========== -->
                     <div class="bg-indigo-50 border-l-4 border-indigo-500 rounded-r-xl p-5 mb-6" id="help-glossary">
                         <h2 class="text-xl font-bold text-indigo-800 mb-3 flex items-center gap-2">
-                            <span class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">12</span>
+                            <span class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">13</span>
                             📖 Glossario dei Termini
                         </h2>
                         
@@ -1781,10 +2250,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-indigo-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 13. FAQ ========== -->
+                    <!-- ========== 14. FAQ ========== -->
                     <div class="bg-teal-50 border-l-4 border-teal-500 rounded-r-xl p-5 mb-6" id="help-faq">
                         <h2 class="text-xl font-bold text-teal-800 mb-3 flex items-center gap-2">
-                            <span class="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">13</span>
+                            <span class="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">14</span>
                             ❓ Domande Frequenti (FAQ)
                         </h2>
                         
@@ -1840,6 +2309,330 @@ Device-C  │          │   🟢     │    -     │</pre>
                             </details>
                         </div>
                         <a href="#help-index" class="text-teal-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
+                    </div>
+
+                    <!-- ========== 15. INSTALAÇÃO DO SISTEMA ========== -->
+                    <div class="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 rounded-r-xl p-5 mb-6" id="help-install">
+                        <h2 class="text-xl font-bold text-orange-800 mb-3 flex items-center gap-2">
+                            <span class="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">15</span>
+                            🛠️ Instalação do Sistema (Guia para Administradores)
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Introdução -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-2">📋 Visão Geral</h3>
+                                <p class="text-orange-800 text-sm mb-3">Esta seção explica como instalar o TIESSE Matrix Network em um servidor Ubuntu com Apache. O sistema é uma aplicação web que roda em servidor interno (intranet) e não requer conexão com internet após a instalação.</p>
+                                
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                                    <p class="font-semibold text-orange-900 text-sm mb-2">📌 Requisitos do Sistema:</p>
+                                    <ul class="text-orange-700 text-sm ml-4 list-disc space-y-1">
+                                        <li><strong>Sistema Operacional:</strong> Ubuntu 22.04 LTS ou 24.04 LTS (recomendado)</li>
+                                        <li><strong>Servidor Web:</strong> Apache 2.4+ com mod_rewrite</li>
+                                        <li><strong>PHP:</strong> PHP 8.1+ com extensões JSON e mbstring</li>
+                                        <li><strong>Ferramentas:</strong> unzip (para extrair arquivos)</li>
+                                        <li><strong>Memória:</strong> Mínimo 512MB RAM</li>
+                                        <li><strong>Disco:</strong> Mínimo 100MB espaço livre</li>
+                                        <li><strong>Rede:</strong> IP fixo na rede local</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Passo 1: Preparação do Ubuntu -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">📦 Passo 1: Preparação do Servidor Ubuntu</h3>
+                                <p class="text-orange-800 text-sm mb-3">Primeiro, atualize o sistema e instale os pacotes necessários:</p>
+                                
+                                <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 mb-3 overflow-x-auto">
+<pre><span class="text-slate-500"># Atualizar lista de pacotes e sistema</span>
+<span class="text-cyan-400">sudo</span> apt update && <span class="text-cyan-400">sudo</span> apt upgrade -y
+
+<span class="text-slate-500"># Instalar Apache, PHP e ferramentas</span>
+<span class="text-cyan-400">sudo</span> apt install -y apache2 php php-json php-mbstring unzip
+
+<span class="text-slate-500"># Verificar se Apache está rodando</span>
+<span class="text-cyan-400">sudo</span> systemctl status apache2
+
+<span class="text-slate-500"># Habilitar Apache para iniciar com o sistema</span>
+<span class="text-cyan-400">sudo</span> systemctl enable apache2</pre>
+                                </div>
+
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs">
+                                    <p class="font-semibold text-blue-900 mb-1">💡 Verificando a instalação:</p>
+                                    <p class="text-blue-700">Abra um navegador e acesse <code class="bg-blue-200 px-1 rounded">http://IP_DO_SERVIDOR</code>. Você deve ver a página padrão do Apache "It works!".</p>
+                                </div>
+                            </div>
+
+                            <!-- Passo 2: Instalar Matrix -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">📂 Passo 2: Instalar o Matrix Network</h3>
+                                <p class="text-orange-800 text-sm mb-3">Copie a pasta <code class="bg-orange-200 px-1 rounded">Matrix</code> para o servidor e configure permissões:</p>
+                                
+                                <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 mb-3 overflow-x-auto">
+<pre><span class="text-slate-500"># Opção A: Se você tem a pasta Matrix em um pendrive/HD externo</span>
+<span class="text-slate-500"># Monte o dispositivo e copie:</span>
+<span class="text-cyan-400">sudo</span> cp -r /media/seu_usuario/PENDRIVE/Matrix /var/www/html/matrix
+
+<span class="text-slate-500"># Opção B: Se você tem um arquivo matrix.zip</span>
+<span class="text-cyan-400">sudo</span> unzip matrix.zip -d /var/www/html/
+
+<span class="text-slate-500"># Renomear para letras minúsculas (padronização)</span>
+<span class="text-cyan-400">sudo</span> mv /var/www/html/Matrix /var/www/html/matrix 2>/dev/null || true</pre>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs">
+                                    <p class="font-semibold text-amber-900 mb-1">⚠️ Estrutura de pastas esperada:</p>
+                                    <div class="bg-slate-800 rounded p-2 font-mono text-green-400 mt-2">
+<pre>/var/www/html/matrix/
+├── index.html          <span class="text-slate-500"># Página principal</span>
+├── data.php            <span class="text-slate-500"># API de dados</span>
+├── api/
+│   └── auth.php        <span class="text-slate-500"># API de autenticação</span>
+├── config/
+│   └── config.php      <span class="text-slate-500"># Configurações (senha)</span>
+├── data/
+│   └── network_manager.json  <span class="text-slate-500"># Dados da rede</span>
+├── js/                 <span class="text-slate-500"># Scripts JavaScript</span>
+├── css/                <span class="text-slate-500"># Estilos CSS</span>
+└── assets/             <span class="text-slate-500"># Bibliotecas e recursos</span></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Passo 3: Permissões -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">🔐 Passo 3: Configurar Permissões</h3>
+                                <p class="text-orange-800 text-sm mb-3">Configure as permissões corretas para que o Apache possa ler e escrever os dados:</p>
+                                
+                                <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 mb-3 overflow-x-auto">
+<pre><span class="text-slate-500"># Definir proprietário para o usuário do Apache</span>
+<span class="text-cyan-400">sudo</span> chown -R www-data:www-data /var/www/html/matrix
+
+<span class="text-slate-500"># Definir permissões: 755 para pastas, 644 para arquivos</span>
+<span class="text-cyan-400">sudo</span> find /var/www/html/matrix -type d -exec chmod 755 {} \;
+<span class="text-cyan-400">sudo</span> find /var/www/html/matrix -type f -exec chmod 644 {} \;
+
+<span class="text-slate-500"># Permissão de escrita para a pasta de dados (importante!)</span>
+<span class="text-cyan-400">sudo</span> chmod 775 /var/www/html/matrix/data
+<span class="text-cyan-400">sudo</span> chmod 664 /var/www/html/matrix/data/network_manager.json</pre>
+                                </div>
+
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs">
+                                    <p class="font-semibold text-red-900 mb-1">⚠️ Muito Importante:</p>
+                                    <p class="text-red-700">A pasta <code class="bg-red-200 px-1 rounded">/var/www/html/matrix/data</code> DEVE ter permissão de escrita para o usuário <code class="bg-red-200 px-1 rounded">www-data</code>. Sem isso, o sistema não conseguirá salvar as alterações!</p>
+                                </div>
+                            </div>
+
+                            <!-- Passo 4: Testar -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">✅ Passo 4: Testar a Instalação</h3>
+                                <p class="text-orange-800 text-sm mb-3">Acesse o sistema pelo navegador:</p>
+                                
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-3">
+                                    <p class="font-semibold text-green-900 text-center text-lg mb-2">🌐 Endereço de Acesso:</p>
+                                    <p class="text-center">
+                                        <code class="bg-green-200 text-green-900 px-4 py-2 rounded-lg text-lg font-bold">http://IP_DO_SERVIDOR/matrix/</code>
+                                    </p>
+                                    <p class="text-green-700 text-xs text-center mt-2">Exemplo: <code class="bg-green-200 px-1 rounded">http://192.168.1.100/matrix/</code></p>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-3 text-xs">
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <span class="font-bold text-slate-800">✅ Se funcionou:</span>
+                                        <p class="text-slate-600 mt-1">Você verá a interface do Matrix Network. Clique em "Edit Mode" e faça login para testar modificações.</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <span class="font-bold text-slate-800">❌ Se deu erro:</span>
+                                        <p class="text-slate-600 mt-1">Verifique os logs: <code class="bg-slate-200 px-1 rounded">sudo tail -f /var/log/apache2/error.log</code></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credenciais Padrão -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">🔑 Credenciais de Acesso Padrão</h3>
+                                
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                                        <p class="font-bold text-blue-900 mb-2">👤 Usuário:</p>
+                                        <code class="bg-blue-200 text-blue-900 px-4 py-2 rounded-lg text-lg font-bold">tiesse</code>
+                                    </div>
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                                        <p class="font-bold text-blue-900 mb-2">🔐 Senha:</p>
+                                        <code class="bg-blue-200 text-blue-900 px-4 py-2 rounded-lg text-lg font-bold">tiesseadm</code>
+                                    </div>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3 text-xs">
+                                    <p class="font-semibold text-amber-900 mb-1">⚠️ Alterar a Senha:</p>
+                                    <p class="text-amber-700 mb-2">Para segurança, altere a senha padrão editando o arquivo <code class="bg-amber-200 px-1 rounded">/var/www/html/matrix/config/config.php</code></p>
+                                    <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
+<pre><span class="text-slate-500">// Gerar novo hash de senha no terminal:</span>
+php -r "echo password_hash('SuaNovaSenha', PASSWORD_DEFAULT);"
+<span class="text-slate-500">// Copie o resultado e substitua no config.php</span></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Importar Dados -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">📥 Passo 5: Importar Dados Existentes</h3>
+                                <p class="text-orange-800 text-sm mb-3">Se você já tem dados de uma instalação anterior, importe-os:</p>
+                                
+                                <div class="grid md:grid-cols-2 gap-3 text-xs">
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <span class="font-bold text-slate-800">📋 Opção A: Via Interface</span>
+                                        <ol class="text-slate-600 mt-2 ml-4 list-decimal space-y-1">
+                                            <li>Acesse o Matrix Network pelo navegador</li>
+                                            <li>Clique em "Edit Mode" e faça login</li>
+                                            <li>Clique em "Import JSON"</li>
+                                            <li>Selecione o arquivo .json exportado anteriormente</li>
+                                            <li>Clique em "Save Now" para confirmar</li>
+                                        </ol>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <span class="font-bold text-slate-800">📋 Opção B: Via Terminal</span>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mt-2">
+<pre><span class="text-slate-500"># Copiar arquivo de dados diretamente</span>
+<span class="text-cyan-400">sudo</span> cp /caminho/backup.json \
+  /var/www/html/matrix/data/network_manager.json
+<span class="text-cyan-400">sudo</span> chown www-data:www-data \
+  /var/www/html/matrix/data/network_manager.json</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configurações Opcionais -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">⚙️ Configurações Opcionais (Avançado)</h3>
+                                
+                                <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🌐 Configurar DNS/Hostname personalizado</summary>
+                                    <div class="p-3 pt-0 text-xs text-slate-700">
+                                        <p class="mb-2">Para acessar via nome ao invés de IP (ex: <code class="bg-slate-200 px-1 rounded">http://matrix.empresa.local</code>):</p>
+                                        <ol class="ml-4 list-decimal space-y-1">
+                                            <li>Configure o registro DNS no seu servidor DNS interno</li>
+                                            <li>Ou adicione no arquivo hosts de cada computador cliente</li>
+                                        </ol>
+                                    </div>
+                                </details>
+
+                                <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🔒 Habilitar HTTPS (Certificado SSL)</summary>
+                                    <div class="p-3 pt-0 text-xs text-slate-700">
+                                        <p class="mb-2">Para redes com certificado SSL interno:</p>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
+<pre><span class="text-cyan-400">sudo</span> a2enmod ssl
+<span class="text-cyan-400">sudo</span> a2ensite default-ssl
+<span class="text-cyan-400">sudo</span> systemctl restart apache2</pre>
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">💾 Configurar Backup Automático</summary>
+                                    <div class="p-3 pt-0 text-xs text-slate-700">
+                                        <p class="mb-2">Crie um cron job para backup diário dos dados:</p>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
+<pre><span class="text-slate-500"># Editar crontab</span>
+<span class="text-cyan-400">sudo</span> crontab -e
+
+<span class="text-slate-500"># Adicionar linha (backup às 2h da manhã):</span>
+0 2 * * * cp /var/www/html/matrix/data/network_manager.json \
+  /backup/matrix_$(date +\%Y\%m\%d).json</pre>
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <details class="bg-slate-50 rounded-lg border border-slate-200">
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">🛡️ Restringir Acesso por IP</summary>
+                                    <div class="p-3 pt-0 text-xs text-slate-700">
+                                        <p class="mb-2">Para limitar acesso apenas à rede interna, edite <code class="bg-slate-200 px-1 rounded">/etc/apache2/sites-available/000-default.conf</code>:</p>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
+<pre>&lt;Directory /var/www/html/matrix&gt;
+    Require ip 192.168.1.0/24
+    Require ip 10.0.0.0/8
+&lt;/Directory&gt;</pre>
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+
+                            <!-- Troubleshooting -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">🔧 Solução de Problemas Comuns</h3>
+                                
+                                <div class="space-y-3 text-xs">
+                                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                        <p class="font-bold text-red-900 mb-1">❌ Erro 403 Forbidden</p>
+                                        <p class="text-red-700">Permissões incorretas. Execute: <code class="bg-red-200 px-1 rounded">sudo chown -R www-data:www-data /var/www/html/matrix</code></p>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                        <p class="font-bold text-red-900 mb-1">❌ Erro 500 Internal Server Error</p>
+                                        <p class="text-red-700">Verifique logs: <code class="bg-red-200 px-1 rounded">sudo tail -50 /var/log/apache2/error.log</code></p>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                        <p class="font-bold text-red-900 mb-1">❌ Não salva as alterações</p>
+                                        <p class="text-red-700">Pasta data sem permissão de escrita: <code class="bg-red-200 px-1 rounded">sudo chmod 775 /var/www/html/matrix/data</code></p>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                        <p class="font-bold text-red-900 mb-1">❌ Página em branco</p>
+                                        <p class="text-red-700">PHP não instalado corretamente. Verifique: <code class="bg-red-200 px-1 rounded">php -v</code> e <code class="bg-red-200 px-1 rounded">sudo a2enmod php8.3</code></p>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                        <p class="font-bold text-red-900 mb-1">❌ Login não funciona</p>
+                                        <p class="text-red-700">Verifique se o arquivo config.php existe e está legível. Usuário padrão: <code class="bg-red-200 px-1 rounded">tiesse</code> / Senha: <code class="bg-red-200 px-1 rounded">tiesseadm</code></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Comandos Úteis -->
+                            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                                <h3 class="font-bold text-orange-900 mb-3">📋 Comandos Úteis para Administradores</h3>
+                                
+                                <div class="bg-slate-900 rounded-lg p-4 font-mono text-sm text-green-400 overflow-x-auto">
+<pre><span class="text-slate-500"># Verificar status do Apache</span>
+<span class="text-cyan-400">sudo</span> systemctl status apache2
+
+<span class="text-slate-500"># Reiniciar Apache (após alterações)</span>
+<span class="text-cyan-400">sudo</span> systemctl restart apache2
+
+<span class="text-slate-500"># Ver logs de erro do Apache</span>
+<span class="text-cyan-400">sudo</span> tail -f /var/log/apache2/error.log
+
+<span class="text-slate-500"># Ver logs de acesso</span>
+<span class="text-cyan-400">sudo</span> tail -f /var/log/apache2/access.log
+
+<span class="text-slate-500"># Verificar permissões da pasta matrix</span>
+ls -la /var/www/html/matrix/
+
+<span class="text-slate-500"># Verificar espaço em disco</span>
+df -h /var/www/html/
+
+<span class="text-slate-500"># Verificar versão do PHP</span>
+php -v
+
+<span class="text-slate-500"># Fazer backup manual dos dados</span>
+<span class="text-cyan-400">sudo</span> cp /var/www/html/matrix/data/network_manager.json \
+   ~/backup_matrix_$(date +%Y%m%d_%H%M%S).json
+
+<span class="text-slate-500"># Verificar IP do servidor</span>
+ip addr show | grep "inet "</pre>
+                                </div>
+                            </div>
+
+                            <!-- Suporte -->
+                            <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-4 border border-blue-300">
+                                <h3 class="font-bold text-blue-900 mb-2">📞 Suporte</h3>
+                                <p class="text-blue-800 text-sm">Para suporte técnico ou dúvidas sobre a instalação, entre em contato com o departamento de TI da Tiesse S.P.A.</p>
+                                <div class="mt-3 flex gap-4 text-xs">
+                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📧 suporte@tiesse.com</span>
+                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versão: 3.4.3</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#help-index" class="text-orange-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
                     <!-- ========== FOOTER ========== -->
