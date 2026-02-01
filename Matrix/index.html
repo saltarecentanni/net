@@ -2557,15 +2557,35 @@ php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
                                     </div>
                                 </details>
 
-                                <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
-                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">💾 Configurare Backup Automatico</summary>
+                                <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2" open>
+                                    <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">💾 Backup Automatico (Attivo)</summary>
                                     <div class="p-3 pt-0 text-xs text-slate-700">
+                                        
+                                        <!-- STATO ATTUALE -->
+                                        <div class="bg-green-100 border-2 border-green-400 rounded-lg p-3 mb-3">
+                                            <p class="font-bold text-green-900 mb-2">✅ BACKUP AUTOMATICO ATTIVO</p>
+                                            <div class="grid md:grid-cols-2 gap-3">
+                                                <div class="bg-white p-2 rounded-lg border border-green-300">
+                                                    <p class="font-semibold text-green-800">📅 Backup Settimanale</p>
+                                                    <p class="text-green-700">Ogni <strong>Domenica alle 02:00</strong></p>
+                                                </div>
+                                                <div class="bg-white p-2 rounded-lg border border-green-300">
+                                                    <p class="font-semibold text-green-800">📆 Backup Mensile</p>
+                                                    <p class="text-green-700">Giorno <strong>1 del mese alle 03:00</strong></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 bg-white p-2 rounded-lg border border-green-300">
+                                                <p class="font-semibold text-green-800">📁 Cartella Backup:</p>
+                                                <code class="text-green-700 font-mono">/var/www/html/matrix/backup/</code>
+                                            </div>
+                                        </div>
+
                                         <p class="mb-2">Il sistema include uno script di backup automatico con retention policy:</p>
                                         
                                         <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-3">
                                             <p class="font-bold text-emerald-900 mb-2">📋 Politica di Retention:</p>
                                             <ul class="text-emerald-700 ml-3 list-disc space-y-1">
-                                                <li><strong>Backup Settimanali:</strong> 4 file (ultimi 4 settimane)</li>
+                                                <li><strong>Backup Settimanali:</strong> 4 file (ultime 4 settimane)</li>
                                                 <li><strong>Backup Mensili:</strong> 12 file (ultimi 12 mesi)</li>
                                             </ul>
                                         </div>
@@ -2574,48 +2594,36 @@ php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
                                         <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mb-3">
 <pre>/var/www/html/matrix/backup/
 ├── backup.sh           <span class="text-slate-500"># Script di backup</span>
+├── backup.log          <span class="text-slate-500"># Log delle operazioni</span>
 ├── weekly/
-│   ├── backup_week_01.json
-│   ├── backup_week_02.json
-│   ├── backup_week_03.json
-│   └── backup_week_04.json
+│   ├── backup_week_01.json  <span class="text-slate-500"># Settimana 1</span>
+│   ├── backup_week_02.json  <span class="text-slate-500"># Settimana 2</span>
+│   ├── backup_week_03.json  <span class="text-slate-500"># Settimana 3</span>
+│   └── backup_week_04.json  <span class="text-slate-500"># Settimana 4</span>
 └── monthly/
-    ├── backup_2026_01.json
-    ├── backup_2026_02.json
-    └── ... <span class="text-slate-500">(12 mesi)</span></pre>
-                                        </div>
-
-                                        <p class="font-semibold text-slate-900 mb-2">⚙️ Installazione rapida:</p>
-                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mb-3">
-<pre><span class="text-slate-500"># 1. Rendere eseguibile lo script</span>
-<span class="text-cyan-400">sudo</span> chmod +x /var/www/html/matrix/backup/backup.sh
-
-<span class="text-slate-500"># 2. Aggiungere al crontab</span>
-<span class="text-cyan-400">sudo</span> crontab -e
-
-<span class="text-slate-500"># 3. Inserire queste righe:</span>
-<span class="text-yellow-400"># Backup settimanale (ogni Domenica alle 2:00)</span>
-0 2 * * 0 /var/www/html/matrix/backup/backup.sh weekly
-<span class="text-yellow-400"># Backup mensile (1° giorno del mese alle 3:00)</span>
-0 3 1 * * /var/www/html/matrix/backup/backup.sh monthly</pre>
+    ├── backup_2026_01.json  <span class="text-slate-500"># Gennaio</span>
+    ├── backup_2026_02.json  <span class="text-slate-500"># Febbraio</span>
+    └── ... <span class="text-slate-500">(12 mesi max)</span></pre>
                                         </div>
 
                                         <p class="font-semibold text-slate-900 mb-2">🔧 Comandi utili:</p>
-                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
-<pre><span class="text-slate-500"># Eseguire backup manuale completo</span>
-<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh
-
-<span class="text-slate-500"># Eseguire solo backup settimanale</span>
-<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh weekly
-
-<span class="text-slate-500"># Eseguire solo backup mensile</span>
-<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh monthly
-
-<span class="text-slate-500"># Vedere stato dei backup</span>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mb-3">
+<pre><span class="text-slate-500"># Vedere stato dei backup</span>
 <span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh status
 
-<span class="text-slate-500"># Verificare crontab</span>
-<span class="text-cyan-400">sudo</span> crontab -l</pre>
+<span class="text-slate-500"># Eseguire backup manuale completo</span>
+<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh
+
+<span class="text-slate-500"># Verificare crontab attivo</span>
+<span class="text-cyan-400">sudo</span> crontab -l
+
+<span class="text-slate-500"># Vedere log backup</span>
+<span class="text-cyan-400">cat</span> /var/www/html/matrix/backup/backup.log</pre>
+                                        </div>
+
+                                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-2">
+                                            <p class="font-semibold text-amber-900 text-xs">⚠️ Ripristino da Backup:</p>
+                                            <p class="text-amber-700 text-xs">Per ripristinare, copiare il file .json desiderato in <code class="bg-amber-200 px-1 rounded">data/network_manager.json</code></p>
                                         </div>
                                     </div>
                                 </details>
