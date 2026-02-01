@@ -89,103 +89,58 @@ var VALID_ENUMS = {
 
 /**
  * Validate a complete device object against schema
+ * RELAXED validation - only checks essential structure, not enum values
+ * This allows backward compatibility with older data formats
  * @param {Object} device - Device to validate
  * @param {number} index - Device index for error messages
  * @returns {Object} - {valid: boolean, error: string|null}
  */
 function validateDeviceSchema(device, index) {
-    // Required fields
-    if (!device.id || typeof device.id !== 'number' || device.id <= 0 || !Number.isInteger(device.id)) {
-        return {valid: false, error: 'Device #' + index + ': id must be a positive integer'};
+    // Only check if essential fields exist - don't validate values
+    if (!device || typeof device !== 'object') {
+        return {valid: false, error: 'Device #' + index + ': must be an object'};
     }
-    if (!device.name || typeof device.name !== 'string' || device.name.length === 0 || device.name.length > 255) {
-        return {valid: false, error: 'Device #' + index + ': name must be 1-255 characters'};
+    if (device.id === undefined || device.id === null) {
+        return {valid: false, error: 'Device #' + index + ': id is required'};
     }
-    if (!device.type || typeof device.type !== 'string') {
-        return {valid: false, error: 'Device #' + index + ': type is required'};
+    if (!device.name || typeof device.name !== 'string') {
+        return {valid: false, error: 'Device #' + index + ': name is required'};
     }
-    // Type enum validation (warning only - allow custom types)
-    if (VALID_ENUMS.deviceTypes.indexOf(device.type) === -1) {
-        Debug.warn('Device #' + index + ': type "' + device.type + '" is non-standard');
-    }
-    if (!device.status || typeof device.status !== 'string') {
-        return {valid: false, error: 'Device #' + index + ': status is required'};
-    }
-    if (VALID_ENUMS.deviceStatus.indexOf(device.status) === -1) {
-        return {valid: false, error: 'Device #' + index + ': status must be one of: ' + VALID_ENUMS.deviceStatus.join(', ')};
-    }
-    // Ports validation
-    if (!Array.isArray(device.ports)) {
-        return {valid: false, error: 'Device #' + index + ': ports must be an array'};
-    }
-    for (var p = 0; p < device.ports.length; p++) {
-        var port = device.ports[p];
-        if (!port.name || typeof port.name !== 'string') {
-            return {valid: false, error: 'Device #' + index + ', Port #' + p + ': name is required'};
-        }
-    }
-    // Location validation
-    if (!device.rackId && !device.rack) {
-        return {valid: false, error: 'Device #' + index + ': rackId or rack is required'};
-    }
+    // All other fields are optional or have defaults - don't block import
     return {valid: true, error: null};
 }
 
 /**
  * Validate a complete connection object against schema
+ * RELAXED validation - only checks essential structure
  * @param {Object} conn - Connection to validate
  * @param {number} index - Connection index for error messages
- * @param {Array} deviceIds - Array of valid device IDs
+ * @param {Array} deviceIds - Array of valid device IDs (not used in relaxed mode)
  * @returns {Object} - {valid: boolean, error: string|null}
  */
 function validateConnectionSchema(conn, index, deviceIds) {
-    // Required fields
-    if (typeof conn.from !== 'number' || conn.from <= 0) {
-        return {valid: false, error: 'Connection #' + index + ': from must be a positive number'};
+    if (!conn || typeof conn !== 'object') {
+        return {valid: false, error: 'Connection #' + index + ': must be an object'};
     }
-    // Validate 'from' device exists
-    if (deviceIds.indexOf(conn.from) === -1) {
-        return {valid: false, error: 'Connection #' + index + ': from device ID ' + conn.from + ' does not exist'};
+    if (conn.from === undefined || conn.from === null) {
+        return {valid: false, error: 'Connection #' + index + ': from is required'};
     }
-    // Validate 'to' (null allowed for external)
-    if (conn.to !== null && conn.to !== undefined) {
-        if (typeof conn.to !== 'number' || conn.to <= 0) {
-            return {valid: false, error: 'Connection #' + index + ': to must be a positive number or null'};
-        }
-        if (deviceIds.indexOf(conn.to) === -1) {
-            return {valid: false, error: 'Connection #' + index + ': to device ID ' + conn.to + ' does not exist'};
-        }
-    }
-    // Type validation
-    if (!conn.type || typeof conn.type !== 'string') {
-        return {valid: false, error: 'Connection #' + index + ': type is required'};
-    }
-    if (VALID_ENUMS.connectionTypes.indexOf(conn.type) === -1) {
-        Debug.warn('Connection #' + index + ': type "' + conn.type + '" is non-standard');
-    }
-    // Status validation
-    if (!conn.status || typeof conn.status !== 'string') {
-        return {valid: false, error: 'Connection #' + index + ': status is required'};
-    }
-    if (VALID_ENUMS.connectionStatus.indexOf(conn.status) === -1) {
-        return {valid: false, error: 'Connection #' + index + ': status must be one of: ' + VALID_ENUMS.connectionStatus.join(', ')};
-    }
+    // All other fields are optional - don't block import
     return {valid: true, error: null};
 }
 
 /**
  * Validate a room object against schema
+ * RELAXED validation - only checks essential structure
  * @param {Object} room - Room to validate
  * @param {number} index - Room index for error messages
  * @returns {Object} - {valid: boolean, error: string|null}
  */
 function validateRoomSchema(room, index) {
-    if (!room.id || typeof room.id !== 'string') {
-        return {valid: false, error: 'Room #' + index + ': id is required and must be a string'};
+    if (!room || typeof room !== 'object') {
+        return {valid: false, error: 'Room #' + index + ': must be an object'};
     }
-    if (!room.name || typeof room.name !== 'string' || room.name.length === 0 || room.name.length > 100) {
-        return {valid: false, error: 'Room #' + index + ': name must be 1-100 characters'};
-    }
+    // Rooms can have various structures - don't block
     return {valid: true, error: null};
 }
 
