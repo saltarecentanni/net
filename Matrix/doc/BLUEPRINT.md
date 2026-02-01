@@ -1,8 +1,9 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.4.2  
+**Version:** 3.4.3  
 **Date:** February 1, 2026  
-**Author:** Tiesse S.P.A.
+**Author:** Tiesse S.P.A.  
+**Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
 
 ---
 
@@ -21,7 +22,34 @@ A web-based network infrastructure management system for enterprise environments
 - Multi-user access via local network with authentication
 - Complete data import/export including rooms
 
-### 1.3 What's New in v3.4.2
+### 1.3 What's New in v3.4.3
+
+#### 🔒 Multi-User Edit Lock System (v3.4.3)
+| Enhancement | Description |
+|-------------|-------------|
+| **Edit Lock API** | `api/editlock.php` - Server-side lock management |
+| **Client Module** | `js/editlock.js` - Lock acquire/release/heartbeat |
+| **Lock Timeout** | 5 minutes inactivity auto-release |
+| **Heartbeat** | 60-second intervals keep lock alive |
+| **Conflict Prevention** | Shows warning when another user is editing |
+| **Auto-Release** | Lock released on logout or page close |
+
+#### 💾 Automated Backup System (v3.4.3)
+| Enhancement | Description |
+|-------------|-------------|
+| **backup.sh** | Script with retention policy |
+| **Weekly Backup** | Sunday 02:00 - 4 weeks rotational |
+| **Monthly Backup** | Day 1 03:00 - 12 months retention |
+| **Cron Integration** | Automatic scheduling via crontab |
+
+#### 🔐 Security Hardening (v3.4.3)
+| Enhancement | Description |
+|-------------|-------------|
+| **No Hardcoded Passwords** | Removed from all source files |
+| **API-Only Verification** | Password checked via auth.php only |
+| **Environment Variables** | Credentials in .env file |
+
+### 1.4 What's New in v3.4.2
 
 #### 🔒 Security & Reliability (v3.4.2)
 | Enhancement | Description |
@@ -33,7 +61,7 @@ A web-based network infrastructure management system for enterprise environments
 | **Export/Import Checksum** | JSON exports include checksum (simples); imports validate |
 | **Input Validation** | Stricter device/connection validation | 
 
-### 1.4 What's New in v3.4.0
+### 1.5 What's New in v3.4.0
 
 #### 🏢 Floor Plan & Room Management
 | Enhancement | Description |
@@ -115,13 +143,24 @@ Matrix/
 ├── deploy.sh               # Linux deploy script
 │
 ├── api/
-│   └── auth.php            # Authentication API (PHP)
+│   ├── auth.php            # Authentication API (PHP)
+│   └── editlock.php        # Edit Lock API (v3.4.3)
+│                           # - acquire: get editing lock
+│                           # - release: release lock
+│                           # - heartbeat: keep lock alive
+│                           # - status: check lock status
 │
 ├── assets/
 │   ├── logoTiesse.png      # Company logo
+│   ├── planta.png          # Floor plan background image
 │   └── vendor/             # Local libraries (offline capable)
 │       ├── tailwind.min.js # Tailwind CSS
 │       └── xlsx.full.min.js # SheetJS XLSX
+│
+├── backup/                 # Automated backup system (v3.4.3)
+│   ├── backup.sh           # Backup script with retention
+│   ├── weekly/             # Weekly backups (4 max)
+│   └── monthly/            # Monthly backups (12 max)
 │
 ├── config/
 │   └── config.php          # Configuration (AUTH_USER, SESSION_TIMEOUT)
@@ -130,7 +169,8 @@ Matrix/
 │   └── styles.css          # CSS Variables and custom styles
 │
 ├── data/
-│   └── network_manager.json  # Persisted data (devices, connections, rooms)
+│   ├── network_manager.json  # Persisted data (devices, connections, rooms)
+│   └── edit.lock           # Lock file (auto-generated)
 │
 ├── doc/
 │   ├── README.md           # User documentation
@@ -138,7 +178,7 @@ Matrix/
 │   └── ROOM_STRUCTURE.md   # Room data structure documentation
 │
 └── js/
-  ├── app.js              # Main logic (v3.4.x)
+    ├── app.js              # Main logic (v3.4.x)
     │                       # - Global state (appState)
     │                       # - Device/Connection CRUD
     │                       # - Room-device association helpers
@@ -164,23 +204,33 @@ Matrix/
     │                       # - Room info modal (showRoomInfo)
     │                       # - PNG export
     │
+    ├── editlock.js         # Edit Lock module (v3.4.3)
+    │                       # - EditLock.acquire()
+    │                       # - EditLock.release()
+    │                       # - EditLock.heartbeat()
+    │                       # - Conflict detection modal
+    │
     └── auth.js             # Authentication module (v3.4.x)
                             # - Login/logout functions
                             # - Session management
+                            # - EditLock integration
 ```
 
 ### 2.3 Version Summary
 
 | File | Version | Description |
 |------|---------|-------------|
-| index.html | 3.4.2 | Main HTML with 7 tabs |
-| server.js | 3.4.2 | Node.js REST server with auth |
-| app.js | 3.4.2 | Core logic, CRUD, import/export |
-| ui-updates.js | 3.4.2 | UI rendering, SVG Matrix |
-| features.js | 3.4.2 | Extended features, topology |
-| floorplan.js | 3.4.2 | Floor plan and room management |
-| auth.js | 3.4.2 | Authentication module |
-| styles.css | 3.4.2 | CSS Variables |
+| index.html | 3.4.3 | Main HTML with 7 tabs |
+| server.js | 3.4.3 | Node.js REST server with auth |
+| app.js | 3.4.3 | Core logic, CRUD, import/export |
+| ui-updates.js | 3.4.3 | UI rendering, SVG Matrix |
+| features.js | 3.4.3 | Extended features, topology |
+| floorplan.js | 3.4.3 | Floor plan and room management |
+| editlock.js | 3.4.3 | Multi-user edit lock module |
+| editlock.php | 3.4.3 | Edit lock API |
+| backup.sh | 3.4.3 | Automated backup script |
+| auth.js | 3.4.3 | Authentication + EditLock |
+| styles.css | 3.4.3 | CSS Variables |
 
 ---
 
@@ -514,7 +564,46 @@ var appState = {
 | POST | - | Saves data with validation and file locking |
 | POST | verify_password | Verify admin password (for clearAll) |
 
-### 6.3 Data Response Format
+### 6.3 Edit Lock API (editlock.php) - v3.4.3
+
+| Method | Action | Description |
+|--------|--------|-------------|
+| GET | - | Returns current lock status |
+| POST | acquire | Acquire editing lock |
+| POST | release | Release editing lock |
+| POST | heartbeat | Keep lock alive (extends timeout) |
+
+**Lock Status Response:**
+```json
+{
+  "locked": true,
+  "lockedBy": "tiesse",
+  "lockedAt": 1706745600,
+  "expiresAt": 1706745900,
+  "timeout": 300
+}
+```
+
+**Acquire Response (success):**
+```json
+{
+  "success": true,
+  "message": "Lock acquired",
+  "expiresAt": 1706745900
+}
+```
+
+**Acquire Response (conflict):**
+```json
+{
+  "success": false,
+  "message": "Already locked by tiesse",
+  "lockedBy": "tiesse",
+  "lockedAt": 1706745600
+}
+```
+
+### 6.4 Data Response Format
 
 ```json
 {
@@ -571,7 +660,7 @@ var appState = {
 
 ### 8.1 Authentication
 - Session-based with configurable timeout
-- Default credentials: `tiesse` / `tiesseadm`
+- Default credentials: `tiesse` / (configured in config.php or .env)
 - Public access for read-only operations
 - Protected operations: add, edit, delete, import, clearAll
 
@@ -625,6 +714,8 @@ start-server.bat
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.4.3 | 2026-02-01 | Edit Lock multi-user, automated backup, security hardening |
+| 3.4.2 | 2026-02-01 | Rate limiting, async save, timing-safe auth |
 | 3.4.0 | 2026-02-01 | Room management, import/export with rooms, FloorPlan setRooms API |
 | 3.3.0 | 2026-01-31 | CSS Variables architecture, UI standardization |
 | 3.2.0 | 2026-01-29 | Offline/Intranet preparation, local libraries, file locking |

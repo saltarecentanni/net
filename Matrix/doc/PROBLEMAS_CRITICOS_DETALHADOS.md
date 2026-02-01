@@ -131,14 +131,17 @@ class Transaction {
 
 ## 4️⃣ SENHAS PLAIN-TEXT
 
-### Localização
+> **✅ RESOLVIDO em v3.4.3:** Credenciais removidas do código fonte. Password verificada apenas via API auth.php com hash bcrypt.
+
+### Localização (ANTES da correção)
 - **Arquivo:** `server.js` linhas 27-28
 ```javascript
+// ANTES (v3.4.1 e anteriores):
 const AUTH_USERNAME = process.env.AUTH_USERNAME || 'tiesse';
-const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'tiesseadm';
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'senha_aqui';
 ```
 
-### Problema
+### Problema (exemplo do código vulnerável)
 ```javascript
 // ❌ Comparação vulnerável a timing attack
 if (username === AUTH_USERNAME && password === AUTH_PASSWORD) {
@@ -147,7 +150,7 @@ if (username === AUTH_USERNAME && password === AUTH_PASSWORD) {
 }
 
 // ❌ Armazenado plain-text em .env
-AUTH_PASSWORD=tiesseadm123
+// AUTH_PASSWORD=senha_exemplo
 // Se hacker conseguir ler .env = acesso total
 
 // ❌ Sem salt

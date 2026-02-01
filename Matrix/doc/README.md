@@ -1,9 +1,54 @@
 # TIESSE Matrix Network
 
-Applicazione web di gestione della rete per deploy in intranet aziendale.
+Applicazione web di gestione e documentazione della rete aziendale per deploy in intranet.
 
-**Versione:** 3.4.2  
-**Data:** 1 Febbraio 2026
+**Versione:** 3.4.3  
+**Data:** 1 Febbraio 2026  
+**Ambiente:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
+
+---
+
+## 🆕 Novità della Versione 3.4.3
+
+### 🔒 Sistema Multi-Utente (Edit Lock)
+| Funzionalità | Descrizione |
+|--------------|-------------|
+| **Lock di Modifica** | Solo un utente può modificare alla volta |
+| **api/editlock.php** | API gestione lock server-side |
+| **js/editlock.js** | Modulo client per gestione lock |
+| **Timeout 5 minuti** | Lock si rilascia dopo inattività |
+| **Heartbeat** | Mantiene lock attivo ogni 60 secondi |
+| **Auto-release** | Lock rilasciato su logout o chiusura pagina |
+
+### 💾 Backup Automatico
+| Funzionalità | Descrizione |
+|--------------|-------------|
+| **backup/backup.sh** | Script backup con retention policy |
+| **Backup Settimanale** | Domenica 02:00 - 4 settimane rotazionali |
+| **Backup Mensile** | Giorno 1 03:00 - 12 mesi retention |
+| **Integrazione Cron** | Configurazione automatica via crontab |
+
+### 📚 Help Migliorato
+| Miglioramento | Descrizione |
+|---------------|-------------|
+| **Sezione Multi-utente** | Spiegazione completa sistema lock |
+| **Sezione Backup** | Documentazione backup automatico |
+| **Immagine Floor Plan** | Spiegazione planta.png |
+| **Esempi aggiornati** | Imola6 LX5272, Filiale Torino |
+
+### 🔐 Sicurezza Potenziata
+| Fix | Descrizione |
+|-----|-------------|
+| **No Password Hardcoded** | Rimosse password da codice sorgente |
+| **Verifica via API** | Password verificata solo via auth.php |
+| **File .env** | Credenziali in variabili ambiente |
+
+### 📁 Files Modificati/Aggiunti
+- `api/editlock.php` - **NEW** API lock multi-utente
+- `js/editlock.js` - **NEW** Modulo client lock
+- `js/auth.js` - Integrazione acquire/release lock
+- `backup/backup.sh` - **NEW** Script backup automatico
+- `index.html` - Help migliorato, sezioni nuove
 
 ---
 
@@ -35,17 +80,6 @@ Applicazione web di gestione della rete per deploy in intranet aziendale.
 | **Debug Logger** | Debug.log/warn/error wrappers |
 | **.gitignore** | Previene commit di .env |
 | **.env.example** | Template per configurazione |
-
-### 📁 Files Modified
-- `server.js` - Rate limiting, .env loading, async save, timing-safe auth
-- `js/app.js` - Debug mode, SweetAlert2 modals, checksum export/import
-- `js/features.js` - Debug fallback, SweetAlert2
-- `js/floorplan.js` - Debug fallback, Toast notifications
-- `js/ui-updates.js` - Debug fallback
-- `index.html` - Version update, maxlength
-- `config/config.php` - Version update
-- `.env.example` - NEW
-- `.gitignore` - NEW
 
 ---
 
@@ -112,12 +146,13 @@ L'applicazione ha un sistema di autenticazione:
 - **Accesso Pubblico:** Visualizzazione, stampa, esportazione
 - **Accesso Autenticato:** Aggiungere, modificare, eliminare, importare, cancellare tutto
 - **Rate Limiting (v3.4.2):** Max 5 tentativi, blocco 15 minuti
+- **Edit Lock (v3.4.3):** Solo un utente può modificare alla volta
 
 ### Credenziali Predefinite
 - **Utente:** tiesse
-- **Password:** tiesseadm
+- **Password:** Configurata in `config/config.php` o `.env`
 
-### ⚠️ Configurazione Sicura (v3.4.2+)
+### ⚠️ Configurazione Sicura (v3.4.3+)
 
 **Raccomandato: Usa file .env**
 ```bash
@@ -159,13 +194,20 @@ Matrix/
 ├── deploy.sh               # Script deploy Linux
 │
 ├── api/
-│   └── auth.php            # API autenticazione
+│   ├── auth.php            # API autenticazione
+│   └── editlock.php        # API lock multi-utente (v3.4.3)
 │
 ├── assets/
 │   ├── logoTiesse.png      # Logo aziendale
+│   ├── planta.png          # Immagine planimetria Floor Plan
 │   └── vendor/             # Librerie locali (offline)
 │       ├── tailwind.min.js
 │       └── xlsx.full.min.js
+│
+├── backup/                 # Sistema backup automatico (v3.4.3)
+│   ├── backup.sh           # Script backup con retention
+│   ├── weekly/             # Backup settimanali (4 max)
+│   └── monthly/            # Backup mensili (12 max)
 │
 ├── config/
 │   └── config.php          # Configurazione
@@ -174,7 +216,8 @@ Matrix/
 │   └── styles.css          # CSS Variables
 │
 ├── data/
-│   └── network_manager.json  # Dati (devices, connections, rooms)
+│   ├── network_manager.json  # Dati (devices, connections, rooms)
+│   └── edit.lock           # File lock (auto-generato)
 │
 ├── doc/
 │   ├── README.md           # Questa documentazione
@@ -182,28 +225,36 @@ Matrix/
 │   └── ROOM_STRUCTURE.md   # Struttura dati stanze
 │
 └── js/
-  ├── app.js              # Logica principale
+    ├── app.js              # Logica principale
     │                       # - CRUD devices/connections
     │                       # - Import/Export con rooms
     │                       # - Helper room-device
     │                       # - Toast notifications
     │
-  ├── ui-updates.js       # Rendering UI
+    ├── ui-updates.js       # Rendering UI
     │                       # - Lista devices (cards/table)
     │                       # - SVG Matrix con zoom/pan
     │                       # - Excel export (4 fogli)
     │
-  ├── features.js         # Funzionalità estese
+    ├── features.js         # Funzionalità estese
     │                       # - SVG Topology (icone Cisco)
     │                       # - Activity Log
     │                       # - Export Draw.io
     │
-  ├── floorplan.js        # Modulo Floor Plan
+    ├── floorplan.js        # Modulo Floor Plan
     │                       # - Rendering stanze
     │                       # - Modal info stanza
     │                       # - Export PNG
     │
-    └── auth.js             # Modulo autenticazione (~215 righe)
+    ├── editlock.js         # Modulo Edit Lock (v3.4.3)
+    │                       # - Acquire/release lock
+    │                       # - Heartbeat keep-alive
+    │                       # - Conflict detection
+    │
+    └── auth.js             # Modulo autenticazione
+                            # - Login/logout
+                            # - Integrazione EditLock
+```
 ```
 
 ---
@@ -445,7 +496,7 @@ Esporta topologia in formato Draw.io XML per editing.
 <?php
 define('DATA_FILE', __DIR__ . '/../data/network_manager.json');
 define('AUTH_USER', 'tiesse');
-define('AUTH_PASS_HASH', '$2y$10$...'); // password_hash('tiesseadm', PASSWORD_DEFAULT)
+define('AUTH_PASS_HASH', '$2y$10$...'); // password_hash('YOUR_PASSWORD', PASSWORD_DEFAULT)
 define('SESSION_TIMEOUT', 3600); // 1 ora
 ```
 

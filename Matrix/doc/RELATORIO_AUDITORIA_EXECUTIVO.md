@@ -249,21 +249,22 @@ Recomendação: Testar com diferentes tamanhos
 
 ## 🔐 ANÁLISE SEGURANÇA
 
-### Autenticação (Critério: Robusta ❌)
+> **📝 NOTA:** Análise realizada em v3.4.1. Alguns problemas foram corrigidos em v3.4.2 e v3.4.3.
+
+### Autenticação (Critério: Robusta ⚠️ Parcialmente Corrigido)
 
 ```javascript
-// ❌ PROBLEMA #1: Plain-text password
-const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'tiesseadm';
-if (username === AUTH_USERNAME && password === AUTH_PASSWORD) {
-    // ❌ Timing attack vulnerability
-    // ❌ No bcrypt hash
-    // ❌ No salt
-}
+// ✅ CORRIGIDO em v3.4.3: Password removida do código
+// Antes: const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'senha';
+// Agora: Verificação via API auth.php com bcrypt hash
 
-// ✓ Rate limiting
+// ✅ Rate limiting (v3.4.1+)
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_LOCKOUT_TIME = 15 * 60 * 1000; // 15 min
 // Mas: Não protege contra brute-force distribuído
+
+// ✅ Edit Lock (v3.4.3): Apenas 1 editor por vez
+// Timeout 5 minutos, heartbeat keep-alive
 
 // ❌ Sessions em memory
 const sessions = new Map();
