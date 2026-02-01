@@ -717,7 +717,7 @@
                                 <p class="text-blue-800 text-sm mb-3">I dati sono organizzati in una gerarchia logica che riflette l'organizzazione fisica della rete:</p>
                                 <div class="bg-slate-800 rounded-lg p-4 font-mono text-sm text-green-400 mb-3">
 <pre>📍 <span class="text-yellow-300">LOCATION</span> (Sede/Edificio/Reparto)
- │   Esempio: "Sede Centrale", "Filiale Milano", "Magazzino"
+ │   Esempio: "Sede Centrale", "Filiale Torino", "Magazzino"
  │
  └── 🗂️ <span class="text-cyan-300">GROUP</span> (Rack/Stanza/Armadio/Zona)
       │   Esempio: "Rack-01", "Sala Server", "Ufficio Direzione"
@@ -729,7 +729,7 @@
            │   Esempio: 24 porte Ethernet + 4 porte SFP
            │
            └── ⚡ <span class="text-blue-300">CONNECTIONS</span> (Cavi collegati)
-               Esempio: Porta 1 → Switch-02 Porta 48
+               Esempio: SW-Core-01 Porta 24 ⟷ SW-Piano2 Porta 1
 
 <span class="text-slate-400">─────────────────────────────────────────────</span>
 
@@ -1108,7 +1108,7 @@
                                             <p class="font-semibold text-purple-900">✅ Esempi corretti:</p>
                                             <ul class="text-purple-700 ml-3 list-disc">
                                                 <li>"Sede Centrale"</li>
-                                                <li>"Filiale Milano"</li>
+                                                <li>"Filiale Torino"</li>
                                                 <li>"Magazzino Zona Nord"</li>
                                                 <li>"Edificio A - Piano 2"</li>
                                             </ul>
@@ -1246,8 +1246,8 @@
                                     </div>
                                     <p class="text-slate-800 text-sm mb-2"><strong>Cosa significa:</strong> Marca e modello dell'hardware. Utile per inventario e supporto tecnico.</p>
                                     <div class="bg-white p-2 rounded text-xs">
-                                        <p class="font-semibold text-slate-900">✅ Esempi: </p>
-                                        <span class="text-slate-600">"Cisco Catalyst 2960", "HPE Aruba 2930F-48G", "Dell PowerEdge R740", "Ubiquiti UniFi AP-AC-Pro"</span>
+                                        <p class="font-semibold text-slate-900">✅ Esempi:</p>
+                                        <span class="text-slate-600">"Imola6 LX5272", "HPE Aruba 2930F-48G", "Dell PowerEdge R740", "Ubiquiti UniFi AP-AC-Pro"</span>
                                     </div>
                                 </div>
 
@@ -1814,6 +1814,44 @@ Device-C  │          │   🟢     │    -     │</pre>
                             <div class="bg-white rounded-lg p-4 border border-emerald-200">
                                 <h3 class="font-bold text-emerald-900 mb-2">📍 Legenda Stanze</h3>
                                 <p class="text-emerald-700 text-xs">In alto a destra appare la legenda con ID e Nickname di ogni stanza. Stanze con dispositivi mostrano un badge numerico.</p>
+                            </div>
+
+                            <!-- Sezione Immagine di Sfondo -->
+                            <div class="bg-gradient-to-r from-sky-50 to-cyan-50 rounded-lg p-4 border border-sky-300">
+                                <h3 class="font-bold text-sky-900 mb-2">🖼️ Immagine di Sfondo (Planimetria)</h3>
+                                <p class="text-sky-800 text-sm mb-3">Il Floor Plan utilizza un'immagine PNG come sfondo per posizionare le stanze sopra la planimetria reale dell'edificio.</p>
+                                
+                                <div class="grid md:grid-cols-2 gap-3 text-xs">
+                                    <div class="bg-white p-3 rounded-lg border border-sky-200">
+                                        <span class="font-bold text-sky-900">📁 Posizione del file:</span>
+                                        <p class="text-sky-700 mt-1 font-mono bg-sky-100 p-2 rounded">assets/planta.png</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-sky-200">
+                                        <span class="font-bold text-sky-900">📐 Dimensioni consigliate:</span>
+                                        <p class="text-sky-700 mt-1">2782 × 1292 pixel (o proporzioni simili)</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
+                                    <p class="font-semibold text-amber-900 text-xs mb-2">⚠️ Come sostituire l'immagine:</p>
+                                    <ol class="text-amber-700 text-xs ml-4 list-decimal space-y-1">
+                                        <li>Prepara la tua planimetria in formato PNG</li>
+                                        <li>Rinomina il file come <code class="bg-amber-200 px-1 rounded">planta.png</code></li>
+                                        <li>Sostituisci il file in <code class="bg-amber-200 px-1 rounded">/var/www/html/matrix/assets/planta.png</code></li>
+                                        <li>Se le dimensioni sono diverse, aggiorna i valori in <code class="bg-amber-200 px-1 rounded">js/floorplan.js</code></li>
+                                        <li>Ridisegna le stanze usando <code class="bg-amber-200 px-1 rounded">draw-rooms-v2.html</code></li>
+                                    </ol>
+                                </div>
+
+                                <div class="bg-white p-3 rounded-lg border border-sky-200 mt-3">
+                                    <span class="font-bold text-sky-900 text-xs">💡 Suggerimenti per l'immagine:</span>
+                                    <ul class="text-sky-700 text-xs mt-1 ml-3 list-disc space-y-1">
+                                        <li>Usa immagini ad alta risoluzione per migliore qualità</li>
+                                        <li>Formati supportati: PNG (trasparenza), JPG</li>
+                                        <li>Evita file troppo pesanti (&gt;5MB) per performance</li>
+                                        <li>Mantieni proporzioni coerenti con il disegno delle stanze</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                         <a href="#help-index" class="text-emerald-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
@@ -2522,14 +2560,62 @@ php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
                                 <details class="bg-slate-50 rounded-lg border border-slate-200 mb-2">
                                     <summary class="font-semibold text-slate-900 p-3 cursor-pointer hover:bg-slate-100">💾 Configurare Backup Automatico</summary>
                                     <div class="p-3 pt-0 text-xs text-slate-700">
-                                        <p class="mb-2">Creare un cron job per backup giornaliero dei dati:</p>
-                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
-<pre><span class="text-slate-500"># Modificare crontab</span>
+                                        <p class="mb-2">Il sistema include uno script di backup automatico con retention policy:</p>
+                                        
+                                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-3">
+                                            <p class="font-bold text-emerald-900 mb-2">📋 Politica di Retention:</p>
+                                            <ul class="text-emerald-700 ml-3 list-disc space-y-1">
+                                                <li><strong>Backup Settimanali:</strong> 4 file (ultimi 4 settimane)</li>
+                                                <li><strong>Backup Mensili:</strong> 12 file (ultimi 12 mesi)</li>
+                                            </ul>
+                                        </div>
+
+                                        <p class="font-semibold text-slate-900 mb-2">📁 Struttura cartelle:</p>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mb-3">
+<pre>/var/www/html/matrix/backup/
+├── backup.sh           <span class="text-slate-500"># Script di backup</span>
+├── weekly/
+│   ├── backup_week_01.json
+│   ├── backup_week_02.json
+│   ├── backup_week_03.json
+│   └── backup_week_04.json
+└── monthly/
+    ├── backup_2026_01.json
+    ├── backup_2026_02.json
+    └── ... <span class="text-slate-500">(12 mesi)</span></pre>
+                                        </div>
+
+                                        <p class="font-semibold text-slate-900 mb-2">⚙️ Installazione rapida:</p>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mb-3">
+<pre><span class="text-slate-500"># 1. Rendere eseguibile lo script</span>
+<span class="text-cyan-400">sudo</span> chmod +x /var/www/html/matrix/backup/backup.sh
+
+<span class="text-slate-500"># 2. Aggiungere al crontab</span>
 <span class="text-cyan-400">sudo</span> crontab -e
 
-<span class="text-slate-500"># Aggiungere riga (backup alle 2 di notte):</span>
-0 2 * * * cp /var/www/html/matrix/data/network_manager.json \
-  /backup/matrix_$(date +\%Y\%m\%d).json</pre>
+<span class="text-slate-500"># 3. Inserire queste righe:</span>
+<span class="text-yellow-400"># Backup settimanale (ogni Domenica alle 2:00)</span>
+0 2 * * 0 /var/www/html/matrix/backup/backup.sh weekly
+<span class="text-yellow-400"># Backup mensile (1° giorno del mese alle 3:00)</span>
+0 3 1 * * /var/www/html/matrix/backup/backup.sh monthly</pre>
+                                        </div>
+
+                                        <p class="font-semibold text-slate-900 mb-2">🔧 Comandi utili:</p>
+                                        <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs">
+<pre><span class="text-slate-500"># Eseguire backup manuale completo</span>
+<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh
+
+<span class="text-slate-500"># Eseguire solo backup settimanale</span>
+<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh weekly
+
+<span class="text-slate-500"># Eseguire solo backup mensile</span>
+<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh monthly
+
+<span class="text-slate-500"># Vedere stato dei backup</span>
+<span class="text-cyan-400">sudo</span> /var/www/html/matrix/backup/backup.sh status
+
+<span class="text-slate-500"># Verificare crontab</span>
+<span class="text-cyan-400">sudo</span> crontab -l</pre>
                                         </div>
                                     </div>
                                 </details>
@@ -2614,9 +2700,8 @@ ip addr show | grep "inet "</pre>
                             <!-- Supporto -->
                             <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-4 border border-blue-300">
                                 <h3 class="font-bold text-blue-900 mb-2">📞 Supporto</h3>
-                                <p class="text-blue-800 text-sm">Per supporto tecnico o domande sull'installazione, contattare il dipartimento IT di Tiesse S.P.A.</p>
+                                <p class="text-blue-800 text-sm">Per supporto tecnico o domande sull'installazione, contattare il dipartimento IT interno.</p>
                                 <div class="mt-3 flex gap-4 text-xs">
-                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📧 supporto@tiesse.com</span>
                                     <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versione: 3.4.3</span>
                                 </div>
                             </div>

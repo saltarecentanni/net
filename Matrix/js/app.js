@@ -3328,17 +3328,31 @@ function clearAll() {
                         if (!value) return 'Password required';
                     }
                 }).then(function(passResult) {
-                    if (passResult.isConfirmed && passResult.value === 'tiesseadm') {
-                        appState.devices = [];
-                        appState.connections = [];
-                        appState.nextDeviceId = 1;
-                        updateUI();
-                        Toast.success('All data cleared');
-                        if (typeof ActivityLog !== 'undefined') {
-                            ActivityLog.add('clear', 'all', 'All data cleared');
-                        }
-                    } else if (passResult.isConfirmed) {
-                        Toast.error('Invalid password');
+                    if (passResult.isConfirmed && passResult.value) {
+                        // Verify password via API
+                        fetch('api/auth.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: 'tiesse', password: passResult.value })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                appState.devices = [];
+                                appState.connections = [];
+                                appState.nextDeviceId = 1;
+                                updateUI();
+                                Toast.success('All data cleared');
+                                if (typeof ActivityLog !== 'undefined') {
+                                    ActivityLog.add('clear', 'all', 'All data cleared');
+                                }
+                            } else {
+                                Toast.error('Invalid password');
+                            }
+                        })
+                        .catch(() => {
+                            Toast.error('Authentication error');
+                        });
                     }
                 });
             }, 500);

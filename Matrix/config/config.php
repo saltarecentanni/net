@@ -43,8 +43,9 @@ if (file_exists($envPath)) {
 // Username for edit mode
 define('AUTH_USERNAME', getenv('AUTH_USERNAME') ?: 'tiesse');
 
-// Password hash (generated with password_hash('tiesseadm', PASSWORD_DEFAULT))
-// To change password, run: php -r "echo password_hash('newpassword', PASSWORD_DEFAULT);"
+// Password hash - CHANGE THIS IN PRODUCTION!
+// To change password, run: php -r "echo password_hash('your_new_password', PASSWORD_DEFAULT);"
+// Then replace the hash below with the generated value
 define('AUTH_PASSWORD_HASH', getenv('AUTH_PASSWORD_HASH') ?: '$2y$10$e1nfIfvV2sZag1oARGD89.bG9emt6QxSQyHoreh9Ep5cFrFpgXlpm');
 
 // Session timeout in seconds (8 hours)

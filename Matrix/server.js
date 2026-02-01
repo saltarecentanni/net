@@ -25,11 +25,18 @@ if (fs.existsSync(envPath)) {
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'data/network_manager.json');
 
-// Authentication settings (use environment variables in production!)
+// Authentication settings - MUST use environment variables in production!
+// Set AUTH_USERNAME and AUTH_PASSWORD in .env file or system environment
 const AUTH_USERNAME = process.env.AUTH_USERNAME || 'tiesse';
-const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'tiesseadm';
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD; // No default - must be set via environment
 const SESSION_TIMEOUT = parseInt(process.env.SESSION_TIMEOUT) || 8 * 60 * 60 * 1000; // 8 hours in ms
 const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
+
+// Warn if password not set via environment
+if (!process.env.AUTH_PASSWORD) {
+    console.warn('⚠️  WARNING: AUTH_PASSWORD not set in environment. Using default credentials.');
+    console.warn('   For production, set AUTH_PASSWORD environment variable.');
+}
 
 // Rate limiting for login attempts
 const loginAttempts = new Map(); // IP -> { count, lastAttempt }
