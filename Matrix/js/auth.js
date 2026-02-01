@@ -55,6 +55,46 @@ var Auth = (function() {
         .then(function(data) {
             isLoggedIn = true;
             currentUser = data.user;
+            
+            // Try to acquire edit lock
+            if (typeof EditLock !== 'undefined') {
+                return EditLock.acquire(currentUser).then(function(lockResult) {
+                    if (!lockResult.success) {
+                        // Lock conflict - show warning and logout
+                        isLoggedIn = false;
+                        currentUser = null;
+                        return EditLock.showLockConflict(lockResult.lockedBy, lockResult.remaining)
+                            .then(function(retry) {
+                                if (retry) {
+                                    // Retry login
+                                    return login(username, password);
+                                } else {
+                                    updateUI();
+                                    hideLoginModal();
+                                    throw new Error('Edit locked by ' + lockResult.lockedBy);
+                                }
+                            });
+                    }
+                    
+                    // Lock acquired successfully
+                    updateUI();
+                    
+                    // Refresh lists to show edit buttons
+                    if (typeof updateDevicesList === 'function') updateDevicesList();
+                    if (typeof updateConnectionsList === 'function') updateConnectionsList();
+                    
+                    // Log the login
+                    if (typeof ActivityLog !== 'undefined') {
+                        ActivityLog.add('login', 'auth', 'User logged in: ' + currentUser);
+                    }
+                    
+                    Toast.success('Login successful! Edit mode active.');
+                    hideLoginModal();
+                    return data;
+                });
+            }
+            
+            // No EditLock module - continue without lock
             updateUI();
             
             // Refresh lists to show edit buttons
@@ -79,7 +119,15 @@ var Auth = (function() {
     // Logout
     function logout() {
         var loggedOutUser = currentUser;
-        return fetch('api/auth.php?action=logout', { method: 'POST' })
+        
+        // Release edit lock first
+        var releaseLockPromise = (typeof EditLock !== 'undefined') 
+            ? EditLock.release() 
+            : Promise.resolve();
+        
+        return releaseLockPromise.then(function() {
+            return fetch('api/auth.php?action=logout', { method: 'POST' });
+        })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 isLoggedIn = false;

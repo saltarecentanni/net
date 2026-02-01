@@ -1061,6 +1061,44 @@
                                     <p class="text-amber-800 text-xs">⚠️ <strong>Importante:</strong> Dopo aver effettuato modifiche, clicca sempre <span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs">💾 Save Now</span> per salvare!</p>
                                 </div>
                             </div>
+
+                            <!-- Sezione Multi-Utente -->
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-300">
+                                <h3 class="font-bold text-blue-900 mb-2">👥 Accesso Multi-Utente (Lock di Modifica)</h3>
+                                <p class="text-blue-800 text-sm mb-3">Il sistema permette a <strong>un solo utente</strong> di modificare i dati alla volta per evitare conflitti.</p>
+                                
+                                <div class="bg-white rounded-lg p-3 border border-blue-200 mb-3">
+                                    <p class="font-semibold text-blue-900 text-sm mb-2">⚙️ Come funziona:</p>
+                                    <ul class="text-blue-700 text-xs space-y-1 ml-3 list-disc">
+                                        <li>Quando effettui il <strong>login</strong>, il sistema acquisisce un "lock di modifica"</li>
+                                        <li>Se un altro utente sta già modificando, vedrai un avviso con il nome dell'editor</li>
+                                        <li>Il lock scade automaticamente dopo <strong>5 minuti di inattività</strong></li>
+                                        <li>Quando fai <strong>logout</strong>, il lock viene rilasciato per altri utenti</li>
+                                    </ul>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 gap-3 text-xs">
+                                    <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+                                        <span class="font-bold text-green-800">✅ Puoi modificare se:</span>
+                                        <ul class="text-green-700 mt-1 ml-3 list-disc">
+                                            <li>Nessuno sta modificando</li>
+                                            <li>Il lock precedente è scaduto</li>
+                                            <li>Sei tu stesso che hai il lock</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                                        <span class="font-bold text-red-800">❌ Non puoi modificare se:</span>
+                                        <ul class="text-red-700 mt-1 ml-3 list-disc">
+                                            <li>Un altro utente sta modificando</li>
+                                            <li>Devi attendere che finisca o che il lock scada</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-2 mt-3">
+                                    <p class="text-amber-800 text-xs">💡 <strong>Best Practice:</strong> Fai sempre <strong>logout</strong> quando finisci di modificare, così altri possono accedere subito!</p>
+                                </div>
+                            </div>
                         </div>
                         <a href="#help-index" class="text-green-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
@@ -2869,6 +2907,7 @@ ip addr show | grep "inet "</pre>
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
+    <script src="js/editlock.js?v=3.4.3"></script>
     <script src="js/auth.js?v=3.4.3"></script>
     <script src="js/app.js?v=3.4.3"></script>
     <script src="js/ui-updates.js?v=3.4.3"></script>
