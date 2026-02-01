@@ -1107,24 +1107,6 @@ var FloorPlan = (function() {
     }
     
     // ============================================================================
-    // PUBLIC API
-    // ============================================================================
-    
-    return {
-        init: init,
-        zoom: zoom,
-        resetZoom: resetZoom,
-        filterByRoom: filterByRoom,
-        showAddRoomModal: showAddRoomModal,
-        editRoom: editRoom,
-        deleteRoom: deleteRoom,
-        toggleEditMode: toggleEditMode,
-        closeRoomPanel: closeRoomPanel,
-        exportPNG: exportPNG,
-        updateStats: updateStats
-    };
-    
-    // ============================================================================
     // SET ROOMS (for import)
     // ============================================================================
     function setRooms(newRooms) {
@@ -1147,8 +1129,14 @@ var FloorPlan = (function() {
         init: init,
         zoom: zoom,
         resetZoom: resetZoom,
+        filterByRoom: filterByRoom,
+        showAddRoomModal: showAddRoomModal,
+        editRoom: editRoom,
+        deleteRoom: deleteRoom,
         toggleEditMode: toggleEditMode,
-        exportToPNG: exportToPNG,
+        closeRoomPanel: closeRoomPanel,
+        exportPNG: exportPNG,
+        updateStats: updateStats,
         setRooms: setRooms,
         getRooms: function() { return rooms; }
     };

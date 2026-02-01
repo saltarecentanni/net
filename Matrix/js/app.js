@@ -2098,14 +2098,11 @@ function removeConnection(idx) {
                 ActivityLog.add('delete', 'connection', logDetails);
             }
             
+            clearConnectionForm();
             updateUI();
             Toast.success('Connection removed');
         }
     });
-    
-    clearConnectionForm();
-    updateUI();
-    Toast.success('Connection removed');
 }
 
 function toggleExternalDest() {
@@ -3330,28 +3327,32 @@ function clearAll() {
                     }
                 }).then(function(passResult) {
                     if (passResult.isConfirmed && passResult.value) {
-                        // Verify password via API
-                        fetch('api/auth.php', {
+                        // Verify password via data.php API
+                        var formData = new FormData();
+                        formData.append('action', 'verify_password');
+                        formData.append('password', passResult.value);
+                        
+                        fetch('data.php', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ username: 'tiesse', password: passResult.value })
+                            body: formData
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data.valid) {
                                 appState.devices = [];
                                 appState.connections = [];
                                 appState.nextDeviceId = 1;
+                                serverSave();
                                 updateUI();
                                 Toast.success('All data cleared');
                                 if (typeof ActivityLog !== 'undefined') {
-                                    ActivityLog.add('clear', 'all', 'All data cleared');
+                                    ActivityLog.add('clear', 'system', 'All data cleared by ' + (Auth.getUser() || 'admin'));
                                 }
                             } else {
                                 Toast.error('Invalid password');
                             }
                         })
-                        .catch(() => {
+                        .catch(function() {
                             Toast.error('Authentication error');
                         });
                     }
