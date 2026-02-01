@@ -895,7 +895,17 @@ var Toast = (function() {
         
         var toast = document.createElement('div');
         toast.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 16px;background:' + c.bg + ';color:white;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:14px;animation:slideIn 0.3s ease;cursor:pointer;';
-        toast.innerHTML = '<span style="font-size:18px;">' + c.icon + '</span><span>' + message + '</span>';
+        
+        // Create icon span
+        var iconSpan = document.createElement('span');
+        iconSpan.style.fontSize = '18px';
+        iconSpan.textContent = c.icon;
+        toast.appendChild(iconSpan);
+        
+        // Create message span (using textContent for XSS safety)
+        var msgSpan = document.createElement('span');
+        msgSpan.textContent = message;
+        toast.appendChild(msgSpan);
         
         toast.onclick = function() {
             removeToast(toast);
@@ -3235,8 +3245,8 @@ function importData(e) {
                     FloorPlan.setRooms(appState.rooms);
                 }
                 
-                // Save to storage and server
-                await saveToStorage();
+                // Save to storage and server (synchronous save to localStorage + async server save)
+                saveToStorage();
                 updateUI();
                 
                 // Log the successful import
