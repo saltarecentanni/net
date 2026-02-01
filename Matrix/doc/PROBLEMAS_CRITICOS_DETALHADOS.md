@@ -2,14 +2,22 @@
 
 ## 1️⃣ RACE CONDITION - Escrita Simultânea
 
+**Status:** ⚠️ Mitigado no mesmo processo (fila de escrita); ainda sem lock multiprocesso.
+
 ### Localização
 - **Arquivo:** `server.js` linha ~170
 - **Código:**
 ```javascript
-fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+await enqueueDataWrite(async () => {
+    const tempFile = DATA_FILE + '.tmp';
+    const backupFile = DATA_FILE + '.bak';
+    await fs.promises.writeFile(tempFile, JSON.stringify(data, null, 2), 'utf8');
+    if (fs.existsSync(DATA_FILE)) await fs.promises.copyFile(DATA_FILE, backupFile);
+    await fs.promises.rename(tempFile, DATA_FILE);
+});
 ```
 
-### Problema
+### Problema (antes da correção)
 ```
 Tempo T0: User A lê arquivo      [devices: [1, 2, 3], connections: [A→B]]
 Tempo T1: User B lê arquivo      [devices: [1, 2, 3], connections: [A→B]]
@@ -24,67 +32,39 @@ Tempo T3: User B modifica dev#3, escreve [devices: [1, 2, 3_MOD], ...]  ← SOBR
 - Uma perda = pane do sistema
 - Sem recovery = desastre
 
-### Solução Recomendada
-```javascript
-// ✓ MODO CORRETO - Usar arquivo temporário + rename atômico
-const tempFile = DATA_FILE + '.tmp';
-const backupFile = DATA_FILE + '.bak';
-
-try {
-    // 1. Escrever no temp
-    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
-    
-    // 2. Fazer backup
-    if (fs.existsSync(DATA_FILE)) {
-        fs.copyFileSync(DATA_FILE, backupFile);
-    }
-    
-    // 3. Rename atômico
-    fs.renameSync(tempFile, DATA_FILE);
-} catch (e) {
-    // Rollback automático - temp não existe mais
-    throw e;
-}
-```
+### Situação Atual
+- ✓ Escrita enfileirada evita corrida dentro do mesmo processo
+- ✓ Temp + backup (.bak)
+- ⚠️ Ainda sem lock compartilhado entre processos
+- ❌ Sem transações/rollback
 
 ---
 
-## 2️⃣ BLOQUEIO DO EVENT LOOP - writeFileSync()
+## 2️⃣ BLOQUEIO DO EVENT LOOP - Resolvido com escrita assíncrona
+
+**Status:** ✅ Corrigido com escrita assíncrona.
 
 ### Localização
 - **Arquivo:** `server.js` linha ~170
 
-### Problema
-```javascript
-// ❌ SÍNCRONO = Bloqueia TODAS as outras requisições
-fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-// ❌ Se arquivo tem 10MB, bloqueia por 50-200ms
-// ❌ 100 requisições simultâneas = timeout cascata
-```
-
-### Impacto
-```
-Carga Crítica (100 dispositivos + 500 conexões):
-├── Usuário A salva → writeFileSync() bloqueia (50ms)
-├── Usuário B requisição GET → ESPERA (timeout em 30s?)
-├── Usuário C requisição POST → ESPERA
-└── Resultado: Sistema "congelado"
-```
-
-### Solução Recomendada
+### Situação Atual
 ```javascript
 // ✓ ASSÍNCRONO = Não bloqueia event loop
-const fs = require('node:fs/promises');
-
-try {
-    const tempFile = DATA_FILE + '.tmp';
-    await fs.writeFile(tempFile, JSON.stringify(data, null, 2), 'utf8');
-    await fs.rename(tempFile, DATA_FILE);
-} catch (e) {
-    console.error('Write failed:', e);
-    throw e;
-}
+await fs.promises.writeFile(tempFile, JSON.stringify(data, null, 2), 'utf8');
+await fs.promises.rename(tempFile, DATA_FILE);
 ```
+
+### Impacto Atual
+```
+Carga Crítica (100 dispositivos + 500 conexões):
+├── Usuário A salva → entra na fila de escrita
+├── Usuário B salva → aguarda na fila (latência)
+└── Resultado: Sem bloqueio do event loop, mas fila pode aumentar
+```
+
+### Solução Recomendada (para multi‑processo)
+- Implementar lock compartilhado (Redis/file‑lock)
+- Migrar persistência para banco transacional
 
 ---
 
@@ -106,8 +86,9 @@ data.connections.push(newConnection);
 data.nextDeviceId++;
 // ... mais modificações
 
-// 3. Escreve (SEM BACKUP)
-fs.writeFileSync(DATA_FILE, JSON.stringify(data));
+// 3. Escreve (SEM TRANSAÇÃO)
+await fs.promises.writeFile(tempFile, JSON.stringify(data));
+await fs.promises.rename(tempFile, DATA_FILE);
 // ❌ Se falhar no meio = estado inconsistente
 
 // Exemplo de falha:
@@ -335,26 +316,26 @@ function sanitizeString(str) {
 
 ### Problemas
 
-#### ❌ Sem checksum
+#### ⚠️ Checksum simples (não criptográfico)
 ```javascript
 // Exportar:
 exportJSON() {
     const data = { devices, connections, nextDeviceId };
-    // ✗ Nenhuma assinatura/hash
+    // ✓ Checksum simples incluído (__checksum)
     return JSON.stringify(data);
 }
 
 // Importar:
 importData(file) {
     const data = JSON.parse(file);
-    // ✗ Nenhuma verificação se arquivo foi alterado
+    // ✓ Valida checksum simples quando presente
 }
 
 // Cenário de falha:
-// - User exporta: 100 devices, 500 connections, hash=ABC123
+// - User exporta: 100 devices, 500 connections, checksum=ABC123
 // - Arquivo é corrompido em trânsito (damaged USB)
 // - User importa arquivo quebrado
-// - Sistema aceita dados ruim = corrupção
+// - Sistema detecta checksum simples, mas sem assinatura forte
 ```
 
 #### ❌ Sem versionamento
@@ -378,7 +359,7 @@ importData(file) {
 }
 ```
 
-### Solução Recomendada
+### Solução Recomendada (para ambiente crítico)
 ```javascript
 // Implementar checksummed export:
 function exportJSON() {

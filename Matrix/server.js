@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.4.1
+ * Version: 3.4.3
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  */
@@ -39,9 +39,28 @@ const LOGIN_LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
 // Simple in-memory session store
 const sessions = new Map();
 
+// Serialize data writes to prevent concurrent file corruption
+let dataWriteQueue = Promise.resolve();
+function enqueueDataWrite(task) {
+    dataWriteQueue = dataWriteQueue.then(task, task);
+    return dataWriteQueue;
+}
+
 function generateSessionId() {
     return crypto.randomBytes(32).toString('hex');
 }
+
+// Cleanup expired sessions periodically to avoid unbounded growth
+function cleanupExpiredSessions() {
+    const now = Date.now();
+    for (const [sessionId, session] of sessions.entries()) {
+        if (now - session.lastActivity > SESSION_TIMEOUT) {
+            sessions.delete(sessionId);
+        }
+    }
+}
+
+setInterval(cleanupExpiredSessions, 30 * 60 * 1000); // every 30 minutes
 
 function getSessionFromCookie(req) {
     const cookies = req.headers.cookie || '';
@@ -116,10 +135,10 @@ function handleDataRequest(req, res) {
                 req.connection.destroy();
             }
         });
-        req.on('end', () => {
+        req.on('end', async () => {
             try {
                 const data = JSON.parse(body);
-                
+				
                 // Validate structure
                 if (!data.devices || !Array.isArray(data.devices)) {
                     return sendJSON(res, 400, { error: 'Invalid: missing devices array' });
@@ -130,11 +149,44 @@ function handleDataRequest(req, res) {
                 if (typeof data.nextDeviceId !== 'number') {
                     return sendJSON(res, 400, { error: 'Invalid: missing nextDeviceId' });
                 }
-                
-                // Write to file
-                fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+				
+                // Basic per-item validation (ids and names)
+                for (let i = 0; i < data.devices.length; i++) {
+                    const d = data.devices[i];
+                    if (typeof d.id !== 'number' || d.id <= 0) {
+                        return sendJSON(res, 400, { error: `Invalid device at index ${i}: id must be positive number` });
+                    }
+                    if (typeof d.name !== 'string' || d.name.length === 0 || d.name.length > 255) {
+                        return sendJSON(res, 400, { error: `Invalid device at index ${i}: name must be 1-255 characters` });
+                    }
+                    if (!Array.isArray(d.ports)) {
+                        return sendJSON(res, 400, { error: `Invalid device at index ${i}: ports must be an array` });
+                    }
+                }
+                for (let j = 0; j < data.connections.length; j++) {
+                    const c = data.connections[j];
+                    if (typeof c.from !== 'number' || c.from <= 0) {
+                        return sendJSON(res, 400, { error: `Invalid connection at index ${j}: from must be positive number` });
+                    }
+                    if (c.to !== null && c.to !== undefined && (typeof c.to !== 'number' || c.to <= 0)) {
+                        return sendJSON(res, 400, { error: `Invalid connection at index ${j}: to must be positive number or null` });
+                    }
+                }
+				
+                // Write to file asynchronously with serialization to prevent race conditions
+                await enqueueDataWrite(async () => {
+                    const tempFile = DATA_FILE + '.tmp';
+                    const backupFile = DATA_FILE + '.bak';
+                    await fs.promises.writeFile(tempFile, JSON.stringify(data, null, 2), 'utf8');
+                    if (fs.existsSync(DATA_FILE)) {
+                        await fs.promises.copyFile(DATA_FILE, backupFile);
+                    }
+                    await fs.promises.rename(tempFile, DATA_FILE);
+                });
+				
                 sendJSON(res, 200, { ok: true });
             } catch (e) {
+                if (DEBUG_MODE) console.error('Error handling data POST:', e.message);
                 sendJSON(res, 400, { error: 'Invalid JSON: ' + e.message });
             }
         });
@@ -189,7 +241,23 @@ function handleAuthRequest(req, res, action) {
                 const data = JSON.parse(body);
                 const { username, password } = data;
                 
-                if (username === AUTH_USERNAME && password === AUTH_PASSWORD) {
+                // Timing-safe comparison for credentials to reduce side-channel risk
+                let credentialsMatch = false;
+                try {
+                    const userBuf = Buffer.from(username || '', 'utf8');
+                    const authUserBuf = Buffer.from(AUTH_USERNAME, 'utf8');
+                    const passBuf = Buffer.from(password || '', 'utf8');
+                    const authPassBuf = Buffer.from(AUTH_PASSWORD, 'utf8');
+                    if (userBuf.length === authUserBuf.length && passBuf.length === authPassBuf.length) {
+                        const userMatch = crypto.timingSafeEqual(userBuf, authUserBuf);
+                        const passMatch = crypto.timingSafeEqual(passBuf, authPassBuf);
+                        credentialsMatch = userMatch && passMatch;
+                    }
+                } catch (e) {
+                    credentialsMatch = false;
+                }
+				
+                if (credentialsMatch) {
                     // Successful login - clear attempts
                     loginAttempts.delete(clientIP);
                     
@@ -301,7 +369,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.4.2           ║');
+    console.log('║     TIESSE Matrix Network Server v3.4.3           ║');
     console.log('╠════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                  ║`);
     console.log('║  Network:  http://<YOUR-IP>:' + PORT + '/                  ║');

@@ -26,13 +26,13 @@ O TIESSE Matrix Network v3.4.2 é uma **aplicação funcional e bem-estruturada*
 | Nº | Problema | Severidade | Impacto |
 |:--:|----------|:----------:|---------|
 | 1 | JSON file-based (sem banco dados) | 🔴 CRÍTICO | Perda total de dados |
-| 2 | writeFileSync() bloqueante | 🔴 CRÍTICO | Race conditions → corrupção |
+| 2 | Persistência sem transações | 🔴 CRÍTICO | Inconsistências em falhas |
 | 3 | Sem transações ACID | 🔴 CRÍTICO | Operações inconsistentes |
 | 4 | Sem replicação/failover | 🔴 CRÍTICO | Single point of failure |
 | 5 | Sem auditoria/logging | 🔴 CRÍTICO | Não compliance regulatory |
 | 6 | Senhas plain-text em .env | 🔴 CRÍTICO | Exposição de credenciais |
 | 7 | Sem CSRF tokens | 🔴 CRÍTICO | Hijacking de operações |
-| 8 | Sem validação de integridade import | 🔴 CRÍTICO | Injeção de dados ruim |
+| 8 | Integridade import parcial | 🔴 CRÍTICO | Checksum simples (não criptográfico) |
 
 ---
 
@@ -100,12 +100,17 @@ server.js (312 linhas):
 
 ### Persistência (Critério: Segura ❌)
 
-#### ❌ Node.js (server.js linha ~170)
+#### ⚠️ Node.js (server.js linha ~170)
 ```javascript
-fs.writeFileSync(DATA_FILE, JSON.stringify(data), 'utf8');
-// ❌ PROBLEMA: Sem lock exclusivo
-// ❌ PROBLEMA: Síncrono = bloqueia event loop
-// ❌ PROBLEMA: Se falhar no meio = arquivo corrompido
+await enqueueDataWrite(async () => {
+  await fs.promises.writeFile(tempFile, JSON.stringify(data), 'utf8');
+  if (fs.existsSync(DATA_FILE)) await fs.promises.copyFile(DATA_FILE, backupFile);
+  await fs.promises.rename(tempFile, DATA_FILE);
+});
+// ✓ Async (não bloqueia event loop)
+// ✓ Temp + backup (.bak)
+// ⚠️ Ainda sem transações/rollback
+// ⚠️ Fila só cobre concorrência no mesmo processo
 ```
 
 #### ✓ PHP (data.php linha 158)
@@ -137,12 +142,12 @@ Tempo T3: User B escreve arquivo (SOBRESCREVE User A - Operação X perdida)
 | 1 | Frontend valida | Frontend valida | ✓ OK |
 | 2 | POST com token CSRF | POST sem token | ❌ FALHA |
 | 3 | Server valida completo | Valida incompletamente | ⚠️ PARCIAL |
-| 4 | Grava com transação | writeFileSync() | ❌ FALHA |
+| 4 | Grava com transação | Async temp+backup (fila) | ⚠️ PARCIAL |
 | 5 | Rollback se falhar | Nenhum | ❌ FALHA |
 | 6 | Retorna sucesso | Retorna sucesso | ✓ OK |
 | 7 | Frontend sincroniza | Frontend sincroniza | ✓ OK |
 
-**Problema Principal:** Etapa 4-5. Sistema bloqueante sem atomicidade.
+**Problema Principal:** Etapa 4-5. Persistência ainda sem transações/rollback.
 
 ### Fluxo de Importação (Esperado vs Real)
 
@@ -159,16 +164,16 @@ Ideal:
 
 Real (v3.4.2):
   1. Receive file ✓
-  2. Validate CHECKSUM ❌ (não há)
+  2. Validate CHECKSUM ⚠️ (simples, não criptográfico)
   3. Validate version ❌ (não há)
-  4. Validate integridade ❌ (não há)
+  4. Validate integridade ❌ (sem assinatura/criptografia)
   5. Replace (always) ⚠️ Sem opção merge
   6. Write via setData() (frontend) + saveToStorage() ❌ Não atomic
   7. Verify? ❌ Nenhuma verificação
   8. Log (optional) ⚠️ Se ActivityLog loaded
 ```
 
-**Conclusão:** Importação vulnerável a corrupts/injeções.
+**Conclusão:** Importação tem checksum simples, mas ainda vulnerável sem versão, assinatura e rollback.
 
 ### Fluxo de Backup (Esperado vs Real)
 
@@ -198,16 +203,15 @@ Real (v3.4.2):
 
 ### Concorrência (Critério: Segura ❌)
 
-Node.js é single-threaded (event loop). Problema:
+Node.js é single-threaded (event loop). Situação atual:
 
 ```javascript
 // Simultaneamente:
-POST /data (User A) → writeFileSync() BLOQUEIA por 5-100ms
-GET /data (User B) → ESPERA writeFileSync() terminar
+POST /data (User A) → write async enfileirado
+POST /data (User B) → aguarda fila de escrita
 
-Resultado: Latência de 500ms+ em carga
-           Timeout de requests
-           Má experiência
+Resultado: Sem bloqueio do event loop,
+           porém latência cresce com fila
 ```
 
 ### Memória (Critério: Gerenciada ❌)
@@ -471,12 +475,6 @@ TOTAL:                  $696K - $1.8M USD
 4. **Vendor Selection:** Escolher consulting firm para auditoria
 5. **Architecture Workshop:** Definir architetura detalhada
 6. **Development Sprint:** Começar Fase 1-2
-
----
-
-## 📎 DOCUMENTAÇÃO COMPLETA
-
-Veja: `/doc/AUDITORIA_CRITICA_v3.4.2.txt` para relatório técnico detalhado (12 seções, 500+ linhas)
 
 ---
 

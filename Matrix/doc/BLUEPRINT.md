@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.4.0  
+**Version:** 3.4.2  
 **Date:** February 1, 2026  
 **Author:** Tiesse S.P.A.
 
@@ -21,7 +21,19 @@ A web-based network infrastructure management system for enterprise environments
 - Multi-user access via local network with authentication
 - Complete data import/export including rooms
 
-### 1.3 What's New in v3.4.0
+### 1.3 What's New in v3.4.2
+
+#### 🔒 Security & Reliability (v3.4.2)
+| Enhancement | Description |
+|-------------|-------------|
+| **Async Save + Backup** | Non‑blocking save with temp file and .bak backup |
+| **Write Serialization** | Queued writes prevent same‑process race conditions |
+| **Timing‑Safe Auth** | Login comparison uses timingSafeEqual |
+| **Session Cleanup** | Expired sessions purged periodically |
+| **Export/Import Checksum** | JSON exports include checksum (simples); imports validate |
+| **Input Validation** | Stricter device/connection validation | 
+
+### 1.4 What's New in v3.4.0
 
 #### 🏢 Floor Plan & Room Management
 | Enhancement | Description |
@@ -70,9 +82,9 @@ A web-based network infrastructure management system for enterprise environments
 | Frontend | HTML5 + Tailwind CSS | Local (v3.x) |
 | JavaScript | ES6 (Vanilla) | - |
 | Icons | Custom SVG (Cisco-style) | - |
-| Modals | SweetAlert2 | CDN |
+| Modals | SweetAlert2 | Local (assets/vendor) |
 | Excel | SheetJS (XLSX) | 0.18.5 (Local) |
-| Backend | PHP (Apache) or Node.js | 7.4+ / 14+ |
+| Backend | PHP (Apache) or Node.js | 7.4+ / 16+ |
 | Authentication | Session-based | - |
 | Persistence | JSON file | - |
 | Fallback | LocalStorage | - |
@@ -81,12 +93,12 @@ A web-based network infrastructure management system for enterprise environments
 
 ```
 Matrix/
-├── index.html              # Main page (v3.4.0, ~1346 lines)
+├── index.html              # Main page (v3.4.x)
 │                           # - Structural HTML with 7 tabs
 │                           # - CSS Variables integration
 │                           # - SweetAlert2 modals
 │
-├── server.js               # Node.js server (v3.2.0, ~250 lines)
+├── server.js               # Node.js server (v3.4.x)
 │                           # - No external dependencies
 │                           # - Port 3000
 │                           # - REST API for data persistence
@@ -115,7 +127,7 @@ Matrix/
 │   └── config.php          # Configuration (AUTH_USER, SESSION_TIMEOUT)
 │
 ├── css/
-│   └── styles.css          # CSS Variables and custom styles (~200 lines)
+│   └── styles.css          # CSS Variables and custom styles
 │
 ├── data/
 │   └── network_manager.json  # Persisted data (devices, connections, rooms)
@@ -126,49 +138,49 @@ Matrix/
 │   └── ROOM_STRUCTURE.md   # Room data structure documentation
 │
 └── js/
-    ├── app.js              # Main logic (v3.3.0, ~3259 lines)
+  ├── app.js              # Main logic (v3.4.x)
     │                       # - Global state (appState)
     │                       # - Device/Connection CRUD
     │                       # - Room-device association helpers
     │                       # - Import/Export with rooms
     │                       # - Toast notification system
     │
-    ├── ui-updates.js       # UI Rendering (v3.4.0, ~2350 lines)
+    ├── ui-updates.js       # UI Rendering (v3.4.x)
     │                       # - Device list (cards/table)
     │                       # - SVG Matrix with zoom/pan
     │                       # - Excel export (4 sheets)
     │                       # - XSS protection
     │
-    ├── features.js         # Extended Features (v3.3.0, ~3416 lines)
+    ├── features.js         # Extended Features (v3.4.x)
     │                       # - ActivityLog module
     │                       # - SVGTopology module (Cisco icons)
     │                       # - DrawioExport module
     │                       # - Topology legend modal
     │
-    ├── floorplan.js        # Floor Plan module (v3.4.0, ~986 lines)
+    ├── floorplan.js        # Floor Plan module (v3.4.x)
     │                       # - Room rendering on SVG
     │                       # - Room CRUD operations
     │                       # - Device-room associations
     │                       # - Room info modal (showRoomInfo)
     │                       # - PNG export
     │
-    └── auth.js             # Authentication module (v3.1.5, ~215 lines)
+    └── auth.js             # Authentication module (v3.4.x)
                             # - Login/logout functions
                             # - Session management
 ```
 
 ### 2.3 Version Summary
 
-| File | Version | Lines | Description |
-|------|---------|-------|-------------|
-| index.html | 3.4.0 | ~1346 | Main HTML with 7 tabs |
-| server.js | 3.4.0 | ~250 | Node.js REST server with auth |
-| app.js | 3.4.0 | ~3259 | Core logic, CRUD, import/export |
-| ui-updates.js | 3.4.0 | ~2350 | UI rendering, SVG Matrix |
-| features.js | 3.4.0 | ~3416 | Extended features, topology |
-| floorplan.js | 3.4.0 | ~986 | Floor plan and room management |
-| auth.js | 3.4.0 | ~215 | Authentication module |
-| styles.css | 3.4.0 | ~200 | CSS Variables |
+| File | Version | Description |
+|------|---------|-------------|
+| index.html | 3.4.2 | Main HTML with 7 tabs |
+| server.js | 3.4.2 | Node.js REST server with auth |
+| app.js | 3.4.2 | Core logic, CRUD, import/export |
+| ui-updates.js | 3.4.2 | UI rendering, SVG Matrix |
+| features.js | 3.4.2 | Extended features, topology |
+| floorplan.js | 3.4.2 | Floor plan and room management |
+| auth.js | 3.4.2 | Authentication module |
+| styles.css | 3.4.2 | CSS Variables |
 
 ---
 

@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.4.2">
+    <meta name="app-version" content="3.4.3">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%231e40af'/><circle cx='25' cy='25' r='8' fill='%2360a5fa'/><circle cx='75' cy='25' r='8' fill='%2360a5fa'/><circle cx='25' cy='75' r='8' fill='%2360a5fa'/><circle cx='75' cy='75' r='8' fill='%2360a5fa'/><circle cx='50' cy='50' r='10' fill='%23fbbf24'/><line x1='25' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='25' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/></svg>">
@@ -49,7 +49,7 @@
                     </button>
                     <div class="text-right text-xs text-slate-500">
                         <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
-                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.4.2</span></div>
+                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.4.3</span></div>
                     </div>
                 </div>
             </div>
@@ -618,7 +618,7 @@
                     <!-- ========== HEADER ========== -->
                     <div class="text-center mb-6">
                         <h1 class="text-3xl font-bold text-slate-800 mb-2">📚 Guida Utente Completa</h1>
-                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.4.2</p>
+                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.4.3</p>
                         <p class="text-slate-500 text-sm mt-1">Documentazione completa per la gestione dell'infrastruttura di rete</p>
                     </div>
 
@@ -653,14 +653,20 @@
                             <a href="#help-export" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
                                 <span class="font-bold text-red-300">8.</span> 💾 Import/Export e Backup
                             </a>
+                            <a href="#help-locations" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
+                                <span class="font-bold text-violet-300">9.</span> 📍 Location Manager
+                            </a>
+                            <a href="#help-print" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
+                                <span class="font-bold text-rose-300">10.</span> 🖨️ Stampa
+                            </a>
                             <a href="#help-workflow" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-yellow-300">9.</span> 🔄 Flusso di Lavoro
+                                <span class="font-bold text-yellow-300">11.</span> 🔄 Flusso di Lavoro
                             </a>
                             <a href="#help-glossary" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-indigo-300">10.</span> 📖 Glossario Termini
+                                <span class="font-bold text-indigo-300">12.</span> 📖 Glossario Termini
                             </a>
                             <a href="#help-faq" class="block bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
-                                <span class="font-bold text-teal-300">11.</span> ❓ FAQ
+                                <span class="font-bold text-teal-300">13.</span> ❓ FAQ
                             </a>
                         </div>
                     </div>
@@ -1443,6 +1449,35 @@ Device-C  │          │   🟢     │    -     │</pre>
                                 </div>
                             </div>
 
+                            <!-- NEW v3.4.3: Data Integrity Section -->
+                            <div class="bg-green-100 rounded-lg p-4 border border-green-300">
+                                <h3 class="font-bold text-green-900 mb-3">🔐 Integrità Dati (v3.4.3)</h3>
+                                <p class="text-green-800 text-sm mb-3">A partire dalla versione 3.4.3, il sistema include protezioni avanzate per garantire l'integrità dei dati:</p>
+                                
+                                <div class="space-y-2">
+                                    <div class="bg-white p-2 rounded-lg">
+                                        <span class="font-bold text-green-900 text-xs">🔏 SHA-256 Checksum</span>
+                                        <p class="text-green-700 text-xs">Ogni export JSON include un hash crittografico SHA-256. All'import, il checksum viene verificato per garantire che il file non sia stato corrotto o modificato.</p>
+                                    </div>
+                                    <div class="bg-white p-2 rounded-lg">
+                                        <span class="font-bold text-green-900 text-xs">📋 Validazione Versione</span>
+                                        <p class="text-green-700 text-xs">Solo file JSON con versioni compatibili (3.1.3+) possono essere importati. Versioni non supportate vengono rifiutate.</p>
+                                    </div>
+                                    <div class="bg-white p-2 rounded-lg">
+                                        <span class="font-bold text-green-900 text-xs">🔄 Rollback Automatico</span>
+                                        <p class="text-green-700 text-xs">Se l'import fallisce (checksum invalido, schema errato, etc.), i dati originali vengono automaticamente ripristinati.</p>
+                                    </div>
+                                    <div class="bg-white p-2 rounded-lg">
+                                        <span class="font-bold text-green-900 text-xs">✅ Validazione Schema</span>
+                                        <p class="text-green-700 text-xs">Ogni dispositivo, connessione e stanza viene validato contro lo schema atteso. Campi obbligatori, tipi di dati e riferimenti vengono verificati.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-green-200 p-2 rounded-lg mt-3">
+                                    <p class="text-green-900 text-xs">💡 <strong>Versioni Supportate:</strong> 3.4.3, 3.4.2, 3.4.1, 3.4.0, 3.3.x, 3.2.x, 3.1.3</p>
+                                </div>
+                            </div>
+
                             <div class="bg-white rounded-lg p-4 border border-red-200">
                                 <h3 class="font-bold text-red-900 mb-2">⚠️ Clear All (Svuota Tutto)</h3>
                                 <p class="text-red-700 text-xs">Elimina TUTTI i dati (devices, connections, rooms). Prima dell'eliminazione viene creato automaticamente un backup JSON scaricabile.</p>
@@ -1462,10 +1497,161 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-red-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 9. FLUSSO DI LAVORO ========== -->
+                    <!-- ========== 9. LOCATION MANAGER ========== -->
+                    <div class="bg-violet-50 border-l-4 border-violet-500 rounded-r-xl p-5 mb-6" id="help-locations">
+                        <h2 class="text-xl font-bold text-violet-800 mb-3 flex items-center gap-2">
+                            <span class="bg-violet-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">9</span>
+                            📍 Location Manager (Gestione Sedi)
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4 border border-violet-200">
+                                <h3 class="font-bold text-violet-900 mb-2">📋 Descrizione</h3>
+                                <p class="text-violet-800 text-sm">Il <strong>Location Manager</strong> permette di gestire tutte le sedi/location del sistema. Mostra sia le location mappate automaticamente dalle stanze del Floor Plan, sia le location custom create manualmente.</p>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-violet-200">
+                                <h3 class="font-bold text-violet-900 mb-2">🚀 Come Accedere</h3>
+                                <p class="text-violet-700 text-sm mb-2">Clicca il pulsante <span class="bg-violet-500 text-white px-2 py-0.5 rounded text-xs">📍 Locations</span> nella barra delle azioni in alto.</p>
+                                <p class="text-violet-600 text-xs">💡 Il pulsante si trova vicino ai contatori di Devices/Connections.</p>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-violet-200">
+                                <h3 class="font-bold text-violet-900 mb-3">📊 Tipi di Location</h3>
+                                <div class="grid md:grid-cols-2 gap-3">
+                                    <div class="bg-emerald-50 p-3 rounded-lg border-l-4 border-emerald-500">
+                                        <span class="font-bold text-emerald-800">🗺️ Mapped Rooms</span>
+                                        <p class="text-emerald-700 text-xs mt-1">Location derivate automaticamente dalle stanze del Floor Plan. Corrispondono ai nickname delle stanze.</p>
+                                        <ul class="text-emerald-600 text-xs mt-2 ml-3 list-disc">
+                                            <li>Sincronizzate con il Floor Plan</li>
+                                            <li>Il nickname può essere modificato</li>
+                                            <li>Non eliminabili direttamente qui</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">
+                                        <span class="font-bold text-blue-800">📝 Custom Locations</span>
+                                        <p class="text-blue-700 text-xs mt-1">Location create manualmente che non corrispondono a stanze nel Floor Plan.</p>
+                                        <ul class="text-blue-600 text-xs mt-2 ml-3 list-disc">
+                                            <li>Create automaticamente dai dispositivi</li>
+                                            <li>Possono essere rinominate</li>
+                                            <li>Possono essere eliminate</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-violet-200">
+                                <h3 class="font-bold text-violet-900 mb-2">⚡ Funzioni Disponibili</h3>
+                                <div class="space-y-2 text-xs">
+                                    <div class="bg-slate-50 p-2 rounded flex items-center gap-2">
+                                        <span class="bg-blue-500 text-white px-2 py-0.5 rounded">✏️ Edit</span>
+                                        <span class="text-slate-700">Modifica il nickname/nome della location</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-2 rounded flex items-center gap-2">
+                                        <span class="bg-red-500 text-white px-2 py-0.5 rounded">🗑️ Delete</span>
+                                        <span class="text-slate-700">Elimina una location custom (con riassegnazione dispositivi)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-amber-100 rounded-lg p-4 border border-amber-300">
+                                <h3 class="font-bold text-amber-900 mb-2">⚠️ Eliminazione Location</h3>
+                                <p class="text-amber-800 text-sm">Quando elimini una location custom:</p>
+                                <ul class="text-amber-700 text-xs mt-2 ml-4 list-disc space-y-1">
+                                    <li>Ti verrà chiesto di scegliere una <strong>nuova location</strong> per i dispositivi esistenti</li>
+                                    <li>Tutti i dispositivi verranno automaticamente riassegnati</li>
+                                    <li>Le location mappate (Floor Plan) <strong>non possono essere eliminate</strong> da qui</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <a href="#help-index" class="text-violet-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
+                    </div>
+
+                    <!-- ========== 10. STAMPA ========== -->
+                    <div class="bg-rose-50 border-l-4 border-rose-500 rounded-r-xl p-5 mb-6" id="help-print">
+                        <h2 class="text-xl font-bold text-rose-800 mb-3 flex items-center gap-2">
+                            <span class="bg-rose-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">10</span>
+                            🖨️ Stampa
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4 border border-rose-200">
+                                <h3 class="font-bold text-rose-900 mb-2">📋 Descrizione</h3>
+                                <p class="text-rose-800 text-sm">Il sistema offre diverse opzioni di stampa per documentare la rete. Le stampe sono ottimizzate per la leggibilità su carta.</p>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-rose-200">
+                                <h3 class="font-bold text-rose-900 mb-3">🖨️ Modalità di Stampa</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="bg-rose-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print (Filtered)</span>
+                                            <span class="text-slate-500 text-xs">Barra Azioni</span>
+                                        </div>
+                                        <p class="text-slate-700 text-xs">Stampa la scheda attiva (Devices o Connections) rispettando il filtro Location attivo.</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="bg-pink-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print Matrix</span>
+                                            <span class="text-slate-500 text-xs">Scheda Matrix</span>
+                                        </div>
+                                        <p class="text-slate-700 text-xs">Stampa la matrice delle connessioni con tutti i colori preservati.</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs">🖨️ Print Connections</span>
+                                            <span class="text-slate-500 text-xs">Scheda Connections</span>
+                                        </div>
+                                        <p class="text-slate-700 text-xs">Stampa l'elenco delle connessioni attive.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-rose-200">
+                                <h3 class="font-bold text-rose-900 mb-2">📄 Contenuto Stampa Devices</h3>
+                                <div class="grid grid-cols-4 md:grid-cols-8 gap-1 text-xs">
+                                    <span class="bg-rose-100 p-1 rounded text-center">Location</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Rack</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Pos</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Name</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Type</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Brand</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">IPs</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Status</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg p-4 border border-rose-200">
+                                <h3 class="font-bold text-rose-900 mb-2">📄 Contenuto Stampa Connections</h3>
+                                <div class="grid grid-cols-3 md:grid-cols-7 gap-1 text-xs">
+                                    <span class="bg-rose-100 p-1 rounded text-center">Cable ID</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">From</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Port</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">To</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Port</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Type</span>
+                                    <span class="bg-rose-100 p-1 rounded text-center">Status</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-green-100 rounded-lg p-4 border border-green-300">
+                                <h3 class="font-bold text-green-900 mb-2">💡 Suggerimenti per la Stampa</h3>
+                                <ul class="text-green-800 text-xs space-y-1 list-disc ml-4">
+                                    <li>Usa il <strong>filtro Location</strong> prima di stampare per documenti più specifici</li>
+                                    <li>La stampa apre una <strong>nuova finestra</strong> del browser</li>
+                                    <li>Se la finestra non si apre, <strong>abilita i popup</strong> per questo sito</li>
+                                    <li>Ogni stampa include <strong>data e ora</strong> di generazione</li>
+                                    <li>I <strong>dispositivi disabilitati</strong> appaiono in grigio</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <a href="#help-index" class="text-rose-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
+                    </div>
+
+                    <!-- ========== 11. FLUSSO DI LAVORO ========== -->
                     <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-r-xl p-5 mb-6" id="help-workflow">
                         <h2 class="text-xl font-bold text-yellow-800 mb-3 flex items-center gap-2">
-                            <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">9</span>
+                            <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">11</span>
                             🔄 Flusso di Lavoro Consigliato
                         </h2>
                         
@@ -1533,10 +1719,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-yellow-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 10. GLOSSARIO ========== -->
+                    <!-- ========== 12. GLOSSARIO ========== -->
                     <div class="bg-indigo-50 border-l-4 border-indigo-500 rounded-r-xl p-5 mb-6" id="help-glossary">
                         <h2 class="text-xl font-bold text-indigo-800 mb-3 flex items-center gap-2">
-                            <span class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">10</span>
+                            <span class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">12</span>
                             📖 Glossario dei Termini
                         </h2>
                         
@@ -1595,10 +1781,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                         <a href="#help-index" class="text-indigo-600 text-xs mt-3 inline-block hover:underline">↑ Torna all'indice</a>
                     </div>
 
-                    <!-- ========== 11. FAQ ========== -->
+                    <!-- ========== 13. FAQ ========== -->
                     <div class="bg-teal-50 border-l-4 border-teal-500 rounded-r-xl p-5 mb-6" id="help-faq">
                         <h2 class="text-xl font-bold text-teal-800 mb-3 flex items-center gap-2">
-                            <span class="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">11</span>
+                            <span class="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">13</span>
                             ❓ Domande Frequenti (FAQ)
                         </h2>
                         
@@ -1659,7 +1845,7 @@ Device-C  │          │   🟢     │    -     │</pre>
                     <!-- ========== FOOTER ========== -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.4.2</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.4.3</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -1808,11 +1994,11 @@ Device-C  │          │   🟢     │    -     │</pre>
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/auth.js?v=3.4.2"></script>
-    <script src="js/app.js?v=3.4.2"></script>
-    <script src="js/ui-updates.js?v=3.4.2"></script>
-    <script src="js/features.js?v=3.4.2"></script>
-    <script src="js/floorplan.js?v=3.4.2"></script>
+    <script src="js/auth.js?v=3.4.3"></script>
+    <script src="js/app.js?v=3.4.3"></script>
+    <script src="js/ui-updates.js?v=3.4.3"></script>
+    <script src="js/features.js?v=3.4.3"></script>
+    <script src="js/floorplan.js?v=3.4.3"></script>
     
     <!-- Update connections count when list lists -->
     <script>

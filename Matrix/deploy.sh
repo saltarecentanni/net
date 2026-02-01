@@ -1,7 +1,7 @@
 #!/bin/bash
 # =================================================================
 # TIESSE Matrix Network - Deploy Script for Ubuntu/Apache
-# Version: 3.0.0
+# Version: 3.4.3
 # =================================================================
 # This script deploys the application to /var/www/html/matrix
 # Run with sudo: sudo bash deploy.sh

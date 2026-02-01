@@ -1,21 +1,91 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.4.0
+Version: 3.4.3
 Last Updated: 2026-02-01
 ================================================================================
+
+CHANGELOG v3.4.3 (2026-02-01)
+--------------------------------------------------------------------------------
+🔐 DATA INTEGRITY IMPROVEMENTS (Critical System Functions):
+  ✅ SHA-256 Cryptographic Checksum: Export uses Web Crypto API SHA-256
+  ✅ Mandatory Version Validation: Import rejects unsupported versions
+  ✅ Automatic Rollback: State backup before import, restored on failure
+  ✅ Complete Schema Validation:
+     - Device validation (id, name, type, status, ports, rackId)
+     - Connection validation with reference checks (from/to devices exist)
+     - Room validation (id, name)
+     - Duplicate ID detection
+     - Enum validation (status, connection types)
+  ✅ Legacy Checksum Support: Can still import v3.4.2 simple32bit checksums
+  ✅ Supported Versions: 3.4.3, 3.4.2, 3.4.1, 3.4.0, 3.3.x, 3.2.x, 3.1.3
+
+NEW FUNCTIONS in v3.4.3:
+  - sha256(message): Async function using crypto.subtle.digest
+  - validateDeviceSchema(device, index): Complete device validation
+  - validateConnectionSchema(conn, index, deviceIds): Connection + reference validation
+  - validateRoomSchema(room, index): Room validation
+  - VALID_ENUMS: Centralized enum definitions for validation
+  - SUPPORTED_VERSIONS: Version whitelist for import
+  - CURRENT_VERSION: Single source of truth for version
+
+EXPORT/IMPORT GUARANTEES:
+  ✓ Exported files cannot be corrupted without detection (SHA-256)
+  ✓ Tampered files will be rejected with clear error message
+  ✓ Incompatible versions rejected before any data changes
+  ✓ If import fails mid-process, original data is automatically restored
+  ✓ All device references in connections are validated
+  ✓ No duplicate device IDs allowed
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.4.2 (2026-02-01)
+--------------------------------------------------------------------------------
+🔒 SECURITY FIXES (Quick Fixes from Audit):
+  ✅ Request size limit: Max 50MB to prevent DoS attacks
+  ✅ Console.error protected: Wrapped in DEBUG_MODE condition
+  ✅ PHP .env support: config.php now reads from .env file
+  ✅ Timing-safe auth: login comparison uses timingSafeEqual
+  ✅ Session cleanup: expired sessions purged every 30 minutes
+  ✅ Data write serialization: queued writes prevent same-process race conditions
+  ✅ Async save + temp/backup: non-blocking writes with temp + .bak
+  ✅ Export integrity: JSON export now includes checksum
+  ✅ Import integrity: checksum validated when present
+  ✅ Input validation: stricter device/connection validation
+  
+INHERITED FROM v3.4.1:
+  ✅ Rate limiting: Max 5 login attempts, 15 min lockout
+  ✅ Environment variables: .env support for Node.js
+  ✅ Debug mode: console.* wrapped in DEBUG_MODE flag
+  ✅ Input validation: maxlength on form fields
+  ✅ SweetAlert2: Replaced all confirm/alert with styled modals
+  ✅ Better error messages with remaining attempts info
+
+CODE QUALITY:
+  ✅ Version unification: All files now v3.4.2
+  ✅ Debug logger: Debug.log/warn/error wrappers
+  ✅ .gitignore: Prevent .env from being committed
+  ✅ .env.example: Template for configuration (Node.js + PHP)
+
+FILES CHANGED IN v3.4.2:
+  - server.js: Request size limit (50MB), async write, serialization, timing-safe auth
+  - config/config.php: .env file loading, getenv() for credentials
+  - .env.example: Added PHP variables (AUTH_USERNAME, AUTH_PASSWORD_HASH)
+  - js/app.js: Export checksum + import validation
+  - All version references updated to 3.4.2
+
+BACKUP CREATED:
+  - Backups/v3.4.1/ - Complete backup before v3.4.2 changes
+
+--------------------------------------------------------------------------------
 
 MIGRAÇÃO PLANEJADA: Ubuntu Server + Apache
 --------------------------------------------------------------------------------
 
 1. SEGURANÇA (PRIORIDADE ALTA)
-   □ Remover credenciais hardcoded do código fonte
-   □ Implementar variáveis de ambiente (.env) para:
-     - AUTH_USERNAME
-     - AUTH_PASSWORD
-     - SESSION_SECRET
-     - DATA_PATH
+   ✅ Implementar variáveis de ambiente (.env)
+   ✅ Implementar rate limiting para prevenir brute force
+   □ Remover credenciais hardcoded em produção
    □ Configurar HTTPS/SSL obrigatório
-   □ Implementar rate limiting para prevenir brute force
    □ Adicionar headers de segurança (CSP, X-Frame-Options, etc.)
    □ Sanitização adicional de inputs
 

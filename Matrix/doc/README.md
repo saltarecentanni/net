@@ -16,6 +16,10 @@ Applicazione web di gestione della rete per deploy in intranet aziendale.
 | **Environment Variables** | Supporto .env per credenziali |
 | **Debug Mode** | console.* avvolti in DEBUG_MODE flag |
 | **Input Validation** | maxlength su tutti i campi form |
+| **Timing‑Safe Auth** | Confronto login con timingSafeEqual |
+| **Session Cleanup** | Pulizia automatica sessioni scadute |
+| **Async Save + Backup** | Salvataggio non bloccante con temp + .bak |
+| **Export/Import Checksum** | Verifica integrità dati JSON (checksum semplice) |
 
 ### 🎨 UX Improvements
 | Miglioramento | Descrizione |
@@ -33,8 +37,8 @@ Applicazione web di gestione della rete per deploy in intranet aziendale.
 | **.env.example** | Template per configurazione |
 
 ### 📁 Files Modified
-- `server.js` - Rate limiting, .env loading
-- `js/app.js` - Debug mode, SweetAlert2 modals
+- `server.js` - Rate limiting, .env loading, async save, timing-safe auth
+- `js/app.js` - Debug mode, SweetAlert2 modals, checksum export/import
 - `js/features.js` - Debug fallback, SweetAlert2
 - `js/floorplan.js` - Debug fallback, Toast notifications
 - `js/ui-updates.js` - Debug fallback
@@ -147,8 +151,8 @@ php -r "echo password_hash('nuova_password', PASSWORD_DEFAULT);"
 
 ```
 Matrix/
-├── index.html              # Pagina principale (~1346 righe)
-├── server.js               # Server Node.js (~250 righe)
+├── index.html              # Pagina principale
+├── server.js               # Server Node.js
 ├── data.php                # API REST PHP
 ├── draw-rooms-v2.html      # Tool mappatura stanze
 ├── start-server.bat        # Avvio rapido Windows
@@ -167,7 +171,7 @@ Matrix/
 │   └── config.php          # Configurazione
 │
 ├── css/
-│   └── styles.css          # CSS Variables (~200 righe)
+│   └── styles.css          # CSS Variables
 │
 ├── data/
 │   └── network_manager.json  # Dati (devices, connections, rooms)
@@ -178,23 +182,23 @@ Matrix/
 │   └── ROOM_STRUCTURE.md   # Struttura dati stanze
 │
 └── js/
-    ├── app.js              # Logica principale (v3.3.0, ~3259 righe)
+  ├── app.js              # Logica principale
     │                       # - CRUD devices/connections
     │                       # - Import/Export con rooms
     │                       # - Helper room-device
     │                       # - Toast notifications
     │
-    ├── ui-updates.js       # Rendering UI (v3.4.0, ~2350 righe)
+  ├── ui-updates.js       # Rendering UI
     │                       # - Lista devices (cards/table)
     │                       # - SVG Matrix con zoom/pan
     │                       # - Excel export (4 fogli)
     │
-    ├── features.js         # Funzionalità estese (v3.3.0, ~3416 righe)
+  ├── features.js         # Funzionalità estese
     │                       # - SVG Topology (icone Cisco)
     │                       # - Activity Log
     │                       # - Export Draw.io
     │
-    ├── floorplan.js        # Modulo Floor Plan (v3.4.0, ~986 righe)
+  ├── floorplan.js        # Modulo Floor Plan
     │                       # - Rendering stanze
     │                       # - Modal info stanza
     │                       # - Export PNG

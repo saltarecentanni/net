@@ -1,6 +1,6 @@
 # 🏢 Room Data Structure (Struttura Dati Stanze)
 
-**Version:** 3.4.0  
+**Version:** 3.4.2  
 **Date:** February 1, 2026
 
 ---

@@ -79,9 +79,9 @@
 
 ### Persistência de Dados
 - [❌] Sem transações ACID ❌
-- [❌] Sem file locking (Node.js) ❌ (PHP tem LOCK_EX)
+- [⚠️] Sem lock multiprocesso (Node.js) ⚠️ (fila cobre 1 processo)
 - [❌] Sem rollback em falha ❌
-- [❌] writeFileSync() é bloqueante ❌
+- [x] Escrita assíncrona enfileirada ✓ (sem bloquear event loop)
 - [❌] Sem write-ahead log ❌
 - [❌] Sem backup antes de escrita ❌
 - [x] Arquivo temp + rename atômico (PHP) ✓
@@ -109,7 +109,7 @@
 - [x] Inclui devices ✓
 - [x] Inclui connections ✓
 - [x] Inclui rooms ✓
-- [❌] Sem checksum/hash ❌
+- [x] Checksum simples presente (não criptográfico) ⚠️
 - [❌] Sem assinatura digital ❌
 - [❌] Sem compressão ❌
 - [❌] Sem criptografia ❌
@@ -120,7 +120,7 @@
 - [x] Requer autenticação ✓
 - [x] Normaliza campos (rack→rackId) ✓
 - [x] Calcula nextDeviceId ✓
-- [❌] Sem validação de checksum ❌
+- [x] Validação de checksum simples (quando presente) ⚠️
 - [❌] Sem validação de compatibilidade de versão ❌
 - [❌] Sem backup antes de import ❌
 - [❌] Sem rollback se falhar ❌
@@ -203,9 +203,9 @@
 - [❌] Sem validação de integridade na inicialização ❌
 
 ### Concorrência
-- [❌] writeFileSync() bloqueante ❌
-- [❌] Sem proteção contra race conditions ❌
-- [❌] Sem locking de arquivo ❌ (apenas PHP)
+- [x] Escrita assíncrona (sem bloqueio) ✓
+- [⚠️] Fila de escrita (mitiga corrida no mesmo processo) ⚠️
+- [⚠️] Sem lock multiprocesso ❌ (apenas PHP tem LOCK_EX)
 - [❌] Sem optimistic locking ❌
 - [❌] Sem pessimistic locking ❌
 
@@ -217,7 +217,8 @@
 - [❌] JSON.stringify()/parse() em cada requisição ❌
 
 ### Memória
-- [❌] Sessions em Map (cresce infinitamente) ❌
+- [x] Cleanup de sessões expiradas ✓
+- [⚠️] Sessions ainda em Map (sem persistência) ⚠️
 - [❌] Sem limpeza de sessões expiradas ❌
 - [❌] loginAttempts em Map (vazamento) ❌
 - [❌] Sem limite de tamanho ❌

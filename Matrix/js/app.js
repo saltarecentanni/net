@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.4.1
+ * Version: 3.4.3
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -14,6 +14,8 @@
  * - Improved sticky headers and zoom (v3.2.1)
  * - CSS Variables + Tailwind architecture (v3.3.0)
  * - Security improvements: rate limiting, env vars (v3.4.1)
+ * - Reliability improvements: async save, checksum, validation (v3.4.2)
+ * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.3)
  */
 
 'use strict';
@@ -31,6 +33,141 @@ var Debug = {
     warn: function() { if (DEBUG_MODE) console.warn.apply(console, arguments); },
     error: function() { if (DEBUG_MODE) console.error.apply(console, arguments); }
 };
+
+// ============================================================================
+// DATA INTEGRITY - SHA-256 CHECKSUM & VALIDATION
+// ============================================================================
+
+/**
+ * Compute SHA-256 hash of a string using Web Crypto API
+ * @param {string} message - The string to hash
+ * @returns {Promise<string>} - Hex-encoded SHA-256 hash
+ */
+async function sha256(message) {
+    var encoder = new TextEncoder();
+    var data = encoder.encode(message);
+    var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    var hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+/**
+ * Supported versions for import (current + backward compatible)
+ */
+var SUPPORTED_VERSIONS = ['3.4.3', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.4.3';
+
+/**
+ * Valid enum values for schema validation
+ */
+var VALID_ENUMS = {
+    deviceTypes: ['server', 'switch', 'router', 'firewall', 'workstation', 'laptop', 'phone', 'access_point', 'printer', 'storage', 'nas', 'pdu', 'camera', 'sensor', 'patch_panel', 'other'],
+    deviceStatus: ['online', 'offline', 'maintenance', 'warning', 'error'],
+    connectionTypes: ['lan', 'wan', 'dmz', 'trunk', 'management', 'backup', 'fiber', 'wallport', 'external', 'other'],
+    connectionStatus: ['active', 'inactive', 'maintenance', 'reserved', 'planned']
+};
+
+/**
+ * Validate a complete device object against schema
+ * @param {Object} device - Device to validate
+ * @param {number} index - Device index for error messages
+ * @returns {Object} - {valid: boolean, error: string|null}
+ */
+function validateDeviceSchema(device, index) {
+    // Required fields
+    if (!device.id || typeof device.id !== 'number' || device.id <= 0 || !Number.isInteger(device.id)) {
+        return {valid: false, error: 'Device #' + index + ': id must be a positive integer'};
+    }
+    if (!device.name || typeof device.name !== 'string' || device.name.length === 0 || device.name.length > 255) {
+        return {valid: false, error: 'Device #' + index + ': name must be 1-255 characters'};
+    }
+    if (!device.type || typeof device.type !== 'string') {
+        return {valid: false, error: 'Device #' + index + ': type is required'};
+    }
+    // Type enum validation (warning only - allow custom types)
+    if (VALID_ENUMS.deviceTypes.indexOf(device.type) === -1) {
+        Debug.warn('Device #' + index + ': type "' + device.type + '" is non-standard');
+    }
+    if (!device.status || typeof device.status !== 'string') {
+        return {valid: false, error: 'Device #' + index + ': status is required'};
+    }
+    if (VALID_ENUMS.deviceStatus.indexOf(device.status) === -1) {
+        return {valid: false, error: 'Device #' + index + ': status must be one of: ' + VALID_ENUMS.deviceStatus.join(', ')};
+    }
+    // Ports validation
+    if (!Array.isArray(device.ports)) {
+        return {valid: false, error: 'Device #' + index + ': ports must be an array'};
+    }
+    for (var p = 0; p < device.ports.length; p++) {
+        var port = device.ports[p];
+        if (!port.name || typeof port.name !== 'string') {
+            return {valid: false, error: 'Device #' + index + ', Port #' + p + ': name is required'};
+        }
+    }
+    // Location validation
+    if (!device.rackId && !device.rack) {
+        return {valid: false, error: 'Device #' + index + ': rackId or rack is required'};
+    }
+    return {valid: true, error: null};
+}
+
+/**
+ * Validate a complete connection object against schema
+ * @param {Object} conn - Connection to validate
+ * @param {number} index - Connection index for error messages
+ * @param {Array} deviceIds - Array of valid device IDs
+ * @returns {Object} - {valid: boolean, error: string|null}
+ */
+function validateConnectionSchema(conn, index, deviceIds) {
+    // Required fields
+    if (typeof conn.from !== 'number' || conn.from <= 0) {
+        return {valid: false, error: 'Connection #' + index + ': from must be a positive number'};
+    }
+    // Validate 'from' device exists
+    if (deviceIds.indexOf(conn.from) === -1) {
+        return {valid: false, error: 'Connection #' + index + ': from device ID ' + conn.from + ' does not exist'};
+    }
+    // Validate 'to' (null allowed for external)
+    if (conn.to !== null && conn.to !== undefined) {
+        if (typeof conn.to !== 'number' || conn.to <= 0) {
+            return {valid: false, error: 'Connection #' + index + ': to must be a positive number or null'};
+        }
+        if (deviceIds.indexOf(conn.to) === -1) {
+            return {valid: false, error: 'Connection #' + index + ': to device ID ' + conn.to + ' does not exist'};
+        }
+    }
+    // Type validation
+    if (!conn.type || typeof conn.type !== 'string') {
+        return {valid: false, error: 'Connection #' + index + ': type is required'};
+    }
+    if (VALID_ENUMS.connectionTypes.indexOf(conn.type) === -1) {
+        Debug.warn('Connection #' + index + ': type "' + conn.type + '" is non-standard');
+    }
+    // Status validation
+    if (!conn.status || typeof conn.status !== 'string') {
+        return {valid: false, error: 'Connection #' + index + ': status is required'};
+    }
+    if (VALID_ENUMS.connectionStatus.indexOf(conn.status) === -1) {
+        return {valid: false, error: 'Connection #' + index + ': status must be one of: ' + VALID_ENUMS.connectionStatus.join(', ')};
+    }
+    return {valid: true, error: null};
+}
+
+/**
+ * Validate a room object against schema
+ * @param {Object} room - Room to validate
+ * @param {number} index - Room index for error messages
+ * @returns {Object} - {valid: boolean, error: string|null}
+ */
+function validateRoomSchema(room, index) {
+    if (!room.id || typeof room.id !== 'string') {
+        return {valid: false, error: 'Room #' + index + ': id is required and must be a string'};
+    }
+    if (!room.name || typeof room.name !== 'string' || room.name.length === 0 || room.name.length > 100) {
+        return {valid: false, error: 'Room #' + index + ': name must be 1-100 characters'};
+    }
+    return {valid: true, error: null};
+}
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -2901,38 +3038,60 @@ function toggleConnSort(key, event) {
 }
 
 // ============================================================================
-// EXPORT/IMPORT
+// EXPORT/IMPORT - WITH SHA-256 INTEGRITY & ROLLBACK
 // ============================================================================
-function exportJSON() {
-    var data = JSON.stringify({
-        devices: appState.devices,
-        connections: appState.connections,
-        rooms: appState.rooms || [],
-        nextDeviceId: appState.nextDeviceId,
-        exportedAt: new Date().toISOString(),
-        version: '3.4.2'
-    }, null, 2);
-    
-    var blob = new Blob([data], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    var filename = 'network_manager_' + new Date().toISOString().slice(0,10) + '.json';
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    // Log the export
-    if (typeof ActivityLog !== 'undefined') {
-        var roomCount = (appState.rooms || []).length;
-        ActivityLog.add('export', 'export', 'Exported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms to ' + filename);
+
+/**
+ * Export JSON with SHA-256 cryptographic checksum
+ * Guarantees data integrity for import validation
+ */
+async function exportJSON() {
+    try {
+        var payload = {
+            devices: appState.devices,
+            connections: appState.connections,
+            rooms: appState.rooms || [],
+            nextDeviceId: appState.nextDeviceId,
+            exportedAt: new Date().toISOString(),
+            version: CURRENT_VERSION
+        };
+        
+        // Generate SHA-256 cryptographic checksum
+        var jsonForHash = JSON.stringify(payload);
+        var checksum = await sha256(jsonForHash);
+        
+        payload.__checksum = checksum;
+        payload.__checksumAlgorithm = 'SHA-256';
+        
+        var data = JSON.stringify(payload, null, 2);
+        
+        var blob = new Blob([data], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        var filename = 'network_manager_' + new Date().toISOString().slice(0,10) + '.json';
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Log the export
+        if (typeof ActivityLog !== 'undefined') {
+            var roomCount = (appState.rooms || []).length;
+            ActivityLog.add('export', 'export', 'Exported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms to ' + filename + ' [SHA-256: ' + checksum.substring(0, 8) + '...]');
+        }
+        
+        Toast.success('✅ JSON exported with SHA-256 integrity checksum');
+    } catch (err) {
+        Debug.error('Export error:', err);
+        Toast.error('Export failed: ' + err.message);
     }
-    
-    Toast.success('JSON exported successfully');
 }
 
+/**
+ * Import JSON with SHA-256 verification, version validation, and automatic rollback
+ */
 function importData(e) {
     // Require authentication for importing
     if (!requireAuth()) {
@@ -2944,113 +3103,184 @@ function importData(e) {
     if (!file) return;
 
     var reader = new FileReader();
-    reader.onload = function(ev) {
+    reader.onload = async function(ev) {
+        // ===== ROLLBACK BACKUP =====
+        // Save current state BEFORE any changes for automatic rollback
+        var backupState = {
+            devices: JSON.parse(JSON.stringify(appState.devices)),
+            connections: JSON.parse(JSON.stringify(appState.connections)),
+            rooms: JSON.parse(JSON.stringify(appState.rooms || [])),
+            nextDeviceId: appState.nextDeviceId
+        };
+        
         try {
             var data = JSON.parse(ev.target.result);
             
-            // Validate structure
+            // ===== VERSION VALIDATION (MANDATORY) =====
+            if (!data.version) {
+                Toast.error('❌ Import rejected: missing version. File may be from an incompatible version.');
+                return;
+            }
+            if (SUPPORTED_VERSIONS.indexOf(data.version) === -1) {
+                Toast.error('❌ Import rejected: version ' + data.version + ' is not supported. Supported: ' + SUPPORTED_VERSIONS.join(', '));
+                return;
+            }
+            
+            // ===== SHA-256 CHECKSUM VERIFICATION =====
+            if (data.__checksum && data.__checksumAlgorithm === 'SHA-256') {
+                var expected = data.__checksum;
+                var algorithm = data.__checksumAlgorithm;
+                delete data.__checksum;
+                delete data.__checksumAlgorithm;
+                
+                var jsonForHash = JSON.stringify(data);
+                var computed = await sha256(jsonForHash);
+                
+                if (computed !== expected) {
+                    Toast.error('❌ INTEGRITY FAILURE: SHA-256 checksum mismatch. File is corrupted or tampered!');
+                    Debug.error('Checksum mismatch - Expected:', expected, 'Computed:', computed);
+                    return;
+                }
+                Debug.log('✅ SHA-256 checksum verified successfully');
+            } else if (data.__checksum && data.__checksumAlgorithm === 'simple32bit') {
+                // Legacy support for v3.4.2 initial exports
+                var expected = data.__checksum;
+                delete data.__checksum;
+                delete data.__checksumAlgorithm;
+                var jsonForHash = JSON.stringify(data);
+                var hash = 0;
+                for (var h = 0; h < jsonForHash.length; h++) {
+                    var ch = jsonForHash.charCodeAt(h);
+                    hash = ((hash << 5) - hash) + ch;
+                    hash = hash & hash;
+                }
+                var computed = Math.abs(hash).toString(16).padStart(8, '0');
+                if (computed !== expected) {
+                    Toast.error('❌ INTEGRITY FAILURE: checksum mismatch. File may be corrupted.');
+                    return;
+                }
+                Debug.log('✅ Legacy checksum verified (consider re-exporting for SHA-256)');
+            } else {
+                // No checksum - warn but allow for backward compatibility
+                Debug.warn('⚠️ No checksum in file - integrity cannot be verified');
+            }
+            
+            // ===== STRUCTURE VALIDATION =====
             if (!data.devices || !Array.isArray(data.devices)) {
-                Toast.error('Invalid JSON: missing or invalid "devices" array');
+                Toast.error('❌ Invalid JSON: missing or invalid "devices" array');
                 return;
             }
             if (!data.connections || !Array.isArray(data.connections)) {
-                Toast.error('Invalid JSON: missing or invalid "connections" array');
+                Toast.error('❌ Invalid JSON: missing or invalid "connections" array');
                 return;
             }
             
-            // Validate each device has required fields and correct types
+            // ===== COMPLETE SCHEMA VALIDATION =====
+            // Collect all device IDs for reference validation
+            var deviceIds = data.devices.map(function(d) { return d.id; });
+            
+            // Validate each device with complete schema
             for (var i = 0; i < data.devices.length; i++) {
                 var d = data.devices[i];
-                // Check required fields exist
-                if (!d.id || (!d.rackId && !d.rack) || !d.name || !d.type || !d.status || !d.ports) {
-                    Toast.error('Invalid device at index ' + i + ': missing required fields (id, rackId/rack, name, type, status, ports)');
-                    return;
-                }
-                // Validate data types
-                if (typeof d.id !== 'number') {
-                    Toast.error('Invalid device at index ' + i + ': id must be a number');
-                    return;
-                }
-                if (typeof d.name !== 'string') {
-                    Toast.error('Invalid device at index ' + i + ': name must be a string');
-                    return;
-                }
-                if (!Array.isArray(d.ports)) {
-                    Toast.error('Invalid device at index ' + i + ': ports must be an array');
-                    return;
-                }
-                // Normalize rackId for compatibility
+                // Normalize rackId for compatibility first
                 if (!d.rackId && d.rack) {
                     d.rackId = d.rack;
                 }
-            }
-            
-            // Validate each connection has required fields and correct types
-            for (var j = 0; j < data.connections.length; j++) {
-                var c = data.connections[j];
-                if (typeof c.from !== 'number' || !c.type || !c.status) {
-                    Toast.error('Invalid connection at index ' + j + ': missing required fields (from, type, status)');
+                var deviceResult = validateDeviceSchema(d, i);
+                if (!deviceResult.valid) {
+                    Toast.error('❌ ' + deviceResult.error);
                     return;
                 }
-                // Validate 'to' is number or null (for external connections)
-                if (c.to !== null && c.to !== undefined && typeof c.to !== 'number') {
-                    Toast.error('Invalid connection at index ' + j + ': to must be a number or null');
+            }
+            
+            // Check for duplicate device IDs
+            var uniqueIds = new Set(deviceIds);
+            if (uniqueIds.size !== deviceIds.length) {
+                Toast.error('❌ Invalid data: duplicate device IDs found');
+                return;
+            }
+            
+            // Validate each connection with reference validation
+            for (var j = 0; j < data.connections.length; j++) {
+                var c = data.connections[j];
+                var connResult = validateConnectionSchema(c, j, deviceIds);
+                if (!connResult.valid) {
+                    Toast.error('❌ ' + connResult.error);
                     return;
                 }
             }
             
             // Validate rooms if present
             if (data.rooms && !Array.isArray(data.rooms)) {
-                Toast.error('Invalid JSON: "rooms" must be an array');
+                Toast.error('❌ Invalid JSON: "rooms" must be an array');
                 return;
             }
             
-            // Validate each room has required fields
+            // Validate each room with schema
             if (data.rooms && data.rooms.length > 0) {
                 for (var r = 0; r < data.rooms.length; r++) {
                     var room = data.rooms[r];
-                    if (!room.id || !room.name) {
-                        Toast.error('Invalid room at index ' + r + ': missing required fields (id, name)');
+                    var roomResult = validateRoomSchema(room, r);
+                    if (!roomResult.valid) {
+                        Toast.error('❌ ' + roomResult.error);
                         return;
                     }
                 }
             }
             
-            // All validations passed - import data
-            appState.devices = data.devices;
-            appState.connections = data.connections;
-            appState.rooms = data.rooms || [];
+            // ===== ALL VALIDATIONS PASSED - APPLY DATA =====
+            Debug.log('✅ All validations passed, applying import...');
             
-            // Calculate nextDeviceId
-            if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
-                appState.nextDeviceId = data.nextDeviceId;
-            } else {
-                var maxId = 0;
-                for (var k = 0; k < appState.devices.length; k++) {
-                    if (appState.devices[k].id > maxId) maxId = appState.devices[k].id;
+            try {
+                appState.devices = data.devices;
+                appState.connections = data.connections;
+                appState.rooms = data.rooms || [];
+                
+                // Calculate nextDeviceId
+                if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
+                    appState.nextDeviceId = data.nextDeviceId;
+                } else {
+                    var maxId = 0;
+                    for (var k = 0; k < appState.devices.length; k++) {
+                        if (appState.devices[k].id > maxId) maxId = appState.devices[k].id;
+                    }
+                    appState.nextDeviceId = maxId + 1;
                 }
-                appState.nextDeviceId = maxId + 1;
+                
+                // Sync rooms with FloorPlan module if available
+                if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
+                    FloorPlan.setRooms(appState.rooms);
+                }
+                
+                // Save to storage and server
+                await saveToStorage();
+                updateUI();
+                
+                // Log the successful import
+                if (typeof ActivityLog !== 'undefined') {
+                    var roomCount = (appState.rooms || []).length;
+                    var checksumInfo = data.__checksumAlgorithm ? ' [' + data.__checksumAlgorithm + ' verified]' : '';
+                    ActivityLog.add('import', 'import', 'Imported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms from ' + file.name + checksumInfo);
+                }
+                
+                Toast.success('✅ Imported: ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections' + (appState.rooms.length ? ', ' + appState.rooms.length + ' rooms' : '') + ' (Verified)');
+                
+            } catch (applyErr) {
+                // ===== AUTOMATIC ROLLBACK ON FAILURE =====
+                Debug.error('Import apply failed, performing rollback:', applyErr);
+                
+                appState.devices = backupState.devices;
+                appState.connections = backupState.connections;
+                appState.rooms = backupState.rooms;
+                appState.nextDeviceId = backupState.nextDeviceId;
+                
+                updateUI();
+                Toast.error('❌ Import failed during apply - data restored to previous state. Error: ' + applyErr.message);
             }
-            
-            // Log the import
-            if (typeof ActivityLog !== 'undefined') {
-                var roomCount = (appState.rooms || []).length;
-                ActivityLog.add('import', 'import', 'Imported ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections, ' + roomCount + ' rooms from ' + file.name);
-            }
-            
-            // Sync rooms with FloorPlan module if available
-            if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
-                FloorPlan.setRooms(appState.rooms);
-            }
-            
-            // Save to storage and server
-            saveToStorage();
-            updateUI();
-            Toast.success('Imported: ' + appState.devices.length + ' devices, ' + appState.connections.length + ' connections' + (appState.rooms.length ? ', ' + appState.rooms.length + ' rooms' : ''));
             
         } catch (err) {
-            Debug.error('Error importing data:', err);
-            Toast.error('Error importing: ' + err.message);
+            Debug.error('Error parsing/validating import:', err);
+            Toast.error('❌ Import error: ' + err.message);
         }
     };
     reader.readAsText(file);

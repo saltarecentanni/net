@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.4.2
+ * Version: 3.4.3
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -13,7 +13,7 @@
  * - Debounced filter inputs (v3.1.3)
  * - CSS Variables integration (v3.3.0)
  * - SVG Matrix with viewBox zoom/pan (v3.4.0)
- * - Debug mode support (v3.4.2)
+ * - Debug mode support (v3.4.3)
  */
 
 'use strict';

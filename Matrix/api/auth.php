@@ -1,7 +1,7 @@
 <?php
 /**
  * TIESSE Matrix Network - Authentication API
- * Version: 3.0.0
+ * Version: 3.4.3
  * 
  * Endpoints:
  *   POST /api/auth.php?action=login   - Login with username/password

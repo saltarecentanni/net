@@ -26,16 +26,6 @@ Este diretório contém a auditoria crítica completa do TIESSE Matrix Network v
    - Resumo por categoria
    - Assinatura de auditoria
 
-### 4. **AUDITORIA_CRITICA_v3.4.2.txt** (Arquivo de texto completo)
-   - Documento técnico detalhado (500+ linhas)
-   - 12 seções principais
-   - Análises por departamento (virtual)
-   - Cenários críticos de falha
-   - Scores detalhados
-   - Recomendações executivas
-
----
-
 ## 📊 ESTATÍSTICAS DA AUDITORIA
 
 ```
@@ -131,7 +121,7 @@ Para entender completamente o sistema auditado:
 ### Para Desenvolvedores
 1. Leia: [PROBLEMAS_CRITICOS_DETALHADOS.md](./PROBLEMAS_CRITICOS_DETALHADOS.md) - Todas as seções
 2. Leia: [CHECKLIST_MINUCIOSO.md](./CHECKLIST_MINUCIOSO.md) - Para check status
-3. Leia: [AUDITORIA_CRITICA_v3.4.2.txt](./AUDITORIA_CRITICA_v3.4.2.txt) - Seções 8-11
+3. Leia: [CHECKLIST_MINUCIOSO.md](./CHECKLIST_MINUCIOSO.md) - Verificação binária de critérios
 4. Tempo: ~3 horas
 5. Implementar fixes conforme [Seção 📋 PLANO DE REMEDIAÇÃO]
 
