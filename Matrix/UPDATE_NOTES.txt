@@ -1,7 +1,7 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.3.1
-Last Updated: 2026-01-30
+Version: 3.4.0
+Last Updated: 2026-02-01
 ================================================================================
 
 MIGRAÇÃO PLANEJADA: Ubuntu Server + Apache

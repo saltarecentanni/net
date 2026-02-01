@@ -162,13 +162,13 @@ Matrix/
 | File | Version | Lines | Description |
 |------|---------|-------|-------------|
 | index.html | 3.4.0 | ~1346 | Main HTML with 7 tabs |
-| server.js | 3.2.0 | ~250 | Node.js REST server with auth |
-| app.js | 3.3.0 | ~3259 | Core logic, CRUD, import/export |
+| server.js | 3.4.0 | ~250 | Node.js REST server with auth |
+| app.js | 3.4.0 | ~3259 | Core logic, CRUD, import/export |
 | ui-updates.js | 3.4.0 | ~2350 | UI rendering, SVG Matrix |
-| features.js | 3.3.0 | ~3416 | Extended features, topology |
+| features.js | 3.4.0 | ~3416 | Extended features, topology |
 | floorplan.js | 3.4.0 | ~986 | Floor plan and room management |
-| auth.js | 3.1.5 | ~215 | Authentication module |
-| styles.css | 3.3.0 | ~200 | CSS Variables |
+| auth.js | 3.4.0 | ~215 | Authentication module |
+| styles.css | 3.4.0 | ~200 | CSS Variables |
 
 ---
 
@@ -526,7 +526,7 @@ var appState = {
   "rooms": [...],
   "nextDeviceId": 117,
   "exportedAt": "2026-02-01T12:00:00.000Z",
-  "version": "3.3.2"
+  "version": "3.4.0"
 }
 ```
 
@@ -549,7 +549,7 @@ var appState = {
   "nextDeviceId": 117,
   "exportedAt": "2026-02-01T12:00:00.000Z",
   "backupReason": "Pre-Clear All Backup",
-  "version": "3.3.2"
+  "version": "3.4.0"
 }
 ```
 

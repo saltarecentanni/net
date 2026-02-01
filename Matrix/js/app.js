@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.3.0
+ * Version: 3.4.0
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -2818,7 +2818,7 @@ function exportJSON() {
         rooms: appState.rooms || [],
         nextDeviceId: appState.nextDeviceId,
         exportedAt: new Date().toISOString(),
-        version: '3.3.2'
+        version: '3.4.0'
     }, null, 2);
     
     var blob = new Blob([data], { type: 'application/json' });
@@ -2993,7 +2993,7 @@ function clearAll() {
         nextDeviceId: appState.nextDeviceId,
         exportedAt: new Date().toISOString(),
         backupReason: 'Pre-Clear All Backup',
-        version: '3.3.2'
+        version: '3.4.0'
     };
     
     var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
