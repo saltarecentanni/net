@@ -168,9 +168,9 @@ var FloorPlan = (function() {
     function handleMouseDown(e) {
         if (e.button !== 0) return; // Only left click
         
-        // Check if clicking on a room
+        // Check if clicking on a room (polygon or marker)
         var target = e.target;
-        if (target.classList.contains('room-area')) {
+        if (target.classList.contains('room-area') || target.classList.contains('room-marker')) {
             handleRoomClick(target);
             return;
         }
@@ -310,7 +310,27 @@ var FloorPlan = (function() {
         
         g.appendChild(polygon);
         
-        // Labels removed - already on the plant image
+        // Add 📍 marker at room center
+        var center = calculatePolygonCenter(room.polygon);
+        var marker = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        marker.setAttribute('x', center.x);
+        marker.setAttribute('y', center.y);
+        marker.setAttribute('text-anchor', 'middle');
+        marker.setAttribute('dominant-baseline', 'central');
+        marker.setAttribute('font-size', '24');
+        marker.setAttribute('cursor', 'pointer');
+        marker.setAttribute('class', 'room-marker');
+        marker.setAttribute('data-room-id', room.id);
+        marker.textContent = '📍';
+        
+        // Add tooltip on hover
+        marker.addEventListener('mouseenter', function(e) {
+            var label = room.nickname || ('Room ' + room.id);
+            var deviceCount = roomDevices.length;
+            this.setAttribute('title', label + (deviceCount > 0 ? ' (' + deviceCount + ' devices)' : ''));
+        });
+        
+        g.appendChild(marker);
         
         parent.appendChild(g);
     }
