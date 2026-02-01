@@ -1,38 +1,37 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.4.2
+Version: 3.4.1
 Last Updated: 2026-02-01
 ================================================================================
 
-CHANGELOG v3.4.2 (2026-02-01)
+CHANGELOG v3.4.1 (2026-02-01)
 --------------------------------------------------------------------------------
-🔒 SECURITY FIXES (Quick Fixes from Audit):
-  ✅ Request size limit: Max 50MB to prevent DoS attacks
-  ✅ Console.error protected: Wrapped in DEBUG_MODE condition
-  ✅ PHP .env support: config.php now reads from .env file
-  
-INHERITED FROM v3.4.1:
+SECURITY IMPROVEMENTS:
   ✅ Rate limiting: Max 5 login attempts, 15 min lockout
-  ✅ Environment variables: .env support for Node.js
+  ✅ Environment variables: .env support for credentials
   ✅ Debug mode: console.* wrapped in DEBUG_MODE flag
   ✅ Input validation: maxlength on form fields
+
+UX IMPROVEMENTS:
   ✅ SweetAlert2: Replaced all confirm/alert with styled modals
   ✅ Better error messages with remaining attempts info
 
 CODE QUALITY:
-  ✅ Version unification: All files now v3.4.2
+  ✅ Version unification: All files now v3.4.1
   ✅ Debug logger: Debug.log/warn/error wrappers
   ✅ .gitignore: Prevent .env from being committed
-  ✅ .env.example: Template for configuration (Node.js + PHP)
+  ✅ .env.example: Template for configuration
 
-FILES CHANGED IN v3.4.2:
-  - server.js: Request size limit (50MB), console.error in DEBUG_MODE
-  - config/config.php: .env file loading, getenv() for credentials
-  - .env.example: Added PHP variables (AUTH_USERNAME, AUTH_PASSWORD_HASH)
-  - All version references updated to 3.4.2
-
-BACKUP CREATED:
-  - Backups/v3.4.1/ - Complete backup before v3.4.2 changes
+FILES CHANGED:
+  - server.js: Rate limiting, .env loading
+  - js/app.js: Debug mode, SweetAlert2 modals
+  - js/features.js: Debug fallback, SweetAlert2
+  - js/floorplan.js: Debug fallback, Toast notifications
+  - js/ui-updates.js: Debug fallback
+  - index.html: Version update, maxlength attributes
+  - config/config.php: Version update
+  - .env.example: New file
+  - .gitignore: New file
 
 --------------------------------------------------------------------------------
 

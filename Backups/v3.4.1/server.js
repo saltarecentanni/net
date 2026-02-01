@@ -98,24 +98,13 @@ function handleDataRequest(req, res) {
             const data = JSON.parse(content);
             sendJSON(res, 200, data);
         } catch (e) {
-            if (DEBUG_MODE) console.error('Error reading data file:', e.message);
-            sendJSON(res, 500, { error: 'Failed to read data file' });
+            console.error('Error reading data file:', e.message);
+            sendJSON(res, 500, { error: 'Failed to read data file: ' + e.message });
         }
     } else if (req.method === 'POST') {
-        // Write data with size limit (50MB max to prevent DoS)
-        const MAX_REQUEST_SIZE = 52428800; // 50MB in bytes
+        // Write data
         let body = '';
-        let requestTooLarge = false;
-        
-        req.on('data', chunk => {
-            body += chunk;
-            if (body.length > MAX_REQUEST_SIZE) {
-                requestTooLarge = true;
-                res.writeHead(413, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Payload too large. Maximum size is 50MB.' }));
-                req.connection.destroy();
-            }
-        });
+        req.on('data', chunk => body += chunk);
         req.on('end', () => {
             try {
                 const data = JSON.parse(body);
@@ -301,7 +290,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.4.2           ║');
+    console.log('║     TIESSE Matrix Network Server v3.4.1           ║');
     console.log('╠════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                  ║`);
     console.log('║  Network:  http://<YOUR-IP>:' + PORT + '/                  ║');

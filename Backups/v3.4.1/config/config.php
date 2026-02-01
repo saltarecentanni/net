@@ -1,7 +1,7 @@
 <?php
 /**
  * TIESSE Matrix Network - Configuration
- * Version: 3.4.2
+ * Version: 3.4.1
  */
 
 // Prevent direct access
@@ -11,44 +11,18 @@ if (basename($_SERVER['PHP_SELF']) === 'config.php') {
 }
 
 // =============================================================================
-// LOAD ENVIRONMENT VARIABLES FROM .env FILE
-// =============================================================================
-
-$envPath = __DIR__ . '/../.env';
-if (file_exists($envPath)) {
-    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        // Skip comments
-        if (strpos(trim($line), '#') === 0) continue;
-        // Skip lines without =
-        if (strpos($line, '=') === false) continue;
-        
-        list($key, $value) = explode('=', $line, 2);
-        $key = trim($key);
-        $value = trim($value);
-        
-        // Remove quotes if present
-        $value = trim($value, '"\'\'');
-        
-        if (!empty($key) && !getenv($key)) {
-            putenv("$key=$value");
-        }
-    }
-}
-
-// =============================================================================
-// AUTHENTICATION (reads from .env or uses defaults)
+// AUTHENTICATION
 // =============================================================================
 
 // Username for edit mode
-define('AUTH_USERNAME', getenv('AUTH_USERNAME') ?: 'tiesse');
+define('AUTH_USERNAME', 'tiesse');
 
 // Password hash (generated with password_hash('tiesseadm', PASSWORD_DEFAULT))
 // To change password, run: php -r "echo password_hash('newpassword', PASSWORD_DEFAULT);"
-define('AUTH_PASSWORD_HASH', getenv('AUTH_PASSWORD_HASH') ?: '$2y$10$e1nfIfvV2sZag1oARGD89.bG9emt6QxSQyHoreh9Ep5cFrFpgXlpm');
+define('AUTH_PASSWORD_HASH', '$2y$10$e1nfIfvV2sZag1oARGD89.bG9emt6QxSQyHoreh9Ep5cFrFpgXlpm');
 
 // Session timeout in seconds (8 hours)
-define('SESSION_TIMEOUT', (int)(getenv('SESSION_TIMEOUT') ?: 28800));
+define('SESSION_TIMEOUT', 28800);
 
 // =============================================================================
 // PATHS

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Floor Plan Module
- * Version: 3.4.2
+ * Version: 3.4.1
  * 
  * Interactive floor plan visualization with:
  * - SVG rendering and manipulation
@@ -8,7 +8,7 @@
  * - Device placement on floor plan
  * - Zoom/Pan controls
  * - Click interactions
- * - SweetAlert2 modals (v3.4.2)
+ * - SweetAlert2 modals (v3.4.1)
  * 
  * NOTE: Mapping tool available at /draw-rooms-v2.html (undocumented)
  */

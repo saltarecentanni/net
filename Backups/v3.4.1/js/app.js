@@ -2910,7 +2910,7 @@ function exportJSON() {
         rooms: appState.rooms || [],
         nextDeviceId: appState.nextDeviceId,
         exportedAt: new Date().toISOString(),
-        version: '3.4.2'
+        version: '3.4.1'
     }, null, 2);
     
     var blob = new Blob([data], { type: 'application/json' });

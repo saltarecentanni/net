@@ -2,12 +2,12 @@
 
 Applicazione web di gestione della rete per deploy in intranet aziendale.
 
-**Versione:** 3.4.2  
+**Versione:** 3.4.1  
 **Data:** 1 Febbraio 2026
 
 ---
 
-## 🆕 Novità della Versione 3.4.2
+## 🆕 Novità della Versione 3.4.1
 
 ### 🔒 Security Improvements
 | Funzionalità | Descrizione |
@@ -27,7 +27,7 @@ Applicazione web di gestione della rete per deploy in intranet aziendale.
 ### 🔧 Code Quality
 | Fix | Descrizione |
 |-----|-------------|
-| **Version Unification** | Tutti i file ora v3.4.2 |
+| **Version Unification** | Tutti i file ora v3.4.1 |
 | **Debug Logger** | Debug.log/warn/error wrappers |
 | **.gitignore** | Previene commit di .env |
 | **.env.example** | Template per configurazione |
@@ -107,13 +107,13 @@ Applicazione web di gestione della rete per deploy in intranet aziendale.
 L'applicazione ha un sistema di autenticazione:
 - **Accesso Pubblico:** Visualizzazione, stampa, esportazione
 - **Accesso Autenticato:** Aggiungere, modificare, eliminare, importare, cancellare tutto
-- **Rate Limiting (v3.4.2):** Max 5 tentativi, blocco 15 minuti
+- **Rate Limiting (v3.4.1):** Max 5 tentativi, blocco 15 minuti
 
 ### Credenziali Predefinite
 - **Utente:** tiesse
 - **Password:** tiesseadm
 
-### ⚠️ Configurazione Sicura (v3.4.2+)
+### ⚠️ Configurazione Sicura (v3.4.1+)
 
 **Raccomandato: Usa file .env**
 ```bash
