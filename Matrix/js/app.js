@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.4.4
+ * Version: 3.4.5
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -15,7 +15,7 @@
  * - CSS Variables + Tailwind architecture (v3.3.0)
  * - Security improvements: rate limiting, env vars (v3.4.1)
  * - Reliability improvements: async save, checksum, validation (v3.4.2)
- * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.4)
+ * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.5)
  */
 
 'use strict';
@@ -73,8 +73,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.4.4', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.4.4';
+var SUPPORTED_VERSIONS = ['3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.4.5';
 
 /**
  * Valid enum values for schema validation
@@ -1166,12 +1166,12 @@ function serverSave() {
         });
     }
     
-    // Try server endpoints in order: /data (Node.js), /data.php (fallback)
-    // FIXED: Use correct endpoints that the Node.js server recognizes
-    postUrl('/data')
+    // Try server endpoints in order: data.php (Apache), then relative paths
+    // Use relative paths to work in any subdirectory
+    postUrl('data.php')
         .then(function() {
             showSyncIndicator('saved', '✓ Server');
-            Debug.log('Server save OK: /data');
+            Debug.log('Server save OK: data.php');
         })
         .catch(function(err1) {
             // Check if auth required
@@ -1182,11 +1182,11 @@ function serverSave() {
                 }
                 return;
             }
-            Debug.log('/data failed:', err1.message, '- trying /data.php');
-            return postUrl('/data.php')
+            Debug.log('data.php failed:', err1.message, '- trying ./data.php');
+            return postUrl('./data.php')
                 .then(function() {
                     showSyncIndicator('saved', '✓ Server');
-                    Debug.log('Server save OK: /data.php');
+                    Debug.log('Server save OK: ./data.php');
                 })
                 .catch(function(err2) {
                     // Check if auth required

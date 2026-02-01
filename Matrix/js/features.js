@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.4.4
+ * Version: 3.4.5
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -16,8 +16,8 @@
  * - GLOBAL connection indexing by source device (v3.1.0)
  * - PNG export with title header (v3.1.3)
  * - CSS Variables integration (v3.3.0)
- * - Debug mode support (v3.4.4)
- * - 100% Offline: No external CDN dependencies (v3.4.4)
+ * - Debug mode support (v3.4.5)
+ * - 100% Offline: No external CDN dependencies (v3.4.5)
  */
 
 // Debug logger fallback (defined in app.js)
