@@ -1,0 +1,394 @@
+# TIESSE Matrix Network
+
+Applicazione web di gestione della rete per deploy in intranet aziendale.
+
+**Versione:** 3.4.0  
+**Data:** 1 Febbraio 2026
+
+---
+
+## 🆕 Novità della Versione 3.4.0
+
+### 🏢 Gestione Floor Plan e Stanze
+| Funzionalità | Descrizione |
+|--------------|-------------|
+| **Associazione Dispositivo-Stanza** | Dispositivi collegati alle stanze tramite campo location |
+| **Nickname Stanze** | Nickname modificabili con sincronizzazione automatica dispositivi |
+| **Modal Stanza Professionale** | Modal SweetAlert2 con lista dispositivi, icone, link |
+| **Statistiche Stanza** | Conteggio dispositivi, stato connessioni per stanza |
+| **Export Stanze** | Export JSON/Excel ora include dati delle stanze |
+
+### 🔧 Correzioni Import/Export Critiche
+| Correzione | Descrizione |
+|------------|-------------|
+| **exportJSON()** | Ora include `rooms`, `exportedAt`, `version` |
+| **importData()** | Valida e importa stanze con sincronizzazione FloorPlan |
+| **exportExcel()** | Nuovo foglio "Rooms" con tutti i dati delle stanze |
+| **clearAll()** | Backup include stanze, clear sincronizza FloorPlan |
+| **saveToStorage()** | Ora salva stanze nel localStorage |
+
+### 🎨 Miglioramenti UI/UX
+| Miglioramento | Descrizione |
+|---------------|-------------|
+| **CSS Variables** | Sistema colori standardizzato con variabili |
+| **Legenda Topology** | Modal professionale con icone SVG |
+| **Modal Stanza** | Lista dispositivi con icone, link, badge stato |
+| **Colori Tab** | Corretto colore blu primary-light (#eff6ff) |
+
+### 🐛 Bug Fixes
+| Fix | Descrizione |
+|-----|-------------|
+| **Salvataggio Nickname Stanza** | Corretto `save()` → `serverSave()` |
+| **Link Dispositivi** | Cambiato da `link/link2` a array `links[]` |
+| **Connessioni Esterne** | Normalizzato `isWallJack: undefined` → `false` |
+| **deviceBelongsToRoom()** | Matching case-insensitive, normalizzato spazi |
+
+---
+
+## 🆕 Novità delle Versioni Precedenti
+
+### v3.3.0 - CSS Variables Architecture
+- Variabili CSS centralizzate
+- Integrazione Tailwind con variabili
+- Preparazione per tema dark
+
+### v3.2.0 - Preparazione Intranet Offline
+- Librerie locali (Tailwind, XLSX)
+- Indipendenza da CDN
+- File locking per concorrenza
+
+### v3.1.x - Cascading Forms & Security
+- Form a cascata: Location → Group → Device → Port
+- Protezione XSS completa
+- Cleanup codice
+
+---
+
+## 🔐 Sistema di Autenticazione
+
+L'applicazione ha un sistema di autenticazione:
+- **Accesso Pubblico:** Visualizzazione, stampa, esportazione
+- **Accesso Autenticato:** Aggiungere, modificare, eliminare, importare, cancellare tutto
+
+### Credenziali Predefinite
+- **Utente:** tiesse
+- **Password:** tiesseadm
+
+Per cambiare la password, modifica il file `config/config.php`:
+```bash
+php -r "echo password_hash('nuova_password', PASSWORD_DEFAULT);"
+```
+
+---
+
+## 📁 Struttura dei File
+
+```
+Matrix/
+├── index.html              # Pagina principale (~1346 righe)
+├── server.js               # Server Node.js (~250 righe)
+├── data.php                # API REST PHP
+├── draw-rooms-v2.html      # Tool mappatura stanze
+├── start-server.bat        # Avvio rapido Windows
+├── deploy.sh               # Script deploy Linux
+│
+├── api/
+│   └── auth.php            # API autenticazione
+│
+├── assets/
+│   ├── logoTiesse.png      # Logo aziendale
+│   └── vendor/             # Librerie locali (offline)
+│       ├── tailwind.min.js
+│       └── xlsx.full.min.js
+│
+├── config/
+│   └── config.php          # Configurazione
+│
+├── css/
+│   └── styles.css          # CSS Variables (~200 righe)
+│
+├── data/
+│   └── network_manager.json  # Dati (devices, connections, rooms)
+│
+├── doc/
+│   ├── README.md           # Questa documentazione
+│   ├── BLUEPRINT.md        # Architettura tecnica
+│   └── ROOM_STRUCTURE.md   # Struttura dati stanze
+│
+└── js/
+    ├── app.js              # Logica principale (v3.3.0, ~3259 righe)
+    │                       # - CRUD devices/connections
+    │                       # - Import/Export con rooms
+    │                       # - Helper room-device
+    │                       # - Toast notifications
+    │
+    ├── ui-updates.js       # Rendering UI (v3.4.0, ~2350 righe)
+    │                       # - Lista devices (cards/table)
+    │                       # - SVG Matrix con zoom/pan
+    │                       # - Excel export (4 fogli)
+    │
+    ├── features.js         # Funzionalità estese (v3.3.0, ~3416 righe)
+    │                       # - SVG Topology (icone Cisco)
+    │                       # - Activity Log
+    │                       # - Export Draw.io
+    │
+    ├── floorplan.js        # Modulo Floor Plan (v3.4.0, ~986 righe)
+    │                       # - Rendering stanze
+    │                       # - Modal info stanza
+    │                       # - Export PNG
+    │
+    └── auth.js             # Modulo autenticazione (~215 righe)
+```
+
+---
+
+## 🚀 Deploy
+
+### Opzione 1: Node.js (Consigliato) ⭐
+
+```bash
+cd Matrix
+node server.js
+```
+
+Accedi a: http://localhost:3000/
+
+### Opzione 2: PHP
+
+```bash
+cd Matrix
+php -S 0.0.0.0:8080
+```
+
+Accedi a: http://localhost:8080/
+
+### Opzione 3: Apache (Produzione)
+
+```bash
+# Copia i file
+sudo cp -r Matrix/* /var/www/html/matrix/
+
+# Imposta i permessi
+sudo chown -R www-data:www-data /var/www/html/matrix
+sudo chmod -R 755 /var/www/html/matrix
+sudo chmod -R 775 /var/www/html/matrix/data
+```
+
+### Opzione 4: Windows
+
+```batch
+start-server.bat
+```
+
+---
+
+## 📊 Funzionalità
+
+### Tab Disponibili
+
+| Tab | Icona | Descrizione |
+|-----|-------|-------------|
+| Devices | 📋 | Lista dispositivi (cards/table view) |
+| Active Connections | ⚡ | Gestione connessioni con form cascading |
+| Matrix | 🔀 | Matrice connessioni SVG (zoom/pan) |
+| Topology | 🗺️ | Mappa visuale SVG con icone Cisco |
+| Floor Plan | 🏢 | Gestione stanze e piazzamento dispositivi |
+| Logs | 📝 | Activity log con filtri |
+| Help | ❓ | Guida integrata |
+
+### Tipi di Dispositivo
+
+| Tipo | Descrizione |
+|------|-------------|
+| router | Router standard |
+| router_wifi | Router con WiFi |
+| switch | Switch di rete |
+| patch | Patch Panel |
+| walljack | Presa a muro |
+| firewall | Firewall |
+| server | Server |
+| wifi | Access Point WiFi |
+| isp | ISP/Provider |
+| pc | PC/Desktop |
+| printer | Stampante |
+| nas | NAS/Storage |
+| camera | Telecamera IP |
+| ups | UPS |
+| others | Altri |
+
+### Tipi di Connessione
+
+| Tipo | Descrizione | Colore |
+|------|-------------|--------|
+| lan | LAN | Blu |
+| wan | WAN/Internet | Verde |
+| dmz | DMZ | Ambra |
+| trunk | Trunk/Uplink | Viola |
+| management | Management | Ciano |
+| backup | Backup | Grigio |
+| fiber | Fibra Ottica | Rosa |
+| wallport | Presa Muro | Lime |
+| external | Esterno | Arancio |
+| other | Altro | Grigio |
+
+### Tipi di Stanza
+
+| Tipo | Descrizione | Colore |
+|------|-------------|--------|
+| server | Sala Server | Rosso |
+| office | Ufficio | Blu |
+| storage | Magazzino | Verde |
+| meeting | Sala Riunioni | Viola |
+| production | Produzione | Arancio |
+| datacenter | Data Center | Rosso scuro |
+| network | Sala Rete | Ciano |
+| other | Altro | Grigio |
+
+---
+
+## 💾 Formato Dati
+
+### Dispositivo
+
+```json
+{
+  "id": 1,
+  "rackId": "Rack-Network-01",
+  "order": 1,
+  "isRear": false,
+  "name": "Tiesse-Wifi",
+  "brandModel": "Imola IPQ-GW-WIFI",
+  "type": "router_wifi",
+  "status": "active",
+  "location": "Sala Server",
+  "addresses": [
+    { "network": "10.10.100.220", "ip": "", "vlan": null }
+  ],
+  "service": "ssid: TIESSE",
+  "ports": [{ "name": "LAN1", "type": "eth", "status": "active" }],
+  "links": [{ "label": "WebUI", "url": "http://10.10.100.220" }],
+  "notes": "Router WiFi principale"
+}
+```
+
+### Connessione
+
+```json
+{
+  "from": 1,
+  "to": 2,
+  "fromPort": "LAN1",
+  "toPort": "Gi0/1",
+  "type": "lan",
+  "status": "active",
+  "cableMarker": "A001",
+  "cableColor": "#3b82f6",
+  "isWallJack": false,
+  "externalDest": null,
+  "notes": "Uplink to core switch"
+}
+```
+
+### Stanza
+
+```json
+{
+  "id": "8",
+  "name": "8",
+  "nickname": "Sala Server",
+  "type": "server",
+  "area": 50,
+  "capacity": 20,
+  "description": "Sala server principale",
+  "color": "rgba(239,68,68,0.15)",
+  "polygon": [
+    {"x": 760, "y": 281},
+    {"x": 1010, "y": 281},
+    {"x": 1010, "y": 521},
+    {"x": 760, "y": 521}
+  ],
+  "notes": "Temperatura controllata"
+}
+```
+
+---
+
+## 📤 Export
+
+### JSON Export
+
+Esporta tutti i dati in formato JSON:
+- Devices (dispositivi)
+- Connections (connessioni)
+- Rooms (stanze)
+- Metadata (version, exportedAt)
+
+### Excel Export (4 Fogli)
+
+| Foglio | Contenuto |
+|--------|-----------|
+| **Devices** | Tutti i dispositivi con dettagli |
+| **Connections** | Tutte le connessioni |
+| **Matrix** | Matrice connessioni |
+| **Rooms** | Tutte le stanze con dispositivi |
+
+### PNG Export
+
+- Topology → Esporta mappa topologia
+- Floor Plan → Esporta pianta piano
+
+### Draw.io Export
+
+Esporta topologia in formato Draw.io XML per editing.
+
+---
+
+## 🎯 Indicatori Visivi
+
+| Indicatore | Significato |
+|------------|-------------|
+| ✗ | Dispositivo/connessione disabilitato |
+| ↩ | Dispositivo nella parte posteriore (Rear) |
+| 🟢 | Stato attivo |
+| 🔴 | Stato disabilitato |
+
+### Convenzione Numerazione Rack
+
+- **FRONTE:** 01-98 (dall'alto verso il basso)
+- **RETRO (↩):** 99-01 (dal basso verso l'alto)
+- **00:** Dispositivo sparso (non in rack)
+
+---
+
+## 📊 Statistiche Attuali
+
+| Entità | Quantità |
+|--------|----------|
+| Dispositivi | 81 |
+| Connessioni | 89 |
+| Stanze | 20 |
+| Prossimo ID | 117 |
+
+---
+
+## 🔧 Configurazione
+
+### config/config.php
+
+```php
+<?php
+define('DATA_FILE', __DIR__ . '/../data/network_manager.json');
+define('AUTH_USER', 'tiesse');
+define('AUTH_PASS_HASH', '$2y$10$...'); // password_hash('tiesseadm', PASSWORD_DEFAULT)
+define('SESSION_TIMEOUT', 3600); // 1 ora
+```
+
+---
+
+## 📞 Supporto
+
+Per assistenza tecnica contattare il reparto IT.
+
+---
+
+**© 2026 Tiesse S.P.A. - Tutti i diritti riservati**
