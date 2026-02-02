@@ -1,13 +1,13 @@
 # 🏢 Room & Location Data Structure
 
-**Version:** 3.5.010  
+**Version:** 3.5.012  
 **Date:** February 2, 2026
 
 ---
 
 ## 1. Overview
 
-Il sistema di gestione delle posizioni si divide in due livelli:
+The location management system is divided into two levels:
 
 ### 1.1 Rooms (Floor Plan)
 Le stanze (rooms) nel Floor Plan permettono di:

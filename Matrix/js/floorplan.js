@@ -979,7 +979,25 @@ var FloorPlan = (function() {
             if (room) {
                 selectRoom(room);
                 showRoomInfo(room);
-                // TODO: Auto zoom to room
+                // Auto zoom to room if it has polygon
+                if (room.polygon && room.polygon.length > 0) {
+                    var bounds = room.polygon.reduce(function(acc, p) {
+                        return {
+                            minX: Math.min(acc.minX, p.x),
+                            maxX: Math.max(acc.maxX, p.x),
+                            minY: Math.min(acc.minY, p.y),
+                            maxY: Math.max(acc.maxY, p.y)
+                        };
+                    }, { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+                    var centerX = (bounds.minX + bounds.maxX) / 2;
+                    var centerY = (bounds.minY + bounds.maxY) / 2;
+                    var container = document.getElementById('floorplanContainer');
+                    if (container) {
+                        var containerRect = container.getBoundingClientRect();
+                        container.scrollLeft = centerX - containerRect.width / 2;
+                        container.scrollTop = centerY - containerRect.height / 2;
+                    }
+                }
             }
         } else {
             closeRoomPanel();

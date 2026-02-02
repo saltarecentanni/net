@@ -91,11 +91,23 @@ function updateDeviceFilterBar() {
     var locations = [];
     var sources = [];
     var types = [];
+    var selectedLocation = appState.deviceFilters.location || '';
+    
     for (var i = 0; i < appState.devices.length; i++) {
         var d = appState.devices[i];
         if (d.location && locations.indexOf(d.location) === -1) locations.push(d.location);
-        if (d.rackId && sources.indexOf(d.rackId) === -1) sources.push(d.rackId);
-        if (d.type && types.indexOf(d.type) === -1) types.push(d.type);
+        // Only add groups from devices in the selected location (smart filtering)
+        if (d.rackId && sources.indexOf(d.rackId) === -1) {
+            if (!selectedLocation || d.location === selectedLocation) {
+                sources.push(d.rackId);
+            }
+        }
+        // Only add types from devices in the selected location
+        if (d.type && types.indexOf(d.type) === -1) {
+            if (!selectedLocation || d.location === selectedLocation) {
+                types.push(d.type);
+            }
+        }
     }
     locations.sort();
     sources.sort();
@@ -110,11 +122,11 @@ function updateDeviceFilterBar() {
                            appState.deviceFilters.hasConnections;
     
     var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
-    html += '<span class="text-xs font-semibold text-slate-600">🔍 Filters:</span>';
+    html += '<span class="text-xs font-semibold text-slate-600">Filters:</span>';
     
     // Location filter (first, with purple styling)
     html += '<select id="filterDeviceLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold">';
-    html += '<option value="">📍 All Locations</option>';
+    html += '<option value="">All Locations</option>';
     for (var l = 0; l < locations.length; l++) {
         var selectedL = appState.deviceFilters.location === locations[l] ? ' selected' : '';
         html += '<option value="' + locations[l] + '"' + selectedL + '>' + locations[l] + '</option>';
@@ -286,6 +298,7 @@ function updateDevicesListCards(cont) {
             '</div>' +
             '<div class="flex flex-col gap-1 ml-2 edit-mode-only">' +
             '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-500 hover:text-green-700 text-sm p-1" title="Add Connection">➕</button>' +
+            '<button onclick="copyDevice(' + d.id + ')" class="text-purple-500 hover:text-purple-700 text-sm p-1" title="Duplicate Device">📋</button>' +
             '<button onclick="editDevice(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-sm p-1" title="Edit Device">✎</button>' +
             '<button onclick="removeDevice(' + d.id + ')" class="text-red-500 hover:text-red-700 text-sm p-1" title="Delete Device">✕</button>' +
             '</div>' +
@@ -314,18 +327,18 @@ function updateDevicesListTable(cont) {
 
     var html = '<table class="w-full text-xs border-collapse">';
     html += '<thead><tr class="bg-slate-700 text-white">';
-    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'location\')">📍 Location' + sortIcon('location') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'location\')">Location' + sortIcon('location') + '</th>';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'rack\')">Group' + sortIcon('rack') + '</th>';
-    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'order\')">Pos.' + sortIcon('order') + '</th>';
-    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'name\')">Device Name' + sortIcon('name') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'order\')">Pos' + sortIcon('order') + '</th>';
+    html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'name\')">Device' + sortIcon('name') + '</th>';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'brandModel\')">Brand/Model' + sortIcon('brandModel') + '</th>';
     html += '<th class="p-2 text-left cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'type\')">Type' + sortIcon('type') + '</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'status\')">Status' + sortIcon('status') + '</th>';
     html += '<th class="p-2 text-left">IP/Network</th>';
     html += '<th class="p-2 text-left">Service</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'ports\')">Ports' + sortIcon('ports') + '</th>';
-    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'connections\')">Conn.' + sortIcon('connections') + '</th>';
-    html += '<th class="p-2 text-center">🔗 Links</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'connections\')">Conn' + sortIcon('connections') + '</th>';
+    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600" onclick="toggleDeviceSort(\'links\')">Links' + sortIcon('links') + '</th>';
     html += '<th class="p-2 text-center edit-mode-only">Actions</th>';
     html += '</tr></thead><tbody>';
 
@@ -395,6 +408,7 @@ function updateDevicesListTable(cont) {
         html += '<td class="p-2 text-center">' + linksHtml + '</td>';
         html += '<td class="p-2 text-center whitespace-nowrap edit-mode-only">';
         html += '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-600 hover:text-green-900 text-xs mr-1" title="Add Connection">+Conn</button>';
+        html += '<button onclick="copyDevice(' + d.id + ')" class="text-purple-600 hover:text-purple-900 text-xs mr-1" title="Duplicate Device">Copy</button>';
         html += '<button onclick="editDevice(' + d.id + ')" class="text-blue-600 hover:text-blue-900 text-xs mr-1">Edit</button>';
         html += '<button onclick="removeDevice(' + d.id + ')" class="text-red-600 hover:text-red-900 text-xs">Del</button>';
         html += '</td>';
@@ -454,6 +468,10 @@ function getDevicesSortedBy(key, asc, devicesList) {
                     if (appState.connections[i].from === a.id || appState.connections[i].to === a.id) valA++;
                     if (appState.connections[i].from === b.id || appState.connections[i].to === b.id) valB++;
                 }
+                break;
+            case 'links':
+                valA = a.links ? a.links.length : 0;
+                valB = b.links ? b.links.length : 0;
                 break;
             default:
                 valA = (a.rackId || a.rack || '').toLowerCase();
@@ -1027,7 +1045,9 @@ var SVGMatrix = (function() {
                         // Cable marker - official pill style with black border (same as tooltip)
                         if (conn.cableMarker) {
                             var markerText = conn.cableMarker.toUpperCase().substring(0,4);
-                            var markerTextColor = (cableColor === 'var(--color-text-inverse)' || cableColor === '' || cableColor === 'var(--color-warning)') ? 'var(--color-text)' : 'var(--color-text-inverse)';
+                            // Light colors need dark text: white, yellow, light colors
+                            var isLightColor = cableColor === '#ffffff' || cableColor === '#eab308' || cableColor === 'var(--color-text-inverse)' || cableColor === '' || cableColor === 'var(--color-warning)';
+                            var markerTextColor = isLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
                             // Pill with rounded ends and black border - compact size
                             html += '<rect x="' + (x+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
                             html += '<text x="' + (x+cellSize/2) + '" y="' + (y+80) + '" fill="' + markerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(markerText) + '</text>';
@@ -1820,10 +1840,10 @@ function updateConnFilterBar() {
                            appState.connFilters.status || appState.connFilters.cable;
     
     var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
-    html += '<span class="text-xs font-semibold text-slate-600">🔍 Filters:</span>';
+    html += '<span class="text-xs font-semibold text-slate-600">Filters:</span>';
     
     // Group filter - cerca in entrambi source e destination (campo rackId per compatibilità)
-    html += '<select id="filterConnSource" onchange="updateConnFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white" title="Filtra per Group (cerca in Source e Destination)">';
+    html += '<select id="filterConnSource" onchange="updateConnFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white" title="Filter by Group (searches in Source and Destination)">';
     html += '<option value="">All Groups</option>';
     for (var s = 0; s < sources.length; s++) {
         var selected = appState.connFilters.source === sources[s] ? ' selected' : '';
@@ -1836,7 +1856,7 @@ function updateConnFilterBar() {
     
     // ANY DEVICE filter (searches in BOTH From and To columns) - HIGHLIGHTED
     html += '<div class="flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-lg px-2 py-1">';
-    html += '<span class="text-xs text-blue-600 font-medium">📍 Device:</span>';
+    html += '<span class="text-xs text-blue-600 font-medium">Device:</span>';
     html += '<input type="text" id="filterConnAnyDevice" placeholder="Search device..." value="' + (appState.connFilters.anyDevice || '') + '" oninput="updateConnFilter(\'anyDevice\', this.value)" class="px-2 py-1 text-xs border-0 bg-transparent w-28 focus:outline-none">';
     html += '</div>';
     
@@ -1912,7 +1932,7 @@ function updateConnFilterBar() {
     }
     
     // Legend
-    html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear</span>';
+    html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-blue-600 font-bold">🔀</span> inverted</span>';
     
     html += '</div>';
     
@@ -1987,13 +2007,13 @@ function renderConnectionsTable(cont) {
     var headers = [
         { key: 'id', label: '#', printHide: true },
         { key: 'fromRack', label: 'Group' },
-        { key: 'fromPos', label: 'Pos.' },
+        { key: 'fromPos', label: 'Pos' },
         { key: 'fromDevice', label: 'From Device' },
         { key: 'fromPort', label: 'Src Port' },
         { key: 'arrow', label: '' },
         { key: 'toPort', label: 'Dst Port' },
         { key: 'toDevice', label: 'To Device' },
-        { key: 'toPos', label: 'Pos.' },
+        { key: 'toPos', label: 'Pos' },
         { key: 'toRack', label: 'Destination' },
         { key: 'type', label: 'Type' },
         { key: 'marker', label: 'Cable' },
@@ -2178,13 +2198,13 @@ function renderConnectionsTable(cont) {
             rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
         }
         
-        // ID number: same for both, just add ⇄ for mirrored (red and bigger) or ↩ for auto-inverted (blue)
+        // ID number: same for both, just add ⇄ for mirrored (red and bigger) or 🔄 for auto-inverted (blue)
         var idNumber = origIdx + 1;
         var idHtml;
         if (isMirrored) {
-            idHtml = idNumber + ' <span class="text-red-600 text-base font-bold">⇄</span>';
+            idHtml = idNumber + ' <span class="text-red-600 text-base font-bold" title="Mirrored view (bidirectional)">⇄</span>';
         } else if (isAutoInverted) {
-            idHtml = idNumber + ' <span class="text-blue-600 text-sm font-bold" title="View inverted to show filtered rack as source">↩</span>';
+            idHtml = idNumber + ' <span class="text-blue-600 text-sm font-bold" title="View inverted to show filtered group as source">🔀</span>';
         } else {
             idHtml = String(idNumber);
         }

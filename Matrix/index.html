@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.5.010">
+    <meta name="app-version" content="3.5.011">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%231e40af'/><circle cx='25' cy='25' r='8' fill='%2360a5fa'/><circle cx='75' cy='25' r='8' fill='%2360a5fa'/><circle cx='25' cy='75' r='8' fill='%2360a5fa'/><circle cx='75' cy='75' r='8' fill='%2360a5fa'/><circle cx='50' cy='50' r='10' fill='%23fbbf24'/><line x1='25' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='25' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/></svg>">
@@ -22,11 +22,11 @@
     
     <div class="w-full px-4 py-4">
         <!-- Header -->
-        <div class="bg-white rounded-xl shadow-lg p-4 mb-4">
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-4" role="banner">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4">
                     <!-- Logo Tiesse -->
-                    <img src="assets/logoTiesse.png" alt="Tiesse S.P.A." class="h-8 w-auto">
+                    <img src="assets/logoTiesse.png" alt="Tiesse S.P.A. Logo" class="h-8 w-auto">
                     <div>
                         <div class="flex items-baseline gap-2">
                             <h1 class="text-2xl font-bold text-slate-800">Matrix Network</h1>
@@ -35,24 +35,24 @@
                         <p class="text-slate-600 text-sm">Gestione visuale di dispositivi di rete, porte e connessioni</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3" role="navigation" aria-label="User actions">
                     <!-- Auth Controls -->
-                    <span id="userInfo" class="text-sm font-semibold text-green-600" style="display:none;"></span>
-                    <button id="loginBtn" onclick="Auth.showLoginModal()" class="view-mode-only bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-4 rounded-lg text-sm">
+                    <span id="userInfo" class="text-sm font-semibold text-green-600" style="display:none;" role="status" aria-live="polite"></span>
+                    <button id="loginBtn" onclick="Auth.showLoginModal()" class="view-mode-only bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-4 rounded-lg text-sm" aria-label="Enter edit mode">
                         🔓 Edit Mode
                     </button>
-                    <button id="logoutBtn" onclick="Auth.logout()" class="edit-mode-only bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" style="display:none;">
+                    <button id="logoutBtn" onclick="Auth.logout()" class="edit-mode-only bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" style="display:none;" aria-label="Logout and exit edit mode">
                         🔒 Logout
                     </button>
-                    <button onclick="switchTab('logs')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-1.5 px-3 rounded-lg text-sm" title="Activity Logs">
+                    <button onclick="switchTab('logs')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-1.5 px-3 rounded-lg text-sm" title="Activity Logs" aria-label="View activity logs">
                         📋
                     </button>
-                    <div id="onlineUsersIndicator" class="relative flex items-center justify-center bg-emerald-100 text-emerald-700 font-bold py-1.5 px-2.5 rounded-lg text-sm min-w-[36px] cursor-default" title="Utenti online">
+                    <div id="onlineUsersIndicator" class="relative flex items-center justify-center bg-emerald-100 text-emerald-700 font-bold py-1.5 px-2.5 rounded-lg text-sm min-w-[36px] cursor-default" title="Utenti online" role="status" aria-live="polite" aria-label="Online users count">
                         <span id="onlineUsersCount">--</span>
                     </div>
                     <div class="text-right text-xs text-slate-500">
                         <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
-                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.5.010</span></div>
+                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.5.011</span></div>
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                     <h2 class="text-lg font-bold text-slate-800">Actions</h2>
                     <!-- Global Location Filter -->
                     <div class="flex items-center gap-2 bg-orange-50 border border-orange-300 rounded-lg px-2 py-1">
-                        <select id="locationFilter" onchange="filterByLocation();" class="px-2 py-1 text-sm border-0 bg-transparent font-semibold text-orange-800 cursor-pointer focus:outline-none">
+                        <select id="locationFilter" onchange="filterByLocation();" class="px-2 py-1 text-sm border-0 bg-transparent font-semibold text-orange-800 cursor-pointer focus:outline-none" aria-label="Filter by location">
                             <option value="">🌐 All Locations</option>
                         </select>
                         <span id="totalLocationsCount" class="bg-orange-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
@@ -148,10 +148,10 @@
                     <input type="hidden" id="deviceEditId" value="">
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 xl:grid-cols-12 gap-2 items-end">
                         <div class="col-span-2">
-                            <label class="text-xs text-slate-600 mb-1 block">📍 Location *</label>
+                            <label class="text-xs text-slate-600 mb-1 block" for="deviceLocation">📍 Location *</label>
                             <div class="flex gap-1">
-                                <select id="deviceLocation" class="flex-1 px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs">
-                                    <option value="">-- Select Location --</option>
+                                <select id="deviceLocation" class="flex-1 px-3 py-1.5 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-500 text-xs" aria-label="Device location" aria-required="true">
+                                    <option value="">Select Location...</option>
                                 </select>
                                 <button type="button" onclick="openLocationManager()" title="Manage Locations" 
                                     class="px-2 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-bold transition-colors">⚙️</button>
@@ -159,13 +159,13 @@
                         </div>
                         <div class="col-span-1">
                             <!-- rackId nel codice, label visuale 'Group' per rack/uffici/sale/zone -->
-                            <label class="text-xs text-slate-600 mb-1 block">🗂️ Group *</label>
+                            <label class="text-xs text-slate-600 mb-1 block" for="rackId">🗂️ Group *</label>
                             <input type="text" id="rackId" list="rackIdList" placeholder="Rack1, Standalone" 
-                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-xs">
+                                class="w-full px-3 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-xs" aria-label="Device group or rack" aria-required="true">
                             <datalist id="rackIdList"></datalist>
                         </div>
                         <div class="col-span-1">
-                            <label class="text-xs text-slate-600 mb-1 block">🔢 Order *</label>
+                            <label class="text-xs text-slate-600 mb-1 block" for="deviceOrder">🔢 Order *</label>
                             <div class="flex gap-1 items-center justify-center">
                                 <input type="text" id="deviceOrder" placeholder="00" value="00" maxlength="2"
                                     class="w-10 px-1 py-1.5 border-2 border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-xs"
@@ -181,20 +181,20 @@
                             </div>
                         </div>
                         <div class="col-span-2">
-                            <label class="text-xs text-slate-600 mb-1 block">📟 Device Name *</label>
+                            <label class="text-xs text-slate-600 mb-1 block" for="deviceName">📟 Device Name *</label>
                             <input type="text" id="deviceName" placeholder="Router-GW, SW-Core" 
                                 maxlength="100" required
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-xs">
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-xs" aria-label="Device name" aria-required="true">
                         </div>
                         <div class="col-span-2">
-                            <label class="text-xs text-slate-600 mb-1 block">🔧 Brand/Model</label>
+                            <label class="text-xs text-slate-600 mb-1 block" for="deviceBrandModel">🔧 Brand/Model</label>
                             <input type="text" id="deviceBrandModel" placeholder="HPE Aruba 2930F" 
                                 maxlength="100"
-                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs">
+                                class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs" aria-label="Device brand and model">
                         </div>
                         <div class="col-span-1">
-                            <label class="text-xs text-slate-600 mb-1 block">🏷️ Type</label>
-                            <select id="deviceType" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
+                            <label class="text-xs text-slate-600 mb-1 block" for="deviceType">🏷️ Type</label>
+                            <select id="deviceType" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs" aria-label="Device type">
                                 <option value="router">📡 Router</option>
                                 <option value="switch">🔀 Switch</option>
                                 <option value="patch">📌 Patch Panel</option>
@@ -333,13 +333,13 @@
                                     <label class="text-xs text-slate-600 mb-1 block">📟 Device *</label>
                                     <select id="fromDevice" onchange="updateFromPorts()" 
                                         class="w-full px-2 py-1.5 border-2 border-orange-400 rounded-lg text-xs bg-white font-medium">
-                                        <option value="">Select...</option>
+                                        <option value="">Select Device...</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="text-xs text-slate-600 mb-1 block">🔌 Port *</label>
                                     <select id="fromPort" class="w-full px-2 py-1.5 border-2 border-orange-400 rounded-lg text-xs bg-white font-medium">
-                                        <option value="">Port</option>
+                                        <option value="">Select Port...</option>
                                     </select>
                                 </div>
                             </div>
@@ -367,13 +367,13 @@
                                     <label class="text-xs text-slate-600 mb-1 block">📟 Device *</label>
                                     <select id="toDevice" onchange="updateToPorts(); toggleExternalDest()" 
                                         class="w-full px-2 py-1.5 border-2 border-amber-400 rounded-lg text-xs bg-white font-medium">
-                                        <option value="">Select...</option>
+                                        <option value="">Select Device...</option>
                                     </select>
                                 </div>
                                 <div id="toPortContainer">
                                     <label class="text-xs text-slate-600 mb-1 block">🔌 Port *</label>
                                     <select id="toPort" class="w-full px-2 py-1.5 border-2 border-amber-400 rounded-lg text-xs bg-white font-medium">
-                                        <option value="">Port</option>
+                                        <option value="">Select Port...</option>
                                     </select>
                                 </div>
                             </div>
@@ -387,7 +387,7 @@
                                     <div id="wallJackRoomContainer">
                                         <label class="text-xs text-slate-600 mb-1 block">🏠 Room</label>
                                         <select id="wallJackRoomId" class="w-full px-2 py-1.5 border border-amber-300 rounded-lg text-xs bg-white">
-                                            <option value="">(non associato)</option>
+                                            <option value="">(Not Assigned)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -428,7 +428,7 @@
                             <label class="text-xs text-slate-600 mb-1 block">🎨 Color</label>
                             <div class="flex gap-1">
                                 <select id="cableColor" onchange="syncCableColorInput()" class="flex-1 px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
-                                    <option value="">None</option>
+                                    <option value="">No Color</option>
                                     <option value="#000000" style="background:#000000;color:#fff;">Black</option>
                                     <option value="#ffffff" style="background:#ffffff;color:#000;border:1px solid #ccc;">White</option>
                                     <option value="#ef4444" style="background:#ef4444;color:#fff;">Red</option>
@@ -629,7 +629,7 @@
                     <!-- ========== HEADER ========== -->
                     <div class="text-center mb-6">
                         <h1 class="text-3xl font-bold text-slate-800 mb-2">📚 Guida Utente Completa</h1>
-                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.4.5</p>
+                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.5.014</p>
                         <p class="text-slate-500 text-sm mt-1">Documentazione completa per utenti e amministratori di sistema</p>
                         <div class="flex justify-center gap-2 mt-3">
                             <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">Guida Operativa</span>
@@ -826,7 +826,7 @@
                                                 <div class="flex gap-2">
                                                     <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">🔓 Edit Mode</span>
                                                     <span class="bg-slate-200 px-2 py-0.5 rounded text-xs">📋</span>
-                                                    <span class="text-slate-500 text-xs">v3.4.5</span>
+                                                    <span class="text-slate-500 text-xs">v3.5.014</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -927,7 +927,7 @@
                                     </div>
                                     <div class="bg-slate-50 p-3 rounded-lg">
                                         <div class="flex items-center gap-2 mb-2">
-                                            <span class="text-slate-500 px-2 py-1 bg-slate-100 rounded">v3.4.5</span>
+                                            <span class="text-slate-500 px-2 py-1 bg-slate-100 rounded">v3.5.014</span>
                                         </div>
                                         <p class="text-slate-700"><strong>Funzione:</strong> Mostra la versione corrente del sistema.</p>
                                         <p class="text-slate-600 mt-1"><strong>Quando visibile:</strong> Sempre.</p>
@@ -2060,10 +2060,10 @@ Device-C  │          │   🟢     │    -     │</pre>
                                 </div>
                             </div>
 
-                            <!-- NEW v3.4.5: Data Integrity Section -->
+                            <!-- NEW v3.5.014: Data Integrity Section -->
                             <div class="bg-green-100 rounded-lg p-4 border border-green-300">
-                                <h3 class="font-bold text-green-900 mb-3">🔐 Integrità Dati (v3.5.010)</h3>
-                                <p class="text-green-800 text-sm mb-3">A partire dalla versione 3.5.010, il sistema include protezioni avanzate per garantire l'integrità dei dati:</p>
+                                <h3 class="font-bold text-green-900 mb-3">🔐 Integrità Dati (v3.5.011)</h3>
+                                <p class="text-green-800 text-sm mb-3">A partire dalla versione 3.5.011, il sistema include protezioni avanzate per garantire l'integrità dei dati:</p>
                                 
                                 <div class="space-y-2">
                                     <div class="bg-white p-2 rounded-lg">
@@ -2085,7 +2085,7 @@ Device-C  │          │   🟢     │    -     │</pre>
                                 </div>
                                 
                                 <div class="bg-green-200 p-2 rounded-lg mt-3">
-                                    <p class="text-green-900 text-xs">💡 <strong>Versioni Supportate:</strong> 3.5.010, 3.5.005, 3.5.002, 3.5.001, 3.4.5, 3.4.2, 3.4.1, 3.4.0, 3.3.x, 3.2.x, 3.1.3</p>
+                                    <p class="text-green-900 text-xs">💡 <strong>Versioni Supportate:</strong> 3.5.011, 3.5.005, 3.5.002, 3.5.001, 3.4.5, 3.4.2, 3.4.1, 3.4.0, 3.3.x, 3.2.x, 3.1.3</p>
                                 </div>
                             </div>
 
@@ -2814,7 +2814,7 @@ ip addr show | grep "inet "</pre>
                                 <h3 class="font-bold text-blue-900 mb-2">📞 Supporto</h3>
                                 <p class="text-blue-800 text-sm">Per supporto tecnico o domande sull'installazione, contattare il dipartimento IT interno.</p>
                                 <div class="mt-3 flex gap-4 text-xs">
-                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versione: 3.5.010</span>
+                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versione: 3.5.011</span>
                                 </div>
                             </div>
                         </div>
@@ -2824,7 +2824,7 @@ ip addr show | grep "inet "</pre>
                     <!-- ========== FOOTER ========== -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.5.010</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.5.011</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -2973,12 +2973,12 @@ ip addr show | grep "inet "</pre>
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/editlock.js?v=3.5.010"></script>
-    <script src="js/auth.js?v=3.5.010"></script>
-    <script src="js/app.js?v=3.5.010"></script>
-    <script src="js/ui-updates.js?v=3.5.010"></script>
-    <script src="js/features.js?v=3.5.010"></script>
-    <script src="js/floorplan.js?v=3.5.010"></script>
+    <script src="js/editlock.js?v=3.5.014"></script>
+    <script src="js/auth.js?v=3.5.014"></script>
+    <script src="js/app.js?v=3.5.014"></script>
+    <script src="js/ui-updates.js?v=3.5.014"></script>
+    <script src="js/features.js?v=3.5.014"></script>
+    <script src="js/floorplan.js?v=3.5.014"></script>
     
     <!-- Update connections count when list lists -->
     <script>

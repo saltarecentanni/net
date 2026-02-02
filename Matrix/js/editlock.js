@@ -42,7 +42,7 @@ var EditLock = (function() {
      * Try to acquire edit lock
      */
     function acquire(editor) {
-        editorName = editor || 'Admin-' + Math.random().toString(36).substr(2, 4);
+        editorName = editor || 'Admin-' + Math.random().toString(36).substring(2, 6);
         
         return fetch('api/editlock.php', {
             method: 'POST',

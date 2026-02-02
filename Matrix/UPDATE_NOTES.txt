@@ -1,8 +1,98 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.010
+Version: 3.5.014
 Last Updated: 2026-02-02
 ================================================================================
+
+CHANGELOG v3.5.014 (2026-02-02)
+--------------------------------------------------------------------------------
+🎨 UI Text Standardization (Professional Consistency)
+
+📝 DROPDOWN OPTIONS STANDARDIZED:
+  ✅ All filter dropdowns now have consistent emoji prefixes
+  ✅ "Select Device..." format for required selections
+  ✅ "Select Port..." format for port dropdowns
+  ✅ "Select Location..." format for location dropdown
+  ✅ "(Not Assigned)" replaces Italian "(non associato)"
+  ✅ "No Color" replaces "None" in cable color selector
+
+📊 TABLE HEADERS STANDARDIZED:
+  ✅ Devices table: Added emojis to all column headers
+    - 📍 Location, 🗂️ Group, 🔢 Pos, 📟 Device
+    - 🔧 Brand/Model, 🏷️ Type, ⚡ Status
+    - 🌐 IP/Network, ⚙️ Service, 🔌 Ports, 🔗 Conn
+  ✅ Connections table: Added emojis to all column headers
+    - 🗂️ Group, 🔢 Pos, 📤 From Device, 🔌 Src Port
+    - 🔌 Dst Port, 📥 To Device, 🗂️ Destination
+    - 🏷️ Type, 🔖 Cable, ⚡ Status, 📝 Notes
+
+🔍 FILTER BARS STANDARDIZED:
+  ✅ 🗂️ All Groups, 🏷️ All Types, ⚡ All Status
+  ✅ 🔗 Connections filter with consistent options
+
+🌐 ERROR MESSAGES TRANSLATED TO ENGLISH:
+  ✅ "Port already has 2 connections (front and rear)"
+  ✅ "Source port already in use"
+  ✅ "Destination port already in use"
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.013 (2026-02-02)
+--------------------------------------------------------------------------------
+📋 Copy Device Feature
+  ✅ New "Copy" button in Devices list (Table and Card views)
+  ✅ Duplicates device with all settings (name, type, ports, IPs, links)
+  ✅ Auto-opens copy in edit form for immediate modification
+  ✅ Activity log tracks copy operations
+
+🎯 Smart Cascading Filters
+  ✅ Groups dropdown now filters by selected Location
+  ✅ Types dropdown now filters by selected Location
+  ✅ Changing Location resets dependent filters
+
+--------------------------------------------------------------------------------
+🔗 Links Column Sorting Fix
+  ✅ Added sortable onclick handler to Links column header
+  ✅ Added 'links' case to getDevicesSortedBy() function
+  ✅ Links now sortable by number of connections (ascending/descending)
+
+🔍 Audit 3.0 Review (50 pattern verifications completed)
+  ✅ Promises: serverLoad/serverSave already have proper .catch() chains
+  ✅ copyToClipboard has fallback for older browsers
+  ✅ Swal.fire() patterns confirmed - never reject, no .catch() needed
+  ✅ Interface language consistent (English throughout)
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.011 (2026-02-02)
+--------------------------------------------------------------------------------
+🔧 Code Quality Fixes (Audit 2.0 - 50 verifications)
+
+♻️ DEAD CODE REMOVED:
+  ✅ Removed unused function: autoResizeTextarea()
+  ✅ Removed unused function: countDevicesInRoom()
+
+🛠️ DEPRECATED API FIXES:
+  ✅ Replaced .substr(2, 9) with .substring(2, 11) in app.js
+  ✅ Replaced .substr(2, 4) with .substring(2, 6) in editlock.js
+
+🗺️ FLOOR PLAN IMPROVEMENTS:
+  ✅ Implemented auto-zoom to selected room (was TODO)
+  ✅ Centers view on room polygon when selecting from dropdown
+
+💾 STORAGE ERROR HANDLING:
+  ✅ Added QuotaExceededError detection in localStorage
+  ✅ User-friendly message when storage is full
+
+♿ ACCESSIBILITY IMPROVEMENTS:
+  ✅ Added role="banner" to header section
+  ✅ Added role="navigation" to user actions
+  ✅ Added role="status" and aria-live="polite" for dynamic content
+  ✅ Added aria-label to all major buttons and controls
+  ✅ Added aria-required="true" for required form fields
+  ✅ Added for="" attributes linking labels to inputs
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.010 (2026-02-02)
 --------------------------------------------------------------------------------

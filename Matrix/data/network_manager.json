@@ -59,7 +59,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 2,
@@ -100,7 +101,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 3,
@@ -238,7 +240,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 5,
@@ -319,7 +322,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 6,
@@ -552,7 +556,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 8,
@@ -628,7 +633,8 @@
           "status": "active"
         }
       ],
-      "notes": "Accesso rete Wind FWA"
+      "notes": "Accesso rete Wind FWA",
+      "_isExternal": false
     },
     {
       "id": 9,
@@ -991,7 +997,8 @@
           "status": "active"
         }
       ],
-      "notes": "Gestione Telecamera di sicurezza sistema 80.18.165.238"
+      "notes": "Gestione Telecamera di sicurezza sistema 80.18.165.238",
+      "_isExternal": false
     },
     {
       "id": 12,
@@ -1683,7 +1690,8 @@
           "status": "active"
         }
       ],
-      "notes": "Le 4 ultime porte (45,46,47,48) appartengono a un'altra rete.Questo Dlink ha sostituito due switch Elba."
+      "notes": "Le 4 ultime porte (45,46,47,48) appartengono a un'altra rete.Questo Dlink ha sostituito due switch Elba.",
+      "_isExternal": false
     },
     {
       "id": 17,
@@ -2237,7 +2245,8 @@
           "status": "active"
         }
       ],
-      "notes": "TVCC - DVR"
+      "notes": "TVCC - DVR",
+      "_isExternal": false
     },
     {
       "id": 27,
@@ -2394,12 +2403,17 @@
     {
       "id": 28,
       "rackId": "Rack-Ufficio-12",
+      "rack": "Rack-Ufficio-12",
       "order": 6,
-      "name": "Imola LX",
+      "isRear": false,
+      "rear": false,
+      "name": "Imola6 LX5272",
       "brandModel": "SED/Multitel",
       "type": "router",
       "status": "active",
+      "location": "ICT",
       "addresses": [],
+      "links": [],
       "service": "",
       "ports": [
         {
@@ -2469,7 +2483,6 @@
         }
       ],
       "notes": "",
-      "location": "ICT",
       "_isExternal": false
     },
     {
@@ -2909,17 +2922,27 @@
     {
       "id": 33,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 99,
       "isRear": true,
+      "rear": true,
       "name": "RT-GW-ts-server",
       "brandModel": "Generic",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.254.1",
-          "ip": "10.1.10.1",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.1",
+          "label": "ssh"
         }
       ],
       "service": "VLAN",
@@ -2981,7 +3004,6 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -3284,7 +3306,13 @@
           "vlan": null
         }
       ],
-      "links": [],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.100.41/cgi-bin/",
+          "label": ""
+        }
+      ],
       "service": "NAS",
       "ports": [
         {
@@ -3400,17 +3428,27 @@
     {
       "id": 40,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 4,
       "isRear": false,
+      "rear": false,
       "name": "SERVER SAP",
       "brandModel": "Fujitsu RX2540 M1",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.100.4",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://hyp-sap/ui/#/login",
+          "label": ""
         }
       ],
       "service": "ERP SAP TIESSE",
@@ -3437,7 +3475,6 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -3459,7 +3496,13 @@
           "vlan": null
         }
       ],
-      "links": [],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.100.45/cgi-bin/",
+          "label": ""
+        }
+      ],
       "service": "NAS2",
       "ports": [
         {
@@ -3489,17 +3532,27 @@
     {
       "id": 42,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 6,
       "isRear": false,
+      "rear": false,
       "name": "SRV-K8S-WORKER-01",
       "brandModel": "DELL EMC",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.56.1",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.56.1:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox K8s",
@@ -3531,23 +3584,32 @@
         }
       ],
       "notes": "k8s-worker-01",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 43,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 7,
       "isRear": false,
+      "rear": false,
       "name": "SRV-K8S-WORKER-02",
       "brandModel": "DELL EMC",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.55.2",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.56.2:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox k8s",
@@ -3579,23 +3641,32 @@
         }
       ],
       "notes": "K8S-WORKER-02",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 44,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 8,
       "isRear": false,
+      "rear": false,
       "name": "SRV-VM-12",
       "brandModel": "DELL EMC",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.50.12",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.50.12:8006/#v1:0:18:4:::::8::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -3627,23 +3698,32 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 45,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 9,
       "isRear": false,
+      "rear": false,
       "name": "SRV-K8S-MASTER-01",
       "brandModel": "HP ML110v2",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.55.1",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.55.1:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox k8s",
@@ -3675,7 +3755,6 @@
         }
       ],
       "notes": "K8S-MASTER-01",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -3718,17 +3797,27 @@
     {
       "id": 47,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 11,
       "isRear": false,
+      "rear": false,
       "name": "SRV-VM-06",
       "brandModel": "Lenovo Thinkstation",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.50.6",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.50.6:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -3740,23 +3829,32 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 48,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 12,
       "isRear": false,
+      "rear": false,
       "name": "SRV-K8S-BACKUP",
       "brandModel": "Lenovo ThinkStation",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.55.100",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://k8s-bck.tiesse.lan:8007/",
+          "label": ""
         }
       ],
       "service": "Backup Proxmox Server",
@@ -3768,23 +3866,32 @@
         }
       ],
       "notes": "Server per tutti Backup Proxmox",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 49,
       "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 99,
       "isRear": true,
-      "name": "RT-GW-ts-rack2-GENERIC",
+      "rear": true,
+      "name": "GW-SwDevelop",
       "brandModel": "Generic",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.254.3",
-          "ip": "10.3.10.1",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.3",
+          "label": "ssh"
         }
       ],
       "service": "VLAN",
@@ -3851,7 +3958,6 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -4304,17 +4410,27 @@
     {
       "id": 53,
       "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 3,
       "isRear": false,
+      "rear": false,
       "name": "SRV-VM-03",
       "brandModel": "Fujitsu",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.50.3",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://hyp-3:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -4326,23 +4442,32 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 54,
       "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 4,
       "isRear": false,
+      "rear": false,
       "name": "FAIAL",
       "brandModel": "Fujitsu",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.3.10.101",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "rdp",
+          "url": "10.3.10.101",
+          "label": "RDP"
         }
       ],
       "service": "Windows7 - VmWare Server",
@@ -4354,7 +4479,6 @@
         }
       ],
       "notes": "Bare Metal",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -4428,17 +4552,27 @@
     {
       "id": 56,
       "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 96,
       "isRear": true,
-      "name": "RT Imola6-5272",
-      "brandModel": "LX5272",
+      "rear": true,
+      "name": "RT-PowerFailTwo",
+      "brandModel": "Imola6-LX5272",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.254.250",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.250",
+          "label": "ssh"
         }
       ],
       "service": "VLAN",
@@ -4475,7 +4609,6 @@
         }
       ],
       "notes": "Vecchio router per VLAN Distrib/BW/Coltrane",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -4663,7 +4796,8 @@
           "status": "active"
         }
       ],
-      "notes": "Accanto alla stampante"
+      "notes": "Accanto alla stampante",
+      "_isExternal": false
     },
     {
       "id": 63,
@@ -4693,22 +4827,33 @@
       ],
       "service": "Tiesse-wifi",
       "ports": [],
-      "notes": "Reception (Barbara)"
+      "notes": "Reception (Barbara)",
+      "_isExternal": false
     },
     {
       "id": 64,
       "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 1,
       "isRear": false,
+      "rear": false,
       "name": "SRV-VM-09",
       "brandModel": "HP DL360G6",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.50.9",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.50.9:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -4725,23 +4870,32 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 65,
       "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 2,
       "isRear": false,
+      "rear": false,
       "name": "Dizzy",
       "brandModel": "Dell PowerEdge 2950",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.84.10.230",
-          "ip": "10.85.10.200",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.84.10.230",
+          "label": "ssh"
         }
       ],
       "service": "Server",
@@ -4758,23 +4912,32 @@
         }
       ],
       "notes": "Bare Metal",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
       "id": 66,
       "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 4,
       "isRear": false,
+      "rear": false,
       "name": "SRV-VM-05",
       "brandModel": "Fujitsu",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.50.5",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://hyp-5:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -4786,7 +4949,6 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -4831,7 +4993,8 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA ROSSA"
+      "notes": "HUB POWERFAIL LINEA ROSSA",
+      "_isExternal": false
     },
     {
       "id": 68,
@@ -4875,7 +5038,8 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA BIANCA"
+      "notes": "HUB POWERFAIL LINEA BIANCA",
+      "_isExternal": false
     },
     {
       "id": 69,
@@ -4919,7 +5083,8 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA VERDE"
+      "notes": "HUB POWERFAIL LINEA VERDE",
+      "_isExternal": false
     },
     {
       "id": 70,
@@ -5394,13 +5559,7 @@
           "vlan": null
         }
       ],
-      "links": [
-        {
-          "type": "https",
-          "url": "https://hyp-sap/ui/#/login",
-          "label": ""
-        }
-      ],
+      "links": [],
       "service": "ERP SAP MICROLYS",
       "ports": [
         {
@@ -5424,7 +5583,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 78,
@@ -5465,7 +5625,8 @@
           "status": "active"
         }
       ],
-      "notes": "IP: 151.13.131.13: REPLICA DI SRV-PROD-02"
+      "notes": "IP: 151.13.131.13: REPLICA DI SRV-PROD-02",
+      "_isExternal": false
     },
     {
       "id": 79,
@@ -5506,7 +5667,8 @@
           "status": "active"
         }
       ],
-      "notes": "IP: 151.13.131.13: SERVER MASTER"
+      "notes": "IP: 151.13.131.13: SERVER MASTER",
+      "_isExternal": false
     },
     {
       "id": 80,
@@ -5547,7 +5709,8 @@
           "status": "active"
         }
       ],
-      "notes": "Hypervisor per tutti i server su rete 151.13.131.0/24"
+      "notes": "Hypervisor per tutti i server su rete 151.13.131.0/24",
+      "_isExternal": false
     },
     {
       "id": 81,
@@ -5583,7 +5746,8 @@
           "status": "active"
         }
       ],
-      "notes": "Quorum per Proxmox SRV-PROD*"
+      "notes": "Quorum per Proxmox SRV-PROD*",
+      "_isExternal": false
     },
     {
       "id": 82,
@@ -5669,7 +5833,8 @@
           "status": "active"
         }
       ],
-      "notes": "MICROLYS-GATEWAY"
+      "notes": "MICROLYS-GATEWAY",
+      "_isExternal": false
     },
     {
       "id": 83,
@@ -5730,7 +5895,8 @@
           "status": "active"
         }
       ],
-      "notes": "Router per Collegamento VPN (Magazzino via Torino)"
+      "notes": "Router per Collegamento VPN (Magazzino via Torino)",
+      "_isExternal": false
     },
     {
       "id": 84,
@@ -5897,28 +6063,35 @@
       ],
       "service": "Tiesse-wifi",
       "ports": [],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
-      "id": 118,
-      "rackId": "Rack-Ufficio-12",
-      "rack": "Rack-Ufficio-12",
+      "id": 120,
+      "rackId": "Router-Area",
+      "rack": "Router-Area",
       "order": 0,
       "isRear": false,
       "rear": false,
-      "name": "Imola6",
-      "brandModel": "Tiesse 5272",
+      "name": "IRA-NORD01",
+      "brandModel": "IMOLA6",
       "type": "router",
       "status": "active",
       "location": "ICT",
       "addresses": [
         {
-          "network": "2.2.2.2",
+          "network": "10.10.254.121",
           "ip": "",
           "vlan": null
         }
       ],
-      "links": [],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.121",
+          "label": "ssh"
+        }
+      ],
       "service": "Router Area",
       "ports": [
         {
@@ -5980,10 +6153,207 @@
           "name": "eth12",
           "type": "eth",
           "status": "active"
+        },
+        {
+          "name": "MGMT01",
+          "type": "MGMT",
+          "status": "active"
+        },
+        {
+          "name": "SFP/SFP+01",
+          "type": "SFP/SFP+",
+          "status": "active"
+        },
+        {
+          "name": "WAN01",
+          "type": "WAN",
+          "status": "active"
         }
       ],
       "notes": "",
-      "_isExternal": true
+      "_isExternal": false
+    },
+    {
+      "id": 121,
+      "rackId": "IP-PHONE",
+      "rack": "IP-PHONE",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "Telefono Voip R.Russo",
+      "brandModel": "Cisco CP6821",
+      "type": "ip_phone",
+      "status": "active",
+      "location": "ICT",
+      "addresses": [
+        {
+          "network": "10.10.100.210",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [],
+      "service": "Telefono Voip Cisco",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 122,
+      "rackId": "IP-PHONE",
+      "rack": "IP-PHONE",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "Telefono Voip G.Cappai",
+      "brandModel": "Cisco CP6821",
+      "type": "ip_phone",
+      "status": "active",
+      "location": "ICT",
+      "addresses": [
+        {
+          "network": "10.10.10.16",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [],
+      "service": "Telefono Voip Cisco",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 123,
+      "rackId": "SWITCH-AREA",
+      "rack": "SWITCH-AREA",
+      "order": 1,
+      "isRear": false,
+      "rear": false,
+      "name": "Switch D-Link",
+      "brandModel": "DSG-108",
+      "type": "switch",
+      "status": "active",
+      "location": "ICT",
+      "addresses": [],
+      "links": [],
+      "service": "",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 124,
+      "rackId": "SWITCH-AREA",
+      "rack": "SWITCH-AREA",
+      "order": 2,
+      "isRear": false,
+      "rear": false,
+      "name": "Switch D-Link",
+      "brandModel": "DSG-1100-08",
+      "type": "switch",
+      "status": "active",
+      "location": "ICT",
+      "addresses": [],
+      "links": [],
+      "service": "",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
     }
   ],
   "connections": [
@@ -6242,10 +6612,11 @@
       "toPort": "eth12",
       "externalDest": "",
       "isWallJack": false,
+      "roomId": null,
       "type": "lan",
       "color": "#3b82f6",
       "status": "active",
-      "cableMarker": "XXXXX",
+      "cableMarker": "A2",
       "cableColor": "#ffffff",
       "notes": ""
     },
@@ -6256,10 +6627,11 @@
       "toPort": "",
       "externalDest": "ISP",
       "isWallJack": false,
+      "roomId": null,
       "type": "lan",
       "color": "#3b82f6",
       "status": "active",
-      "cableMarker": "XXXXX",
+      "cableMarker": "A1",
       "cableColor": "#3b82f6",
       "notes": ""
     },
@@ -7228,6 +7600,81 @@
       "cableMarker": "BBB",
       "cableColor": "#000000",
       "notes": ""
+    },
+    {
+      "from": 121,
+      "fromPort": "eth01",
+      "to": 123,
+      "toPort": "eth04",
+      "externalDest": "",
+      "isWallJack": false,
+      "roomId": null,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "AA",
+      "cableColor": "#ffffff",
+      "notes": ""
+    },
+    {
+      "from": 122,
+      "fromPort": "eth01",
+      "to": 123,
+      "toPort": "eth03",
+      "externalDest": "",
+      "isWallJack": false,
+      "roomId": null,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "AB",
+      "cableColor": "#ffffff",
+      "notes": ""
+    },
+    {
+      "from": 27,
+      "fromPort": "eth21",
+      "to": 123,
+      "toPort": "eth08",
+      "externalDest": "",
+      "isWallJack": false,
+      "roomId": null,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "A0",
+      "cableColor": "#6b7280",
+      "notes": ""
+    },
+    {
+      "from": 120,
+      "fromPort": "WAN01",
+      "to": 123,
+      "toPort": "eth01",
+      "externalDest": "",
+      "isWallJack": false,
+      "roomId": null,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "AC",
+      "cableColor": "#3b82f6",
+      "notes": ""
+    },
+    {
+      "from": 123,
+      "fromPort": "eth07",
+      "to": 124,
+      "toPort": "eth02",
+      "externalDest": "",
+      "isWallJack": false,
+      "roomId": null,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "AC1",
+      "cableColor": "#ffffff",
+      "notes": ""
     }
   ],
   "rooms": [
@@ -8140,6 +8587,6 @@
       "color": "#f97316"
     }
   ],
-  "nextDeviceId": 120,
+  "nextDeviceId": 125,
   "nextLocationId": 24
 }

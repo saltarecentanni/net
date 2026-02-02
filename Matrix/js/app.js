@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.010
+ * Version: 3.5.014
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -75,8 +75,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.010', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.010';
+var SUPPORTED_VERSIONS = ['3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.014';
 
 /**
  * Valid enum values for schema validation
@@ -349,15 +349,6 @@ function deviceBelongsToRoom(device, room) {
 }
 
 /**
- * Count devices belonging to a room
- */
-function countDevicesInRoom(room) {
-    return appState.devices.filter(function(d) {
-        return deviceBelongsToRoom(d, room);
-    }).length;
-}
-
-/**
  * Get devices belonging to a room
  */
 function getDevicesInRoom(room) {
@@ -382,6 +373,16 @@ function updateDeviceFilter(filterKey, value, skipFilterBarRebuild) {
         if (globalFilter && globalFilter.value !== value) {
             globalFilter.value = value;
         }
+        
+        // Reset dependent filters when location changes (smart cascading)
+        appState.deviceFilters.source = '';  // Reset group filter
+        appState.deviceFilters.type = '';    // Reset type filter
+        
+        // Rebuild the filter bar to show only relevant groups/types
+        if (typeof updateDeviceFilterBar === 'function') {
+            updateDeviceFilterBar();
+        }
+        
         // Update all views when location changes (like global filter does)
         if (typeof LocationFilter !== 'undefined') {
             LocationFilter.updateCounters();
@@ -1075,14 +1076,6 @@ function addConnectionFromDevice(deviceId) {
     Toast.info('Select destination device and port');
 }
 
-function autoResizeTextarea(el) {
-    if (!el) return;
-    var lines = (el.value.match(/\n/g) || []).length + 1;
-    var minRows = parseInt(el.getAttribute('rows') || '1', 10);
-    var rows = Math.max(minRows, lines);
-    el.rows = rows;
-}
-
 function highlightEditFields(formType, enable) {
     var fields = [];
     if (formType === 'connection') {
@@ -1133,7 +1126,11 @@ function saveToStorage() {
         serverSave();
     } catch (e) {
         Debug.error('Error saving to localStorage:', e);
-        Toast.error('Failed to save data locally');
+        if (e.name === 'QuotaExceededError' || e.code === 22) {
+            Toast.error('Storage quota exceeded. Please export and clear old data.');
+        } else {
+            Toast.error('Failed to save data locally');
+        }
     }
 }
 
@@ -1700,6 +1697,48 @@ function cancelDeviceEdit() {
     Toast.info('Edit cancelled');
 }
 
+/**
+ * Copy/duplicate a device - creates a copy and opens form for editing
+ * @param {string} id - Device ID to copy
+ */
+function copyDevice(id) {
+    // Require authentication for copying
+    if (!requireAuth()) return;
+    
+    var original = null;
+    for (var i = 0; i < appState.devices.length; i++) {
+        if (appState.devices[i].id === id) {
+            original = appState.devices[i];
+            break;
+        }
+    }
+    if (!original) return;
+
+    // Create a deep copy with new ID and modified name
+    var newDevice = JSON.parse(JSON.stringify(original));
+    newDevice.id = appState.nextDeviceId++;  // Use proper sequential ID
+    newDevice.name = original.name + ' (Copy)';
+    
+    // Add to devices array
+    appState.devices.push(newDevice);
+    
+    // Log activity
+    if (typeof ActivityLog !== 'undefined') {
+        ActivityLog.add('copy', 'device', newDevice.name + ' from ' + original.name);
+    }
+    
+    // Save to server immediately
+    serverSave();
+    
+    // Update UI
+    updateUI();
+    
+    // Open the new device in edit mode
+    editDevice(newDevice.id);
+    
+    Toast.success('📋 Device copied and saved! Edit the copy below.');
+}
+
 function removeDevice(id) {
     // Require authentication for deleting
     if (!requireAuth()) return;
@@ -2000,9 +2039,9 @@ function saveConnection() {
             // Check if it's a patch panel or walljack that already has 2 connections
             var fromDeviceType = fromDevice ? fromDevice.type : '';
             if (fromDeviceType === 'patch' || fromDeviceType === 'walljack') {
-                Toast.error('Porta già ha 2 connessioni (fronte e retro)');
+                Toast.error('Port already has 2 connections (front and rear)');
             } else {
-                Toast.error('Porta sorgente già in uso');
+                Toast.error('Source port already in use');
             }
             return;
         }
@@ -2010,9 +2049,9 @@ function saveConnection() {
         if (to && toPort && isPortUsed(to, toPort, excludeIdx)) {
             var toDeviceType = toDevice ? toDevice.type : '';
             if (toDeviceType === 'patch' || toDeviceType === 'walljack') {
-                Toast.error('Porta già ha 2 connessioni (fronte e retro)');
+                Toast.error('Port already has 2 connections (front and rear)');
             } else {
-                Toast.error('Porta destinazione già in uso');
+                Toast.error('Destination port already in use');
             }
             return;
         }
@@ -2340,7 +2379,7 @@ function populateWallJackRoomSelect() {
     if (!select) return;
     
     var currentValue = select.value;
-    select.innerHTML = '<option value="">(non associato)</option>';
+    select.innerHTML = '<option value="">(Not Assigned)</option>';
     
     // Get rooms from FloorPlan
     var rooms = [];
@@ -4125,7 +4164,7 @@ var OnlineTracker = (function() {
         // Get or create user ID
         userId = sessionStorage.getItem('matrixUserId');
         if (!userId) {
-            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
             sessionStorage.setItem('matrixUserId', userId);
         }
         
