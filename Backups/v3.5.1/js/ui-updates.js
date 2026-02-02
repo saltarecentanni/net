@@ -170,39 +170,6 @@ function updateDeviceFilterBar() {
     html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> not connected · <span class="text-blue-500 font-bold">🌐</span> link</span>';
     
     html += '</div>';
-    
-    // Warning for generic groups without location filter
-    var genericGroups = ['standalone', 'endpoints', 'devices', 'altri', 'other', 'misc'];
-    var sourceFilter = (appState.deviceFilters.source || '').toLowerCase();
-    var locationFilter = appState.deviceFilters.location || '';
-    
-    if (sourceFilter && !locationFilter) {
-        // Check if it's a generic group name
-        var isGenericGroup = genericGroups.some(function(g) {
-            return sourceFilter.indexOf(g) !== -1;
-        });
-        
-        if (isGenericGroup) {
-            // Count how many locations have this group
-            var locationsWithGroup = {};
-            for (var gi = 0; gi < appState.devices.length; gi++) {
-                var gd = appState.devices[gi];
-                if ((gd.rackId || '').toLowerCase().indexOf(sourceFilter) !== -1 && gd.location) {
-                    locationsWithGroup[gd.location] = true;
-                }
-            }
-            var locationCount = Object.keys(locationsWithGroup).length;
-            
-            if (locationCount > 1) {
-                html += '<div class="flex items-center gap-2 p-2 bg-amber-50 border border-amber-200 rounded-lg mt-2 text-xs">';
-                html += '<span class="text-amber-600 font-bold">⚠️</span>';
-                html += '<span class="text-amber-700">Visualizzando "<strong>' + appState.deviceFilters.source + '</strong>" da <strong>' + locationCount + ' locations</strong> diverse. ';
-                html += 'Filtra per <strong>Location</strong> per vedere solo una stanza.</span>';
-                html += '</div>';
-            }
-        }
-    }
-    
     filterBar.innerHTML = html;
 }
 
@@ -1910,27 +1877,6 @@ function updateConnFilterBar() {
     html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear</span>';
     
     html += '</div>';
-    
-    // Warning for WallJacks without room assignment (only for logged-in users)
-    var isLoggedIn = typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn();
-    if (isLoggedIn) {
-        var unassignedWallJacks = 0;
-        for (var wj = 0; wj < appState.connections.length; wj++) {
-            var conn = appState.connections[wj];
-            if (conn.isWallJack && (!conn.roomId || conn.roomId === null || conn.roomId === '')) {
-                unassignedWallJacks++;
-            }
-        }
-        
-        if (unassignedWallJacks > 0) {
-            html += '<div class="flex items-center gap-2 p-2 bg-amber-50 border border-amber-200 rounded-lg mt-2 text-xs">';
-            html += '<span class="text-amber-600 font-bold">⚠️</span>';
-            html += '<span class="text-amber-700"><strong>' + unassignedWallJacks + ' Wall Jack' + (unassignedWallJacks > 1 ? 's' : '') + '</strong> non associat' + (unassignedWallJacks > 1 ? 'i' : 'o') + ' a nessuna stanza. ';
-            html += 'Modifica la connessione e seleziona la <strong>Room</strong> corrispondente.</span>';
-            html += '</div>';
-        }
-    }
-    
     filterBar.innerHTML = html;
 }
 

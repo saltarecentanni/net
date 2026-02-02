@@ -3247,7 +3247,7 @@ var DeviceLinks = (function() {
         
         return links.map(function(link) {
             var typeInfo = linkTypes.find(function(t) { return t.value === link.type; }) || linkTypes[linkTypes.length - 1];
-            // If no label, use "Gestione" as default
+            // Se não tem label, usa "Gestione" como padrão
             var displayLabel = link.label || 'Gestione';
             var safeUrl = escapeHtml(link.url);
             var safeLabel = escapeHtml(displayLabel);

@@ -1,0 +1,214 @@
+================================================================================
+TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
+Version: 3.4.3
+Last Updated: 2026-02-01
+================================================================================
+
+CHANGELOG v3.4.3 (2026-02-01)
+--------------------------------------------------------------------------------
+🔐 DATA INTEGRITY IMPROVEMENTS (Critical System Functions):
+  ✅ SHA-256 Cryptographic Checksum: Export uses Web Crypto API SHA-256
+  ✅ Mandatory Version Validation: Import rejects unsupported versions
+  ✅ Automatic Rollback: State backup before import, restored on failure
+  ✅ Complete Schema Validation:
+     - Device validation (id, name, type, status, ports, rackId)
+     - Connection validation with reference checks (from/to devices exist)
+     - Room validation (id, name)
+     - Duplicate ID detection
+     - Enum validation (status, connection types)
+  ✅ Legacy Checksum Support: Can still import v3.4.2 simple32bit checksums
+  ✅ Supported Versions: 3.4.3, 3.4.2, 3.4.1, 3.4.0, 3.3.x, 3.2.x, 3.1.3
+
+NEW FUNCTIONS in v3.4.3:
+  - sha256(message): Async function using crypto.subtle.digest
+  - validateDeviceSchema(device, index): Complete device validation
+  - validateConnectionSchema(conn, index, deviceIds): Connection + reference validation
+  - validateRoomSchema(room, index): Room validation
+  - VALID_ENUMS: Centralized enum definitions for validation
+  - SUPPORTED_VERSIONS: Version whitelist for import
+  - CURRENT_VERSION: Single source of truth for version
+
+EXPORT/IMPORT GUARANTEES:
+  ✓ Exported files cannot be corrupted without detection (SHA-256)
+  ✓ Tampered files will be rejected with clear error message
+  ✓ Incompatible versions rejected before any data changes
+  ✓ If import fails mid-process, original data is automatically restored
+  ✓ All device references in connections are validated
+  ✓ No duplicate device IDs allowed
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.4.2 (2026-02-01)
+--------------------------------------------------------------------------------
+🔒 SECURITY FIXES (Quick Fixes from Audit):
+  ✅ Request size limit: Max 50MB to prevent DoS attacks
+  ✅ Console.error protected: Wrapped in DEBUG_MODE condition
+  ✅ PHP .env support: config.php now reads from .env file
+  ✅ Timing-safe auth: login comparison uses timingSafeEqual
+  ✅ Session cleanup: expired sessions purged every 30 minutes
+  ✅ Data write serialization: queued writes prevent same-process race conditions
+  ✅ Async save + temp/backup: non-blocking writes with temp + .bak
+  ✅ Export integrity: JSON export now includes checksum
+  ✅ Import integrity: checksum validated when present
+  ✅ Input validation: stricter device/connection validation
+  
+INHERITED FROM v3.4.1:
+  ✅ Rate limiting: Max 5 login attempts, 15 min lockout
+  ✅ Environment variables: .env support for Node.js
+  ✅ Debug mode: console.* wrapped in DEBUG_MODE flag
+  ✅ Input validation: maxlength on form fields
+  ✅ SweetAlert2: Replaced all confirm/alert with styled modals
+  ✅ Better error messages with remaining attempts info
+
+CODE QUALITY:
+  ✅ Version unification: All files now v3.4.2
+  ✅ Debug logger: Debug.log/warn/error wrappers
+  ✅ .gitignore: Prevent .env from being committed
+  ✅ .env.example: Template for configuration (Node.js + PHP)
+
+FILES CHANGED IN v3.4.2:
+  - server.js: Request size limit (50MB), async write, serialization, timing-safe auth
+  - config/config.php: .env file loading, getenv() for credentials
+  - .env.example: Added PHP variables (AUTH_USERNAME, AUTH_PASSWORD_HASH)
+  - js/app.js: Export checksum + import validation
+  - All version references updated to 3.4.2
+
+BACKUP CREATED:
+  - Backups/v3.4.1/ - Complete backup before v3.4.2 changes
+
+--------------------------------------------------------------------------------
+
+MIGRAÇÃO PLANEJADA: Ubuntu Server + Apache
+--------------------------------------------------------------------------------
+
+1. SEGURANÇA (PRIORIDADE ALTA)
+   ✅ Implementar variáveis de ambiente (.env)
+   ✅ Implementar rate limiting para prevenir brute force
+   □ Remover credenciais hardcoded em produção
+   □ Configurar HTTPS/SSL obrigatório
+   □ Adicionar headers de segurança (CSP, X-Frame-Options, etc.)
+   □ Sanitização adicional de inputs
+
+2. AUTENTICAÇÃO E USUÁRIOS
+   □ Migrar de autenticação simples para sistema multi-usuário
+   □ Implementar banco de dados para usuários (MySQL/PostgreSQL)
+   □ Níveis de permissão:
+     - Admin: acesso total (criar, editar, deletar)
+     - Editor: editar dispositivos e conexões
+     - Viewer: apenas visualização
+   □ Log de auditoria por usuário
+   □ Recuperação de senha via email
+
+3. INFRAESTRUTURA APACHE
+   □ Configurar Virtual Host dedicado
+   □ Proxy reverso para Node.js (se mantiver backend Node)
+   OU
+   □ Migrar backend para PHP puro (eliminar dependência Node.js)
+   □ Configurar mod_rewrite para URLs amigáveis
+   □ Configurar compressão gzip
+   □ Cache de assets estáticos
+
+4. PERSISTÊNCIA DE DADOS
+   □ Migrar de JSON file para banco de dados
+   □ Opções recomendadas:
+     - SQLite (simples, sem servidor adicional)
+     - MySQL/MariaDB (para múltiplos usuários simultâneos)
+   □ Implementar backup automático diário
+   □ Versionamento de dados (histórico de alterações)
+   □ Resolver race condition com transações
+
+5. MELHORIAS DE INTERFACE
+   □ Corrigir z-index da matrix durante scroll (cabeçalhos fixos)
+   □ Melhorar tooltips com formato padronizado
+   □ Modo responsivo para tablets
+   □ Tema claro/escuro configurável
+   □ Exportação para PDF nativo
+
+6. PERFORMANCE
+   □ Lazy loading para listas grandes (>500 dispositivos)
+   □ Paginação na tabela de conexões
+   □ Cache de renderização da matrix
+   □ Web Workers para cálculos pesados
+
+7. NOVAS FUNCIONALIDADES SUGERIDAS
+   □ Dashboard com estatísticas
+   □ Alertas de dispositivos offline
+   □ Integração com SNMP para status real
+   □ API REST documentada (Swagger)
+   □ Importação de CSV/Excel
+   □ Mapas de rede interativos (além da topologia atual)
+   □ QR Codes para identificação física de equipamentos
+
+8. CONFIGURAÇÃO APACHE RECOMENDADA
+   -------------------------------------------------------------------------
+   <VirtualHost *:443>
+       ServerName matrix.seudominio.local
+       DocumentRoot /var/www/matrix
+       
+       SSLEngine on
+       SSLCertificateFile /etc/ssl/certs/matrix.crt
+       SSLCertificateKeyFile /etc/ssl/private/matrix.key
+       
+       <Directory /var/www/matrix>
+           AllowOverride All
+           Require all granted
+       </Directory>
+       
+       # Se mantiver Node.js como backend:
+       ProxyPass /api http://localhost:3000/api
+       ProxyPassReverse /api http://localhost:3000/api
+       
+       # Headers de segurança
+       Header always set X-Frame-Options "SAMEORIGIN"
+       Header always set X-Content-Type-Options "nosniff"
+       Header always set X-XSS-Protection "1; mode=block"
+   </VirtualHost>
+   -------------------------------------------------------------------------
+
+9. ESTRUTURA DE ARQUIVOS PARA PRODUÇÃO
+   /var/www/matrix/
+   ├── index.html
+   ├── .htaccess
+   ├── api/
+   │   ├── auth.php
+   │   ├── data.php
+   │   └── config.php (com variáveis de ambiente)
+   ├── assets/
+   │   └── vendor/
+   ├── js/
+   │   ├── app.min.js (minificado)
+   │   ├── auth.min.js
+   │   ├── ui-updates.min.js
+   │   └── features.min.js
+   ├── data/
+   │   └── (ou banco de dados externo)
+   └── backups/
+
+10. CHECKLIST PRÉ-DEPLOY
+    □ Minificar JavaScript e CSS
+    □ Remover console.log de produção
+    □ Testar em navegadores: Chrome, Firefox, Edge
+    □ Configurar firewall (portas 80/443 apenas)
+    □ Definir política de backup
+    □ Documentar credenciais em local seguro
+    □ Treinar usuários
+
+================================================================================
+BUGS CONHECIDOS A CORRIGIR
+================================================================================
+
+1. [CORRIGIDO v3.2.1] Matrix z-index - cabeçalhos sobrepostos
+2. [CORRIGIDO v3.2.2] Linhas de separação movendo com scroll do container
+   - Removida borda CSS interna do canto TO/FROM
+   - Linha diagonal agora é feita via gradient (mais estável)
+   - Adicionado box-shadow para separação visual
+3. [CORRIGIDO v3.2.2] Formato do tooltip nos cabeçalhos da matrix
+   - Agora mostra: Nome dispositivo, Location, Rack X, POSITION #N
+
+================================================================================
+CONTATO E SUPORTE
+================================================================================
+Desenvolvido para TIESSE Network Infrastructure Management
+Para sugestões e bugs: documentar neste arquivo ou criar issues
+
+================================================================================

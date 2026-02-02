@@ -2153,7 +2153,7 @@ function populateWallJackRoomSelect() {
     if (!select) return;
     
     var currentValue = select.value;
-    select.innerHTML = '<option value="">(non associato)</option>';
+    select.innerHTML = '<option value="">(não associado)</option>';
     
     // Get rooms from FloorPlan
     var rooms = [];
