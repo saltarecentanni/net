@@ -2132,7 +2132,7 @@ function renderConnectionsTable(cont) {
         var item = sorted[i];
         var c = item._original;
         var isMirrored = item._isMirrored;
-        var isAutoInverted = item._autoInverted;  // Auto-inverted due to filter search
+        var isAutoInverted = item._autoInverted || false;
         var origIdx = item._originalIndex;
         
         // Get FROM/TO based on whether this is mirrored or auto-inverted
@@ -2188,23 +2188,19 @@ function renderConnectionsTable(cont) {
             toIPs = [toDevice.ip1, toDevice.ip2, toDevice.ip3, toDevice.ip4].filter(Boolean).join('<br>');
         }
 
-        // Row styling: mirrored rows have red background, auto-inverted have blue background
+        // Row styling: mirrored rows have red background
         var rowBg;
         if (isMirrored) {
             rowBg = 'bg-red-100';
-        } else if (isAutoInverted) {
-            rowBg = 'bg-blue-50';  // Light blue for auto-inverted (filter matched destination)
         } else {
             rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
         }
         
-        // ID number: same for both, just add ⇄ for mirrored (red and bigger) or 🔄 for auto-inverted (blue)
+        // ID number: just add ⇄ for mirrored (no icon for auto-inverted)
         var idNumber = origIdx + 1;
         var idHtml;
         if (isMirrored) {
             idHtml = idNumber + ' <span class="text-red-600 text-base font-bold" title="Mirrored view (bidirectional)">⇄</span>';
-        } else if (isAutoInverted) {
-            idHtml = idNumber + ' <span class="text-blue-600 text-sm font-bold" title="View inverted to show filtered group as source">🔀</span>';
         } else {
             idHtml = String(idNumber);
         }
@@ -2229,9 +2225,9 @@ function renderConnectionsTable(cont) {
             toDisplayPos = 'N/A';
         }
 
-        // Rear indicators - standardized icon
-        var fromRearIndicator = (fromDevice && (fromDevice.isRear || fromDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold ml-0.5" title="Rear/Back position">↩</span>' : '';
-        var toRearIndicator = (toDevice && (toDevice.isRear || toDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold ml-0.5" title="Rear/Back position">↩</span>' : '';
+        // Rear indicators - standardized icon (shown BEFORE position number for alignment)
+        var fromRearIndicator = (fromDevice && (fromDevice.isRear || fromDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold mr-0.5" title="Rear/Back position">↩</span>' : '<span class="inline-block w-3"></span>';
+        var toRearIndicator = (toDevice && (toDevice.isRear || toDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold mr-0.5" title="Rear/Back position">↩</span>' : '<span class="inline-block w-3"></span>';
         
         // Disabled indicators - standardized icon
         var fromDisabledIndicator = (fromDevice && fromDevice.status === 'disabled') ? '<span class="text-red-500 mr-0.5" title="Disabled">✗</span>' : '';
@@ -2247,7 +2243,7 @@ function renderConnectionsTable(cont) {
         html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 ' + borderClass + '">' +
             '<td class="px-3 py-2 align-top print-hide-id">' + idHtml + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + escapeHtml(fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span>' + fromRearIndicator + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="inline-flex items-center">' + fromRearIndicator + '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></span></td>' +
             '<td class="px-3 py-2 align-top">' +
                 '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + fromDeviceNameEscaped + '\')">' + fromDisabledIndicator + escapeHtml(fromDevice ? fromDevice.name : 'N/A') + '</div>' +
                 (fromIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + fromIPs + '</div>' : '') +
@@ -2259,7 +2255,7 @@ function renderConnectionsTable(cont) {
                 '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + toDeviceNameEscaped + '\')">' + toDisabledIndicator + toDisplayName + '</div>' +
                 (toIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + toIPs + '</div>' : '') +
             '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span>' + toRearIndicator + '</td>' +
+            '<td class="px-3 py-2 align-top"><span class="inline-flex items-center">' + toRearIndicator + '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span></span></td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + toDisplayRack + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + connColor + '">' + escapeHtml(config.connLabels[c.type] || c.type) + '</span></td>' +
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +

@@ -2,8 +2,8 @@
   "devices": [
     {
       "id": 1,
-      "rackId": "RACK-NETWORK-01",
-      "rack": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 1,
       "isRear": false,
       "rear": false,
@@ -64,8 +64,8 @@
     },
     {
       "id": 2,
-      "rackId": "RACK-NETWORK-01",
-      "rack": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 2,
       "isRear": false,
       "rear": false,
@@ -106,7 +106,7 @@
     },
     {
       "id": 3,
-      "rackId": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
       "order": 3,
       "name": "Huawei TIM",
       "brandModel": "ISP",
@@ -188,8 +188,8 @@
     },
     {
       "id": 4,
-      "rackId": "RACK-NETWORK-01",
-      "rack": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 4,
       "isRear": false,
       "rear": false,
@@ -245,8 +245,8 @@
     },
     {
       "id": 5,
-      "rackId": "RACK-NETWORK-01",
-      "rack": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 5,
       "isRear": false,
       "rear": false,
@@ -327,7 +327,7 @@
     },
     {
       "id": 6,
-      "rackId": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
       "order": 6,
       "isRear": false,
       "name": "Switch D-Link /24",
@@ -464,8 +464,8 @@
     },
     {
       "id": 7,
-      "rackId": "RACK-NETWORK-01",
-      "rack": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 7,
       "isRear": false,
       "rear": false,
@@ -561,8 +561,8 @@
     },
     {
       "id": 8,
-      "rackId": "RACK-NETWORK-01",
-      "rack": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 8,
       "isRear": false,
       "rear": false,
@@ -638,7 +638,7 @@
     },
     {
       "id": 9,
-      "rackId": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
       "order": 9,
       "name": "Firewall Fortinet",
       "brandModel": "Fortigate 101E",
@@ -779,7 +779,7 @@
     },
     {
       "id": 10,
-      "rackId": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
       "order": 10,
       "name": "Switch Elba",
       "brandModel": "Switch Elba Tiesse",
@@ -945,8 +945,8 @@
     },
     {
       "id": 11,
-      "rackId": "RACK-NETWORK-01",
-      "rack": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 11,
       "isRear": false,
       "rear": false,
@@ -1002,7 +1002,7 @@
     },
     {
       "id": 12,
-      "rackId": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
       "order": 12,
       "isRear": false,
       "name": "Imola7",
@@ -1074,7 +1074,7 @@
     },
     {
       "id": 13,
-      "rackId": "RACK-NETWORK-01",
+      "rackId": "Rack-Network-01",
       "order": 13,
       "name": "OVP-Tiesse-TWO",
       "brandModel": "VPN Aziendale Tiesse",
@@ -1121,7 +1121,7 @@
     },
     {
       "id": 14,
-      "rackId": "RACK-NETWORK-02",
+      "rackId": "Rack-Network-02",
       "order": 1,
       "name": "Patch Panel 01",
       "brandModel": "",
@@ -1257,7 +1257,7 @@
     },
     {
       "id": 15,
-      "rackId": "RACK-NETWORK-02",
+      "rackId": "Rack-Network-02",
       "order": 2,
       "name": "Patch Panel 02",
       "brandModel": "",
@@ -1393,8 +1393,8 @@
     },
     {
       "id": 16,
-      "rackId": "RACK-NETWORK-02",
-      "rack": "RACK-NETWORK-02",
+      "rackId": "Rack-Network-02",
+      "rack": "Rack-Network-02",
       "order": 3,
       "isRear": false,
       "rear": false,
@@ -1695,7 +1695,7 @@
     },
     {
       "id": 17,
-      "rackId": "RACK-ROUTER-LOTTOMATICA",
+      "rackId": "Rack-Router-Lottomatica",
       "order": 1,
       "name": "MikroTik Router Board",
       "brandModel": "RB3011 Ui AS-RM",
@@ -1766,7 +1766,7 @@
     },
     {
       "id": 18,
-      "rackId": "RACK-ROUTER-LOTTOMATICA",
+      "rackId": "Rack-Router-Lottomatica",
       "order": 7,
       "name": "Imola 5873 - Eolo",
       "brandModel": "Imola 5873",
@@ -1853,7 +1853,7 @@
     },
     {
       "id": 19,
-      "rackId": "RACK-ROUTER-LOTTOMATICA",
+      "rackId": "Rack-Router-Lottomatica",
       "order": 6,
       "isRear": false,
       "name": "Imola 5860",
@@ -1935,7 +1935,7 @@
     },
     {
       "id": 20,
-      "rackId": "RACK-ROUTER-LOTTOMATICA",
+      "rackId": "Rack-Router-Lottomatica",
       "order": 5,
       "name": "Imola-LX-SED-GW",
       "brandModel": "Imola-LX-SED-GW",
@@ -1982,7 +1982,7 @@
     },
     {
       "id": 21,
-      "rackId": "RACK-ROUTER-LOTTOMATICA",
+      "rackId": "Rack-Router-Lottomatica",
       "order": 4,
       "isRear": false,
       "name": "Imola FASTWEB8/36-ADSL",
@@ -2045,7 +2045,7 @@
     },
     {
       "id": 22,
-      "rackId": "RACK-ROUTER-LOTTOMATICA",
+      "rackId": "Rack-Router-Lottomatica",
       "order": 3,
       "name": "Imola L.W.A2-02-Z",
       "brandModel": "Imola 5872-ikf-ikw-POE",
@@ -2132,7 +2132,7 @@
     },
     {
       "id": 23,
-      "rackId": "RACK-ROUTER-LOTTOMATICA",
+      "rackId": "Rack-Router-Lottomatica",
       "order": 2,
       "name": "Imola 5873-TLC",
       "brandModel": "Imola 5873-IKF-IK2W-POE",
@@ -2219,8 +2219,8 @@
     },
     {
       "id": 25,
-      "rackId": "RACK-FONIA",
-      "rack": "RACK-FONIA",
+      "rackId": "Rack-Fonia",
+      "rack": "Rack-Fonia",
       "order": 5,
       "isRear": false,
       "rear": false,
@@ -2250,7 +2250,7 @@
     },
     {
       "id": 27,
-      "rackId": "RACK-UFFICIO-12",
+      "rackId": "Rack-Ufficio-12",
       "order": 5,
       "name": "Switch Cisco",
       "brandModel": "Cisco SG102-24",
@@ -2402,8 +2402,8 @@
     },
     {
       "id": 28,
-      "rackId": "RACK-UFFICIO-12",
-      "rack": "RACK-UFFICIO-12",
+      "rackId": "Rack-Ufficio-12",
+      "rack": "Rack-Ufficio-12",
       "order": 6,
       "isRear": false,
       "rear": false,
@@ -2487,7 +2487,7 @@
     },
     {
       "id": 29,
-      "rackId": "RACK-UFFICIO-12",
+      "rackId": "Rack-Ufficio-12",
       "order": 3,
       "name": "Switch Cisco",
       "brandModel": "Cisco SG102-24",
@@ -2633,7 +2633,7 @@
     },
     {
       "id": 30,
-      "rackId": "RACK-UFFICIO-12",
+      "rackId": "Rack-Ufficio-12",
       "order": 1,
       "name": "Patch Panel 01",
       "brandModel": "-",
@@ -2729,7 +2729,7 @@
     },
     {
       "id": 31,
-      "rackId": "RACK-UFFICIO-12",
+      "rackId": "Rack-Ufficio-12",
       "order": 2,
       "name": "Patch Panel 02",
       "brandModel": "-",
@@ -2825,7 +2825,7 @@
     },
     {
       "id": 32,
-      "rackId": "RACK-UFFICIO-12",
+      "rackId": "Rack-Ufficio-12",
       "order": 4,
       "name": "Patch Panel 03",
       "brandModel": "-",
@@ -2921,8 +2921,8 @@
     },
     {
       "id": 33,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 99,
       "isRear": true,
       "rear": true,
@@ -3008,7 +3008,7 @@
     },
     {
       "id": 34,
-      "rackId": "RACK-ONE",
+      "rackId": "Rack-ONE",
       "order": 98,
       "isRear": true,
       "name": "Imola 5272",
@@ -3055,7 +3055,7 @@
     },
     {
       "id": 35,
-      "rackId": "RACK-ONE",
+      "rackId": "Rack-ONE",
       "order": 96,
       "isRear": true,
       "name": "Switch D-Link /24",
@@ -3192,7 +3192,7 @@
     },
     {
       "id": 36,
-      "rackId": "RACK-ONE",
+      "rackId": "Rack-ONE",
       "order": 97,
       "isRear": true,
       "name": "Switch D-Link /16",
@@ -3289,8 +3289,8 @@
     },
     {
       "id": 37,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 1,
       "isRear": false,
       "rear": false,
@@ -3341,7 +3341,7 @@
     },
     {
       "id": 38,
-      "rackId": "RACK-ONE",
+      "rackId": "Rack-ONE",
       "order": 2,
       "isRear": false,
       "name": "SRV-VM-01",
@@ -3384,7 +3384,7 @@
     },
     {
       "id": 39,
-      "rackId": "RACK-ONE",
+      "rackId": "Rack-ONE",
       "order": 3,
       "isRear": false,
       "name": "SRV-VM-02",
@@ -3427,8 +3427,8 @@
     },
     {
       "id": 40,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 4,
       "isRear": false,
       "rear": false,
@@ -3479,8 +3479,8 @@
     },
     {
       "id": 41,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 5,
       "isRear": false,
       "rear": false,
@@ -3531,8 +3531,8 @@
     },
     {
       "id": 42,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 6,
       "isRear": false,
       "rear": false,
@@ -3588,8 +3588,8 @@
     },
     {
       "id": 43,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 7,
       "isRear": false,
       "rear": false,
@@ -3645,8 +3645,8 @@
     },
     {
       "id": 44,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 8,
       "isRear": false,
       "rear": false,
@@ -3702,8 +3702,8 @@
     },
     {
       "id": 45,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 9,
       "isRear": false,
       "rear": false,
@@ -3759,8 +3759,8 @@
     },
     {
       "id": 46,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 10,
       "isRear": false,
       "rear": false,
@@ -3796,8 +3796,8 @@
     },
     {
       "id": 47,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 11,
       "isRear": false,
       "rear": false,
@@ -3833,8 +3833,8 @@
     },
     {
       "id": 48,
-      "rackId": "RACK-ONE",
-      "rack": "RACK-ONE",
+      "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 12,
       "isRear": false,
       "rear": false,
@@ -3870,8 +3870,8 @@
     },
     {
       "id": 49,
-      "rackId": "RACK-TWO",
-      "rack": "RACK-TWO",
+      "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 99,
       "isRear": true,
       "rear": true,
@@ -3962,7 +3962,7 @@
     },
     {
       "id": 50,
-      "rackId": "RACK-TWO",
+      "rackId": "Rack-TWO",
       "order": 97,
       "isRear": true,
       "name": "Switch D-link /24",
@@ -4099,7 +4099,7 @@
     },
     {
       "id": 51,
-      "rackId": "RACK-TWO",
+      "rackId": "Rack-TWO",
       "order": 98,
       "isRear": true,
       "name": "Switch Elba",
@@ -4261,7 +4261,7 @@
     },
     {
       "id": 52,
-      "rackId": "RACK-TWO",
+      "rackId": "Rack-TWO",
       "order": 1,
       "isRear": false,
       "name": "IXIA",
@@ -4409,8 +4409,8 @@
     },
     {
       "id": 53,
-      "rackId": "RACK-TWO",
-      "rack": "RACK-TWO",
+      "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 3,
       "isRear": false,
       "rear": false,
@@ -4446,8 +4446,8 @@
     },
     {
       "id": 54,
-      "rackId": "RACK-TWO",
-      "rack": "RACK-TWO",
+      "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 4,
       "isRear": false,
       "rear": false,
@@ -4483,7 +4483,7 @@
     },
     {
       "id": 55,
-      "rackId": "RACK-TWO",
+      "rackId": "Rack-TWO",
       "order": 6,
       "isRear": false,
       "name": "APARRECHIATURA CENTRALE DI TEST",
@@ -4551,8 +4551,8 @@
     },
     {
       "id": 56,
-      "rackId": "RACK-TWO",
-      "rack": "RACK-TWO",
+      "rackId": "Rack-TWO",
+      "rack": "Rack-TWO",
       "order": 96,
       "isRear": true,
       "rear": true,
@@ -4613,7 +4613,7 @@
     },
     {
       "id": 57,
-      "rackId": "RACK-TWO",
+      "rackId": "Rack-TWO",
       "order": 94,
       "isRear": true,
       "name": "Imola6 5272 ADSL (BIG ONE)",
@@ -4665,7 +4665,7 @@
     },
     {
       "id": 58,
-      "rackId": "RACK-TWO",
+      "rackId": "Rack-TWO",
       "order": 95,
       "isRear": true,
       "name": "Imola6  5272(BIG ONE)",
@@ -4727,8 +4727,8 @@
     },
     {
       "id": 61,
-      "rackId": "ENDPOINTS",
-      "rack": "ENDPOINTS",
+      "rackId": "Endpoints",
+      "rack": "Endpoints",
       "order": 0,
       "isRear": false,
       "rear": false,
@@ -4764,8 +4764,8 @@
     },
     {
       "id": 62,
-      "rackId": "ENDPOINTS",
-      "rack": "ENDPOINTS",
+      "rackId": "Endpoints",
+      "rack": "Endpoints",
       "order": 0,
       "isRear": false,
       "rear": false,
@@ -4801,8 +4801,8 @@
     },
     {
       "id": 63,
-      "rackId": "ENDPOINTS",
-      "rack": "ENDPOINTS",
+      "rackId": "Endpoints",
+      "rack": "Endpoints",
       "order": 0,
       "isRear": false,
       "rear": false,
@@ -4832,8 +4832,8 @@
     },
     {
       "id": 64,
-      "rackId": "RACK-THREE",
-      "rack": "RACK-THREE",
+      "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 1,
       "isRear": false,
       "rear": false,
@@ -4874,8 +4874,8 @@
     },
     {
       "id": 65,
-      "rackId": "RACK-THREE",
-      "rack": "RACK-THREE",
+      "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 2,
       "isRear": false,
       "rear": false,
@@ -4916,8 +4916,8 @@
     },
     {
       "id": 66,
-      "rackId": "RACK-THREE",
-      "rack": "RACK-THREE",
+      "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 4,
       "isRear": false,
       "rear": false,
@@ -4953,8 +4953,8 @@
     },
     {
       "id": 67,
-      "rackId": "RACK-THREE",
-      "rack": "RACK-THREE",
+      "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 5,
       "isRear": false,
       "rear": false,
@@ -4998,8 +4998,8 @@
     },
     {
       "id": 68,
-      "rackId": "RACK-THREE",
-      "rack": "RACK-THREE",
+      "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 5,
       "isRear": false,
       "rear": false,
@@ -5043,8 +5043,8 @@
     },
     {
       "id": 69,
-      "rackId": "RACK-THREE",
-      "rack": "RACK-THREE",
+      "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 5,
       "isRear": false,
       "rear": false,
@@ -5088,7 +5088,7 @@
     },
     {
       "id": 70,
-      "rackId": "RACK-THREE",
+      "rackId": "Rack-THREE",
       "order": 6,
       "isRear": false,
       "name": "TARGET 01 POWER FAIL - LINE RED",
@@ -5135,7 +5135,7 @@
     },
     {
       "id": 71,
-      "rackId": "RACK-THREE",
+      "rackId": "Rack-THREE",
       "order": 7,
       "isRear": false,
       "name": "TARGET 02 POWER FAIL - LINE RED",
@@ -5182,7 +5182,7 @@
     },
     {
       "id": 72,
-      "rackId": "RACK-THREE",
+      "rackId": "Rack-THREE",
       "order": 6,
       "isRear": false,
       "name": "TARGET 01 POWERFAIL - LINE GREEN",
@@ -5229,7 +5229,7 @@
     },
     {
       "id": 73,
-      "rackId": "RACK-THREE",
+      "rackId": "Rack-THREE",
       "order": 7,
       "isRear": false,
       "name": "TARGET 02 POWERFAIL - LINE GREEN",
@@ -5276,7 +5276,7 @@
     },
     {
       "id": 74,
-      "rackId": "RACK-THREE",
+      "rackId": "Rack-THREE",
       "order": 6,
       "isRear": false,
       "name": "TARGET 01 POWERFAIL - LINE WHITE",
@@ -5323,7 +5323,7 @@
     },
     {
       "id": 75,
-      "rackId": "RACK-THREE",
+      "rackId": "Rack-THREE",
       "order": 7,
       "isRear": false,
       "name": "TARGET 02 POWERFAIL - LINE WHITE",
@@ -5370,7 +5370,7 @@
     },
     {
       "id": 76,
-      "rackId": "RACK-THREE",
+      "rackId": "Rack-THREE",
       "order": 99,
       "isRear": true,
       "name": "Switch Elba",
@@ -5542,8 +5542,8 @@
     },
     {
       "id": 77,
-      "rackId": "RACK-151",
-      "rack": "RACK-151",
+      "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 1,
       "isRear": false,
       "rear": false,
@@ -5588,8 +5588,8 @@
     },
     {
       "id": 78,
-      "rackId": "RACK-151",
-      "rack": "RACK-151",
+      "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 2,
       "isRear": false,
       "rear": false,
@@ -5630,8 +5630,8 @@
     },
     {
       "id": 79,
-      "rackId": "RACK-151",
-      "rack": "RACK-151",
+      "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 4,
       "isRear": false,
       "rear": false,
@@ -5672,8 +5672,8 @@
     },
     {
       "id": 80,
-      "rackId": "RACK-151",
-      "rack": "RACK-151",
+      "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 3,
       "isRear": false,
       "rear": false,
@@ -5714,8 +5714,8 @@
     },
     {
       "id": 81,
-      "rackId": "RACK-151",
-      "rack": "RACK-151",
+      "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 97,
       "isRear": true,
       "rear": true,
@@ -5751,8 +5751,8 @@
     },
     {
       "id": 82,
-      "rackId": "RACK-151",
-      "rack": "RACK-151",
+      "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 99,
       "isRear": true,
       "rear": true,
@@ -5838,8 +5838,8 @@
     },
     {
       "id": 83,
-      "rackId": "RACK-151",
-      "rack": "RACK-151",
+      "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 98,
       "isRear": true,
       "rear": true,
@@ -5900,7 +5900,7 @@
     },
     {
       "id": 84,
-      "rackId": "RACK-151",
+      "rackId": "Rack-151",
       "order": 96,
       "isRear": true,
       "name": "Switch D-Link",
@@ -6037,8 +6037,8 @@
     },
     {
       "id": 85,
-      "rackId": "ENDPOINTS",
-      "rack": "ENDPOINTS",
+      "rackId": "Endpoints",
+      "rack": "Endpoints",
       "order": 0,
       "isRear": false,
       "rear": false,
@@ -6068,8 +6068,8 @@
     },
     {
       "id": 120,
-      "rackId": "ROUTER-AREA",
-      "rack": "ROUTER-AREA",
+      "rackId": "Router-Area",
+      "rack": "Router-Area",
       "order": 0,
       "isRear": false,
       "rear": false,

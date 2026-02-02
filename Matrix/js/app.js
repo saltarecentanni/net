@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.014
+ * Version: 3.5.015
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -18,6 +18,24 @@
  * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.5)
  * - Online users tracking with real-time indicator (v3.5.001)
  * - New Location System with Sites and Persistent Locations (v3.5.006)
+ * - Professional Data Normalization Standard (v3.5.015)
+ * 
+ * DATA NORMALIZATION STANDARD:
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │ FIELD           │ FORMAT      │ EXAMPLE                        │
+ * ├─────────────────────────────────────────────────────────────────┤
+ * │ rackId          │ UPPERCASE   │ RACK-NETWORK-01, SWITCH-AREA   │
+ * │ location        │ As entered  │ Sala Server, ICT, Q.A.         │
+ * │ device.type     │ lowercase   │ switch, router_wifi, patch     │
+ * │ device.status   │ lowercase   │ active, disabled               │
+ * │ conn.type       │ lowercase   │ lan, wan, trunk, wallport      │
+ * │ conn.status     │ lowercase   │ active, disabled               │
+ * └─────────────────────────────────────────────────────────────────┘
+ * 
+ * This normalization is enforced in:
+ * - saveDevice() - client-side normalization
+ * - saveConnection() - client-side normalization
+ * - data.php - server-side normalization (double protection)
  */
 
 'use strict';
@@ -784,7 +802,7 @@ function getFilteredConnections() {
                     _original: c,
                     _originalIndex: item._originalIndex,
                     _isMirrored: false,
-                    _autoInverted: true,  // Mark as auto-inverted for display
+                    _autoInverted: true,
                     // Swapped from/to for display
                     from: c.to,
                     to: c.from,
@@ -1501,6 +1519,14 @@ function saveDevice() {
             }
         });
 
+        // ================================================================
+        // DATA NORMALIZATION - Professional Standard
+        // rackId: UPPERCASE | type/status: lowercase | location: as-is
+        // ================================================================
+        rackId = rackId.toUpperCase();
+        type = type.toLowerCase();
+        status = status.toLowerCase();
+        
         var deviceData = {
             id: editId ? parseInt(editId, 10) : appState.nextDeviceId++,
             rackId: rackId,
@@ -2064,6 +2090,13 @@ function saveConnection() {
                 roomId = roomSelect.value;
             }
         }
+
+        // ================================================================
+        // DATA NORMALIZATION - Professional Standard
+        // type/status: lowercase
+        // ================================================================
+        type = type.toLowerCase();
+        status = status.toLowerCase();
 
         var connData = {
             from: from,

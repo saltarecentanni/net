@@ -1,7 +1,7 @@
 <?php
 /**
  * TIESSE Matrix Network - Data API
- * Version: 3.5.010
+ * Version: 3.5.015
  * 
  * GET  - Public (anyone can view)
  * POST - Requires authentication (edit mode)
@@ -176,6 +176,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(["error" => "Invalid data structure: missing or invalid 'nextDeviceId' integer"]);
         exit;
     }
+    
+    // ========================================================================
+    // DATA NORMALIZATION - Professional Standard
+    // rackId/rack: UPPERCASE | type/status: lowercase
+    // ========================================================================
+    foreach ($tmp['devices'] as $index => &$device) {
+        // rackId -> UPPERCASE
+        if (isset($device['rackId']) && is_string($device['rackId'])) {
+            $device['rackId'] = strtoupper($device['rackId']);
+        }
+        if (isset($device['rack']) && is_string($device['rack'])) {
+            $device['rack'] = strtoupper($device['rack']);
+        }
+        // type -> lowercase
+        if (isset($device['type']) && is_string($device['type'])) {
+            $device['type'] = strtolower($device['type']);
+        }
+        // status -> lowercase
+        if (isset($device['status']) && is_string($device['status'])) {
+            $device['status'] = strtolower($device['status']);
+        }
+    }
+    unset($device); // Break the reference
+    
+    // Normalize connections
+    foreach ($tmp['connections'] as $index => &$conn) {
+        // type -> lowercase
+        if (isset($conn['type']) && is_string($conn['type'])) {
+            $conn['type'] = strtolower($conn['type']);
+        }
+        // status -> lowercase
+        if (isset($conn['status']) && is_string($conn['status'])) {
+            $conn['status'] = strtolower($conn['status']);
+        }
+    }
+    unset($conn); // Break the reference
     
     // Validate devices
     foreach ($tmp['devices'] as $index => $device) {
