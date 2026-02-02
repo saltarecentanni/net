@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.5.0
+ * Version: 3.5.001
  * 
  * Features:
  * - Activity Logs (last 200 changes)

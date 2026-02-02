@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.0
+ * Version: 3.5.001
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -16,7 +16,7 @@
  * - Security improvements: rate limiting, env vars (v3.4.1)
  * - Reliability improvements: async save, checksum, validation (v3.4.2)
  * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.5)
- * - Online users tracking with real-time indicator (v3.5.0)
+ * - Online users tracking with real-time indicator (v3.5.001)
  */
 
 'use strict';
@@ -74,8 +74,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.0', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.0';
+var SUPPORTED_VERSIONS = ['3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.001';
 
 /**
  * Valid enum values for schema validation
@@ -3604,12 +3604,10 @@ var OnlineTracker = (function() {
         // Format number with leading zero if single digit
         countEl.textContent = total < 10 ? '0' + total : total;
         
-        // Build tooltip
-        var tooltip = 'Utenti online: ' + total;
-        if (editors > 0) {
-            tooltip += '\n👤 Visualizzatori: ' + viewers;
-            tooltip += '\n✏️ Editori: ' + editors;
-        }
+        // Build tooltip - always show breakdown
+        var tooltip = '👥 Utenti online: ' + total;
+        tooltip += '\n👁️ Visualizzatori: ' + viewers;
+        tooltip += '\n✏️ Utenti loggati: ' + editors;
         indicatorEl.title = tooltip;
         
         // Change color based on editors

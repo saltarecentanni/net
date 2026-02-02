@@ -2,13 +2,13 @@
 
 Applicazione web di gestione e documentazione della rete aziendale per deploy in intranet.
 
-**Versione:** 3.5.0  
+**Versione:** 3.5.001  
 **Data:** 2 Febbraio 2026  
 **Ambiente:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
 
 ---
 
-## 🆕 Novità della Versione 3.5.0
+## 🆕 Novità della Versione 3.5.001
 
 ### ✨ Indicatore Utenti Online
 | Feature | Descrizione |
