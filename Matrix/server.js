@@ -24,6 +24,8 @@ if (fs.existsSync(envPath)) {
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'data/network_manager.json');
+const LOCK_FILE = path.join(__dirname, 'data/edit.lock');
+const LOCK_TIMEOUT = 300; // 5 minutes in seconds
 
 // Authentication settings - MUST use environment variables in production!
 // Set AUTH_USERNAME and AUTH_PASSWORD in .env file or system environment
@@ -321,6 +323,128 @@ function handleAuthRequest(req, res, action) {
     }
 }
 
+// Edit Lock handlers
+function getLockStatus() {
+    if (!fs.existsSync(LOCK_FILE)) {
+        return { locked: false };
+    }
+    
+    try {
+        const data = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'));
+        const elapsed = Math.floor(Date.now() / 1000) - data.timestamp;
+        
+        if (elapsed > LOCK_TIMEOUT) {
+            fs.unlinkSync(LOCK_FILE);
+            return { locked: false, expired: true };
+        }
+        
+        return {
+            locked: true,
+            editor: data.editor,
+            lockedAt: data.lockedAt,
+            elapsed: elapsed,
+            remaining: LOCK_TIMEOUT - elapsed
+        };
+    } catch (e) {
+        // Corrupted lock file - remove it
+        try { fs.unlinkSync(LOCK_FILE); } catch (err) {}
+        return { locked: false };
+    }
+}
+
+function handleEditLockRequest(req, res) {
+    if (req.method === 'GET') {
+        // Get lock status
+        return sendJSON(res, 200, getLockStatus());
+    }
+    
+    if (req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const action = data.action;
+                const editor = data.editor || 'unknown';
+                
+                if (action === 'acquire') {
+                    const currentLock = getLockStatus();
+                    
+                    // Check if already locked by someone else
+                    if (currentLock.locked && currentLock.editor !== editor) {
+                        return sendJSON(res, 200, {
+                            success: false,
+                            error: 'edit_locked',
+                            message: 'Modifica in corso da: ' + currentLock.editor,
+                            lockedBy: currentLock.editor,
+                            lockedAt: currentLock.lockedAt,
+                            remaining: currentLock.remaining
+                        });
+                    }
+                    
+                    // Acquire or refresh lock
+                    const lockData = {
+                        editor: editor,
+                        timestamp: Math.floor(Date.now() / 1000),
+                        lockedAt: new Date().toISOString()
+                    };
+                    
+                    fs.writeFileSync(LOCK_FILE, JSON.stringify(lockData, null, 2));
+                    
+                    return sendJSON(res, 200, {
+                        success: true,
+                        message: 'Lock acquisito',
+                        editor: editor,
+                        timeout: LOCK_TIMEOUT
+                    });
+                    
+                } else if (action === 'release') {
+                    const currentLock = getLockStatus();
+                    
+                    // Only the lock owner can release
+                    if (currentLock.locked && currentLock.editor !== editor) {
+                        return sendJSON(res, 200, {
+                            success: false,
+                            error: 'not_owner',
+                            message: 'Non puoi rilasciare un lock di un altro utente'
+                        });
+                    }
+                    
+                    if (fs.existsSync(LOCK_FILE)) {
+                        fs.unlinkSync(LOCK_FILE);
+                    }
+                    
+                    return sendJSON(res, 200, { success: true, message: 'Lock rilasciato' });
+                    
+                } else if (action === 'heartbeat') {
+                    const currentLock = getLockStatus();
+                    
+                    if (currentLock.locked && currentLock.editor === editor) {
+                        // Refresh the lock
+                        const lockData = {
+                            editor: editor,
+                            timestamp: Math.floor(Date.now() / 1000),
+                            lockedAt: currentLock.lockedAt
+                        };
+                        fs.writeFileSync(LOCK_FILE, JSON.stringify(lockData, null, 2));
+                        return sendJSON(res, 200, { success: true, message: 'Heartbeat received' });
+                    }
+                    
+                    return sendJSON(res, 200, { success: false, error: 'no_lock' });
+                    
+                } else {
+                    return sendJSON(res, 400, { error: 'Invalid action' });
+                }
+            } catch (e) {
+                if (DEBUG_MODE) console.error('Edit lock error:', e.message);
+                sendJSON(res, 400, { error: 'Invalid request' });
+            }
+        });
+    } else {
+        sendJSON(res, 405, { error: 'Method not allowed' });
+    }
+}
+
 function serveStaticFile(req, res, filePath) {
     fs.readFile(filePath, (err, content) => {
         if (err) {
@@ -354,6 +478,11 @@ const server = http.createServer((req, res) => {
     // Auth API
     if (url === '/api/auth.php') {
         return handleAuthRequest(req, res, query.action);
+    }
+    
+    // Edit Lock API
+    if (url === '/api/editlock.php') {
+        return handleEditLockRequest(req, res);
     }
     
     // Data API - support multiple endpoint variations
