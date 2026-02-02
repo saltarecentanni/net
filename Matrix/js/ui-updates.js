@@ -1805,12 +1805,14 @@ function updateConnFilterBar() {
     var filterBar = document.getElementById('connFilterBar');
     if (!filterBar) return;
     
-    // Get unique sources and types for dropdowns
+    // Get unique locations, sources and types for dropdowns
+    var locations = [];
     var sources = [];
     var types = [];
     
     for (var i = 0; i < appState.devices.length; i++) {
         var d = appState.devices[i];
+        if (d.location && locations.indexOf(d.location) === -1) locations.push(d.location);
         if (d.rackId && sources.indexOf(d.rackId) === -1) sources.push(d.rackId);
     }
     
@@ -1819,6 +1821,7 @@ function updateConnFilterBar() {
         if (c.type && types.indexOf(c.type) === -1) types.push(c.type);
     }
     
+    locations.sort();
     sources.sort();
     types.sort();
     
@@ -1834,13 +1837,22 @@ function updateConnFilterBar() {
         if (!filteredItems[fc]._isMirrored) realCount++;
     }
     
-    var hasActiveFilters = appState.connFilters.source || appState.connFilters.anyDevice ||
+    var hasActiveFilters = appState.deviceFilters.location || appState.connFilters.source || appState.connFilters.anyDevice ||
                            appState.connFilters.fromDevice || appState.connFilters.toDevice || 
                            appState.connFilters.destination || appState.connFilters.type || 
                            appState.connFilters.status || appState.connFilters.cable;
     
     var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
     html += '<span class="text-xs font-semibold text-slate-600">Filters:</span>';
+    
+    // Location filter (first, with purple styling like in Devices tab)
+    html += '<select id="filterConnLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold" title="Filter by Location">';
+    html += '<option value="">All Locations</option>';
+    for (var l = 0; l < locations.length; l++) {
+        var selectedL = appState.deviceFilters.location === locations[l] ? ' selected' : '';
+        html += '<option value="' + locations[l] + '"' + selectedL + '>' + locations[l] + '</option>';
+    }
+    html += '</select>';
     
     // Group filter - cerca in entrambi source e destination (campo rackId per compatibilità)
     html += '<select id="filterConnSource" onchange="updateConnFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white" title="Filter by Group (searches in Source and Destination)">';
