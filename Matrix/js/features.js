@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.5.001
+ * Version: 3.5.010
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -208,33 +208,103 @@ var LocationFilter = (function() {
         var datalist = document.getElementById('locationList');
         if (!select || !appState) return;
         
-        // Get unique locations from devices
-        var locations = {};
-        appState.devices.forEach(function(d) {
-            if (d.location && d.location.trim()) {
-                locations[d.location.trim()] = true;
-            }
-        });
+        // Get locations from appState.locations (new system)
+        var mappedLocs = [];
+        var customLocs = [];
         
-        var locationArr = Object.keys(locations).sort();
+        if (appState.locations && appState.locations.length > 0) {
+            // Use new location system
+            appState.locations.forEach(function(loc) {
+                if (loc.type === 'mapped') {
+                    mappedLocs.push(loc);
+                } else {
+                    customLocs.push(loc);
+                }
+            });
+            
+            mappedLocs.sort(function(a, b) {
+                return parseInt(a.code) - parseInt(b.code);
+            });
+            
+            customLocs.sort(function(a, b) {
+                return parseInt(a.code) - parseInt(b.code);
+            });
+        } else {
+            // Fallback to old system (rooms + device locations)
+            var rooms = (appState.rooms || []).slice().sort(function(a, b) {
+                return parseInt(a.id) - parseInt(b.id);
+            });
+            
+            rooms.forEach(function(room) {
+                mappedLocs.push({
+                    code: String(room.id).padStart(2, '0'),
+                    name: room.nickname || ('Room ' + room.id),
+                    type: 'mapped'
+                });
+            });
+            
+            // Collect custom from devices
+            var seenLocs = {};
+            appState.devices.forEach(function(d) {
+                if (d.location && !seenLocs[d.location]) {
+                    var isRoom = rooms.some(function(room) {
+                        return room.id === d.location || room.nickname === d.location;
+                    });
+                    if (!isRoom) {
+                        seenLocs[d.location] = true;
+                    }
+                }
+            });
+            
+            var idx = 21;
+            Object.keys(seenLocs).sort().forEach(function(locName) {
+                customLocs.push({
+                    code: String(idx),
+                    name: locName,
+                    type: 'custom'
+                });
+                idx++;
+            });
+        }
         
-        // Update filter dropdown (with icons)
+        // Update filter dropdown with grouped structure
         var currentValue = select.value;
         select.innerHTML = '<option value="">🌐 All Locations</option>';
-        locationArr.forEach(function(loc) {
-            var option = document.createElement('option');
-            option.value = loc;
-            option.textContent = '📍 ' + loc;
-            select.appendChild(option);
-        });
+        
+        // Add mapped locations
+        if (mappedLocs.length > 0) {
+            var optgroup1 = document.createElement('optgroup');
+            optgroup1.label = '📍 Mapped Locations';
+            mappedLocs.forEach(function(loc) {
+                var option = document.createElement('option');
+                option.value = loc.name;
+                option.textContent = loc.code + ' - ' + loc.name;
+                optgroup1.appendChild(option);
+            });
+            select.appendChild(optgroup1);
+        }
+        
+        // Add custom locations
+        if (customLocs.length > 0) {
+            var optgroup2 = document.createElement('optgroup');
+            optgroup2.label = '🪧 Custom Locations';
+            customLocs.forEach(function(loc) {
+                var option = document.createElement('option');
+                option.value = loc.name;
+                option.textContent = loc.code + ' - ' + loc.name;
+                optgroup2.appendChild(option);
+            });
+            select.appendChild(optgroup2);
+        }
+        
         select.value = currentValue;
         
         // Update datalist for device form
         if (datalist) {
             datalist.innerHTML = '';
-            locationArr.forEach(function(loc) {
+            mappedLocs.concat(customLocs).forEach(function(loc) {
                 var option = document.createElement('option');
-                option.value = loc;
+                option.value = loc.name;
                 datalist.appendChild(option);
             });
         }

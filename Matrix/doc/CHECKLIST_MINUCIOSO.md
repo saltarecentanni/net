@@ -1,10 +1,11 @@
-# 🔴 CHECKLIST MINUCIOSO - TIESSE MATRIX v3.4.2
+# 🔴 CHECKLIST MINUCIOSO - TIESSE MATRIX v3.5.010
 
 ## AUDITORIA COMPLETA PARA SISTEMAS NUCLEARES
 
 **Formato:** Checklist detalhado com verdadeiro/falso para cada critério  
 **Requisitos:** IEC 61508 SIL 4 (nível máximo de segurança)  
-**Data:** 01/02/2026  
+**Data:** 02/02/2026  
+**Versão:** 3.5.010  
 
 ---
 

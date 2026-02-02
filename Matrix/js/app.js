@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.001
+ * Version: 3.5.010
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -17,6 +17,7 @@
  * - Reliability improvements: async save, checksum, validation (v3.4.2)
  * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.5)
  * - Online users tracking with real-time indicator (v3.5.001)
+ * - New Location System with Sites and Persistent Locations (v3.5.006)
  */
 
 'use strict';
@@ -74,8 +75,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.001';
+var SUPPORTED_VERSIONS = ['3.5.010', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.010';
 
 /**
  * Valid enum values for schema validation
@@ -208,8 +209,11 @@ function requireAuth() {
 var appState = {
     devices: [],
     connections: [],
-    rooms: [],
+    rooms: [],           // Floor plan geometry only
+    sites: [],           // Company sites/branches
+    locations: [],       // All locations (mapped + custom)
     nextDeviceId: 1,
+    nextLocationId: 21,  // Custom locations start at 21
     connSort: [{ key: 'id', asc: true }],  // Array for multi-level sorting (up to 3 levels)
     deviceSort: { key: 'rack', asc: true },
     deviceView: 'table',
@@ -384,8 +388,7 @@ function updateDeviceFilter(filterKey, value, skipFilterBarRebuild) {
         }
         if (typeof updateConnectionsList === 'function') updateConnectionsList();
         if (typeof updateMatrix === 'function') updateMatrix();
-        if (typeof NetworkTopology !== 'undefined') NetworkTopology.render();
-        if (typeof DrawioTopology !== 'undefined') DrawioTopology.render();
+        if (typeof SVGTopology !== 'undefined') SVGTopology.render();
     }
     
     // Text inputs use debounce to avoid excessive re-renders
@@ -954,8 +957,6 @@ var Toast = (function() {
 })();
 
 // ============================================================================
-// AUTHENTICATION HELPER
-// ============================================================================
 // UI HELPERS
 // ============================================================================
 function switchTab(tabId) {
@@ -984,11 +985,59 @@ function toggleRoomLegend() {
     
     if (content.style.display === 'none') {
         content.style.display = 'flex';
-        toggle.textContent = 'Hide';
+        toggle.textContent = '▼';
     } else {
         content.style.display = 'none';
-        toggle.textContent = 'Show';
+        toggle.textContent = '▶';
     }
+}
+
+// Toggle Custom Locations Legend visibility
+function toggleCustomLocationsLegend() {
+    var content = document.getElementById('customLocationsContent');
+    var toggle = document.getElementById('customLocationsToggle');
+    if (!content || !toggle) return;
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'flex';
+        toggle.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        toggle.textContent = '▶';
+    }
+}
+
+// Update Custom Locations Legend in Floor Plan
+function updateCustomLocationsLegend() {
+    var container = document.getElementById('customLocationsContent');
+    if (!container) return;
+    
+    // Get custom locations (type === 'custom')
+    var customLocs = (appState.locations || []).filter(function(loc) {
+        return loc.type === 'custom';
+    }).sort(function(a, b) {
+        return parseInt(a.id) - parseInt(b.id);
+    });
+    
+    if (customLocs.length === 0) {
+        container.innerHTML = '<span style="font-size: 10px; color: var(--color-text-muted); font-style: italic;">No custom locations</span>';
+        return;
+    }
+    
+    var html = '';
+    customLocs.forEach(function(loc) {
+        // Count devices in this location
+        var deviceCount = appState.devices.filter(function(d) {
+            return d.location === loc.code;
+        }).length;
+        
+        var label = loc.code + ' - ' + loc.name;
+        var countBadge = deviceCount > 0 ? ' <span style="background: #059669; color: white; font-size: 9px; padding: 1px 4px; border-radius: 8px;">' + deviceCount + '</span>' : '';
+        
+        html += '<div style="font-size: 11px; padding: 2px 0; color: var(--color-text-light); white-space: nowrap;" title="' + loc.name + '">' + label + countBadge + '</div>';
+    });
+    
+    container.innerHTML = html;
 }
 
 function setDeviceView(view) {
@@ -1076,7 +1125,10 @@ function saveToStorage() {
         localStorage.setItem('networkDevices', JSON.stringify(appState.devices));
         localStorage.setItem('networkConnections', JSON.stringify(appState.connections));
         localStorage.setItem('networkRooms', JSON.stringify(appState.rooms || []));
+        localStorage.setItem('networkSites', JSON.stringify(appState.sites || []));
+        localStorage.setItem('networkLocations', JSON.stringify(appState.locations || []));
         localStorage.setItem('nextDeviceId', String(appState.nextDeviceId));
+        localStorage.setItem('nextLocationId', String(appState.nextLocationId || 21));
         showSyncIndicator('saved', '✓ Saved');
         serverSave();
     } catch (e) {
@@ -1094,7 +1146,10 @@ function saveNow() {
         localStorage.setItem('networkDevices', JSON.stringify(appState.devices));
         localStorage.setItem('networkConnections', JSON.stringify(appState.connections));
         localStorage.setItem('networkRooms', JSON.stringify(appState.rooms || []));
+        localStorage.setItem('networkSites', JSON.stringify(appState.sites || []));
+        localStorage.setItem('networkLocations', JSON.stringify(appState.locations || []));
         localStorage.setItem('nextDeviceId', String(appState.nextDeviceId));
+        localStorage.setItem('nextLocationId', String(appState.nextLocationId || 21));
         showSyncIndicator('saved', '✓ Saved!');
         serverSave();
         Toast.success('Data saved successfully!');
@@ -1116,7 +1171,14 @@ function serverLoad() {
                     appState.devices = data.devices;
                     appState.connections = data.connections;
                     appState.rooms = data.rooms || [];
+                    appState.sites = data.sites || [];
+                    appState.locations = data.locations || [];
                     appState.nextDeviceId = data.nextDeviceId || 1;
+                    appState.nextLocationId = data.nextLocationId || 21;
+                    
+                    // Auto-migrate if needed
+                    migrateToNewLocationSystem();
+                    
                     Debug.log('Server load OK from:', url);
                     return true;
                 }
@@ -1144,12 +1206,119 @@ function serverLoad() {
         });
 }
 
+/**
+ * Migrate data to new location system (v3.5.006)
+ * - Creates default site if none exists
+ * - Creates locations from rooms and device locations
+ * - Updates device.location to use locationId
+ */
+function migrateToNewLocationSystem() {
+    var needsSave = false;
+    
+    // Create default site if none exists
+    if (!appState.sites || appState.sites.length === 0) {
+        appState.sites = [{
+            id: 'main',
+            name: 'Sede Ivrea',
+            isDefault: true
+        }];
+        needsSave = true;
+        Debug.log('Migration: Created default site "Sede Ivrea"');
+    }
+    
+    // Create locations from rooms if locations array is empty
+    if (!appState.locations || appState.locations.length === 0) {
+        appState.locations = [];
+        
+        // Create mapped locations from rooms (00-19)
+        if (appState.rooms && appState.rooms.length > 0) {
+            appState.rooms.forEach(function(room) {
+                var code = String(room.id).padStart(2, '0');
+                appState.locations.push({
+                    id: 'loc-' + code,
+                    siteId: 'main',
+                    code: code,
+                    name: room.nickname || ('Room ' + room.id),
+                    type: 'mapped',
+                    roomRef: room.id,
+                    color: '#7c3aed'
+                });
+            });
+            Debug.log('Migration: Created ' + appState.rooms.length + ' mapped locations from rooms');
+        }
+        
+        // Collect custom locations from devices
+        var customLocs = {};
+        appState.devices.forEach(function(d) {
+            if (d.location) {
+                // Check if this is already a mapped location
+                var isMapped = appState.locations.some(function(loc) {
+                    return loc.name === d.location || loc.code === d.location || loc.roomRef === d.location;
+                });
+                if (!isMapped && !customLocs[d.location]) {
+                    customLocs[d.location] = true;
+                }
+            }
+        });
+        
+        // Create custom locations (21+)
+        var customIndex = 21;
+        Object.keys(customLocs).sort().forEach(function(locName) {
+            var code = String(customIndex).padStart(2, '0');
+            appState.locations.push({
+                id: 'loc-' + code,
+                siteId: 'main',
+                code: code,
+                name: locName,
+                type: 'custom',
+                roomRef: null,
+                color: '#f97316'
+            });
+            customIndex++;
+        });
+        
+        if (Object.keys(customLocs).length > 0) {
+            Debug.log('Migration: Created ' + Object.keys(customLocs).length + ' custom locations');
+        }
+        
+        appState.nextLocationId = customIndex;
+        needsSave = true;
+    }
+    
+    // Migrate device.location to use consistent values
+    // Keep location as name for backward compatibility, but ensure it matches a location
+    appState.devices.forEach(function(d) {
+        if (d.location) {
+            // Find matching location
+            var matchedLoc = appState.locations.find(function(loc) {
+                return loc.name === d.location || 
+                       loc.code === d.location || 
+                       loc.roomRef === d.location ||
+                       loc.id === d.location;
+            });
+            if (matchedLoc && d.location !== matchedLoc.name) {
+                // Normalize to use location name
+                d.location = matchedLoc.name;
+                needsSave = true;
+            }
+        }
+    });
+    
+    if (needsSave) {
+        Debug.log('Migration: Saving migrated data');
+        // Don't auto-save during load - let user trigger save
+    }
+}
+
 function serverSave() {
     var payload = JSON.stringify({
         devices: appState.devices,
         connections: appState.connections,
         rooms: appState.rooms || [],
-        nextDeviceId: appState.nextDeviceId
+        sites: appState.sites || [],
+        locations: appState.locations || [],
+        nextDeviceId: appState.nextDeviceId,
+        nextLocationId: appState.nextLocationId || 21
     });
     
     function postUrl(url) {
@@ -1217,11 +1386,17 @@ function loadFromStorage() {
         var d = localStorage.getItem('networkDevices');
         var c = localStorage.getItem('networkConnections');
         var r = localStorage.getItem('networkRooms');
+        var s = localStorage.getItem('networkSites');
+        var l = localStorage.getItem('networkLocations');
         var n = localStorage.getItem('nextDeviceId');
+        var nl = localStorage.getItem('nextLocationId');
         if (d) appState.devices = JSON.parse(d);
         if (c) appState.connections = JSON.parse(c);
         if (r) appState.rooms = JSON.parse(r);
+        if (s) appState.sites = JSON.parse(s);
+        if (l) appState.locations = JSON.parse(l);
         if (n) appState.nextDeviceId = parseInt(n, 10) || 1;
+        if (nl) appState.nextLocationId = parseInt(nl, 10) || 21;
     } catch (e) {
         Debug.error('Error loading from localStorage:', e);
         Toast.error('Failed to load saved data');
@@ -1372,6 +1547,9 @@ function saveDevice() {
             ActivityLog.add(actionType, 'device', name + ' (' + type + ')' + (location ? ' @ ' + location : ''));
         }
 
+        // Save to server immediately
+        serverSave();
+        
         clearDeviceForm();
         updateUI();
     } catch (e) {
@@ -1552,6 +1730,9 @@ function removeDevice(id) {
             if (typeof ActivityLog !== 'undefined') {
                 ActivityLog.add('delete', 'device', deviceName + ' (' + deviceType + ')');
             }
+            
+            // Save to server immediately
+            serverSave();
             
             clearDeviceForm();
             updateUI();
@@ -1878,6 +2059,9 @@ function saveConnection() {
             ActivityLog.add(actionType, 'connection', logDetails);
         }
 
+        // Save to server immediately
+        serverSave();
+
         clearConnectionForm();
         updateUI();
     } catch (e) {
@@ -2108,6 +2292,9 @@ function removeConnection(idx) {
             if (typeof ActivityLog !== 'undefined') {
                 ActivityLog.add('delete', 'connection', logDetails);
             }
+            
+            // Save to server immediately
+            serverSave();
             
             clearConnectionForm();
             updateUI();
@@ -2526,6 +2713,9 @@ function updateUI() {
     if (typeof LocationFilter !== 'undefined') {
         LocationFilter.update();
     }
+    
+    // Update Custom Locations legend in Floor Plan
+    updateCustomLocationsLegend();
 }
 
 function updateGlobalCounters() {
@@ -2598,56 +2788,93 @@ function updateLocationSelect() {
     // Clear and add default option
     select.innerHTML = '<option value="">-- Select Location --</option>';
     
-    // Sort rooms by numeric ID
-    var rooms = (appState.rooms || []).slice().sort(function(a, b) {
-        return parseInt(a.id) - parseInt(b.id);
-    });
+    // Get locations from appState.locations (new system)
+    var mappedLocs = [];
+    var customLocs = [];
     
-    // Collect existing locations from devices that are not mapped rooms
-    var otherLocations = [];
-    appState.devices.forEach(function(d) {
-        if (d.location) {
-            // Check if this location matches any room
-            var isRoomLocation = rooms.some(function(room) {
-                return deviceBelongsToRoom(d, room);
+    if (appState.locations && appState.locations.length > 0) {
+        // Use new location system
+        appState.locations.forEach(function(loc) {
+            if (loc.type === 'mapped') {
+                mappedLocs.push(loc);
+            } else {
+                customLocs.push(loc);
+            }
+        });
+        
+        // Sort mapped by code
+        mappedLocs.sort(function(a, b) {
+            return parseInt(a.code) - parseInt(b.code);
+        });
+        
+        // Sort custom by code
+        customLocs.sort(function(a, b) {
+            return parseInt(a.code) - parseInt(b.code);
+        });
+    } else {
+        // Fallback to old system (rooms + device locations)
+        var rooms = (appState.rooms || []).slice().sort(function(a, b) {
+            return parseInt(a.id) - parseInt(b.id);
+        });
+        
+        rooms.forEach(function(room) {
+            mappedLocs.push({
+                id: 'loc-' + String(room.id).padStart(2, '0'),
+                code: String(room.id).padStart(2, '0'),
+                name: room.nickname || ('Room ' + room.id),
+                type: 'mapped',
+                roomRef: room.id
             });
-            if (!isRoomLocation && otherLocations.indexOf(d.location) === -1) {
-                otherLocations.push(d.location);
+        });
+        
+        // Collect custom from devices
+        var seenLocs = {};
+        appState.devices.forEach(function(d) {
+            if (d.location && !seenLocs[d.location]) {
+                var isRoom = rooms.some(function(room) {
+                    return room.id === d.location || room.nickname === d.location;
+                });
+                if (!isRoom) {
+                    seenLocs[d.location] = true;
+                }
             }
-        }
-    });
-    otherLocations.sort();
+        });
+        
+        var idx = 21;
+        Object.keys(seenLocs).sort().forEach(function(locName) {
+            customLocs.push({
+                id: 'loc-' + idx,
+                code: String(idx),
+                name: locName,
+                type: 'custom'
+            });
+            idx++;
+        });
+    }
     
-    // Group: Mapped Rooms
-    if (rooms.length > 0) {
+    // Group: Mapped Locations (00-19)
+    if (mappedLocs.length > 0) {
         var optgroup1 = document.createElement('optgroup');
-        optgroup1.label = '📍 Mapped Rooms';
-        for (var i = 0; i < rooms.length; i++) {
-            var room = rooms[i];
-            var label = room.id;
-            // Use nickname as value if it exists (for better sync)
-            var value = room.nickname || room.id;
-            if (room.nickname) {
-                label = room.id + ' - ' + room.nickname;
-            }
+        optgroup1.label = '📍 Mapped Locations';
+        mappedLocs.forEach(function(loc) {
             var option = document.createElement('option');
-            option.value = value;
-            option.textContent = label;
+            option.value = loc.name;
+            option.textContent = loc.code + ' - ' + loc.name;
             optgroup1.appendChild(option);
-        }
+        });
         select.appendChild(optgroup1);
     }
     
-    // Group: Other Locations (existing)
-    if (otherLocations.length > 0) {
+    // Group: Custom Locations (21+)
+    if (customLocs.length > 0) {
         var optgroup2 = document.createElement('optgroup');
-        optgroup2.label = '📦 Other Locations';
-        for (var j = 0; j < otherLocations.length; j++) {
-            var option2 = document.createElement('option');
-            option2.value = otherLocations[j];
-            option2.textContent = otherLocations[j];
-            optgroup2.appendChild(option2);
-        }
+        optgroup2.label = '🪧 Custom Locations';
+        customLocs.forEach(function(loc) {
+            var option = document.createElement('option');
+            option.value = loc.name;
+            option.textContent = loc.code + ' - ' + loc.name;
+            optgroup2.appendChild(option);
+        });
         select.appendChild(optgroup2);
     }
     
@@ -2658,7 +2885,7 @@ function updateLocationSelect() {
     optionNew.style.fontStyle = 'italic';
     select.appendChild(optionNew);
     
-    // Restaurar valor se existia
+    // Restore value if editing
     if (currentValue && currentValue !== '__NEW__') {
         select.value = currentValue;
     }
@@ -2666,88 +2893,168 @@ function updateLocationSelect() {
     // Event listener for new location
     select.onchange = function() {
         if (this.value === '__NEW__') {
-            var newLoc = prompt('Enter the new location name:');
-            if (newLoc && newLoc.trim()) {
-                // Add new option
-                var newOption = document.createElement('option');
-                newOption.value = newLoc.trim();
-                newOption.textContent = newLoc.trim();
-                // Insert before __NEW__ option
-                select.insertBefore(newOption, optionNew);
-                select.value = newLoc.trim();
-            } else {
-                select.value = '';
-            }
+            addNewCustomLocation(select, optionNew);
         }
     };
 }
 
+/**
+ * Add a new custom location
+ */
+function addNewCustomLocation(select, optionNew) {
+    var newLocName = prompt('Enter the new location name:');
+    if (!newLocName || !newLocName.trim()) {
+        select.value = '';
+        return;
+    }
+    
+    newLocName = newLocName.trim();
+    
+    // Check if location already exists
+    var exists = appState.locations.some(function(loc) {
+        return loc.name.toLowerCase() === newLocName.toLowerCase();
+    });
+    
+    if (exists) {
+        Toast.warning('Location "' + newLocName + '" already exists');
+        select.value = '';
+        return;
+    }
+    
+    // Get next custom location code
+    var nextCode = appState.nextLocationId || 21;
+    
+    // Create new location
+    var newLoc = {
+        id: 'loc-' + nextCode,
+        siteId: 'main',
+        code: String(nextCode).padStart(2, '0'),
+        name: newLocName,
+        type: 'custom',
+        roomRef: null,
+        color: '#f97316'
+    };
+    
+    // Add to locations array
+    appState.locations.push(newLoc);
+    appState.nextLocationId = nextCode + 1;
+    
+    // Save to server immediately
+    serverSave();
+    
+    // Update the dropdown
+    var customOptgroup = select.querySelector('optgroup[label*="Custom Locations"]');
+    if (!customOptgroup) {
+        customOptgroup = document.createElement('optgroup');
+        customOptgroup.label = '🪧 Custom Locations';
+        select.insertBefore(customOptgroup, optionNew);
+    }
+    
+    var newOption = document.createElement('option');
+    newOption.value = newLocName;
+    newOption.textContent = newLoc.code + ' - ' + newLocName;
+    customOptgroup.appendChild(newOption);
+    
+    select.value = newLocName;
+    
+    Toast.success('Location "' + newLocName + '" created');
+    
+    // Update other location selects
+    if (typeof LocationFilter !== 'undefined') {
+        LocationFilter.update();
+    }
+}
+
 // Location Manager - delete/rename locations with bulk device reassignment
 function openLocationManager() {
-    // Get all locations
-    var rooms = (appState.rooms || []).slice().sort(function(a, b) {
-        return parseInt(a.id) - parseInt(b.id);
-    });
-    var roomIds = rooms.map(function(r) { return r.id; });
-    var roomNicknames = rooms.map(function(r) { return r.nickname || ''; }).filter(function(n) { return n; });
-    
-    // Collect custom locations (not mapped rooms)
-    var otherLocations = [];
+    // Count devices per location
     var locationCounts = {};
     appState.devices.forEach(function(d) {
         if (d.location) {
             locationCounts[d.location] = (locationCounts[d.location] || 0) + 1;
-            // Check if location is NOT a mapped room (by id, name, or nickname)
-            var isRoomLocation = rooms.some(function(room) {
-                return deviceBelongsToRoom(d, room);
-            });
-            if (!isRoomLocation && otherLocations.indexOf(d.location) === -1) {
-                otherLocations.push(d.location);
-            }
         }
     });
-    otherLocations.sort();
+    
+    // Get locations from appState.locations (new system)
+    var mappedLocs = [];
+    var customLocs = [];
+    
+    if (appState.locations && appState.locations.length > 0) {
+        appState.locations.forEach(function(loc) {
+            if (loc.type === 'mapped') {
+                mappedLocs.push(loc);
+            } else {
+                customLocs.push(loc);
+            }
+        });
+        
+        mappedLocs.sort(function(a, b) {
+            return parseInt(a.code) - parseInt(b.code);
+        });
+        
+        customLocs.sort(function(a, b) {
+            return parseInt(a.code) - parseInt(b.code);
+        });
+    } else {
+        // Fallback to old system
+        var rooms = (appState.rooms || []).slice().sort(function(a, b) {
+            return parseInt(a.id) - parseInt(b.id);
+        });
+        
+        rooms.forEach(function(room) {
+            mappedLocs.push({
+                id: 'loc-' + String(room.id).padStart(2, '0'),
+                code: String(room.id).padStart(2, '0'),
+                name: room.nickname || ('Room ' + room.id),
+                type: 'mapped',
+                roomRef: room.id
+            });
+        });
+    }
     
     // Build HTML content
     var html = '<div style="text-align:left; max-height: 400px; overflow-y: auto;">';
     
-    // Mapped Rooms section
-    html += '<h4 style="margin-bottom:8px; color:#7c3aed; font-weight:bold;">📍 Mapped Rooms</h4>';
-    if (rooms.length > 0) {
+    // Mapped Locations section
+    html += '<h4 style="margin-bottom:8px; color:#7c3aed; font-weight:bold;">📍 Mapped Locations</h4>';
+    if (mappedLocs.length > 0) {
         html += '<div style="margin-bottom:16px; display:grid; gap:4px;">';
-        rooms.forEach(function(room) {
-            var count = countDevicesInRoom(room);
-            var label = room.nickname ? room.id + ' - ' + room.nickname : room.id;
+        mappedLocs.forEach(function(loc) {
+            var count = locationCounts[loc.name] || 0;
             html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:#f3e8ff; border-radius:6px;">';
-            html += '<span style="font-size:13px;">' + label + '</span>';
+            html += '<span style="font-size:13px;"><strong style="color:#7c3aed;">' + loc.code + '</strong> - ' + loc.name + '</span>';
             html += '<div style="display:flex; align-items:center; gap:8px;">';
             html += '<span style="font-size:11px; color:#6b7280;">' + count + ' devices</span>';
-            html += '<button onclick="editRoomNickname(\'' + room.id + '\')" style="padding:2px 8px; background:#ddd6fe; color:#7c3aed; border:none; border-radius:4px; font-size:11px; cursor:pointer;" title="Edit nickname">✏️ Edit</button>';
+            html += '<button onclick="editMappedLocationName(\'' + loc.id + '\')" style="padding:2px 8px; background:#ddd6fe; color:#7c3aed; border:none; border-radius:4px; font-size:11px; cursor:pointer;" title="Edit name">✏️ Edit</button>';
             html += '</div>';
             html += '</div>';
         });
         html += '</div>';
     } else {
-        html += '<p style="color:#9ca3af; font-size:12px; margin-bottom:16px;">No mapped rooms. Use Floor Plan to create rooms.</p>';
+        html += '<p style="color:#9ca3af; font-size:12px; margin-bottom:16px;">No mapped locations. Use Floor Plan to create rooms.</p>';
     }
     
-    // Custom Locations section
-    html += '<h4 style="margin-bottom:8px; color:#f97316; font-weight:bold;">📦 Custom Locations</h4>';
-    if (otherLocations.length > 0) {
+    // Custom Locations section with Add button
+    html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">';
+    html += '<h4 style="margin:0; color:#f97316; font-weight:bold;">🪧 Custom Locations</h4>';
+    html += '<button onclick="addNewLocationFromManager()" style="padding:4px 10px; background:#f97316; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">➕ Add New</button>';
+    html += '</div>';
+    if (customLocs.length > 0) {
         html += '<div style="display:grid; gap:4px;">';
-        otherLocations.forEach(function(loc) {
-            var count = locationCounts[loc] || 0;
+        customLocs.forEach(function(loc) {
+            var count = locationCounts[loc.name] || 0;
             html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:#fff7ed; border-radius:6px;">';
-            html += '<span style="font-size:13px;">' + loc + '</span>';
+            html += '<span style="font-size:13px;"><strong style="color:#f97316;">' + loc.code + '</strong> - ' + loc.name + '</span>';
             html += '<div style="display:flex; align-items:center; gap:8px;">';
             html += '<span style="font-size:11px; color:#6b7280;">' + count + ' devices</span>';
-            html += '<button onclick="deleteLocation(\'' + loc.replace(/'/g, "\\'") + '\')" style="padding:2px 8px; background:#fee2e2; color:#dc2626; border:none; border-radius:4px; font-size:11px; cursor:pointer;" title="Delete and move devices">🗑️ Delete</button>';
+            html += '<button onclick="renameCustomLocation(\'' + loc.id + '\')" style="padding:2px 8px; background:#fef3c7; color:#d97706; border:none; border-radius:4px; font-size:11px; cursor:pointer;" title="Rename location">✏️ Rename</button>';
+            html += '<button onclick="deleteCustomLocation(\'' + loc.id + '\')" style="padding:2px 8px; background:#fee2e2; color:#dc2626; border:none; border-radius:4px; font-size:11px; cursor:pointer;" title="Delete location">🗑️ Delete</button>';
             html += '</div>';
             html += '</div>';
         });
         html += '</div>';
     } else {
-        html += '<p style="color:#9ca3af; font-size:12px;">No custom locations created yet.</p>';
+        html += '<p style="color:#9ca3af; font-size:12px;">No custom locations yet. Click "Add New" to create one.</p>';
     }
     
     html += '</div>';
@@ -2762,28 +3069,101 @@ function openLocationManager() {
     });
 }
 
-// Edit room nickname
-function editRoomNickname(roomId) {
-    var room = appState.rooms.find(function(r) { return r.id === roomId; });
-    if (!room) return;
-    
+/**
+ * Add a new custom location from the Location Manager
+ */
+function addNewLocationFromManager() {
     Swal.fire({
-        title: '✏️ Edit Room ' + roomId,
+        title: '➕ Add Custom Location',
         input: 'text',
-        inputLabel: 'Nickname (e.g. ADM, Server Room, Reception)',
-        inputValue: room.nickname || '',
-        inputPlaceholder: 'Enter nickname...',
+        inputLabel: 'Location name (e.g. Warehouse, Data Center, External Office)',
+        inputPlaceholder: 'Enter location name...',
         showCancelButton: true,
-        confirmButtonText: 'Save',
-        confirmButtonColor: '#7c3aed',
+        confirmButtonText: 'Create',
+        confirmButtonColor: '#f97316',
         cancelButtonText: 'Cancel',
         inputValidator: function(value) {
-            // Allow empty to remove nickname
+            if (!value || !value.trim()) {
+                return 'Please enter a location name';
+            }
+            var exists = appState.locations.some(function(loc) {
+                return loc.name.toLowerCase() === value.trim().toLowerCase();
+            });
+            if (exists) {
+                return 'A location with this name already exists';
+            }
             return null;
         }
     }).then(function(result) {
+        if (result.isConfirmed && result.value) {
+            var newLocName = result.value.trim();
+            var nextCode = appState.nextLocationId || 21;
+            
+            var newLoc = {
+                id: 'loc-' + nextCode,
+                siteId: 'main',
+                code: String(nextCode).padStart(2, '0'),
+                name: newLocName,
+                type: 'custom',
+                roomRef: null,
+                color: '#f97316'
+            };
+            
+            appState.locations.push(newLoc);
+            appState.nextLocationId = nextCode + 1;
+            
+            serverSave();
+            updateLocationSelect();
+            
+            if (typeof LocationFilter !== 'undefined') {
+                LocationFilter.update();
+            }
+            
+            Toast.success('Location "' + newLocName + '" created');
+            
+            // Reopen Location Manager to show the new location
+            openLocationManager();
+        }
+    });
+}
+
+// Edit a mapped location name (syncs with room nickname)
+function editMappedLocationName(locId) {
+    var loc = appState.locations.find(function(l) { return l.id === locId; });
+    if (!loc) return;
+    
+    var room = loc.roomRef ? appState.rooms.find(function(r) { return r.id === loc.roomRef; }) : null;
+    
+    Swal.fire({
+        title: '✏️ Edit Location ' + loc.code,
+        input: 'text',
+        inputLabel: 'Location name (e.g. ADM, Server Room, Reception)',
+        inputValue: loc.name || '',
+        inputPlaceholder: 'Enter name...',
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        confirmButtonColor: '#7c3aed',
+        cancelButtonText: 'Cancel'
+    }).then(function(result) {
         if (result.isConfirmed) {
-            room.nickname = result.value.trim() || '';
+            var newName = result.value.trim() || ('Room ' + loc.code);
+            var oldName = loc.name;
+            
+            // Update location
+            loc.name = newName;
+            
+            // Sync with room nickname if linked
+            if (room) {
+                room.nickname = newName;
+            }
+            
+            // Update devices that used the old location name
+            appState.devices.forEach(function(d) {
+                if (d.location === oldName) {
+                    d.location = newName;
+                }
+            });
+            
             serverSave();
             updateLocationSelect();
             
@@ -2795,75 +3175,225 @@ function editRoomNickname(roomId) {
             Swal.fire({
                 icon: 'success',
                 title: 'Saved!',
-                text: result.value.trim() 
-                    ? 'Room ' + roomId + ' is now "' + result.value.trim() + '"'
-                    : 'Nickname removed from room ' + roomId,
+                text: 'Location ' + loc.code + ' is now "' + newName + '"',
                 confirmButtonColor: '#22c55e',
                 timer: 2000,
                 showConfirmButton: false
             }).then(function() {
-                // Reopen Location Manager
                 openLocationManager();
             });
         }
     });
 }
 
-// Delete a custom location and move its devices to another location
-function deleteLocation(locationToDelete) {
-    // Count devices in this location
+// Rename a custom location (by location ID)
+function renameCustomLocation(locId) {
+    // Require authentication
+    if (!requireAuth()) return;
+    
+    var loc = appState.locations.find(function(l) { return l.id === locId; });
+    if (!loc) {
+        Toast.error('Location not found');
+        return;
+    }
+    
+    var oldName = loc.name;
+    
+    // Count affected devices
     var devicesInLocation = appState.devices.filter(function(d) {
-        return d.location === locationToDelete;
+        return d.location === oldName;
     });
     
+    // Count affected connections
+    var deviceIds = {};
+    devicesInLocation.forEach(function(d) { deviceIds[d.id] = true; });
+    var affectedConnections = appState.connections.filter(function(c) {
+        return deviceIds[c.from] || deviceIds[c.to];
+    });
+    
+    Swal.fire({
+        title: '✏️ Rename Location ' + loc.code,
+        html: '<div style="text-align:left;">' +
+              '<p style="margin-bottom:12px;">Current name: <strong>"' + oldName + '"</strong></p>' +
+              '<p style="margin-bottom:8px; font-size:12px; color:#6b7280;">📦 ' + devicesInLocation.length + ' devices in this location</p>' +
+              '<p style="margin-bottom:12px; font-size:12px; color:#6b7280;">🔗 ' + affectedConnections.length + ' connections involving these devices</p>' +
+              '<input type="text" id="swal-new-location-name" class="swal2-input" placeholder="New location name" value="' + oldName + '" style="width:100%; margin:0;">' +
+              '</div>',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '✏️ Rename',
+        confirmButtonColor: '#d97706',
+        cancelButtonText: 'Cancel',
+        preConfirm: function() {
+            var newName = document.getElementById('swal-new-location-name').value.trim();
+            if (!newName) {
+                Swal.showValidationMessage('Please enter a new name');
+                return false;
+            }
+            if (newName === oldName) {
+                Swal.showValidationMessage('New name must be different');
+                return false;
+            }
+            // Check if name already exists
+            var exists = appState.locations.some(function(l) {
+                return l.id !== locId && l.name.toLowerCase() === newName.toLowerCase();
+            });
+            if (exists) {
+                Swal.showValidationMessage('A location with this name already exists');
+                return false;
+            }
+            return newName;
+        }
+    }).then(function(result) {
+        if (result.isConfirmed) {
+            var newName = result.value;
+            var renamedCount = 0;
+            
+            // Update the location object
+            loc.name = newName;
+            
+            // Rename location in all devices
+            appState.devices.forEach(function(d) {
+                if (d.location === oldName) {
+                    d.location = newName;
+                    renamedCount++;
+                }
+            });
+            
+            // Log the action
+            if (typeof ActivityLog !== 'undefined') {
+                ActivityLog.add('edit', 'location', 'Renamed "' + oldName + '" to "' + newName + '" (' + renamedCount + ' devices)');
+            }
+            
+            // Save and update UI
+            serverSave();
+            updateUI();
+            updateLocationSelect();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Location Renamed',
+                html: '<p>Renamed <strong>"' + oldName + '"</strong> to <strong>"' + newName + '"</strong></p>' +
+                      '<p style="font-size:12px; color:#6b7280; margin-top:8px;">Updated ' + renamedCount + ' devices</p>',
+                confirmButtonColor: '#22c55e',
+                timer: 2500,
+                showConfirmButton: false
+            }).then(function() {
+                openLocationManager();
+            });
+        }
+    });
+}
+
+// Delete a custom location (by location ID)
+function deleteCustomLocation(locId) {
+    // Require authentication
+    if (!requireAuth()) return;
+    
+    var loc = appState.locations.find(function(l) { return l.id === locId; });
+    if (!loc) {
+        Toast.error('Location not found');
+        return;
+    }
+    
+    var locationName = loc.name;
+    
+    // Count devices in this location
+    var devicesInLocation = appState.devices.filter(function(d) {
+        return d.location === locationName;
+    });
+    
+    // Build options for target location from appState.locations
+    var mappedLocs = [];
+    var customLocs = [];
+    
+    appState.locations.forEach(function(l) {
+        if (l.id !== locId) {
+            if (l.type === 'mapped') {
+                mappedLocs.push(l);
+            } else {
+                customLocs.push(l);
+            }
+        }
+    });
+    
+    mappedLocs.sort(function(a, b) { return parseInt(a.code) - parseInt(b.code); });
+    customLocs.sort(function(a, b) { return parseInt(a.code) - parseInt(b.code); });
+    
+    var optionsHtml = '<option value="">-- Select new location --</option>';
+    
+    if (mappedLocs.length > 0) {
+        optionsHtml += '<optgroup label="📍 Mapped Locations">';
+        mappedLocs.forEach(function(l) {
+            optionsHtml += '<option value="' + l.name + '">' + l.code + ' - ' + l.name + '</option>';
+        });
+        optionsHtml += '</optgroup>';
+    }
+    
+    if (customLocs.length > 0) {
+        optionsHtml += '<optgroup label="🪧 Custom Locations">';
+        customLocs.forEach(function(l) {
+            optionsHtml += '<option value="' + l.name + '">' + l.code + ' - ' + l.name + '</option>';
+        });
+        optionsHtml += '</optgroup>';
+    }
+    
+    // Count connections involving devices in this location
+    var deviceIds = {};
+    devicesInLocation.forEach(function(d) { deviceIds[d.id] = true; });
+    var affectedConnections = appState.connections.filter(function(c) {
+        return deviceIds[c.from] || deviceIds[c.to];
+    });
+    
+    // If no devices, allow direct deletion
     if (devicesInLocation.length === 0) {
         Swal.fire({
-            icon: 'info',
-            title: 'Location Empty',
-            text: 'This location has no devices. It will be removed automatically when no devices use it.',
-            confirmButtonColor: '#3b82f6'
+            title: '🗑️ Delete Location',
+            html: '<p>Delete custom location <strong>"' + locationName + '"</strong>?</p>' +
+                  '<p style="font-size:12px; color:#6b7280; margin-top:8px;">This location has no devices.</p>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '🗑️ Delete',
+            confirmButtonColor: '#dc2626',
+            cancelButtonText: 'Cancel'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                // Remove from locations array
+                var idx = appState.locations.findIndex(function(l) { return l.id === locId; });
+                if (idx >= 0) {
+                    appState.locations.splice(idx, 1);
+                }
+                
+                serverSave();
+                updateLocationSelect();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Location Deleted',
+                    text: 'Removed "' + locationName + '"',
+                    confirmButtonColor: '#22c55e',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(function() {
+                    openLocationManager();
+                });
+            }
         });
         return;
     }
     
-    // Build options for target location
-    var rooms = (appState.rooms || []).slice().sort(function(a, b) {
-        return parseInt(a.id) - parseInt(b.id);
-    });
-    var roomIds = rooms.map(function(r) { return r.id; });
-    
-    var otherLocations = [];
-    appState.devices.forEach(function(d) {
-        if (d.location && d.location !== locationToDelete && roomIds.indexOf(d.location) === -1 && otherLocations.indexOf(d.location) === -1) {
-            otherLocations.push(d.location);
-        }
-    });
-    otherLocations.sort();
-    
-    var optionsHtml = '<option value="">-- Select new location --</option>';
-    
-    if (rooms.length > 0) {
-        optionsHtml += '<optgroup label="📍 Mapped Rooms">';
-        rooms.forEach(function(room) {
-            var label = room.nickname ? room.id + ' - ' + room.nickname : room.id;
-            optionsHtml += '<option value="' + room.id + '">' + label + '</option>';
-        });
-        optionsHtml += '</optgroup>';
-    }
-    
-    if (otherLocations.length > 0) {
-        optionsHtml += '<optgroup label="📦 Other Locations">';
-        otherLocations.forEach(function(loc) {
-            optionsHtml += '<option value="' + loc + '">' + loc + '</option>';
-        });
-        optionsHtml += '</optgroup>';
-    }
-    
     Swal.fire({
-        title: '🗑️ Delete Location',
+        title: '🗑️ Delete Location ' + loc.code,
         html: '<div style="text-align:left;">' +
-              '<p style="margin-bottom:12px;">You are about to delete <strong>"' + locationToDelete + '"</strong></p>' +
-              '<p style="margin-bottom:12px; color:#dc2626; font-weight:bold;">' + devicesInLocation.length + ' devices will be moved to:</p>' +
+              '<p style="margin-bottom:12px;">You are about to delete <strong>"' + locationName + '"</strong></p>' +
+              '<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px; margin-bottom:12px;">' +
+              '<p style="color:#dc2626; font-weight:bold; margin-bottom:8px;">⚠️ This will affect:</p>' +
+              '<ul style="margin:0; padding-left:20px; font-size:13px; color:#991b1b;">' +
+              '<li><strong>' + devicesInLocation.length + '</strong> devices will be moved</li>' +
+              '<li><strong>' + affectedConnections.length + '</strong> connections involve these devices</li>' +
+              '</ul>' +
+              '</div>' +
+              '<p style="margin-bottom:8px; font-weight:500;">Move devices to:</p>' +
               '<select id="swal-target-location" class="swal2-select" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:6px;">' + optionsHtml + '</select>' +
               '</div>',
         icon: 'warning',
@@ -2886,11 +3416,22 @@ function deleteLocation(locationToDelete) {
             
             // Move all devices to new location
             appState.devices.forEach(function(d) {
-                if (d.location === locationToDelete) {
+                if (d.location === locationName) {
                     d.location = targetLocation;
                     movedCount++;
                 }
             });
+            
+            // Remove from locations array
+            var idx = appState.locations.findIndex(function(l) { return l.id === locId; });
+            if (idx >= 0) {
+                appState.locations.splice(idx, 1);
+            }
+            
+            // Log the action
+            if (typeof ActivityLog !== 'undefined') {
+                ActivityLog.add('delete', 'location', 'Deleted "' + locationName + '", moved ' + movedCount + ' devices to "' + targetLocation + '"');
+            }
             
             // Save and update UI
             serverSave();
@@ -2902,6 +3443,8 @@ function deleteLocation(locationToDelete) {
                 title: 'Location Deleted',
                 html: '<p>Moved <strong>' + movedCount + '</strong> devices to <strong>"' + targetLocation + '"</strong></p>',
                 confirmButtonColor: '#22c55e'
+            }).then(function() {
+                openLocationManager();
             });
         }
     });
@@ -3035,7 +3578,10 @@ async function exportJSON() {
             devices: appState.devices,
             connections: appState.connections,
             rooms: appState.rooms || [],
+            sites: appState.sites || [],
+            locations: appState.locations || [],
             nextDeviceId: appState.nextDeviceId,
+            nextLocationId: appState.nextLocationId || 21,
             exportedAt: new Date().toISOString(),
             version: CURRENT_VERSION
         };
@@ -3094,7 +3640,10 @@ function importData(e) {
             devices: JSON.parse(JSON.stringify(appState.devices)),
             connections: JSON.parse(JSON.stringify(appState.connections)),
             rooms: JSON.parse(JSON.stringify(appState.rooms || [])),
-            nextDeviceId: appState.nextDeviceId
+            sites: JSON.parse(JSON.stringify(appState.sites || [])),
+            locations: JSON.parse(JSON.stringify(appState.locations || [])),
+            nextDeviceId: appState.nextDeviceId,
+            nextLocationId: appState.nextLocationId || 21
         };
         
         try {
@@ -3113,7 +3662,6 @@ function importData(e) {
             // ===== SHA-256 CHECKSUM VERIFICATION =====
             if (data.__checksum && data.__checksumAlgorithm === 'SHA-256') {
                 var expected = data.__checksum;
-                var algorithm = data.__checksumAlgorithm;
                 delete data.__checksum;
                 delete data.__checksumAlgorithm;
                 
@@ -3229,6 +3777,8 @@ function importData(e) {
                 appState.devices = data.devices;
                 appState.connections = data.connections;
                 appState.rooms = data.rooms || [];
+                appState.sites = data.sites || [];
+                appState.locations = data.locations || [];
                 
                 // Calculate nextDeviceId
                 if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
@@ -3240,6 +3790,16 @@ function importData(e) {
                     }
                     appState.nextDeviceId = maxId + 1;
                 }
+                
+                // Set nextLocationId
+                if (data.nextLocationId && typeof data.nextLocationId === 'number') {
+                    appState.nextLocationId = data.nextLocationId;
+                } else {
+                    appState.nextLocationId = 21;
+                }
+                
+                // Run migration to ensure locations are properly set up
+                migrateToNewLocationSystem();
                 
                 // Sync rooms with FloorPlan module if available
                 if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
@@ -3266,7 +3826,10 @@ function importData(e) {
                 appState.devices = backupState.devices;
                 appState.connections = backupState.connections;
                 appState.rooms = backupState.rooms;
+                appState.sites = backupState.sites;
+                appState.locations = backupState.locations;
                 appState.nextDeviceId = backupState.nextDeviceId;
+                appState.nextLocationId = backupState.nextLocationId;
                 
                 updateUI();
                 Toast.error('❌ Import failed during apply - data restored to previous state. Error: ' + applyErr.message);
@@ -3308,8 +3871,12 @@ function clearAll() {
                 devices: appState.devices,
                 connections: appState.connections,
                 rooms: appState.rooms || [],
+                sites: appState.sites || [],
+                locations: appState.locations || [],
                 nextDeviceId: appState.nextDeviceId,
+                nextLocationId: appState.nextLocationId || 21,
                 exportedAt: new Date().toISOString(),
+                version: CURRENT_VERSION,
                 preDeleteBackup: true
             };
             
@@ -3352,9 +3919,13 @@ function clearAll() {
                             if (data.valid) {
                                 appState.devices = [];
                                 appState.connections = [];
+                                appState.locations = [];
                                 appState.nextDeviceId = 1;
+                                appState.nextLocationId = 21;
+                                // Keep rooms and sites (floor plan structure)
                                 serverSave();
                                 updateUI();
+                                updateLocationSelect();
                                 Toast.success('All data cleared');
                                 if (typeof ActivityLog !== 'undefined') {
                                     ActivityLog.add('clear', 'system', 'All data cleared by ' + (Auth.getUser() || 'admin'));
@@ -3578,7 +4149,7 @@ var OnlineTracker = (function() {
     }
 
     function sendHeartbeat() {
-        var isEditor = Auth && Auth.isAuthenticated && Auth.isAuthenticated();
+        var isEditor = Auth && Auth.isLoggedIn && Auth.isLoggedIn();
         var url = 'data.php?action=online&userId=' + encodeURIComponent(userId) + '&isEditor=' + isEditor;
         
         fetch(url)

@@ -3,17 +3,27 @@
     {
       "id": 1,
       "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 1,
       "isRear": false,
-      "name": "Tiesse-Wifi",
-      "brandModel": "Imola IPQ-GW-WIFI",
+      "rear": false,
+      "name": "IMOLAIPQ-GW-WIFI (Tiesse-Wifi)",
+      "brandModel": "Imola IPQ",
       "type": "router_wifi",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.100.220",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.100.220",
+          "label": "ssh"
         }
       ],
       "service": "ssid: TIESSE",
@@ -49,30 +59,32 @@
           "status": "active"
         }
       ],
-      "notes": "",
-      "location": "Sala Server",
-      "links": [
-        {
-          "type": "ssh",
-          "url": "10.1.10.24",
-          "label": "SSH Server"
-        }
-      ]
+      "notes": ""
     },
     {
       "id": 2,
       "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 2,
       "isRear": false,
+      "rear": false,
       "name": "TSQ8-02",
       "brandModel": "Lipari5100",
       "type": "router_wifi",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.12.107.89",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.12.107.89",
+          "label": "ssh"
         }
       ],
       "service": "Acesso rete Q8",
@@ -88,8 +100,7 @@
           "status": "active"
         }
       ],
-      "notes": "",
-      "location": "Sala Server"
+      "notes": ""
     },
     {
       "id": 3,
@@ -170,22 +181,33 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 4,
       "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 4,
       "isRear": false,
-      "name": "RT-Wind-FWA",
+      "rear": false,
+      "name": "TIESSE_IVREA_FWA",
       "brandModel": "ImolaLX-5272-IKW",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "151.13.131.1/24",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "151.13.131.1",
+          "label": "ssh"
         }
       ],
       "service": "Gw per la rete 151.13.131.0/24, accesso esclusivo da parte di Wind",
@@ -216,23 +238,32 @@
           "status": "active"
         }
       ],
-      "notes": "",
-      "location": "Sala Server"
+      "notes": ""
     },
     {
       "id": 5,
       "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 5,
       "isRear": false,
-      "name": "Imola7 Global GW - LAN Tiesse",
+      "rear": false,
+      "name": "IMOLA7-GLOBAL-GW (LAN Tiesse)",
       "brandModel": "Imola7 0286",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.254.254",
-          "ip": "172.24.254.254/24",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.254",
+          "label": "ssh"
         }
       ],
       "service": "Global Gateway Aziendale",
@@ -288,8 +319,7 @@
           "status": "active"
         }
       ],
-      "notes": "",
-      "location": "Sala Server"
+      "notes": ""
     },
     {
       "id": 6,
@@ -425,22 +455,33 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 7,
       "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 7,
       "isRear": false,
-      "name": "RT-Guest-Wifi",
+      "rear": false,
+      "name": "GW-WIFI-GUEST",
       "brandModel": "Imola 5272 IKW POE",
       "type": "router_wifi",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.100.221",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.100.221",
+          "label": "ssh"
         }
       ],
       "service": "Guest Wifi",
@@ -511,23 +552,32 @@
           "status": "active"
         }
       ],
-      "notes": "",
-      "location": "Sala Server"
+      "notes": ""
     },
     {
       "id": 8,
       "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 8,
       "isRear": false,
-      "name": "IMOLA-LX-WIND-FWA",
+      "rear": false,
+      "name": "IMOLA-SGR-FWA-WIND",
       "brandModel": "Imola-0272-SGR",
-      "type": "router",
+      "type": "isp",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "151.13.131.2/24",
-          "ip": "172.24.254.11/24",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "151.13.131.2",
+          "label": "ssh"
         }
       ],
       "service": "FWA Wind",
@@ -578,8 +628,7 @@
           "status": "active"
         }
       ],
-      "notes": "Accesso rete Wind FWA",
-      "location": "Sala Server"
+      "notes": "Accesso rete Wind FWA"
     },
     {
       "id": 9,
@@ -719,7 +768,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 10,
@@ -884,22 +934,33 @@
         }
       ],
       "notes": "Collegamento Switch D-link (vecchi 2 Elba) Rack-Network-02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 11,
       "rackId": "Rack-Network-01",
+      "rack": "Rack-Network-01",
       "order": 11,
       "isRear": false,
-      "name": "Imola-LX-GW-TLC-FO (Fibra-TIM)",
+      "rear": false,
+      "name": "IMOLA-LX-GW-TLC-FO (Fibra-TIM)",
       "brandModel": "Imola LX 5272 IKW",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "80.18.165.234/29",
-          "ip": "172.24.254.10/24",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "80.18.165.234",
+          "label": "ssh"
         }
       ],
       "service": "GW-Fibra-TIM, Gestione Telecamera di sicurezza",
@@ -930,8 +991,7 @@
           "status": "active"
         }
       ],
-      "notes": "Gestione Telecamera di sicurezza sistema 80.18.165.238",
-      "location": "Sala Server"
+      "notes": "Gestione Telecamera di sicurezza sistema 80.18.165.238"
     },
     {
       "id": 12,
@@ -1002,7 +1062,8 @@
         }
       ],
       "notes": "Usato per Luciano L.",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 13,
@@ -1048,7 +1109,8 @@
         }
       ],
       "notes": "Gestione VPN per Tiesse",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 14,
@@ -1183,7 +1245,8 @@
         }
       ],
       "notes": "Patch Panel 01 - Rack-Network-02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 15,
@@ -1318,22 +1381,38 @@
         }
       ],
       "notes": "Patch Panel 02 - Rack-Network-02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 16,
       "rackId": "Rack-Network-02",
+      "rack": "Rack-Network-02",
       "order": 3,
       "isRear": false,
+      "rear": false,
       "name": "Switch D-Link /48",
       "brandModel": "Switch D-Link DGS-1510-52x",
       "type": "switch",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.100.202",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "http://10.10.100.202/www/login.html",
+          "label": ""
+        },
+        {
+          "type": "ssh",
+          "url": "10.10.100.202",
+          "label": "ssh"
         }
       ],
       "service": "",
@@ -1604,8 +1683,7 @@
           "status": "active"
         }
       ],
-      "notes": "Le 4 ultime porte (45,46,47,48) appartengono a un'altra rete.\nQuesto Dlink ha sostituito due switch Elba.",
-      "location": "Sala Server"
+      "notes": "Le 4 ultime porte (45,46,47,48) appartengono a un'altra rete.Questo Dlink ha sostituito due switch Elba."
     },
     {
       "id": 17,
@@ -1675,7 +1753,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 18,
@@ -1761,7 +1840,8 @@
         }
       ],
       "notes": "Eolo",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 19,
@@ -1842,7 +1922,8 @@
         }
       ],
       "notes": "Eolo?",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 20,
@@ -1888,7 +1969,8 @@
         }
       ],
       "notes": "Accesso rete Lottomatica",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 21,
@@ -1950,7 +2032,8 @@
         }
       ],
       "notes": "è Morto?",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 22,
@@ -2036,7 +2119,8 @@
         }
       ],
       "notes": "Accesso rete Lottomatica",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 23,
@@ -2122,16 +2206,21 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 25,
       "rackId": "Rack-Fonia",
+      "rack": "Rack-Fonia",
       "order": 5,
+      "isRear": false,
+      "rear": false,
       "name": "DVR/NVR",
       "brandModel": "Dahua TVCC",
-      "type": "others",
+      "type": "camera",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "88.18.165.238",
@@ -2139,16 +2228,16 @@
           "vlan": null
         }
       ],
+      "links": [],
       "service": "Video Sorveglianza",
       "ports": [
         {
-          "name": "eth1",
+          "name": "eth01",
           "type": "eth",
           "status": "active"
         }
       ],
-      "notes": "TVCC - DVR",
-      "location": "Sala Server"
+      "notes": "TVCC - DVR"
     },
     {
       "id": 27,
@@ -2299,7 +2388,8 @@
         }
       ],
       "notes": "",
-      "location": "Ufficio 12"
+      "location": "ICT",
+      "_isExternal": false
     },
     {
       "id": 28,
@@ -2379,7 +2469,8 @@
         }
       ],
       "notes": "",
-      "location": "Ufficio 12"
+      "location": "ICT",
+      "_isExternal": false
     },
     {
       "id": 29,
@@ -2524,7 +2615,8 @@
         }
       ],
       "notes": "Rete Localport - 151.13.131.0/24",
-      "location": "Ufficio 12"
+      "location": "ICT",
+      "_isExternal": false
     },
     {
       "id": 30,
@@ -2619,7 +2711,8 @@
         }
       ],
       "notes": "",
-      "location": "Ufficio 12"
+      "location": "ICT",
+      "_isExternal": false
     },
     {
       "id": 31,
@@ -2714,7 +2807,8 @@
         }
       ],
       "notes": "",
-      "location": "Ufficio 12"
+      "location": "ICT",
+      "_isExternal": false
     },
     {
       "id": 32,
@@ -2809,7 +2903,8 @@
         }
       ],
       "notes": "",
-      "location": "Ufficio 12"
+      "location": "ICT",
+      "_isExternal": false
     },
     {
       "id": 33,
@@ -2886,7 +2981,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 34,
@@ -2932,7 +3028,8 @@
         }
       ],
       "notes": "POWERFAIL",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 35,
@@ -3068,7 +3165,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 36,
@@ -3164,17 +3262,21 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 37,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 1,
       "isRear": false,
+      "rear": false,
       "name": "NAS-VM-BK",
       "brandModel": "QNAP",
-      "type": "others",
+      "type": "nas",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.100.41",
@@ -3182,6 +3284,7 @@
           "vlan": null
         }
       ],
+      "links": [],
       "service": "NAS",
       "ports": [
         {
@@ -3206,7 +3309,7 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "_isExternal": false
     },
     {
       "id": 38,
@@ -3248,7 +3351,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 39,
@@ -3290,7 +3394,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 40,
@@ -3332,17 +3437,21 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 41,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 5,
       "isRear": false,
+      "rear": false,
       "name": "NAS-VM-VOLUMES",
       "brandModel": "QNAP",
-      "type": "others",
+      "type": "nas",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.100.45",
@@ -3350,6 +3459,7 @@
           "vlan": null
         }
       ],
+      "links": [],
       "service": "NAS2",
       "ports": [
         {
@@ -3374,7 +3484,7 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "_isExternal": false
     },
     {
       "id": 42,
@@ -3421,7 +3531,8 @@
         }
       ],
       "notes": "k8s-worker-01",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 43,
@@ -3468,7 +3579,8 @@
         }
       ],
       "notes": "K8S-WORKER-02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 44,
@@ -3515,7 +3627,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 45,
@@ -3562,22 +3675,33 @@
         }
       ],
       "notes": "K8S-MASTER-01",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 46,
       "rackId": "Rack-ONE",
+      "rack": "Rack-ONE",
       "order": 10,
       "isRear": false,
+      "rear": false,
       "name": "SRV-VM-11",
       "brandModel": "Fujitsu Celsius",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.1.10.100/24",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.1.10.100:8006/#v1:0:=qemu%2F2000:4:=jsconsole:=contentIso:::21::2",
+          "label": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -3589,7 +3713,7 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "_isExternal": false
     },
     {
       "id": 47,
@@ -3616,7 +3740,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 48,
@@ -3643,7 +3768,8 @@
         }
       ],
       "notes": "Server per tutti Backup Proxmox",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 49,
@@ -3725,7 +3851,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 50,
@@ -3861,7 +3988,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 51,
@@ -4022,7 +4150,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 52,
@@ -4169,7 +4298,8 @@
         }
       ],
       "notes": "DESKTOP-60A5T1\\IXIA",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 53,
@@ -4196,7 +4326,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 54,
@@ -4223,7 +4354,8 @@
         }
       ],
       "notes": "Bare Metal",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 55,
@@ -4290,7 +4422,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 56,
@@ -4342,7 +4475,8 @@
         }
       ],
       "notes": "Vecchio router per VLAN Distrib/BW/Coltrane",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 57,
@@ -4393,7 +4527,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 58,
@@ -4454,7 +4589,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 61,
@@ -4465,7 +4601,7 @@
       "rear": false,
       "name": "Kyocera Printer",
       "brandModel": "TASKalfa MZ2501ci",
-      "type": "others",
+      "type": "printer",
       "status": "active",
       "location": "Sala Server",
       "addresses": [
@@ -4490,17 +4626,21 @@
           "status": "active"
         }
       ],
-      "notes": "Stampante Kyocera Centrale"
+      "notes": "Stampante Kyocera Centrale",
+      "_isExternal": false
     },
     {
       "id": 62,
       "rackId": "Endpoints",
+      "rack": "Endpoints",
       "order": 0,
       "isRear": false,
+      "rear": false,
       "name": "Access Point Mesh (Controller - Corridoio Centrale)",
       "brandModel": "AXE5700 Tenda Whole Home Mesh Wi-Fi 6",
       "type": "wifi",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.100.146",
@@ -4508,6 +4648,13 @@
           "vlan": null
         }
       ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.100.146/login.html?0.8816980169535140",
+          "label": ""
+        }
+      ],
       "service": "Tiesse-wifi",
       "ports": [
         {
@@ -4516,18 +4663,20 @@
           "status": "active"
         }
       ],
-      "notes": "Accanto alla stampante",
-      "location": "Sala Server"
+      "notes": "Accanto alla stampante"
     },
     {
       "id": 63,
       "rackId": "Endpoints",
+      "rack": "Endpoints",
       "order": 0,
       "isRear": false,
+      "rear": false,
       "name": "Access Point Mesh (Sud - Reception)",
       "brandModel": "AXE5700 Tenda Whole Home Mesh Wi-Fi 6",
       "type": "wifi",
       "status": "active",
+      "location": "Reception",
       "addresses": [
         {
           "network": "10.10.100.145",
@@ -4535,16 +4684,16 @@
           "vlan": null
         }
       ],
-      "service": "Tiesse-wifi",
-      "ports": [
+      "links": [
         {
-          "name": "eth01",
-          "type": "eth",
-          "status": "active"
+          "type": "https",
+          "url": "https://10.10.100.146/login.html?0.8816980169535140",
+          "label": ""
         }
       ],
-      "notes": "Reception (Barbara)",
-      "location": "Sala Server"
+      "service": "Tiesse-wifi",
+      "ports": [],
+      "notes": "Reception (Barbara)"
     },
     {
       "id": 64,
@@ -4576,7 +4725,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 65,
@@ -4608,7 +4758,8 @@
         }
       ],
       "notes": "Bare Metal",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 66,
@@ -4635,18 +4786,23 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 67,
       "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 5,
       "isRear": false,
+      "rear": false,
       "name": "HUB POWERFAIL - LINE RED",
       "brandModel": "Tplink",
-      "type": "switch",
+      "type": "hub",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [],
+      "links": [],
       "service": "HUB POWERFAIL LINEA ROSSA",
       "ports": [
         {
@@ -4675,19 +4831,22 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA ROSSA",
-      "location": "Sala Server"
+      "notes": "HUB POWERFAIL LINEA ROSSA"
     },
     {
       "id": 68,
       "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 5,
       "isRear": false,
+      "rear": false,
       "name": "HUB POWERFAIL - LINE WHITE",
       "brandModel": "Tplink",
-      "type": "switch",
+      "type": "hub",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [],
+      "links": [],
       "service": "HUB POWERFAIL LINEA BIANCA",
       "ports": [
         {
@@ -4716,19 +4875,22 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA BIANCA",
-      "location": "Sala Server"
+      "notes": "HUB POWERFAIL LINEA BIANCA"
     },
     {
       "id": 69,
       "rackId": "Rack-THREE",
+      "rack": "Rack-THREE",
       "order": 5,
       "isRear": false,
+      "rear": false,
       "name": "HUB POWERFAIL - LINE GREEN",
       "brandModel": "Tplink",
-      "type": "switch",
+      "type": "hub",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [],
+      "links": [],
       "service": "HUB POWERFAIL LINEA VERDE",
       "ports": [
         {
@@ -4757,8 +4919,7 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA VERDE",
-      "location": "Sala Server"
+      "notes": "HUB POWERFAIL LINEA VERDE"
     },
     {
       "id": 70,
@@ -4804,7 +4965,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL RED TARGET 01",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 71,
@@ -4850,7 +5012,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL LINE RED TARGET 02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 72,
@@ -4896,7 +5059,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL LINE GREEN TARGET 01",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 73,
@@ -4942,7 +5106,8 @@
         }
       ],
       "notes": "TARGET 01 POWERFAIL - LINE GREEN",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 74,
@@ -4988,7 +5153,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL - LINE WHITE",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 75,
@@ -5034,7 +5200,8 @@
         }
       ],
       "notes": "TARGET 02 POWERFAIL - LINE WHITE",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 76,
@@ -5205,22 +5372,33 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 77,
       "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 1,
       "isRear": false,
+      "rear": false,
       "name": "SAP MICROLYS",
       "brandModel": "Fujistu",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "192.168.0.240",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://hyp-sap/ui/#/login",
+          "label": ""
         }
       ],
       "service": "ERP SAP MICROLYS",
@@ -5246,23 +5424,32 @@
           "status": "active"
         }
       ],
-      "notes": "",
-      "location": "Sala Server"
+      "notes": ""
     },
     {
       "id": 78,
       "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 2,
       "isRear": false,
+      "rear": false,
       "name": "SRV-PROD-01",
       "brandModel": "Lenovo",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.51.10.3",
-          "ip": "10.10.60.2",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://hyp-1:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Proxmox Slave - Replica Server di Produzione",
@@ -5278,23 +5465,32 @@
           "status": "active"
         }
       ],
-      "notes": "IP: 151.13.131.13: REPLICA DI SRV-PROD-02",
-      "location": "Sala Server"
+      "notes": "IP: 151.13.131.13: REPLICA DI SRV-PROD-02"
     },
     {
       "id": 79,
       "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 4,
       "isRear": false,
+      "rear": false,
       "name": "SRV-PROD-02",
       "brandModel": "Lenovo",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.51.10.2",
-          "ip": "10.10.60.1",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://hyp-prod:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Proxmox Master - Server di Produzione",
@@ -5310,23 +5506,32 @@
           "status": "active"
         }
       ],
-      "notes": "IP: 151.13.131.13: SERVER MASTER",
-      "location": "Sala Server"
+      "notes": "IP: 151.13.131.13: SERVER MASTER"
     },
     {
       "id": 80,
       "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 3,
       "isRear": false,
+      "rear": false,
       "name": "SRV-VM-08",
       "brandModel": "Fujitsu",
       "type": "server",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "151.13.131.155",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://hyp-151:8006/#v1:0:18:4:::::::",
+          "label": ""
         }
       ],
       "service": "Hypervisor per tutti i server su rete 151.13.131.0/24",
@@ -5342,23 +5547,32 @@
           "status": "active"
         }
       ],
-      "notes": "Hypervisor per tutti i server su rete 151.13.131.0/24",
-      "location": "Sala Server"
+      "notes": "Hypervisor per tutti i server su rete 151.13.131.0/24"
     },
     {
       "id": 81,
       "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 97,
       "isRear": true,
+      "rear": true,
       "name": "Quorum Device",
       "brandModel": "Raspberry Pi",
       "type": "others",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.51.10.100",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.51.10.100",
+          "label": "ssh"
         }
       ],
       "service": "QDevice per Proxmox SRV-PROD*",
@@ -5369,23 +5583,32 @@
           "status": "active"
         }
       ],
-      "notes": "Quorum per Proxmox SRV-PROD*",
-      "location": "Sala Server"
+      "notes": "Quorum per Proxmox SRV-PROD*"
     },
     {
       "id": 82,
       "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 99,
       "isRear": true,
-      "name": "Imola6",
+      "rear": true,
+      "name": "IRA-Nord07",
       "brandModel": "Imola6",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "10.10.254.114",
           "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.114",
+          "label": "ssh"
         }
       ],
       "service": "Router MICROLYS-GATEWAY",
@@ -5446,23 +5669,32 @@
           "status": "active"
         }
       ],
-      "notes": "MICROLYS-GATEWAY",
-      "location": "Sala Server"
+      "notes": "MICROLYS-GATEWAY"
     },
     {
       "id": 83,
       "rackId": "Rack-151",
+      "rack": "Rack-151",
       "order": 98,
       "isRear": true,
+      "rear": true,
       "name": "Prod-CLS-01",
       "brandModel": "Imola6 0272-LX-IKW",
       "type": "router",
       "status": "active",
+      "location": "Sala Server",
       "addresses": [
         {
           "network": "151.13.131.13",
-          "ip": "10.51.10.1",
+          "ip": "",
           "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "ssh -p 22022 root@151.13.131.13",
+          "label": "ssh"
         }
       ],
       "service": "Router VPN",
@@ -5498,8 +5730,7 @@
           "status": "active"
         }
       ],
-      "notes": "Router per Collegamento VPN (Magazzino via Torino)",
-      "location": "Sala Server"
+      "notes": "Router per Collegamento VPN (Magazzino via Torino)"
     },
     {
       "id": 84,
@@ -5635,17 +5866,21 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 85,
       "rackId": "Endpoints",
+      "rack": "Endpoints",
       "order": 0,
       "isRear": false,
+      "rear": false,
       "name": "Access Point Mesh (Nord - QA/ICT)",
       "brandModel": "AXE5700 TEnda Wholw Home Mesh Wi-Fi 6",
       "type": "wifi",
       "status": "active",
+      "location": "Q.A.",
       "addresses": [
         {
           "network": "10.10.100.144",
@@ -5653,16 +5888,102 @@
           "vlan": null
         }
       ],
+      "links": [
+        {
+          "type": "https",
+          "url": "https://10.10.100.146/login.html?0.8816980169535140",
+          "label": ""
+        }
+      ],
       "service": "Tiesse-wifi",
+      "ports": [],
+      "notes": ""
+    },
+    {
+      "id": 118,
+      "rackId": "Rack-Ufficio-12",
+      "rack": "Rack-Ufficio-12",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "Imola6",
+      "brandModel": "Tiesse 5272",
+      "type": "router",
+      "status": "active",
+      "location": "ICT",
+      "addresses": [
+        {
+          "network": "2.2.2.2",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [],
+      "service": "Router Area",
       "ports": [
         {
           "name": "eth01",
           "type": "eth",
           "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth09",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth10",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth11",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth12",
+          "type": "eth",
+          "status": "active"
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "_isExternal": true
     }
   ],
   "connections": [
@@ -6964,7 +7285,7 @@
     {
       "id": "2",
       "name": "2",
-      "nickname": "",
+      "nickname": "F.Montefiori",
       "type": "office",
       "area": 64484,
       "capacity": 10,
@@ -6995,7 +7316,7 @@
     {
       "id": "3",
       "name": "3",
-      "nickname": "",
+      "nickname": "L.Ciofalo",
       "type": "office",
       "area": 56181,
       "capacity": 10,
@@ -7026,7 +7347,7 @@
     {
       "id": "4",
       "name": "4",
-      "nickname": "",
+      "nickname": "L.Lucrezia",
       "type": "office",
       "area": 78300,
       "capacity": 10,
@@ -7057,7 +7378,7 @@
     {
       "id": "5",
       "name": "5",
-      "nickname": "",
+      "nickname": "Sala Riunioni",
       "type": "office",
       "area": 90480,
       "capacity": 10,
@@ -7088,7 +7409,7 @@
     {
       "id": "6",
       "name": "6",
-      "nickname": "",
+      "nickname": "E.Saroglia/E.Zanellato/F.Lucrezia",
       "type": "office",
       "area": 90896,
       "capacity": 10,
@@ -7119,7 +7440,7 @@
     {
       "id": "7",
       "name": "7",
-      "nickname": "",
+      "nickname": "O.Miraglio",
       "type": "office",
       "area": 69542,
       "capacity": 10,
@@ -7181,7 +7502,7 @@
     {
       "id": "19",
       "name": "19",
-      "nickname": "",
+      "nickname": "Reception",
       "type": "office",
       "area": 18404,
       "capacity": 10,
@@ -7212,7 +7533,7 @@
     {
       "id": "17",
       "name": "17",
-      "nickname": "",
+      "nickname": "G.Deiaco",
       "type": "office",
       "area": 62964,
       "capacity": 10,
@@ -7243,7 +7564,7 @@
     {
       "id": "15",
       "name": "15",
-      "nickname": "",
+      "nickname": "Etichettatura",
       "type": "office",
       "area": 149725,
       "capacity": 10,
@@ -7274,7 +7595,7 @@
     {
       "id": "14",
       "name": "14",
-      "nickname": "",
+      "nickname": "S.Rotondo",
       "type": "office",
       "area": 64310,
       "capacity": 10,
@@ -7305,7 +7626,7 @@
     {
       "id": "10",
       "name": "10",
-      "nickname": "",
+      "nickname": "C.Frigiolini",
       "type": "office",
       "area": 49400,
       "capacity": 10,
@@ -7336,7 +7657,7 @@
     {
       "id": "11",
       "name": "11",
-      "nickname": "",
+      "nickname": "E. Avanzi",
       "type": "office",
       "area": 36778,
       "capacity": 10,
@@ -7367,7 +7688,7 @@
     {
       "id": "12",
       "name": "12",
-      "nickname": "Ufficio 12",
+      "nickname": "ICT",
       "type": "office",
       "area": 69402,
       "capacity": 10,
@@ -7398,7 +7719,7 @@
     {
       "id": "8",
       "name": "8",
-      "nickname": "",
+      "nickname": "BIGONE/L.Corfiati/R.Belletti",
       "type": "office",
       "area": 287216,
       "capacity": 10,
@@ -7437,7 +7758,7 @@
     {
       "id": "18",
       "name": "18",
-      "nickname": "",
+      "nickname": "Sala Riunioni II",
       "type": "office",
       "area": 70042,
       "capacity": 10,
@@ -7476,7 +7797,7 @@
     {
       "id": "16",
       "name": "16",
-      "nickname": "",
+      "nickname": "Hardware",
       "type": "office",
       "area": 286242,
       "capacity": 10,
@@ -7515,7 +7836,7 @@
     {
       "id": "13",
       "name": "13",
-      "nickname": "",
+      "nickname": "Riparazioni",
       "type": "office",
       "area": 404915,
       "capacity": 10,
@@ -7558,7 +7879,7 @@
     {
       "id": "9",
       "name": "9",
-      "nickname": "",
+      "nickname": "Q.A.",
       "type": "office",
       "area": 490253,
       "capacity": 10,
@@ -7603,5 +7924,222 @@
       "floor": 0
     }
   ],
-  "nextDeviceId": 117
+  "sites": [
+    {
+      "id": "main",
+      "name": "Sede Ivrea",
+      "isDefault": true
+    }
+  ],
+  "locations": [
+    {
+      "id": "loc-01",
+      "siteId": "main",
+      "code": "01",
+      "name": "Amministrazione",
+      "type": "mapped",
+      "roomRef": "1",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-02",
+      "siteId": "main",
+      "code": "02",
+      "name": "F.Montefiori",
+      "type": "mapped",
+      "roomRef": "2",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-03",
+      "siteId": "main",
+      "code": "03",
+      "name": "L.Ciofalo",
+      "type": "mapped",
+      "roomRef": "3",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-04",
+      "siteId": "main",
+      "code": "04",
+      "name": "L.Lucrezia",
+      "type": "mapped",
+      "roomRef": "4",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-05",
+      "siteId": "main",
+      "code": "05",
+      "name": "Sala Riunioni",
+      "type": "mapped",
+      "roomRef": "5",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-06",
+      "siteId": "main",
+      "code": "06",
+      "name": "E.Saroglia/E.Zanellato/F.Lucrezia",
+      "type": "mapped",
+      "roomRef": "6",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-07",
+      "siteId": "main",
+      "code": "07",
+      "name": "O.Miraglio",
+      "type": "mapped",
+      "roomRef": "7",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-00",
+      "siteId": "main",
+      "code": "00",
+      "name": "Sala Server",
+      "type": "mapped",
+      "roomRef": "0",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-19",
+      "siteId": "main",
+      "code": "19",
+      "name": "Reception",
+      "type": "mapped",
+      "roomRef": "19",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-17",
+      "siteId": "main",
+      "code": "17",
+      "name": "G.Deiaco",
+      "type": "mapped",
+      "roomRef": "17",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-15",
+      "siteId": "main",
+      "code": "15",
+      "name": "Etichettatura",
+      "type": "mapped",
+      "roomRef": "15",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-14",
+      "siteId": "main",
+      "code": "14",
+      "name": "S.Rotondo",
+      "type": "mapped",
+      "roomRef": "14",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-10",
+      "siteId": "main",
+      "code": "10",
+      "name": "C.Frigiolini",
+      "type": "mapped",
+      "roomRef": "10",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-11",
+      "siteId": "main",
+      "code": "11",
+      "name": "E. Avanzi",
+      "type": "mapped",
+      "roomRef": "11",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-12",
+      "siteId": "main",
+      "code": "12",
+      "name": "ICT",
+      "type": "mapped",
+      "roomRef": "12",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-08",
+      "siteId": "main",
+      "code": "08",
+      "name": "BIGONE/L.Corfiati/R.Belletti",
+      "type": "mapped",
+      "roomRef": "8",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-18",
+      "siteId": "main",
+      "code": "18",
+      "name": "Sala Riunioni II",
+      "type": "mapped",
+      "roomRef": "18",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-16",
+      "siteId": "main",
+      "code": "16",
+      "name": "Hardware",
+      "type": "mapped",
+      "roomRef": "16",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-13",
+      "siteId": "main",
+      "code": "13",
+      "name": "Riparazioni",
+      "type": "mapped",
+      "roomRef": "13",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-09",
+      "siteId": "main",
+      "code": "09",
+      "name": "Q.A.",
+      "type": "mapped",
+      "roomRef": "9",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-21",
+      "siteId": "main",
+      "code": "21",
+      "name": "Torino",
+      "type": "custom",
+      "roomRef": null,
+      "color": "#f97316"
+    },
+    {
+      "id": "loc-22",
+      "siteId": "main",
+      "code": "22",
+      "name": "Roma",
+      "type": "custom",
+      "roomRef": null,
+      "color": "#f97316"
+    },
+    {
+      "id": "loc-23",
+      "siteId": "main",
+      "code": "23",
+      "name": "Avezzano",
+      "type": "custom",
+      "roomRef": null,
+      "color": "#f97316"
+    }
+  ],
+  "nextDeviceId": 120,
+  "nextLocationId": 24
 }

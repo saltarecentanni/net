@@ -2,9 +2,48 @@
 
 Applicazione web di gestione e documentazione della rete aziendale per deploy in intranet.
 
-**Versione:** 3.5.001  
+**Versione:** 3.5.010  
 **Data:** 2 Febbraio 2026  
 **Ambiente:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
+
+---
+
+## 🆕 Novità della Versione 3.5.010
+
+### 📶 WiFi AP senza Warning (v3.5.010)
+| Feature | Descrizione |
+|---------|-------------|
+| **Dispositivi Wireless** | WiFi AP (`wifi`, `router_wifi`, `access_point`) non mostrano più ⚠ warning |
+| **Icona Dedicata** | 📶 Wireless in cyan/turquese invece di ⚠ arancione |
+| **Background** | Sfondo cyan chiaro per dispositivi wireless senza connessioni |
+| **Legenda Aggiornata** | Nuova icona 📶 wireless nella legenda dispositivi |
+
+### 🔧 Audit del Codice (v3.5.009-010)
+| Fix | Descrizione |
+|-----|-------------|
+| **CURRENT_VERSION** | Corretto da 3.5.008 a 3.5.010 |
+| **SUPPORTED_VERSIONS** | Aggiunte versioni 3.5.009 e 3.5.010 |
+| **Cache Busters** | Aggiornati tutti i ?v= nel HTML |
+| **Variabili Non Usate** | Rimossa variabile `algorithm` inutilizzata |
+| **Moduli Inesistenti** | Corretto NetworkTopology → SVGTopology |
+| **Metodi Errati** | Corretto Auth.isAuthenticated → Auth.isLoggedIn |
+| **Console.log** | Sostituiti con Debug.log/warn/error in editlock.js e auth.js |
+
+### 🗺️ Floor Plan Improvements (v3.5.007-008)
+| Feature | Descrizione |
+|---------|-------------|
+| **Legenda Custom Locations** | Legenda a sinistra del Floor Plan con locations personalizzate |
+| **Tooltips SVG** | Tooltip native SVG sulle stanze mappate (nome + conteggio dispositivi) |
+| **Icona Custom Locations** | 🪧 (Placard) per Custom Locations, 📍 per Mapped Rooms |
+
+### 📍 Sistema Locations Persistente (v3.5.005-008)
+| Feature | Descrizione |
+|---------|-------------|
+| **appState.sites[]** | Array di siti aziendali (es. "Sede Ivrea") |
+| **appState.locations[]** | Locations persistenti con id, code, name, type, roomRef |
+| **Migrazione Automatica** | migrateToNewLocationSystem() converte dati esistenti |
+| **Location Manager** | Gestione completa: crea, rinomina, elimina locations |
+| **Export/Import** | Tutti i nuovi campi inclusi in export/import JSON |
 
 ---
 

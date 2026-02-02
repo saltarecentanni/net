@@ -1,23 +1,33 @@
-# 🏢 Room Data Structure (Struttura Dati Stanze)
+# 🏢 Room & Location Data Structure
 
-**Version:** 3.4.2  
-**Date:** February 1, 2026
+**Version:** 3.5.010  
+**Date:** February 2, 2026
 
 ---
 
 ## 1. Overview
 
+Il sistema di gestione delle posizioni si divide in due livelli:
+
+### 1.1 Rooms (Floor Plan)
 Le stanze (rooms) nel Floor Plan permettono di:
 - Mappare aree fisiche sulla pianta
 - Associare dispositivi alle stanze
 - Visualizzare statistiche per stanza
 - Gestire nickname per identificazione facile
 
+### 1.2 Locations (v3.5.005+)
+Il sistema locations permette di:
+- **Mapped Locations** (0-19): Collegati alle stanze del Floor Plan
+- **Custom Locations** (21+): Locations personalizzate non mappate
+- Persistenza indipendente delle locations
+- Gestione tramite Location Manager
+
 ---
 
 ## 2. Struttura Dati Completa
 
-### 2.1 Room Object
+### 2.1 Room Object (Floor Plan Geometry)
 
 ```json
 {
@@ -53,6 +63,40 @@ Le stanze (rooms) nel Floor Plan permettono di:
 | `color` | string | ❌ | Colore RGBA del poligono |
 | `polygon` | array | ❌ | Coordinate vertici [{x,y}] |
 | `notes` | string | ❌ | Note aggiuntive |
+
+### 2.3 Location Object (v3.5.005+)
+
+```json
+{
+  "id": 21,
+  "siteId": null,
+  "code": "MAG-ESTERNO",
+  "name": "Magazzino Esterno",
+  "type": "warehouse",
+  "roomRef": null,
+  "color": "#34d399"
+}
+```
+
+| Campo | Tipo | Obbligatorio | Descrizione |
+|-------|------|--------------|-------------|
+| `id` | number | ✅ | ID univoco (0-19=mapped, 21+=custom) |
+| `siteId` | number | ❌ | Riferimento sito (futuro) |
+| `code` | string | ✅ | Codice breve univoco |
+| `name` | string | ✅ | Nome descrittivo |
+| `type` | string | ❌ | Tipo location |
+| `roomRef` | string | ❌ | Riferimento room.id se mapped |
+| `color` | string | ❌ | Colore hex personalizzato |
+
+### 2.4 Differenza Rooms vs Locations
+
+| Aspetto | Rooms | Locations |
+|---------|-------|-----------|
+| **Scopo** | Geometria Floor Plan | Organizzazione logica |
+| **ID Range** | String (qualsiasi) | 0-19 mapped, 21+ custom |
+| **Persistenza** | `appState.rooms` | `appState.locations` |
+| **Visuale** | Poligoni su pianta | Dropdown/filtri |
+| **Editing** | Floor Plan Mode | Location Manager |
 
 ---
 
@@ -356,7 +400,75 @@ Usa `/draw-rooms-v2.html` per creare poligoni:
 
 ---
 
-## 11. Statistiche Attuali
+## 11. Location System (v3.5.005+)
+
+### 11.1 Migrazione Automatica
+
+All'avvio, il sistema verifica se esistono locations. Se assenti, esegue migrazione:
+
+```javascript
+function migrateToNewLocationSystem() {
+    if (!appState.locations) appState.locations = [];
+    if (appState.locations.length > 0) return;
+    
+    // Crea locations da rooms esistenti (ID 0-19)
+    if (appState.rooms && appState.rooms.length > 0) {
+        appState.rooms.forEach(function(room, index) {
+            if (index < 20) {
+                appState.locations.push({
+                    id: index,
+                    siteId: null,
+                    code: room.name || room.id,
+                    name: room.nickname || room.name || 'Room ' + room.id,
+                    type: room.type || null,
+                    roomRef: room.id,
+                    color: null
+                });
+            }
+        });
+    }
+    
+    // Imposta nextLocationId per custom locations
+    if (!appState.nextLocationId) {
+        appState.nextLocationId = 21;
+    }
+}
+```
+
+### 11.2 Location Manager
+
+```javascript
+var LocationFilter = {
+    init: function() { /* Setup dropdown */ },
+    getLocations: function() { return appState.locations || []; },
+    filterDevices: function(locationId) { /* Filtra devices per location */ },
+    syncWithRooms: function() { /* Sincronizza mapped locations */ }
+};
+```
+
+### 11.3 Custom Locations
+
+Le custom locations (ID ≥ 21) permettono di creare posizioni non mappate nel Floor Plan:
+
+```javascript
+function createCustomLocation(name, code, type) {
+    var loc = {
+        id: appState.nextLocationId++,
+        siteId: null,
+        code: code,
+        name: name,
+        type: type || null,
+        roomRef: null,
+        color: null
+    };
+    appState.locations.push(loc);
+    return loc;
+}
+```
+
+---
+
+## 13. Statistiche Attuali
 
 | Statistica | Valore |
 |------------|--------|
@@ -375,7 +487,7 @@ Usa `/draw-rooms-v2.html` per creare poligoni:
 
 ---
 
-## 12. Esempi
+## 14. Esempi
 
 ### 12.1 Creare una Nuova Stanza
 

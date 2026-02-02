@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Authentication Module
- * Version: 3.5.001
+ * Version: 3.5.010
  * 
  * Simple authentication for edit mode:
  * - Public: View, Print, Export
@@ -30,7 +30,7 @@ var Auth = (function() {
                 return isLoggedIn;
             })
             .catch(function(err) {
-                console.warn('Auth check failed:', err);
+                Debug.warn('Auth check failed:', err);
                 isLoggedIn = false;
                 currentUser = null;
                 return false;
@@ -147,7 +147,7 @@ var Auth = (function() {
                 return data;
             })
             .catch(function(err) {
-                console.error('Logout failed:', err);
+                Debug.error('Logout failed:', err);
                 // Force local logout anyway
                 isLoggedIn = false;
                 currentUser = null;

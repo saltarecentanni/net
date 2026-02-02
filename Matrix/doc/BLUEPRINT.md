@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.5.001  
+**Version:** 3.5.010  
 **Date:** February 2, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
@@ -22,8 +22,44 @@ A web-based network infrastructure management system for enterprise environments
 - Multi-user access via local network with authentication
 - Complete data import/export including rooms
 - Real-time online users indicator
+- Persistent location management system (sites, mapped rooms, custom locations)
 
-### 1.3 What's New in v3.5.001
+### 1.3 What's New in v3.5.010
+
+#### 📶 WiFi AP Without Warning (v3.5.010)
+| Feature | Description |
+|---------|-------------|
+| **Wireless Devices** | `wifi`, `router_wifi`, `access_point` no longer show ⚠ warning |
+| **Dedicated Icon** | 📶 Wireless in cyan instead of orange ⚠ |
+| **Background** | Cyan light background for wireless devices without connections |
+| **Updated Legend** | New 📶 wireless icon in devices legend |
+
+#### 🔧 Code Audit Fixes (v3.5.009-010)
+| Fix | Description |
+|-----|-------------|
+| **CURRENT_VERSION** | Fixed from 3.5.008 to 3.5.010 |
+| **SUPPORTED_VERSIONS** | Added 3.5.009 and 3.5.010 |
+| **Cache Busters** | Updated all ?v= in HTML |
+| **Unused Variables** | Removed unused `algorithm` variable |
+| **Non-existent Modules** | Fixed NetworkTopology → SVGTopology |
+| **Wrong Methods** | Fixed Auth.isAuthenticated → Auth.isLoggedIn |
+
+#### 🗺️ Floor Plan Improvements (v3.5.007-008)
+| Feature | Description |
+|---------|-------------|
+| **Custom Locations Legend** | Left-side legend with custom locations |
+| **SVG Tooltips** | Native SVG tooltips on mapped rooms |
+| **Custom Location Icon** | 🪧 for Custom Locations, 📍 for Mapped Rooms |
+
+#### 📍 Persistent Location System (v3.5.005-008)
+| Feature | Description |
+|---------|-------------|
+| **appState.sites[]** | Company sites array |
+| **appState.locations[]** | Persistent locations with id, code, name, type |
+| **Auto Migration** | migrateToNewLocationSystem() converts existing data |
+| **Location Manager** | Full management: create, rename, delete |
+
+### 1.4 What's New in v3.5.001
 
 #### ✨ Online Users Indicator (v3.5.001)
 | Feature | Description |
@@ -72,7 +108,7 @@ A web-based network infrastructure management system for enterprise environments
 
 ### 1.4 What's New in v3.4.3
 
-#### 🔒 Multi-User Edit Lock System (v3.4.3)
+#### 🔒 Multi-User Edit Lock System (v3.5.010)
 | Enhancement | Description |
 |-------------|-------------|
 | **Edit Lock API** | `api/editlock.php` - Server-side lock management |
@@ -82,7 +118,7 @@ A web-based network infrastructure management system for enterprise environments
 | **Conflict Prevention** | Shows warning when another user is editing |
 | **Auto-Release** | Lock released on logout or page close |
 
-#### 💾 Automated Backup System (v3.4.3)
+#### 💾 Automated Backup System (v3.5.010)
 | Enhancement | Description |
 |-------------|-------------|
 | **backup.sh** | Script with retention policy |
@@ -90,7 +126,7 @@ A web-based network infrastructure management system for enterprise environments
 | **Monthly Backup** | Day 1 03:00 - 12 months retention |
 | **Cron Integration** | Automatic scheduling via crontab |
 
-#### 🔐 Security Hardening (v3.4.3)
+#### 🔐 Security Hardening (v3.5.010)
 | Enhancement | Description |
 |-------------|-------------|
 | **No Hardcoded Passwords** | Removed from all source files |
@@ -169,12 +205,12 @@ A web-based network infrastructure management system for enterprise environments
 
 ```
 Matrix/
-├── index.html              # Main page (v3.4.x)
+├── index.html              # Main page (v3.5.x)
 │                           # - Structural HTML with 7 tabs
 │                           # - CSS Variables integration
 │                           # - SweetAlert2 modals
 │
-├── server.js               # Node.js server (v3.4.x)
+├── server.js               # Node.js server (v3.5.x)
 │                           # - No external dependencies
 │                           # - Port 3000
 │                           # - REST API for data persistence
@@ -192,7 +228,7 @@ Matrix/
 │
 ├── api/
 │   ├── auth.php            # Authentication API (PHP)
-│   └── editlock.php        # Edit Lock API (v3.4.3)
+│   └── editlock.php        # Edit Lock API (v3.5.010)
 │                           # - acquire: get editing lock
 │                           # - release: release lock
 │                           # - heartbeat: keep lock alive
@@ -205,7 +241,7 @@ Matrix/
 │       ├── tailwind.min.js # Tailwind CSS
 │       └── xlsx.full.min.js # SheetJS XLSX
 │
-├── backup/                 # Automated backup system (v3.4.3)
+├── backup/                 # Automated backup system (v3.5.010)
 │   ├── backup.sh           # Backup script with retention
 │   ├── weekly/             # Weekly backups (4 max)
 │   └── monthly/            # Monthly backups (12 max)
@@ -226,39 +262,39 @@ Matrix/
 │   └── ROOM_STRUCTURE.md   # Room data structure documentation
 │
 └── js/
-    ├── app.js              # Main logic (v3.4.x)
+    ├── app.js              # Main logic (v3.5.x)
     │                       # - Global state (appState)
     │                       # - Device/Connection CRUD
     │                       # - Room-device association helpers
     │                       # - Import/Export with rooms
     │                       # - Toast notification system
     │
-    ├── ui-updates.js       # UI Rendering (v3.4.x)
+    ├── ui-updates.js       # UI Rendering (v3.5.x)
     │                       # - Device list (cards/table)
     │                       # - SVG Matrix with zoom/pan
     │                       # - Excel export (4 sheets)
     │                       # - XSS protection
     │
-    ├── features.js         # Extended Features (v3.4.x)
+    ├── features.js         # Extended Features (v3.5.x)
     │                       # - ActivityLog module
     │                       # - SVGTopology module (Cisco icons)
     │                       # - DrawioExport module
     │                       # - Topology legend modal
     │
-    ├── floorplan.js        # Floor Plan module (v3.4.x)
+    ├── floorplan.js        # Floor Plan module (v3.5.x)
     │                       # - Room rendering on SVG
     │                       # - Room CRUD operations
     │                       # - Device-room associations
     │                       # - Room info modal (showRoomInfo)
     │                       # - PNG export
     │
-    ├── editlock.js         # Edit Lock module (v3.4.3)
+    ├── editlock.js         # Edit Lock module (v3.5.010)
     │                       # - EditLock.acquire()
     │                       # - EditLock.release()
     │                       # - EditLock.heartbeat()
     │                       # - Conflict detection modal
     │
-    └── auth.js             # Authentication module (v3.4.x)
+    └── auth.js             # Authentication module (v3.5.x)
                             # - Login/logout functions
                             # - Session management
                             # - EditLock integration
@@ -268,16 +304,16 @@ Matrix/
 
 | File | Version | Description |
 |------|---------|-------------|
-| index.html | 3.4.3 | Main HTML with 7 tabs |
-| server.js | 3.4.3 | Node.js REST server with auth |
-| app.js | 3.4.3 | Core logic, CRUD, import/export |
-| ui-updates.js | 3.4.3 | UI rendering, SVG Matrix |
-| features.js | 3.4.3 | Extended features, topology |
-| floorplan.js | 3.4.3 | Floor plan and room management |
-| editlock.js | 3.4.3 | Multi-user edit lock module |
-| editlock.php | 3.4.3 | Edit lock API |
+| index.html | 3.5.010 | Main HTML with 7 tabs |
+| server.js | 3.5.010 | Node.js REST server with auth |
+| app.js | 3.5.010 | Core logic, CRUD, import/export |
+| ui-updates.js | 3.5.010 | UI rendering, SVG Matrix |
+| features.js | 3.5.010 | Extended features, topology |
+| floorplan.js | 3.5.010 | Floor plan and room management |
+| editlock.js | 3.5.010 | Multi-user edit lock module |
+| editlock.php | 3.5.010 | Edit lock API |
 | backup.sh | 3.4.3 | Automated backup script |
-| auth.js | 3.4.3 | Authentication + EditLock |
+| auth.js | 3.5.010 | Authentication + EditLock |
 | styles.css | 3.4.3 | CSS Variables |
 
 ---
@@ -291,7 +327,10 @@ Matrix/
   "devices": [...],
   "connections": [...],
   "rooms": [...],
-  "nextDeviceId": 117
+  "sites": [...],
+  "locations": [...],
+  "nextDeviceId": 120,
+  "nextLocationId": 24
 }
 ```
 
@@ -301,8 +340,11 @@ Matrix/
 var appState = {
     devices: [],                    // Array of device objects
     connections: [],                // Array of connection objects
-    rooms: [],                      // Array of room objects
-    nextDeviceId: 1,                // Auto-increment ID counter
+    rooms: [],                      // Floor plan geometry only
+    sites: [],                      // Company sites/branches
+    locations: [],                  // All locations (mapped + custom)
+    nextDeviceId: 1,                // Auto-increment device ID counter
+    nextLocationId: 21,             // Custom locations start at 21
     connSort: [{ key: 'id', asc: true }],  // Multi-level sorting
     deviceSort: { key: 'rack', asc: true },
     deviceView: 'table',            // 'table' or 'cards'

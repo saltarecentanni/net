@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.5.001
+ * Version: 3.5.010
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -167,7 +167,7 @@ function updateDeviceFilterBar() {
     }
     
     // Legend
-    html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> not connected · <span class="text-blue-500 font-bold">🌐</span> link</span>';
+    html += '<span class="text-xs text-slate-500 ml-auto"><span class="text-red-500 font-bold">✗</span> disabled · <span class="text-amber-600 font-bold">↩</span> rear · <span class="text-orange-500 font-bold">⚠</span> not connected · <span class="text-cyan-500 font-bold">📶</span> wireless · <span class="text-blue-500 font-bold">🌐</span> link</span>';
     
     html += '</div>';
     
@@ -239,8 +239,10 @@ function updateDevicesListCards(cont) {
                 totalConnections++;
             }
         }
-        var noConnectionsClass = totalConnections === 0 ? 'border-orange-400 border-2 bg-orange-50' : 'bg-white';
-        var noConnectionsWarning = totalConnections === 0 ? '<div class="text-xs mt-1 text-orange-600 font-semibold">⚠ No connections</div>' : '';
+        // WiFi devices don't require physical connections
+        var isWirelessDevice = ['wifi', 'router_wifi', 'access_point'].indexOf(d.type) !== -1;
+        var noConnectionsClass = (totalConnections === 0 && !isWirelessDevice) ? 'border-orange-400 border-2 bg-orange-50' : (totalConnections === 0 && isWirelessDevice) ? 'border-cyan-400 border-2 bg-cyan-50' : 'bg-white';
+        var noConnectionsWarning = totalConnections === 0 ? (isWirelessDevice ? '<div class="text-xs mt-1 text-cyan-600 font-semibold">📶 Wireless</div>' : '<div class="text-xs mt-1 text-orange-600 font-semibold">⚠ No connections</div>') : '';
 
         var addressText = '';
         // Support both addresses[] array (new) and ip1-4 fields (legacy)
@@ -343,6 +345,9 @@ function updateDevicesListTable(cont) {
             }
         }
 
+        // WiFi devices don't require physical connections
+        var isWirelessDevice = ['wifi', 'router_wifi', 'access_point'].indexOf(d.type) !== -1;
+
         var rackColor = getRackColor(d.rackId);
         var disabled = d.status === 'disabled';
         var statusBadge = disabled 
@@ -362,7 +367,7 @@ function updateDevicesListTable(cont) {
         }
 
         var rowClass = i % 2 === 0 ? 'bg-white' : 'bg-slate-50';
-        var warningClass = totalConnections === 0 ? 'bg-orange-50' : rowClass;
+        var warningClass = (totalConnections === 0 && !isWirelessDevice) ? 'bg-orange-50' : (totalConnections === 0 && isWirelessDevice) ? 'bg-cyan-50' : rowClass;
 
         // Escape all user-provided content for XSS protection
         var safeLocation = escapeHtml(d.location || '');
@@ -384,7 +389,7 @@ function updateDevicesListTable(cont) {
         html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeAddressText + '">' + (safeAddressText || '-') + '</td>';
         html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeService + '">' + (safeService || '-') + '</td>';
         html += '<td class="p-2 text-center"><span class="text-slate-700">' + d.ports.length + '</span> <span class="text-slate-400">(' + usedPorts + ')</span></td>';
-        html += '<td class="p-2 text-center">' + (totalConnections === 0 ? '<span class="text-orange-600 font-semibold">0 ⚠</span>' : '<span class="text-slate-700">' + totalConnections + '</span>') + '</td>';
+        html += '<td class="p-2 text-center">' + (totalConnections === 0 ? (isWirelessDevice ? '<span class="text-cyan-600 font-semibold">📶</span>' : '<span class="text-orange-600 font-semibold">0 ⚠</span>') : '<span class="text-slate-700">' + totalConnections + '</span>') + '</td>';
         // Links column - shows label if defined, otherwise URL
         var linksHtml = (typeof DeviceLinks !== 'undefined' && d.links && d.links.length) ? DeviceLinks.renderLinks(d.links) : '-';
         html += '<td class="p-2 text-center">' + linksHtml + '</td>';
@@ -2393,6 +2398,24 @@ function exportExcel() {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(roomsData), 'Rooms');
         } else {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{Message: 'No rooms configured'}]), 'Rooms');
+        }
+
+        // Add Locations sheet (v3.6.0)
+        if (appState.locations && appState.locations.length > 0) {
+            var locsData = [];
+            for (var li = 0; li < appState.locations.length; li++) {
+                var loc = appState.locations[li];
+                var locDeviceCount = appState.devices.filter(function(d) { return d.location === loc.name; }).length;
+                locsData.push({
+                    'Code': loc.code,
+                    'Name': loc.name,
+                    'Type': loc.type,
+                    'Site': loc.siteId || 'main',
+                    'Room Ref': loc.roomRef || '',
+                    'Devices': locDeviceCount
+                });
+            }
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(locsData), 'Locations');
         }
 
         XLSX.writeFile(wb, 'network_manager.xlsx');

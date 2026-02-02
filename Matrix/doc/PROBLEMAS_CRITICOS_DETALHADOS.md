@@ -1,4 +1,4 @@
-# PROBLEMAS CRÍTICOS ENCONTRADOS - TIESSE MATRIX v3.4.2
+# PROBLEMAS CRÍTICOS ENCONTRADOS - TIESSE MATRIX v3.5.010
 
 ## 1️⃣ RACE CONDITION - Escrita Simultânea
 
@@ -346,7 +346,7 @@ importData(file) {
 // Export de v3.2.0
 { "devices": [...], "version": "3.2.0" }
 
-// Import em v3.4.2
+// Import em v3.5.010
 importData(v3.2.0_file);
 // ✗ Não valida compatibilidade de versão
 // Pode aceitar schema antigo incompatível

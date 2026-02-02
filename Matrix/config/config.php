@@ -1,7 +1,7 @@
 <?php
 /**
  * TIESSE Matrix Network - Configuration
- * Version: 3.4.2
+ * Version: 3.5.010
  */
 
 // Prevent direct access

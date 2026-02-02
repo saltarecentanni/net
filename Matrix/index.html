@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.5.001">
+    <meta name="app-version" content="3.5.010">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%231e40af'/><circle cx='25' cy='25' r='8' fill='%2360a5fa'/><circle cx='75' cy='25' r='8' fill='%2360a5fa'/><circle cx='25' cy='75' r='8' fill='%2360a5fa'/><circle cx='75' cy='75' r='8' fill='%2360a5fa'/><circle cx='50' cy='50' r='10' fill='%23fbbf24'/><line x1='25' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='25' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/></svg>">
@@ -52,7 +52,7 @@
                     </div>
                     <div class="text-right text-xs text-slate-500">
                         <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
-                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.5.001</span></div>
+                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.5.010</span></div>
                     </div>
                 </div>
             </div>
@@ -586,10 +586,18 @@
                             <p>Loading floor plan...</p>
                         </div>
                     </div>
-                    <!-- Floating Room Legend (Vertical) -->
+                    <!-- Floating Custom Locations Legend (Left Side) -->
+                    <div id="customLocationsLegend" style="position: absolute; top: 12px; left: 12px; max-height: calc(100% - 24px); overflow-y: auto; background: rgba(255,255,255,0.92); backdrop-filter: blur(4px); border-radius: 10px; padding: 10px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 140px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                            <span style="font-size: 11px; font-weight: 700; color: #059669;">🪧 Custom Locations</span>
+                            <button onclick="toggleCustomLocationsLegend()" id="customLocationsToggle" style="font-size: 9px; color: #059669; background: none; border: none; cursor: pointer; opacity: 0.7;">▼</button>
+                        </div>
+                        <div id="customLocationsContent" style="display: flex; flex-direction: column; gap: 3px;"></div>
+                    </div>
+                    <!-- Floating Room Legend (Right Side) -->
                     <div id="roomLegend" style="position: absolute; top: 12px; right: 12px; max-height: calc(100% - 24px); overflow-y: auto; background: rgba(255,255,255,0.92); backdrop-filter: blur(4px); border-radius: 10px; padding: 10px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 140px;">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-                            <span style="font-size: 11px; font-weight: 700; color: #7c3aed;">📍 Rooms</span>
+                            <span style="font-size: 11px; font-weight: 700; color: #7c3aed;">📍 Mapped Rooms</span>
                             <button onclick="toggleRoomLegend()" id="roomLegendToggle" style="font-size: 9px; color: #7c3aed; background: none; border: none; cursor: pointer; opacity: 0.7;">▼</button>
                         </div>
                         <div id="roomLegendContent" style="display: flex; flex-direction: column; gap: 3px;"></div>
@@ -2054,8 +2062,8 @@ Device-C  │          │   🟢     │    -     │</pre>
 
                             <!-- NEW v3.4.5: Data Integrity Section -->
                             <div class="bg-green-100 rounded-lg p-4 border border-green-300">
-                                <h3 class="font-bold text-green-900 mb-3">🔐 Integrità Dati (v3.4.5)</h3>
-                                <p class="text-green-800 text-sm mb-3">A partire dalla versione 3.5.001, il sistema include protezioni avanzate per garantire l'integrità dei dati:</p>
+                                <h3 class="font-bold text-green-900 mb-3">🔐 Integrità Dati (v3.5.010)</h3>
+                                <p class="text-green-800 text-sm mb-3">A partire dalla versione 3.5.010, il sistema include protezioni avanzate per garantire l'integrità dei dati:</p>
                                 
                                 <div class="space-y-2">
                                     <div class="bg-white p-2 rounded-lg">
@@ -2077,7 +2085,7 @@ Device-C  │          │   🟢     │    -     │</pre>
                                 </div>
                                 
                                 <div class="bg-green-200 p-2 rounded-lg mt-3">
-                                    <p class="text-green-900 text-xs">💡 <strong>Versioni Supportate:</strong> 3.5.001, 3.4.5, 3.4.2, 3.4.1, 3.4.0, 3.3.x, 3.2.x, 3.1.3</p>
+                                    <p class="text-green-900 text-xs">💡 <strong>Versioni Supportate:</strong> 3.5.010, 3.5.005, 3.5.002, 3.5.001, 3.4.5, 3.4.2, 3.4.1, 3.4.0, 3.3.x, 3.2.x, 3.1.3</p>
                                 </div>
                             </div>
 
@@ -2806,7 +2814,7 @@ ip addr show | grep "inet "</pre>
                                 <h3 class="font-bold text-blue-900 mb-2">📞 Supporto</h3>
                                 <p class="text-blue-800 text-sm">Per supporto tecnico o domande sull'installazione, contattare il dipartimento IT interno.</p>
                                 <div class="mt-3 flex gap-4 text-xs">
-                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versione: 3.5.001</span>
+                                    <span class="bg-white px-3 py-1 rounded-lg text-blue-700">📚 Versione: 3.5.010</span>
                                 </div>
                             </div>
                         </div>
@@ -2816,7 +2824,7 @@ ip addr show | grep "inet "</pre>
                     <!-- ========== FOOTER ========== -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.4.5</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.5.010</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -2965,12 +2973,12 @@ ip addr show | grep "inet "</pre>
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/editlock.js?v=3.5.001"></script>
-    <script src="js/auth.js?v=3.5.001"></script>
-    <script src="js/app.js?v=3.5.001"></script>
-    <script src="js/ui-updates.js?v=3.5.001"></script>
-    <script src="js/features.js?v=3.5.001"></script>
-    <script src="js/floorplan.js?v=3.5.001"></script>
+    <script src="js/editlock.js?v=3.5.010"></script>
+    <script src="js/auth.js?v=3.5.010"></script>
+    <script src="js/app.js?v=3.5.010"></script>
+    <script src="js/ui-updates.js?v=3.5.010"></script>
+    <script src="js/features.js?v=3.5.010"></script>
+    <script src="js/floorplan.js?v=3.5.010"></script>
     
     <!-- Update connections count when list lists -->
     <script>

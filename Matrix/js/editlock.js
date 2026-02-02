@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Edit Lock Module
- * Version: 3.5.001
+ * Version: 3.5.010
  * 
  * Prevents concurrent editing by multiple users
  * Only one editor can have the lock at a time
@@ -33,7 +33,7 @@ var EditLock = (function() {
                 return data;
             })
             .catch(function(err) {
-                console.warn('Edit lock check failed:', err);
+                Debug.warn('Edit lock check failed:', err);
                 return { locked: false, error: err.message };
             });
     }
@@ -55,7 +55,7 @@ var EditLock = (function() {
                 hasLock = true;
                 lockOwner = editorName;
                 startHeartbeat();
-                console.log('Edit lock acquired:', editorName);
+                Debug.log('Edit lock acquired:', editorName);
                 return { success: true, editor: editorName };
             } else {
                 hasLock = false;
@@ -69,7 +69,7 @@ var EditLock = (function() {
             }
         })
         .catch(function(err) {
-            console.error('Failed to acquire edit lock:', err);
+            Debug.error('Failed to acquire edit lock:', err);
             return { success: false, error: err.message };
         });
     }
@@ -94,11 +94,11 @@ var EditLock = (function() {
         .then(function(data) {
             hasLock = false;
             lockOwner = null;
-            console.log('Edit lock released');
+            Debug.log('Edit lock released');
             return data;
         })
         .catch(function(err) {
-            console.error('Failed to release edit lock:', err);
+            Debug.error('Failed to release edit lock:', err);
             hasLock = false;
             return { success: false, error: err.message };
         });
@@ -118,14 +118,14 @@ var EditLock = (function() {
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (!data.success) {
-                console.warn('Lost edit lock:', data);
+                Debug.warn('Lost edit lock:', data);
                 hasLock = false;
                 stopHeartbeat();
                 showLockLostWarning();
             }
         })
         .catch(function(err) {
-            console.warn('Heartbeat failed:', err);
+            Debug.warn('Heartbeat failed:', err);
         });
     }
     

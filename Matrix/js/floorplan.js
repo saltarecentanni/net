@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Floor Plan Module
- * Version: 3.5.001
+ * Version: 3.5.010
  * 
  * Interactive floor plan visualization with:
  * - SVG rendering and manipulation
@@ -289,10 +289,20 @@ var FloorPlan = (function() {
         // Get devices using global helper function
         var roomDevices = typeof getDevicesInRoom === 'function' ? getDevicesInRoom(room) : [];
         
+        // Build tooltip text
+        var tooltipLabel = room.nickname ? (room.id + ' - ' + room.nickname) : ('Room ' + room.id);
+        var deviceCount = roomDevices.length;
+        var tooltipText = tooltipLabel + (deviceCount > 0 ? ' (' + deviceCount + ' devices)' : '');
+        
         // Create room group
         var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('class', 'room-group');
         g.setAttribute('data-room-id', room.id);
+        
+        // Add SVG title element for native tooltip (works on hover over any child)
+        var titleEl = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        titleEl.textContent = tooltipText;
+        g.appendChild(titleEl);
         
         // Create polygon area - invisible, click detection only
         var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -359,13 +369,6 @@ var FloorPlan = (function() {
         marker.setAttribute('class', 'room-marker');
         marker.setAttribute('data-room-id', room.id);
         marker.textContent = '📍';
-        
-        // Add tooltip on hover
-        marker.addEventListener('mouseenter', function(e) {
-            var label = room.nickname || ('Room ' + room.id);
-            var deviceCount = roomDevices.length;
-            this.setAttribute('title', label + (deviceCount > 0 ? ' (' + deviceCount + ' devices)' : ''));
-        });
         
         g.appendChild(marker);
         

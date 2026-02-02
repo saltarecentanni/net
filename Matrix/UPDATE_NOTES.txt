@@ -1,8 +1,168 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.001
+Version: 3.5.010
 Last Updated: 2026-02-02
 ================================================================================
+
+CHANGELOG v3.5.010 (2026-02-02)
+--------------------------------------------------------------------------------
+📶 WiFi AP Without Warning
+  ✅ Wireless devices (wifi, router_wifi, access_point) no longer show ⚠ warning
+  ✅ New 📶 Wireless icon in cyan instead of orange ⚠
+  ✅ Cyan light background for wireless devices without connections
+  ✅ Updated legend: ✗ disabled · ↩ rear · ⚠ not connected · 📶 wireless · 🌐 link
+  ✅ Works in both Card and Table view modes
+
+🔧 Code Audit Fixes (50 verifications completed)
+  ✅ Fixed CURRENT_VERSION from '3.5.008' to '3.5.010'
+  ✅ Added '3.5.009' and '3.5.010' to SUPPORTED_VERSIONS
+  ✅ Updated all cache busters in HTML (?v=3.5.010)
+  ✅ Removed unused 'algorithm' variable (line 3668)
+  ✅ Fixed NetworkTopology.render() → SVGTopology.render()
+  ✅ Removed non-existent DrawioTopology.render() call
+  ✅ Fixed Auth.isAuthenticated → Auth.isLoggedIn()
+  ✅ Replaced console.log/warn/error with Debug module in editlock.js
+  ✅ Replaced console.warn/error with Debug module in auth.js
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.009 (2026-02-02)
+--------------------------------------------------------------------------------
+🔍 Deep Code Audit (25 forward + 25 reverse verifications)
+  ✅ Unused functions identified: autoResizeTextarea, countDevicesInRoom, etc.
+  ✅ TODO pending: floorplan.js line 982 (Auto zoom to room)
+  ✅ Unused variable: VALID_ENUMS (declared but never used)
+  ✅ parseInt without radix: 10 occurrences (warning only)
+  ✅ All modules verified: Auth, FloorPlan, EditLock, Toast, ActivityLog, etc.
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.008 (2026-02-02)
+--------------------------------------------------------------------------------
+🗺️ Floor Plan Improvements
+  ✅ Custom Locations legend on left side of Floor Plan
+  ✅ Native SVG tooltips on mapped rooms (name + device count)
+  ✅ New icon 🪧 (Placard) for Custom Locations
+  ✅ 📍 (Pin) for Mapped Rooms
+
+🏗️ New Location System Architecture
+
+📍 NEW DATA STRUCTURES:
+  ✅ appState.sites[] - Array of sites (e.g., "Sede Ivrea")
+  ✅ appState.locations[] - Persistent location objects with:
+     - id: Unique identifier (e.g., "loc-00", "loc-21")
+     - siteId: Reference to parent site
+     - code: Display code (00-19 for mapped, 21+ for custom)
+     - name: Location name
+     - type: "mapped" or "custom"
+     - roomRef: Reference to room (for mapped locations)
+     - color: Visual color for the location
+  ✅ appState.nextLocationId - Counter for custom location IDs
+
+🔄 AUTOMATIC MIGRATION:
+  ✅ migrateToNewLocationSystem() runs on first load
+  ✅ Creates default site "Sede Ivrea"
+  ✅ Converts existing rooms[] to mapped locations
+  ✅ Converts device locations to custom locations
+  ✅ Preserves all existing device assignments
+  ✅ Zero data loss during migration
+
+📝 LOCATION MANAGEMENT:
+  ✅ Custom locations now persist independently of devices
+  ✅ Can create empty custom locations directly from Location Manager
+  ✅ Can delete custom locations (even empty ones)
+  ✅ Rename/delete operations use location ID, not name
+  ✅ All dropdowns use appState.locations[]
+  ✅ Location Manager shows grouped locations with codes
+  ✅ NEW: "Add New" button in Location Manager for easy creation
+
+🎨 UI IMPROVEMENTS:
+  ✅ Removed "(00-19)" and "(21+)" labels from dropdowns
+  ✅ Cleaner location group headers
+  ✅ Add button directly in Location Manager modal
+
+🛡️  IMPROVED RELIABILITY:
+  ✅ Custom locations saved to server immediately on creation
+  ✅ serverSave() includes sites, locations, nextLocationId
+  ✅ serverLoad() loads all new fields and runs migration if needed
+
+📦 EXPORT/IMPORT COMPATIBILITY:
+  ✅ exportJSON() now exports sites, locations, nextLocationId
+  ✅ importData() now imports all new fields
+  ✅ Import runs migration for old format files
+  ✅ Backup includes all new fields for complete restore
+  ✅ Rollback includes all new fields
+
+💾 LOCAL STORAGE:
+  ✅ saveToStorage() persists sites, locations, nextLocationId
+  ✅ loadFromStorage() loads all new fields
+  ✅ saveNow() persists all new fields
+
+🧹 CLEAR ALL:
+  ✅ clearAll() creates complete backup with all fields
+  ✅ Clears custom locations (keeps rooms/floor plan)
+  ✅ Resets nextLocationId to 21
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.005 (2026-02-02)
+--------------------------------------------------------------------------------
+🐛 CRITICAL FIX: Auto-Save on Data Changes
+  ✅ saveDevice() now calls serverSave() immediately
+  ✅ removeDevice() now calls serverSave() immediately
+  ✅ saveConnection() now calls serverSave() immediately
+  ✅ removeConnection() now calls serverSave() immediately
+  ✅ Data is now persisted to server on every change
+  ✅ No more data loss when closing browser without manual save
+
+⚠️  ISSUE FIXED: Custom Locations and other data changes were NOT being
+    saved to the server automatically. Users had to click "Salva Ora"
+    manually, otherwise all changes were lost on page reload.
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.004 (2026-02-02)
+--------------------------------------------------------------------------------
+🎨 UI IMPROVEMENT: Custom Locations Icon
+  ✅ New icon 🪧 (Placard) for Custom Locations
+  ✅ Differentiates from 📍 (Pin) used for Mapped Rooms
+  ✅ Updated in all dropdowns and Location Manager
+  ✅ Better visual distinction between location types
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.003 (2026-02-02)
+--------------------------------------------------------------------------------
+✨ IMPROVEMENT: Location Numbering System
+  ✅ Mapped Rooms display as: 0, 1, 2... 19 (floor plan rooms)
+  ✅ Custom Locations numbered sequentially: 21, 22, 23...
+  ✅ Consistent numbering across all dropdowns and managers
+  ✅ Global filter shows grouped locations with number ranges
+  ✅ Location Manager displays numbers prominently
+
+🔧 UI IMPROVEMENTS:
+  ✅ Dropdown groups: "Mapped Rooms (0-19)" and "Custom Locations (21+)"
+  ✅ Custom locations show format: "21 - Location Name"
+  ✅ Empty state message indicates numbering starts from 21
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.002 (2026-02-02)
+--------------------------------------------------------------------------------
+✨ NEW FEATURE: Custom Location Management
+  ✅ Rename custom locations with full device update
+  ✅ Delete location with improved warnings about affected data
+  ✅ Shows count of devices AND connections that will be affected
+  ✅ Activity log tracking for location rename operations
+  ✅ Validation prevents duplicate location names
+  ✅ Authentication required for rename/delete operations
+
+🔧 IMPROVEMENTS:
+  ✅ Location Manager now shows edit/rename button for custom locations
+  ✅ Delete confirmation shows detailed impact (devices + connections)
+  ✅ Better visual feedback with warning panel in delete dialog
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.001 (2026-02-02)
 --------------------------------------------------------------------------------
