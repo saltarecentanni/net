@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.4.5
+ * Version: 3.5.0
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -16,6 +16,7 @@
  * - Security improvements: rate limiting, env vars (v3.4.1)
  * - Reliability improvements: async save, checksum, validation (v3.4.2)
  * - SHA-256 cryptographic integrity, mandatory version validation, auto rollback (v3.4.5)
+ * - Online users tracking with real-time indicator (v3.5.0)
  */
 
 'use strict';
@@ -73,8 +74,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.4.5';
+var SUPPORTED_VERSIONS = ['3.5.0', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.0';
 
 /**
  * Valid enum values for schema validation
@@ -3538,9 +3539,105 @@ function printConnections() {
 // Changes are NOT saved automatically - always click "Salva Ora" to persist data.
 
 // ============================================================================
+// ONLINE USERS TRACKING
+// ============================================================================
+
+/**
+ * Online Users Tracker - Tracks users viewing/editing the application
+ */
+var OnlineTracker = (function() {
+    var userId = null;
+    var heartbeatInterval = null;
+    var HEARTBEAT_INTERVAL = 30000; // 30 seconds
+
+    function init() {
+        // Get or create user ID
+        userId = sessionStorage.getItem('matrixUserId');
+        if (!userId) {
+            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('matrixUserId', userId);
+        }
+        
+        // Initial heartbeat
+        sendHeartbeat();
+        
+        // Start periodic heartbeat
+        heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
+        
+        // Send heartbeat on visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                sendHeartbeat();
+            }
+        });
+        
+        // Send final heartbeat on unload (best effort)
+        window.addEventListener('beforeunload', function() {
+            // Can't do much here as async requests may not complete
+        });
+    }
+
+    function sendHeartbeat() {
+        var isEditor = Auth && Auth.isAuthenticated && Auth.isAuthenticated();
+        var url = 'data.php?action=online&userId=' + encodeURIComponent(userId) + '&isEditor=' + isEditor;
+        
+        fetch(url)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                updateDisplay(data);
+            })
+            .catch(function(err) {
+                Debug.warn('Online tracker error:', err);
+            });
+    }
+
+    function updateDisplay(data) {
+        var countEl = document.getElementById('onlineUsersCount');
+        var indicatorEl = document.getElementById('onlineUsersIndicator');
+        
+        if (!countEl || !indicatorEl) return;
+        
+        var total = data.online || 0;
+        var viewers = data.viewers || 0;
+        var editors = data.editors || 0;
+        
+        // Format number with leading zero if single digit
+        countEl.textContent = total < 10 ? '0' + total : total;
+        
+        // Build tooltip
+        var tooltip = 'Utenti online: ' + total;
+        if (editors > 0) {
+            tooltip += '\n👤 Visualizzatori: ' + viewers;
+            tooltip += '\n✏️ Editori: ' + editors;
+        }
+        indicatorEl.title = tooltip;
+        
+        // Change color based on editors
+        if (editors > 0) {
+            indicatorEl.className = indicatorEl.className.replace(/bg-\w+-100/g, 'bg-amber-100').replace(/text-\w+-700/g, 'text-amber-700');
+        } else {
+            indicatorEl.className = indicatorEl.className.replace(/bg-\w+-100/g, 'bg-emerald-100').replace(/text-\w+-700/g, 'text-emerald-700');
+        }
+    }
+
+    function getUserId() {
+        return userId;
+    }
+
+    return {
+        init: init,
+        sendHeartbeat: sendHeartbeat,
+        getUserId: getUserId
+    };
+})();
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 function initApp() {
+    // Initialize online users tracker
+    OnlineTracker.init();
+    
     serverLoad().then(function(ok) {
         if (!ok) loadFromStorage();
         updateUI();

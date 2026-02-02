@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Edit Lock Module
- * Version: 3.4.5
+ * Version: 3.5.0
  * 
  * Prevents concurrent editing by multiple users
  * Only one editor can have the lock at a time

@@ -2,13 +2,34 @@
 
 Applicazione web di gestione e documentazione della rete aziendale per deploy in intranet.
 
-**Versione:** 3.4.5  
-**Data:** 1 Febbraio 2026  
+**Versione:** 3.5.0  
+**Data:** 2 Febbraio 2026  
 **Ambiente:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
 
 ---
 
-## 🆕 Novità della Versione 3.4.5
+## 🆕 Novità della Versione 3.5.0
+
+### ✨ Indicatore Utenti Online
+| Feature | Descrizione |
+|---------|-------------|
+| **Counter Real-time** | Visualizza numero utenti connessi al sistema |
+| **Posizione** | Accanto al pulsante Activity Logs nell'header |
+| **Formato** | Numerico con zero iniziale (01, 02, 03...) |
+| **Tooltip** | Mostra breakdown: visualizzatori vs editori |
+| **Colore Dinamico** | Verde = solo viewers, Ambra = editor presente |
+
+### 🔧 Implementazione Tecnica
+| Componente | Descrizione |
+|------------|-------------|
+| **Heartbeat** | Sistema ping ogni 30 secondi |
+| **Tracking** | File JSON (online_users.json) |
+| **Timeout** | Utenti inattivi rimossi dopo 60 secondi |
+| **Session** | User ID unico per sessione browser |
+
+---
+
+## 📋 Changelog Versione 3.4.5
 
 ### 🔒 Correzioni Sicurezza (Critiche)
 | Fix | Descrizione |

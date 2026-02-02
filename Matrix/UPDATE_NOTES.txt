@@ -1,8 +1,29 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.4.5
-Last Updated: 2026-02-01
+Version: 3.5.0
+Last Updated: 2026-02-02
 ================================================================================
+
+CHANGELOG v3.5.0 (2026-02-02)
+--------------------------------------------------------------------------------
+✨ NEW FEATURE: Online Users Indicator
+  ✅ Real-time display of connected users count
+  ✅ Visual indicator next to Activity Logs button
+  ✅ Shows total online users (format: "01", "02", etc.)
+  ✅ Tooltip displays breakdown: viewers vs editors
+  ✅ Color coding: Green (viewers only), Amber (editors present)
+  ✅ Heartbeat system (30-second intervals)
+  ✅ Session-based user tracking
+  ✅ Auto-cleanup of inactive users (60-second timeout)
+
+🔧 TECHNICAL IMPLEMENTATION:
+  ✅ data.php: New GET action=online endpoint
+  ✅ OnlineTracker module in app.js
+  ✅ File-based tracking (online_users.json)
+  ✅ Visibility change detection (re-sends heartbeat)
+  ✅ Editor status tracking (logged in vs view mode)
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.4.5 (2026-02-01)
 --------------------------------------------------------------------------------

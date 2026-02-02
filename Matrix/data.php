@@ -1,7 +1,7 @@
 <?php
 /**
  * TIESSE Matrix Network - Data API
- * Version: 3.4.5
+ * Version: 3.5.0
  * 
  * GET  - Public (anyone can view)
  * POST - Requires authentication (edit mode)
@@ -17,9 +17,87 @@ if (!is_dir(DATA_DIR)) {
 }
 
 // =============================================================================
+// Online Users Tracking
+// =============================================================================
+define('ONLINE_FILE', DATA_DIR . '/online_users.json');
+define('ONLINE_TIMEOUT', 60); // Seconds before user is considered offline
+
+function getOnlineUsers() {
+    if (!file_exists(ONLINE_FILE)) {
+        return [];
+    }
+    $content = @file_get_contents(ONLINE_FILE);
+    if ($content === false) return [];
+    $data = json_decode($content, true);
+    return is_array($data) ? $data : [];
+}
+
+function saveOnlineUsers($users) {
+    $json = json_encode($users, JSON_PRETTY_PRINT);
+    file_put_contents(ONLINE_FILE, $json, LOCK_EX);
+}
+
+function cleanExpiredUsers(&$users) {
+    $now = time();
+    foreach ($users as $id => $user) {
+        if (($now - $user['lastSeen']) > ONLINE_TIMEOUT) {
+            unset($users[$id]);
+        }
+    }
+}
+
+function registerUserPresence($userId, $isEditor = false) {
+    $users = getOnlineUsers();
+    cleanExpiredUsers($users);
+    
+    $users[$userId] = [
+        'lastSeen' => time(),
+        'isEditor' => $isEditor,
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+    ];
+    
+    saveOnlineUsers($users);
+    return $users;
+}
+
+function getOnlineCount() {
+    $users = getOnlineUsers();
+    cleanExpiredUsers($users);
+    saveOnlineUsers($users);
+    
+    $viewers = 0;
+    $editors = 0;
+    foreach ($users as $user) {
+        if ($user['isEditor']) {
+            $editors++;
+        } else {
+            $viewers++;
+        }
+    }
+    return ['total' => count($users), 'viewers' => $viewers, 'editors' => $editors];
+}
+
+// =============================================================================
 // GET - Public access (view data)
 // =============================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Special action: get online users count
+    if (isset($_GET['action']) && $_GET['action'] === 'online') {
+        $userId = $_GET['userId'] ?? uniqid('user_');
+        $isEditor = isset($_GET['isEditor']) && $_GET['isEditor'] === 'true';
+        
+        registerUserPresence($userId, $isEditor);
+        $count = getOnlineCount();
+        
+        echo json_encode([
+            'online' => $count['total'],
+            'viewers' => $count['viewers'],
+            'editors' => $count['editors'],
+            'userId' => $userId
+        ]);
+        exit;
+    }
+    
     if (!file_exists(DATA_FILE)) {
         echo json_encode(["devices" => [], "connections" => [], "nextDeviceId" => 1]);
         exit;

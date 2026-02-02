@@ -1,7 +1,7 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.4.5  
-**Date:** February 1, 2026  
+**Version:** 3.5.0  
+**Date:** February 2, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
 
@@ -21,8 +21,30 @@ A web-based network infrastructure management system for enterprise environments
 - Export data to Excel/JSON/Draw.io/PNG for documentation
 - Multi-user access via local network with authentication
 - Complete data import/export including rooms
+- Real-time online users indicator
 
-### 1.3 What's New in v3.4.5
+### 1.3 What's New in v3.5.0
+
+#### ✨ Online Users Indicator (v3.5.0)
+| Feature | Description |
+|---------|-------------|
+| **Real-time Counter** | Shows number of users currently viewing the application |
+| **Visual Indicator** | Badge next to Activity Logs button with count (01, 02...) |
+| **Tooltip Info** | Breakdown of viewers vs editors on hover |
+| **Color Coding** | Green = viewers only, Amber = editor present |
+| **Heartbeat** | 30-second ping to maintain presence |
+| **Auto-cleanup** | Inactive users removed after 60 seconds |
+
+#### 🔧 Technical Implementation (v3.5.0)
+| Component | File | Description |
+|-----------|------|-------------|
+| **API Endpoint** | data.php | GET ?action=online - returns user counts |
+| **OnlineTracker** | app.js | Client module for heartbeat and display |
+| **Storage** | online_users.json | File-based session tracking |
+
+---
+
+### 1.4 What's New in v3.4.5
 
 #### 🔒 Security Fixes (v3.4.5)
 | Fix | Description |
