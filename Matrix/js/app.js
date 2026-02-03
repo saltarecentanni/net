@@ -484,8 +484,8 @@ function getFilteredDevices() {
         if (filters.location && d.location !== filters.location) {
             return false;
         }
-        // Source filter
-        if (filters.source && (d.rackId || '').toLowerCase().indexOf(filters.source.toLowerCase()) === -1) {
+        // Source/Group filter - case-insensitive
+        if (filters.source && (d.rackId || '').toUpperCase().indexOf(filters.source.toUpperCase()) === -1) {
             return false;
         }
         // Name filter
@@ -610,17 +610,17 @@ function updateConnFilterCount() {
     var connConnectionStatsEl = document.getElementById('connConnectionStats');
     if (connDeviceStatsEl && connConnectionStatsEl) {
         if (appState.connFilters.source) {
-            // Count devices and connections in the filtered rack
+            // Count devices and connections in the filtered rack (uppercase comparison)
+            var filterUpper = appState.connFilters.source.toUpperCase();
             var rackDevices = appState.devices.filter(function(d) {
-                return (d.rackId || '').toLowerCase().indexOf(appState.connFilters.source.toLowerCase()) !== -1;
+                return (d.rackId || '').toUpperCase().indexOf(filterUpper) !== -1;
             });
             var rackConnections = appState.connections.filter(function(c) {
                 var fromDevice = appState.devices.find(function(d) { return d.id === c.from; });
                 var toDevice = appState.devices.find(function(d) { return d.id === c.to; });
-                var fromRack = fromDevice ? (fromDevice.rackId || '') : '';
-                var toRack = toDevice ? (toDevice.rackId || '') : '';
-                return fromRack.toLowerCase().indexOf(appState.connFilters.source.toLowerCase()) !== -1 ||
-                       toRack.toLowerCase().indexOf(appState.connFilters.source.toLowerCase()) !== -1;
+                var fromRack = fromDevice ? (fromDevice.rackId || '').toUpperCase() : '';
+                var toRack = toDevice ? (toDevice.rackId || '').toUpperCase() : '';
+                return fromRack.indexOf(filterUpper) !== -1 || toRack.indexOf(filterUpper) !== -1;
             });
             connDeviceStatsEl.textContent = rackDevices.length;
             connConnectionStatsEl.textContent = rackConnections.length;
@@ -1174,6 +1174,45 @@ function saveNow() {
     }
 }
 
+/**
+ * Normalize data case to prevent case-sensitivity issues
+ * - rackId: UPPERCASE
+ * - type: lowercase
+ * - status: lowercase
+ */
+function normalizeDataCase() {
+    var normalized = false;
+    
+    for (var i = 0; i < appState.devices.length; i++) {
+        var d = appState.devices[i];
+        
+        // Normalize rackId to UPPERCASE
+        if (d.rackId && d.rackId !== d.rackId.toUpperCase()) {
+            d.rackId = d.rackId.toUpperCase();
+            normalized = true;
+        }
+        // Also normalize rack alias field
+        if (d.rack && d.rack !== d.rack.toUpperCase()) {
+            d.rack = d.rack.toUpperCase();
+            normalized = true;
+        }
+        // Normalize type to lowercase
+        if (d.type && d.type !== d.type.toLowerCase()) {
+            d.type = d.type.toLowerCase();
+            normalized = true;
+        }
+        // Normalize status to lowercase
+        if (d.status && d.status !== d.status.toLowerCase()) {
+            d.status = d.status.toLowerCase();
+            normalized = true;
+        }
+    }
+    
+    if (normalized) {
+        Debug.log('Data normalized (case corrections applied)');
+    }
+}
+
 function serverLoad() {
     function tryUrl(url) {
         return fetch(url)
@@ -1190,6 +1229,9 @@ function serverLoad() {
                     appState.locations = data.locations || [];
                     appState.nextDeviceId = data.nextDeviceId || 1;
                     appState.nextLocationId = data.nextLocationId || 21;
+                    
+                    // Normalize data (uppercase rackId, etc.)
+                    normalizeDataCase();
                     
                     // Auto-migrate if needed
                     migrateToNewLocationSystem();
@@ -1412,6 +1454,9 @@ function loadFromStorage() {
         if (l) appState.locations = JSON.parse(l);
         if (n) appState.nextDeviceId = parseInt(n, 10) || 1;
         if (nl) appState.nextLocationId = parseInt(nl, 10) || 21;
+        
+        // Normalize data case after loading
+        normalizeDataCase();
     } catch (e) {
         Debug.error('Error loading from localStorage:', e);
         Toast.error('Failed to load saved data');
@@ -1423,18 +1468,21 @@ function loadFromStorage() {
 // ============================================================================
 function getRackColor(rackId) {
     if (!rackId) return 'var(--color-secondary)';
-    if (!appState.rackColorMap[rackId]) {
+    // Normalize to uppercase for consistent color mapping
+    var normalizedRackId = rackId.toUpperCase();
+    if (!appState.rackColorMap[normalizedRackId]) {
         var idx = Object.keys(appState.rackColorMap).length % config.rackColors.length;
-        appState.rackColorMap[rackId] = config.rackColors[idx];
+        appState.rackColorMap[normalizedRackId] = config.rackColors[idx];
     }
-    return appState.rackColorMap[rackId];
+    return appState.rackColorMap[normalizedRackId];
 }
 
 function resetRackColors() {
     appState.rackColorMap = {};
     var racks = [];
     for (var i = 0; i < appState.devices.length; i++) {
-        var r = appState.devices[i].rackId;
+        // Normalize to uppercase
+        var r = (appState.devices[i].rackId || '').toUpperCase();
         if (r && racks.indexOf(r) === -1) {
             racks.push(r);
         }
