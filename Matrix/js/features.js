@@ -454,7 +454,8 @@ var LocationFilter = (function() {
                     result.push({
                         value: d.location,
                         display: String(idx).padStart(2, '0') + ' - ' + d.location,
-                        code: idx
+                        code: idx,
+                        type: 'custom'
                     });
                     idx++;
                 }
@@ -1430,7 +1431,8 @@ var SVGTopology = (function() {
                     locationsWithCode.push({
                         value: d.location,
                         display: String(idx).padStart(2, '0') + ' - ' + d.location,
-                        code: idx
+                        code: idx,
+                        type: 'custom'
                     });
                     idx++;
                 }
@@ -1439,11 +1441,46 @@ var SVGTopology = (function() {
         }
         
         var currentValue = select.value;
-        var html = '<option value="">📍 All Locations</option>';
+        select.innerHTML = '<option value="">📍 All Locations</option>';
+        
+        // Separate mapped vs custom locations
+        var mappedLocs = [], customLocs = [];
         locationsWithCode.forEach(function(loc) {
-            html += '<option value="' + escapeHtml(loc.value) + '">' + escapeHtml(loc.display) + '</option>';
+            if (loc.type === 'mapped') mappedLocs.push(loc);
+            else customLocs.push(loc);
         });
-        select.innerHTML = html;
+        
+        // Add mapped locations optgroup
+        if (mappedLocs.length > 0) {
+            var optgroup1 = document.createElement('optgroup');
+            optgroup1.label = '📍 Mapped Locations';
+            optgroup1.style.color = '#334155';
+            optgroup1.style.fontWeight = '600';
+            mappedLocs.forEach(function(loc) {
+                var option = document.createElement('option');
+                option.value = loc.value;
+                option.textContent = loc.display;
+                option.style.color = '#1e293b';
+                optgroup1.appendChild(option);
+            });
+            select.appendChild(optgroup1);
+        }
+        
+        // Add custom locations optgroup
+        if (customLocs.length > 0) {
+            var optgroup2 = document.createElement('optgroup');
+            optgroup2.label = '🪧 Custom Locations';
+            optgroup2.style.color = '#334155';
+            optgroup2.style.fontWeight = '600';
+            customLocs.forEach(function(loc) {
+                var option = document.createElement('option');
+                option.value = loc.value;
+                option.textContent = loc.display;
+                option.style.color = '#1e293b';
+                optgroup2.appendChild(option);
+            });
+            select.appendChild(optgroup2);
+        }
         
         // Restore previous selection (topology filter is independent from global filter)
         if (currentValue) {

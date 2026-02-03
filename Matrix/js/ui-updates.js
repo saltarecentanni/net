@@ -144,13 +144,29 @@ function updateDeviceFilterBar() {
     var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
     html += '<span class="text-xs font-semibold text-slate-600">Filters:</span>';
     
-    // Location filter (first, with purple styling) - now with codes
-    html += '<select id="filterDeviceLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold">';
+    // Location filter (first, with purple styling) - using optgroups like Actions menu
+    var mappedLocsDevices = [], customLocsDevices = [];
+    locationsWithCode.forEach(function(loc) {
+        if (loc.type === 'mapped') mappedLocsDevices.push(loc);
+        else customLocsDevices.push(loc);
+    });
+    html += '<select id="filterDeviceLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold text-slate-800">';
     html += '<option value="">All Locations</option>';
-    for (var l = 0; l < locationsWithCode.length; l++) {
-        var loc = locationsWithCode[l];
-        var selectedL = appState.deviceFilters.location === loc.value ? ' selected' : '';
-        html += '<option value="' + escapeHtml(loc.value) + '"' + selectedL + '>' + escapeHtml(loc.display) + '</option>';
+    if (mappedLocsDevices.length > 0) {
+        html += '<optgroup label="📍 Mapped Locations" style="color:#334155;font-weight:600">';
+        for (var ml = 0; ml < mappedLocsDevices.length; ml++) {
+            var selectedML = appState.deviceFilters.location === mappedLocsDevices[ml].value ? ' selected' : '';
+            html += '<option value="' + escapeHtml(mappedLocsDevices[ml].value) + '"' + selectedML + ' style="color:#1e293b">' + escapeHtml(mappedLocsDevices[ml].display) + '</option>';
+        }
+        html += '</optgroup>';
+    }
+    if (customLocsDevices.length > 0) {
+        html += '<optgroup label="🪧 Custom Locations" style="color:#334155;font-weight:600">';
+        for (var cl = 0; cl < customLocsDevices.length; cl++) {
+            var selectedCL = appState.deviceFilters.location === customLocsDevices[cl].value ? ' selected' : '';
+            html += '<option value="' + escapeHtml(customLocsDevices[cl].value) + '"' + selectedCL + ' style="color:#1e293b">' + escapeHtml(customLocsDevices[cl].display) + '</option>';
+        }
+        html += '</optgroup>';
     }
     html += '</select>';
     
@@ -1569,16 +1585,50 @@ function updateMatrixFilters() {
         }
     });
     
-    // Update location dropdown with codes
+    // Update location dropdown with codes and optgroups like Actions menu
     var currentLocation = locationSelect.value;
     locationSelect.innerHTML = '<option value="">📍 All Locations</option>';
+    
+    // Separate mapped vs custom locations
+    var mappedLocsMatrix = [], customLocsMatrix = [];
     locationsWithCode.forEach(function(loc) {
-        var option = document.createElement('option');
-        option.value = loc.value;
-        option.textContent = loc.display;
-        if (loc.value === currentLocation) option.selected = true;
-        locationSelect.appendChild(option);
+        if (loc.type === 'mapped') mappedLocsMatrix.push(loc);
+        else customLocsMatrix.push(loc);
     });
+    
+    // Add mapped locations optgroup
+    if (mappedLocsMatrix.length > 0) {
+        var optgroup1 = document.createElement('optgroup');
+        optgroup1.label = '📍 Mapped Locations';
+        optgroup1.style.color = '#334155';
+        optgroup1.style.fontWeight = '600';
+        mappedLocsMatrix.forEach(function(loc) {
+            var option = document.createElement('option');
+            option.value = loc.value;
+            option.textContent = loc.display;
+            option.style.color = '#1e293b';
+            if (loc.value === currentLocation) option.selected = true;
+            optgroup1.appendChild(option);
+        });
+        locationSelect.appendChild(optgroup1);
+    }
+    
+    // Add custom locations optgroup
+    if (customLocsMatrix.length > 0) {
+        var optgroup2 = document.createElement('optgroup');
+        optgroup2.label = '🪧 Custom Locations';
+        optgroup2.style.color = '#334155';
+        optgroup2.style.fontWeight = '600';
+        customLocsMatrix.forEach(function(loc) {
+            var option = document.createElement('option');
+            option.value = loc.value;
+            option.textContent = loc.display;
+            option.style.color = '#1e293b';
+            if (loc.value === currentLocation) option.selected = true;
+            optgroup2.appendChild(option);
+        });
+        locationSelect.appendChild(optgroup2);
+    }
     
     // Update group dropdown
     var currentGroup = groupSelect.value;
@@ -1905,12 +1955,30 @@ function updateConnFilterBar() {
     var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
     html += '<span class="text-xs font-semibold text-slate-600">Filters:</span>';
     
-    // Location filter (first, with purple styling like in Devices tab)
-    html += '<select id="filterConnLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold" title="Filter by Location">';
+    // Location filter (first, with purple styling like in Devices tab) - using optgroups like Actions
+    var locationsWithCode = typeof LocationFilter !== 'undefined' && LocationFilter.getLocationsForFilter ? LocationFilter.getLocationsForFilter() : [];
+    var mappedLocs = [], customLocs = [];
+    locationsWithCode.forEach(function(loc) {
+        if (loc.type === 'mapped') mappedLocs.push(loc);
+        else customLocs.push(loc);
+    });
+    html += '<select id="filterConnLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold text-slate-800" title="Filter by Location">';
     html += '<option value="">All Locations</option>';
-    for (var l = 0; l < locations.length; l++) {
-        var selectedL = appState.deviceFilters.location === locations[l] ? ' selected' : '';
-        html += '<option value="' + locations[l] + '"' + selectedL + '>' + locations[l] + '</option>';
+    if (mappedLocs.length > 0) {
+        html += '<optgroup label="📍 Mapped Locations" style="color:#334155;font-weight:600">';
+        for (var ml = 0; ml < mappedLocs.length; ml++) {
+            var selectedML = appState.deviceFilters.location === mappedLocs[ml].value ? ' selected' : '';
+            html += '<option value="' + mappedLocs[ml].value + '"' + selectedML + ' style="color:#1e293b">' + mappedLocs[ml].display + '</option>';
+        }
+        html += '</optgroup>';
+    }
+    if (customLocs.length > 0) {
+        html += '<optgroup label="🪧 Custom Locations" style="color:#334155;font-weight:600">';
+        for (var cl = 0; cl < customLocs.length; cl++) {
+            var selectedCL = appState.deviceFilters.location === customLocs[cl].value ? ' selected' : '';
+            html += '<option value="' + customLocs[cl].value + '"' + selectedCL + ' style="color:#1e293b">' + customLocs[cl].display + '</option>';
+        }
+        html += '</optgroup>';
     }
     html += '</select>';
     

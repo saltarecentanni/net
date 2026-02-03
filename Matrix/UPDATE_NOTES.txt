@@ -34,6 +34,13 @@ CHANGELOG v3.5.031 (2026-02-03)
   ✅ Auth.updateUI() called after dynamic table rendering
   ✅ Applies to both Devices and Connections tables
 
+📍 LOCATION DROPDOWNS STANDARDIZED:
+  ✅ All location dropdowns now use optgroups like Actions menu
+  ✅ Two groups: "Mapped Locations" and "Custom Locations"
+  ✅ Shows "00 - Name" format for all locations
+  ✅ Black text color for better readability
+  ✅ Applied to: Devices, Connections, Matrix, Topology filters
+
 --------------------------------------------------------------------------------
 
 CHANGELOG v3.5.030 (2026-02-03)
