@@ -3351,8 +3351,10 @@ var DeviceLinks = (function() {
                 // ssh://user@host ou ssh://host
                 return 'ssh://' + url;
             case 'rdp':
-                // Para Windows: ms-rd:// funciona melhor
-                return 'rdp://' + url;
+                // Windows Remote Desktop - formato correto
+                // Formato: rdp://full%20address=s:hostname:port
+                var host = url.replace(/^rdp:\/\//i, '');
+                return 'rdp://full%20address=s:' + encodeURIComponent(host);
             case 'vnc':
                 return 'vnc://' + url;
             case 'telnet':
@@ -3650,9 +3652,9 @@ function openProtocolLink(element) {
             document.body.removeChild(iframe);
         }, 2000);
         
-        // Mostra mensagem de sucesso
+        // Mostra mensagem de sucesso (6 segundos)
         if (typeof Toast !== 'undefined') {
-            Toast.info('🚀 Opening: ' + copyUrl + '\n\nIf nothing opens, the address was copied.');
+            Toast.info('🚀 Opening: ' + copyUrl + '\n\nIf nothing opens, the address was copied.', 6000);
         }
         
         // Também copia como backup
