@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.5.027
+ * Version: 3.5.028
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -3687,6 +3687,19 @@ function openProtocolLink(element) {
             // Outros protocolos: tenta abrir
             handleGenericProtocol(protocolUrl, copyUrl, copied);
         }
+    }).catch(function(error) {
+        // Se clipboard falhar, ainda tenta abrir o protocolo
+        if (linkType === 'rdp') {
+            handleRdpLink(copyUrl, false);
+        } else if (linkType === 'ssh') {
+            handleSshLink(protocolUrl, copyUrl, false);
+        } else if (linkType === 'vnc') {
+            handleVncLink(protocolUrl, copyUrl, false);
+        } else if (linkType === 'telnet') {
+            handleTelnetLink(protocolUrl, copyUrl, false);
+        } else {
+            handleGenericProtocol(protocolUrl, copyUrl, false);
+        }
     });
 }
 
@@ -3768,11 +3781,20 @@ function handleRdpLink(address, copied) {
  * Handler para SSH - tenta abrir protocolo nativo + copia
  */
 function handleSshLink(protocolUrl, address, copied) {
-    // Tenta abrir via protocolo ssh://
-    tryOpenProtocol(protocolUrl);
-    
-    if (typeof Toast !== 'undefined') {
-        Toast.info('🚀 Opening SSH: ' + address + '\n📋 Address copied to clipboard\n\nIf nothing opens, paste in your terminal', 6000);
+    try {
+        // Tenta abrir via protocolo ssh://
+        tryOpenProtocol(protocolUrl);
+        
+        if (typeof Toast !== 'undefined') {
+            var msg = '🚀 Opening SSH: ' + address;
+            msg += copied ? '\n📋 Address copied to clipboard' : '\n⚠️ Copy failed - address: ' + address;
+            msg += '\n\nIf nothing opens, paste in your terminal';
+            Toast.info(msg, 6000);
+        }
+    } catch (e) {
+        if (typeof Toast !== 'undefined') {
+            Toast.warning('SSH: ' + address + '\n📋 ' + (copied ? 'Copied' : 'Copy failed') + '\n\nPaste in your terminal', 5000);
+        }
     }
 }
 
@@ -3780,11 +3802,20 @@ function handleSshLink(protocolUrl, address, copied) {
  * Handler para VNC - tenta abrir protocolo nativo
  */
 function handleVncLink(protocolUrl, address, copied) {
-    // Tenta abrir via protocolo
-    tryOpenProtocol(protocolUrl);
-    
-    if (typeof Toast !== 'undefined') {
-        Toast.info('🖥️ VNC: ' + address + '\n📋 Address copied to clipboard\n\nIf VNC viewer doesn\'t open, paste in your VNC client', 6000);
+    try {
+        // Tenta abrir via protocolo
+        tryOpenProtocol(protocolUrl);
+        
+        if (typeof Toast !== 'undefined') {
+            var msg = '🖥️ VNC: ' + address;
+            msg += copied ? '\n📋 Address copied to clipboard' : '\n⚠️ Copy failed - address: ' + address;
+            msg += '\n\nIf VNC viewer doesn\'t open, paste in your VNC client';
+            Toast.info(msg, 6000);
+        }
+    } catch (e) {
+        if (typeof Toast !== 'undefined') {
+            Toast.warning('VNC: ' + address + '\n📋 ' + (copied ? 'Copied' : 'Copy failed') + '\n\nPaste in your VNC client', 5000);
+        }
     }
 }
 
@@ -3792,11 +3823,20 @@ function handleVncLink(protocolUrl, address, copied) {
  * Handler para Telnet - tenta abrir protocolo nativo + copia
  */
 function handleTelnetLink(protocolUrl, address, copied) {
-    // Tenta abrir via protocolo telnet://
-    tryOpenProtocol(protocolUrl);
-    
-    if (typeof Toast !== 'undefined') {
-        Toast.info('📟 Opening Telnet: ' + address + '\n📋 Address copied to clipboard\n\nIf nothing opens, paste in your terminal', 6000);
+    try {
+        // Tenta abrir via protocolo telnet://
+        tryOpenProtocol(protocolUrl);
+        
+        if (typeof Toast !== 'undefined') {
+            var msg = '📟 Opening Telnet: ' + address;
+            msg += copied ? '\n📋 Address copied to clipboard' : '\n⚠️ Copy failed - address: ' + address;
+            msg += '\n\nIf nothing opens, paste in your terminal';
+            Toast.info(msg, 6000);
+        }
+    } catch (e) {
+        if (typeof Toast !== 'undefined') {
+            Toast.warning('Telnet: ' + address + '\n📋 ' + (copied ? 'Copied' : 'Copy failed') + '\n\nPaste in your terminal', 5000);
+        }
     }
 }
 
@@ -3831,7 +3871,7 @@ function tryOpenProtocol(url) {
         
         return true;
     } catch (e) {
-        console.log('Protocol open attempt failed:', e);
+        // Silent fail - protocol handlers are best-effort
         return false;
     }
 }
