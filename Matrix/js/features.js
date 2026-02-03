@@ -3675,14 +3675,14 @@ function openProtocolLink(element) {
             // RDP: Oferece download de arquivo .rdp
             handleRdpLink(copyUrl, copied);
         } else if (linkType === 'ssh') {
-            // SSH: Mostra comando para terminal
-            handleSshLink(copyUrl, copied);
+            // SSH: Tenta abrir protocolo + copia
+            handleSshLink(protocolUrl, copyUrl, copied);
         } else if (linkType === 'vnc') {
             // VNC: Tenta abrir protocolo
             handleVncLink(protocolUrl, copyUrl, copied);
         } else if (linkType === 'telnet') {
-            // Telnet: Mostra comando
-            handleTelnetLink(copyUrl, copied);
+            // Telnet: Tenta abrir protocolo
+            handleTelnetLink(protocolUrl, copyUrl, copied);
         } else {
             // Outros protocolos: tenta abrir
             handleGenericProtocol(protocolUrl, copyUrl, copied);
@@ -3765,13 +3765,14 @@ function handleRdpLink(address, copied) {
 }
 
 /**
- * Handler para SSH - endereço já foi copiado, apenas mostra Toast
+ * Handler para SSH - tenta abrir protocolo nativo + copia
  */
-function handleSshLink(address, copied) {
-    // O endereço já foi copiado no passo 1 (copyTextToClipboard no openProtocolLink)
-    // Apenas mostra Toast informando
+function handleSshLink(protocolUrl, address, copied) {
+    // Tenta abrir via protocolo ssh://
+    tryOpenProtocol(protocolUrl);
+    
     if (typeof Toast !== 'undefined') {
-        Toast.success('📋 Copied: ' + address + '\n\nUse: ssh ' + address, 5000);
+        Toast.info('🚀 Opening SSH: ' + address + '\n📋 Address copied to clipboard\n\nIf nothing opens, paste in your terminal', 6000);
     }
 }
 
@@ -3788,12 +3789,14 @@ function handleVncLink(protocolUrl, address, copied) {
 }
 
 /**
- * Handler para Telnet - endereço já foi copiado
+ * Handler para Telnet - tenta abrir protocolo nativo + copia
  */
-function handleTelnetLink(address, copied) {
-    // O endereço já foi copiado no passo 1
+function handleTelnetLink(protocolUrl, address, copied) {
+    // Tenta abrir via protocolo telnet://
+    tryOpenProtocol(protocolUrl);
+    
     if (typeof Toast !== 'undefined') {
-        Toast.success('📋 Copied: ' + address + '\n\nUse: telnet ' + address, 5000);
+        Toast.info('📟 Opening Telnet: ' + address + '\n📋 Address copied to clipboard\n\nIf nothing opens, paste in your terminal', 6000);
     }
 }
 
