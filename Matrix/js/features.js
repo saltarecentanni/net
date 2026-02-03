@@ -3578,97 +3578,263 @@ function generateConnectionsPrintContent(location) {
     }
 })();
 
-// Global function for copying link URLs (SSH, RDP, VNC, etc.)
-function copyLinkToClipboard(element) {
-    var url = element.getAttribute('data-copy-url');
-    if (!url) return;
+// =============================================================================
+// PROTOCOL LINK HANDLERS - SSH, RDP, VNC, Telnet, SMB, NFS
+// =============================================================================
+
+/**
+ * Copia texto para clipboard com feedback visual
+ * @param {string} text - Texto a copiar
+ * @param {boolean} showToast - Se deve mostrar Toast de confirmação
+ * @returns {Promise<boolean>} - Se copiou com sucesso
+ */
+function copyTextToClipboard(text, showToast) {
+    if (showToast === undefined) showToast = true;
     
-    // Try clipboard API first
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function() {
-            if (typeof Toast !== 'undefined') Toast.success('📋 Copied: ' + url);
-        }).catch(function() {
-            fallbackCopyToClipboard(url);
-        });
-    } else {
-        fallbackCopyToClipboard(url);
-    }
+    return new Promise(function(resolve) {
+        // Método 1: Clipboard API (moderno)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function() {
+                if (showToast && typeof Toast !== 'undefined') {
+                    Toast.success('📋 Copied: ' + text);
+                }
+                resolve(true);
+            }).catch(function() {
+                // Fallback se Clipboard API falhar
+                resolve(fallbackCopyText(text, showToast));
+            });
+        } else {
+            // Método 2: Fallback para browsers antigos
+            resolve(fallbackCopyText(text, showToast));
+        }
+    });
 }
 
-function fallbackCopyToClipboard(text) {
+/**
+ * Fallback para copiar texto (browsers antigos ou contexto inseguro)
+ */
+function fallbackCopyText(text, showToast) {
     var textarea = document.createElement('textarea');
     textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.top = '0';
-    textarea.style.left = '0';
-    textarea.style.width = '2em';
-    textarea.style.height = '2em';
-    textarea.style.padding = '0';
-    textarea.style.border = 'none';
-    textarea.style.outline = 'none';
-    textarea.style.boxShadow = 'none';
-    textarea.style.background = 'transparent';
+    textarea.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;';
     document.body.appendChild(textarea);
     textarea.focus();
     textarea.select();
     
+    var success = false;
     try {
-        var successful = document.execCommand('copy');
-        if (successful) {
-            if (typeof Toast !== 'undefined') Toast.success('📋 Copied: ' + text);
-        } else {
-            prompt('Copy this address manually:', text);
+        success = document.execCommand('copy');
+        if (success && showToast && typeof Toast !== 'undefined') {
+            Toast.success('📋 Copied: ' + text);
         }
     } catch (err) {
-        prompt('Copy this address manually:', text);
+        console.error('Copy failed:', err);
     }
     
     document.body.removeChild(textarea);
+    
+    if (!success) {
+        // Último recurso: prompt para copiar manualmente
+        prompt('Copy this address manually:', text);
+    }
+    
+    return success;
 }
 
-// Tenta abrir link com protocolo nativo (SSH, RDP, VNC, etc.)
-// Se falhar, copia para clipboard como fallback
+/**
+ * Copia URL do link para clipboard (chamado via onclick)
+ */
+function copyLinkToClipboard(element) {
+    var url = element.getAttribute('data-copy-url');
+    if (url) {
+        copyTextToClipboard(url, true);
+    }
+}
+
+// Alias para compatibilidade
+function fallbackCopyToClipboard(text) {
+    return fallbackCopyText(text, true);
+}
+
+/**
+ * Handler principal para links de protocolo (SSH, RDP, VNC, etc.)
+ * Estratégia: SEMPRE copia primeiro, depois tenta abrir como bônus
+ */
 function openProtocolLink(element) {
     var protocolUrl = element.getAttribute('data-protocol-url');
     var copyUrl = element.getAttribute('data-copy-url');
+    var linkType = detectLinkType(protocolUrl);
     
-    if (!protocolUrl) {
-        if (copyUrl) copyLinkToClipboard(element);
-        return;
+    if (!copyUrl) return;
+    
+    // PASSO 1: SEMPRE copiar primeiro (garantido)
+    copyTextToClipboard(copyUrl, false).then(function(copied) {
+        
+        // PASSO 2: Tratamento específico por protocolo
+        if (linkType === 'rdp') {
+            // RDP: Oferece download de arquivo .rdp
+            handleRdpLink(copyUrl, copied);
+        } else if (linkType === 'ssh') {
+            // SSH: Mostra comando para terminal
+            handleSshLink(copyUrl, copied);
+        } else if (linkType === 'vnc') {
+            // VNC: Tenta abrir protocolo
+            handleVncLink(protocolUrl, copyUrl, copied);
+        } else if (linkType === 'telnet') {
+            // Telnet: Mostra comando
+            handleTelnetLink(copyUrl, copied);
+        } else {
+            // Outros protocolos: tenta abrir
+            handleGenericProtocol(protocolUrl, copyUrl, copied);
+        }
+    });
+}
+
+/**
+ * Detecta tipo de link pelo protocolUrl
+ */
+function detectLinkType(url) {
+    if (!url) return 'unknown';
+    if (url.indexOf('rdp://') === 0 || url.indexOf('rdp:') === 0) return 'rdp';
+    if (url.indexOf('ssh://') === 0 || url.indexOf('ssh:') === 0) return 'ssh';
+    if (url.indexOf('vnc://') === 0 || url.indexOf('vnc:') === 0) return 'vnc';
+    if (url.indexOf('telnet://') === 0 || url.indexOf('telnet:') === 0) return 'telnet';
+    if (url.indexOf('smb://') === 0) return 'smb';
+    if (url.indexOf('nfs://') === 0) return 'nfs';
+    return 'unknown';
+}
+
+/**
+ * Handler para RDP - oferece download de arquivo .rdp
+ */
+function handleRdpLink(address, copied) {
+    var host = address;
+    var port = 3389;
+    
+    // Extrai porta se especificada (formato host:porta)
+    if (address.indexOf(':') !== -1) {
+        var parts = address.split(':');
+        host = parts[0];
+        port = parseInt(parts[1]) || 3389;
     }
     
-    // Tenta abrir o protocolo nativo
-    var opened = false;
+    // Conteúdo do arquivo .rdp
+    var rdpContent = [
+        'full address:s:' + host + ':' + port,
+        'prompt for credentials:i:1',
+        'administrative session:i:0',
+        'screen mode id:i:2',
+        'use multimon:i:0',
+        'desktopwidth:i:1920',
+        'desktopheight:i:1080',
+        'session bpp:i:32',
+        'compression:i:1',
+        'keyboardhook:i:2',
+        'audiocapturemode:i:0',
+        'videoplaybackmode:i:1',
+        'connection type:i:7',
+        'networkautodetect:i:1',
+        'bandwidthautodetect:i:1',
+        'enableworkspacereconnect:i:0',
+        'disable wallpaper:i:0',
+        'allow font smoothing:i:1',
+        'allow desktop composition:i:1',
+        'redirectprinters:i:0',
+        'redirectcomports:i:0',
+        'redirectsmartcards:i:0',
+        'redirectclipboard:i:1',
+        'redirectposdevices:i:0',
+        'autoreconnection enabled:i:1',
+        'authentication level:i:2'
+    ].join('\r\n');
     
+    // Cria e baixa o arquivo
+    var blob = new Blob([rdpContent], { type: 'application/x-rdp' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = host.replace(/[^a-zA-Z0-9.-]/g, '_') + '.rdp';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    if (typeof Toast !== 'undefined') {
+        Toast.success('📥 RDP file downloaded!\n📋 Address copied: ' + address, 5000);
+    }
+}
+
+/**
+ * Handler para SSH - mostra comando copiado
+ */
+function handleSshLink(address, copied) {
+    var sshCommand = 'ssh ' + address;
+    
+    // Copia o comando SSH completo
+    copyTextToClipboard(sshCommand, false);
+    
+    if (typeof Toast !== 'undefined') {
+        Toast.success('📋 SSH command copied:\n' + sshCommand + '\n\nPaste in your terminal (Ctrl+V)', 6000);
+    }
+}
+
+/**
+ * Handler para VNC - tenta abrir protocolo nativo
+ */
+function handleVncLink(protocolUrl, address, copied) {
+    // Tenta abrir via protocolo
+    tryOpenProtocol(protocolUrl);
+    
+    if (typeof Toast !== 'undefined') {
+        Toast.info('🖥️ VNC: ' + address + '\n📋 Address copied to clipboard\n\nIf VNC viewer doesn\'t open, paste in your VNC client', 6000);
+    }
+}
+
+/**
+ * Handler para Telnet
+ */
+function handleTelnetLink(address, copied) {
+    var telnetCommand = 'telnet ' + address;
+    
+    copyTextToClipboard(telnetCommand, false);
+    
+    if (typeof Toast !== 'undefined') {
+        Toast.success('📋 Telnet command copied:\n' + telnetCommand + '\n\nPaste in your terminal', 6000);
+    }
+}
+
+/**
+ * Handler genérico para outros protocolos (SMB, NFS, etc.)
+ */
+function handleGenericProtocol(protocolUrl, address, copied) {
+    tryOpenProtocol(protocolUrl);
+    
+    if (typeof Toast !== 'undefined') {
+        Toast.info('📋 Address copied: ' + address + '\n\nTrying to open protocol handler...', 4000);
+    }
+}
+
+/**
+ * Tenta abrir protocolo usando iframe hidden
+ * Não garante sucesso, mas é a melhor abordagem cross-browser
+ */
+function tryOpenProtocol(url) {
     try {
-        // Método 1: window.location (funciona para alguns protocolos)
         var iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = protocolUrl;
+        iframe.style.cssText = 'display:none;width:0;height:0;border:none;';
+        iframe.src = url;
         document.body.appendChild(iframe);
         
-        // Timeout para verificar se abriu
+        // Remove após 3 segundos
         setTimeout(function() {
-            document.body.removeChild(iframe);
-        }, 2000);
+            if (iframe.parentNode) {
+                iframe.parentNode.removeChild(iframe);
+            }
+        }, 3000);
         
-        // Mostra mensagem de sucesso (6 segundos)
-        if (typeof Toast !== 'undefined') {
-            Toast.info('🚀 Opening: ' + copyUrl + '\n\nIf nothing opens, the address was copied.', 6000);
-        }
-        
-        // Também copia como backup
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(copyUrl).catch(function() {});
-        }
-        
-        opened = true;
+        return true;
     } catch (e) {
-        console.log('Protocol handler failed:', e);
-    }
-    
-    // Se não conseguiu abrir, copia
-    if (!opened && copyUrl) {
-        copyLinkToClipboard(element);
+        console.log('Protocol open attempt failed:', e);
+        return false;
     }
 }
