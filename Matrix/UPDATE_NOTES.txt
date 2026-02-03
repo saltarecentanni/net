@@ -1,8 +1,71 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.014
-Last Updated: 2026-02-02
+Version: 3.5.027
+Last Updated: 2026-02-03
 ================================================================================
+
+CHANGELOG v3.5.027 (2026-02-03)
+--------------------------------------------------------------------------------
+🎯 UI Consistency Fix
+
+📊 ACTIVE CONNECTIONS TABLE:
+  ✅ Rear indicator (↩) now appears AFTER position number
+  ✅ Consistent with Devices table display
+  ✅ Better visual alignment with gap-0.5 and min-width
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.026 (2026-02-03)
+--------------------------------------------------------------------------------
+🔗 Protocol Links Fix (SSH/Telnet/VNC)
+
+🔧 RESTORED FUNCTIONALITY:
+  ✅ SSH links now try to open protocol + copy to clipboard
+  ✅ Telnet links now try to open protocol + copy to clipboard
+  ✅ VNC links now try to open protocol + copy to clipboard
+  ✅ Restored tryOpenProtocol() call (was accidentally removed in v3.5.025)
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.025 (2026-02-03)
+--------------------------------------------------------------------------------
+🐛 SSH/Telnet Copy Fix
+
+🔧 BUG FIX:
+  ✅ Fixed double copy issue causing race condition
+  ✅ Removed redundant copyTextToClipboard call in handleSshLink
+  ✅ Copy now happens once in openProtocolLink, Toast shows in handler
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.024 (2026-02-03)
+--------------------------------------------------------------------------------
+🔗 Protocol Link Handlers Rewrite
+
+🆕 NEW FEATURES:
+  ✅ RDP: Now downloads .rdp file (works universally, no protocol handler needed)
+  ✅ SSH: Opens protocol + copies "ssh user@host" to clipboard
+  ✅ VNC: Opens protocol + copies address to clipboard
+  ✅ Telnet: Opens protocol + copies "telnet host port" to clipboard
+  ✅ New copyTextToClipboard() function with Promise support
+  ✅ Fallback copy for older browsers
+
+📝 TOAST NOTIFICATIONS:
+  ✅ 5-6 second duration with usage hints
+  ✅ Shows what was copied and how to use it
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.023 (2026-02-02)
+--------------------------------------------------------------------------------
+🔧 Data Normalization Fix
+
+📊 CASE NORMALIZATION:
+  ✅ Fixed rackId case sensitivity in filterConnections
+  ✅ Both device.rackId and selectedRack now lowercase for comparison
+  ✅ Prevents connection filtering issues with mixed case rack IDs
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.014 (2026-02-02)
 --------------------------------------------------------------------------------
