@@ -2913,7 +2913,7 @@ function getPortConnectionCount(deviceId, portName, excludeConnIdx) {
 // ============================================================================
 // UI UPDATES
 // ============================================================================
-function getSorted() {
+
 // getSorted now uses centralized standardDeviceSort for consistency
 function getSorted() {
     return getDevicesSorted();
