@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.034
+ * Version: 3.5.035
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -19,6 +19,7 @@
  * - Online users tracking with real-time indicator (v3.5.001)
  * - New Location System with Sites and Persistent Locations (v3.5.006)
  * - Professional Data Normalization Standard (v3.5.015)
+ * - CENTRALIZED DATA UTILITIES: standardDeviceSort, NETWORK_ZONES (v3.5.035)
  * 
  * DATA NORMALIZATION STANDARD:
  * ┌─────────────────────────────────────────────────────────────────┐
@@ -93,8 +94,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.034';
+var SUPPORTED_VERSIONS = ['3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.035';
 
 /**
  * Valid enum values for schema validation
@@ -220,6 +221,76 @@ function requireAuth() {
     }
     return false;
 }
+
+// ============================================================================
+// CENTRALIZED DATA UTILITIES
+// Standard sorting and filtering functions for consistency across all views
+// ============================================================================
+
+/**
+ * Standard device sort function - ALWAYS use this for consistent ordering
+ * Sorts by: rackId (string) -> order (numeric, 0 first)
+ * @param {Object} a - First device
+ * @param {Object} b - Second device
+ * @returns {number} - Sort comparison result
+ */
+function standardDeviceSort(a, b) {
+    // Primary: rackId alphabetical
+    var rackA = (a.rackId || '').toUpperCase();
+    var rackB = (b.rackId || '').toUpperCase();
+    if (rackA < rackB) return -1;
+    if (rackA > rackB) return 1;
+    // Secondary: order numeric (0/00 comes first)
+    var orderA = parseInt(a.order, 10) || 0;
+    var orderB = parseInt(b.order, 10) || 0;
+    return orderA - orderB;
+}
+
+/**
+ * Get devices sorted by standard order (rackId + order)
+ * @param {Array} devices - Optional array of devices (uses appState.devices if not provided)
+ * @returns {Array} - Sorted copy of devices array
+ */
+function getDevicesSorted(devices) {
+    var arr = devices || appState.devices || [];
+    return arr.slice().sort(standardDeviceSort);
+}
+
+/**
+ * Filter devices by location and/or group, then sort
+ * @param {string} location - Location filter (optional)
+ * @param {string} group - Group/rackId filter (optional)
+ * @returns {Array} - Filtered and sorted devices
+ */
+function getDevicesFiltered(location, group) {
+    var devices = appState.devices || [];
+    var filtered = devices.filter(function(d) {
+        var matchLoc = !location || location === '' || (d.location || 'No Location') === location;
+        var matchGroup = !group || group === '' || d.rackId === group;
+        return matchLoc && matchGroup;
+    });
+    return filtered.sort(standardDeviceSort);
+}
+
+/**
+ * Network Zone options - SINGLE SOURCE OF TRUTH
+ * Used by all IP field dropdowns across the application
+ */
+var NETWORK_ZONES = [
+    { value: '', label: '-- Zone --' },
+    { value: 'LAN', label: '🏢 LAN' },
+    { value: 'WAN', label: '🌐 WAN' },
+    { value: 'DMZ', label: '🛡️ DMZ' },
+    { value: 'VLAN', label: '📊 VLAN' },
+    { value: 'Backbone', label: '🔗 Backbone' },
+    { value: 'VPN', label: '🔒 VPN' },
+    { value: 'Cloud', label: '☁️ Cloud' },
+    { value: 'Guest', label: '👥 Guest' },
+    { value: 'IoT', label: '📡 IoT' },
+    { value: 'Servers', label: '🖥️ Servers' },
+    { value: 'Management', label: '⚙️ Mgmt' },
+    { value: 'Voice', label: '📞 Voice' }
+];
 
 // ============================================================================
 // GLOBAL STATE (Encapsulated)
@@ -1099,7 +1170,7 @@ function highlightEditFields(formType, enable) {
     if (formType === 'connection') {
         fields = ['fromDevice', 'fromPort', 'toDevice', 'toPort', 'connType', 'connStatus', 'cableMarker', 'cableColor', 'connNotes'];
     } else if (formType === 'device') {
-        fields = ['rackId', 'deviceOrder', 'deviceRear', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceLocation', 'deviceIP1', 'deviceIP2', 'deviceIP3', 'deviceIP4', 'deviceService', 'deviceZone', 'deviceZoneIP', 'deviceNotes'];
+        fields = ['rackId', 'deviceOrder', 'deviceRear', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceLocation', 'deviceService', 'deviceNotes'];
     }
     
     for (var i = 0; i < fields.length; i++) {
@@ -1525,24 +1596,33 @@ function saveDevice() {
         var service = document.getElementById('deviceService').value.trim();
         var notes = document.getElementById('deviceNotes').value.trim();
         
-        // Network Zone fields
-        var zone = document.getElementById('deviceZone') ? document.getElementById('deviceZone').value.trim() : '';
-        var zoneIP = document.getElementById('deviceZoneIP') ? document.getElementById('deviceZoneIP').value.trim() : '';
-        
         // New fields: location, IPs (dynamic), links
         var location = document.getElementById('deviceLocation') ? document.getElementById('deviceLocation').value.trim() : '';
         
-        // Get dynamic IP addresses
+        // Get dynamic IP addresses with network zones
         var addresses = [];
         var ipContainer = document.getElementById('deviceIPContainer');
         if (ipContainer) {
-            var ipFields = ipContainer.querySelectorAll('.ip-field');
-            ipFields.forEach(function(field) {
-                var value = field.value.trim();
-                if (value) {
-                    addresses.push({ network: value, ip: '', vlan: null });
+            var ipRows = ipContainer.querySelectorAll('.ip-row');
+            ipRows.forEach(function(row) {
+                var ipField = row.querySelector('.ip-field');
+                var zoneSelect = row.querySelector('.ip-zone');
+                var ipValue = ipField ? ipField.value.trim() : '';
+                var zoneValue = zoneSelect ? zoneSelect.value : '';
+                if (ipValue) {
+                    addresses.push({ network: ipValue, ip: '', vlan: null, zone: zoneValue });
                 }
             });
+            // Handle legacy single input field (initial HTML)
+            if (ipRows.length === 0) {
+                var legacyFields = ipContainer.querySelectorAll('.ip-field');
+                legacyFields.forEach(function(field) {
+                    var value = field.value.trim();
+                    if (value) {
+                        addresses.push({ network: value, ip: '', vlan: null, zone: '' });
+                    }
+                });
+            }
         }
         
         var links = typeof DeviceLinks !== 'undefined' ? DeviceLinks.getLinks('deviceLinksContainer') : [];
@@ -1591,6 +1671,15 @@ function saveDevice() {
         type = type.toLowerCase();
         status = status.toLowerCase();
         
+        // Derive main zone from IP addresses (use first non-empty zone)
+        var mainZone = '';
+        for (var i = 0; i < addresses.length; i++) {
+            if (addresses[i].zone) {
+                mainZone = addresses[i].zone;
+                break;
+            }
+        }
+        
         var deviceData = {
             id: editId ? parseInt(editId, 10) : appState.nextDeviceId++,
             rackId: rackId,
@@ -1603,11 +1692,10 @@ function saveDevice() {
             type: type,
             status: status,
             location: location,
-            addresses: addresses, // Dynamic IP array
+            addresses: addresses, // Dynamic IP array with zones
             links: links,
             service: service,
-            zone: zone,
-            zoneIP: zoneIP,
+            zone: mainZone, // Derived from IP zones
             ports: ports,
             notes: notes
         };
@@ -1659,19 +1747,15 @@ function clearDeviceForm() {
     document.getElementById('deviceService').value = '';
     document.getElementById('deviceNotes').value = '';
     
-    // Clear zone fields
-    if (document.getElementById('deviceZone')) document.getElementById('deviceZone').value = '';
-    if (document.getElementById('deviceZoneIP')) document.getElementById('deviceZoneIP').value = '';
-    
     document.getElementById('portTypeQuantityContainer').innerHTML = '';
     
     // Clear new fields
     if (document.getElementById('deviceLocation')) document.getElementById('deviceLocation').value = '';
     
-    // Reset IP container to one empty field
+    // Reset IP container to one empty field with zone dropdown
     var ipContainer = document.getElementById('deviceIPContainer');
     if (ipContainer) {
-        ipContainer.innerHTML = '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" placeholder="192.168.1.1/24 or VLAN 10">';
+        ipContainer.innerHTML = createIPFieldHTML('', '');
     }
     
     if (document.getElementById('deviceLinksContainer')) document.getElementById('deviceLinksContainer').innerHTML = '';
@@ -1707,14 +1791,6 @@ function editDevice(id) {
     document.getElementById('deviceService').value = d.service || '';
     document.getElementById('deviceNotes').value = d.notes || '';
     
-    // Fill zone fields
-    if (document.getElementById('deviceZone')) {
-        document.getElementById('deviceZone').value = d.zone || '';
-    }
-    if (document.getElementById('deviceZoneIP')) {
-        document.getElementById('deviceZoneIP').value = d.zoneIP || '';
-    }
-    
     document.getElementById('saveDeviceButton').textContent = 'Update Device';
 
     // Fill new fields
@@ -1732,10 +1808,10 @@ function editDevice(id) {
         if (d.addresses && d.addresses.length > 0) {
             d.addresses.forEach(function(addr) {
                 var ipValue = addr.network || addr.ip || '';
+                var zoneValue = addr.zone || '';
                 if (ipValue) {
                     hasIPs = true;
-                    ipContainer.insertAdjacentHTML('beforeend', 
-                        '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" value="' + escapeHtml(ipValue) + '" placeholder="192.168.1.1/24 or VLAN 10">');
+                    ipContainer.insertAdjacentHTML('beforeend', createIPFieldHTML(ipValue, zoneValue));
                 }
             });
         }
@@ -1744,15 +1820,14 @@ function editDevice(id) {
             [d.ip1, d.ip2, d.ip3, d.ip4].forEach(function(ip) {
                 if (ip && ip.trim()) {
                     hasIPs = true;
-                    ipContainer.insertAdjacentHTML('beforeend',
-                        '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" value="' + escapeHtml(ip) + '" placeholder="192.168.1.1/24 or VLAN 10">');
+                    ipContainer.insertAdjacentHTML('beforeend', createIPFieldHTML(ip, ''));
                 }
             });
         }
         
         // Add at least one empty field if no IPs
         if (!hasIPs) {
-            ipContainer.innerHTML = '<input type="text" class="ip-field w-full px-2 py-1 border border-slate-300 rounded text-xs font-mono" placeholder="192.168.1.1/24 or VLAN 10">';
+            ipContainer.innerHTML = createIPFieldHTML('', '');
         }
     }
     
@@ -2041,15 +2116,28 @@ function toggleRearOrder() {
 
 // ============================================================================
 // IP ADDRESS MANAGEMENT (DYNAMIC)
+// Uses NETWORK_ZONES constant defined in Centralized Data Utilities section
 // ============================================================================
+
+function createIPFieldHTML(ipValue, zoneValue) {
+    ipValue = ipValue || '';
+    zoneValue = zoneValue || '';
+    var options = NETWORK_ZONES.map(function(opt) {
+        var selected = opt.value === zoneValue ? ' selected' : '';
+        return '<option value="' + opt.value + '"' + selected + '>' + opt.label + '</option>';
+    }).join('');
+    
+    return '<div class="flex gap-1 items-center ip-row">' +
+        '<input type="text" class="ip-field flex-1 px-2 py-1 border border-green-300 rounded text-xs font-mono bg-white" value="' + escapeHtml(ipValue) + '" placeholder="192.168.1.1/24">' +
+        '<select class="ip-zone px-1 py-1 border border-green-300 rounded text-xs bg-white" title="Network Zone">' + options + '</select>' +
+        '<button type="button" onclick="removeIPField(this)" class="text-red-500 hover:text-red-700 font-bold px-1">✕</button>' +
+        '</div>';
+}
+
 function addIPField() {
     var container = document.getElementById('deviceIPContainer');
     if (container) {
-        container.insertAdjacentHTML('beforeend', 
-            '<div class="flex gap-1 items-center">' +
-            '<input type="text" class="ip-field flex-1 px-2 py-1 border border-slate-300 rounded text-xs font-mono" placeholder="192.168.1.1/24 or VLAN 10">' +
-            '<button type="button" onclick="removeIPField(this)" class="text-red-500 hover:text-red-700 font-bold px-1">✕</button>' +
-            '</div>');
+        container.insertAdjacentHTML('beforeend', createIPFieldHTML('', ''));
     }
 }
 
@@ -2586,24 +2674,10 @@ function getGroupsByLocation(location) {
 
 /**
  * Get devices filtered by location and group
+ * Uses centralized getDevicesFiltered for consistency
  */
 function getDevicesByLocationAndGroup(location, group) {
-    var devices = [];
-    for (var i = 0; i < appState.devices.length; i++) {
-        var d = appState.devices[i];
-        var deviceLoc = d.location || 'No Location';
-        var matchLoc = !location || location === '' || deviceLoc === location;
-        var matchGroup = !group || group === '' || d.rackId === group;
-        if (matchLoc && matchGroup) {
-            devices.push(d);
-        }
-    }
-    // Sort by rackId then order
-    return devices.sort(function(a, b) {
-        if (a.rackId < b.rackId) return -1;
-        if (a.rackId > b.rackId) return 1;
-        return (a.order || 0) - (b.order || 0);
-    });
+    return getDevicesFiltered(location, group);
 }
 
 /**
@@ -2840,11 +2914,9 @@ function getPortConnectionCount(deviceId, portName, excludeConnIdx) {
 // UI UPDATES
 // ============================================================================
 function getSorted() {
-    return appState.devices.slice().sort(function(a, b) {
-        if (a.rackId < b.rackId) return -1;
-        if (a.rackId > b.rackId) return 1;
-        return (a.order || 0) - (b.order || 0);
-    });
+// getSorted now uses centralized standardDeviceSort for consistency
+function getSorted() {
+    return getDevicesSorted();
 }
 
 function updateUI() {

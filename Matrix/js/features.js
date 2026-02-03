@@ -1581,6 +1581,7 @@ var SVGTopology = (function() {
     }
     
     // Get filtered devices based on topology's own location and rack filters
+    // Uses centralized sorting from app.js for consistent ordering
     function getTopologyFilteredDevices() {
         var topologyFilter = document.getElementById('topologyLocationFilter');
         var rackFilter = document.getElementById('topologyRackFilter');
@@ -1594,6 +1595,9 @@ var SVGTopology = (function() {
             var rackDevices = devices.filter(function(d) {
                 return d.rackId === rack;
             });
+            
+            // Sort rack devices using centralized sort
+            rackDevices = rackDevices.sort(standardDeviceSort);
             
             // Mark rack devices
             rackDevices.forEach(function(d) { d._isExternal = false; });
@@ -1615,6 +1619,9 @@ var SVGTopology = (function() {
             });
             connectedDevices.forEach(function(d) { d._isExternal = true; });
             
+            // Sort connected devices too
+            connectedDevices = connectedDevices.sort(standardDeviceSort);
+            
             return rackDevices.concat(connectedDevices);
         }
         
@@ -1628,7 +1635,8 @@ var SVGTopology = (function() {
         // Clear external flags
         devices.forEach(function(d) { d._isExternal = false; });
         
-        return devices;
+        // Sort using centralized function
+        return devices.slice().sort(standardDeviceSort);
     }
     
     // Get filtered connections based on topology's filters
@@ -3477,17 +3485,21 @@ function closeLegendModal(event) {
 }
 
 // Global helper functions for topology filtering
+// Uses centralized standardDeviceSort from app.js for consistent ordering
 function getTopologyFilteredDevices() {
     var topologyFilter = document.getElementById('topologyLocationFilter');
     var location = topologyFilter ? topologyFilter.value : '';
     
-    if (!location) {
-        return appState.devices || [];
+    var devices = appState.devices || [];
+    
+    if (location) {
+        devices = devices.filter(function(d) {
+            return d.location === location;
+        });
     }
     
-    return (appState.devices || []).filter(function(d) {
-        return d.location === location;
-    });
+    // Sort using centralized function for consistent order (rackId + order)
+    return devices.slice().sort(standardDeviceSort);
 }
 
 function getTopologyFilteredConnections() {
