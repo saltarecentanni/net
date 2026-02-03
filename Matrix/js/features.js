@@ -3765,16 +3765,13 @@ function handleRdpLink(address, copied) {
 }
 
 /**
- * Handler para SSH - mostra comando copiado
+ * Handler para SSH - endereço já foi copiado, apenas mostra Toast
  */
 function handleSshLink(address, copied) {
-    var sshCommand = 'ssh ' + address;
-    
-    // Copia o comando SSH completo
-    copyTextToClipboard(sshCommand, false);
-    
+    // O endereço já foi copiado no passo 1 (copyTextToClipboard no openProtocolLink)
+    // Apenas mostra Toast informando
     if (typeof Toast !== 'undefined') {
-        Toast.success('📋 SSH command copied:\n' + sshCommand + '\n\nPaste in your terminal (Ctrl+V)', 6000);
+        Toast.success('📋 Copied: ' + address + '\n\nUse: ssh ' + address, 5000);
     }
 }
 
@@ -3791,15 +3788,12 @@ function handleVncLink(protocolUrl, address, copied) {
 }
 
 /**
- * Handler para Telnet
+ * Handler para Telnet - endereço já foi copiado
  */
 function handleTelnetLink(address, copied) {
-    var telnetCommand = 'telnet ' + address;
-    
-    copyTextToClipboard(telnetCommand, false);
-    
+    // O endereço já foi copiado no passo 1
     if (typeof Toast !== 'undefined') {
-        Toast.success('📋 Telnet command copied:\n' + telnetCommand + '\n\nPaste in your terminal', 6000);
+        Toast.success('📋 Copied: ' + address + '\n\nUse: telnet ' + address, 5000);
     }
 }
 
