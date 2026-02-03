@@ -101,7 +101,7 @@ var CURRENT_VERSION = '3.5.014';
  * NOTE: These include both legacy values (active/disabled) and new values for backward compatibility
  */
 var VALID_ENUMS = {
-    deviceTypes: ['server', 'switch', 'router', 'firewall', 'workstation', 'laptop', 'phone', 'access_point', 'printer', 'storage', 'nas', 'pdu', 'camera', 'sensor', 'patch_panel', 'patch', 'wifi', 'isp', 'router_wifi', 'modem', 'hub', 'pc', 'ip_phone', 'ups', 'walljack', 'others', 'other'],
+    deviceTypes: ['server', 'switch', 'router', 'firewall', 'workstation', 'laptop', 'phone', 'access_point', 'printer', 'storage', 'nas', 'pdu', 'camera', 'sensor', 'patch_panel', 'patch', 'wifi', 'isp', 'router_wifi', 'modem', 'hub', 'pc', 'ip_phone', 'ups', 'walljack', 'tv', 'display', 'monitor', 'others', 'other'],
     deviceStatus: ['active', 'disabled', 'online', 'offline', 'maintenance', 'warning', 'error'],
     connectionTypes: ['lan', 'wan', 'dmz', 'trunk', 'management', 'backup', 'fiber', 'wallport', 'walljack', 'external', 'other', 'LAN', 'WAN', 'DMZ', 'Trunk', 'Management', 'Backup', 'Fiber', 'Wall Jack', 'External'],
     connectionStatus: ['active', 'disabled', 'inactive', 'maintenance', 'reserved', 'planned']
@@ -3719,7 +3719,7 @@ async function exportJSON() {
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        var filename = 'network_manager_' + new Date().toISOString().slice(0,10) + '.json';
+        var filename = 'Tiesse-Matrix-Network_' + new Date().toISOString().slice(0,10) + '.json';
         a.download = filename;
         document.body.appendChild(a);
         a.click();
@@ -4004,7 +4004,7 @@ function clearAll() {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             a.href = url;
-            a.download = 'network_backup_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+            a.download = 'Tiesse-Matrix-Network_backup_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

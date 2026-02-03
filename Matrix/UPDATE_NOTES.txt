@@ -1,8 +1,41 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.028
+Version: 3.5.029
 Last Updated: 2026-02-03
 ================================================================================
+
+CHANGELOG v3.5.029 (2026-02-03)
+--------------------------------------------------------------------------------
+🎨 UI/UX Improvements & New Features
+
+🖥️ NEW DEVICE TYPE:
+  ✅ Added TV/Display device type with icon (📺)
+  ✅ SVG icon with screen, base, and LED indicator
+  ✅ Added display/monitor aliases
+
+📄 EXPORT FILENAMES:
+  ✅ JSON: Tiesse-Matrix-Network_YYYY-MM-DD.json
+  ✅ Excel: Tiesse-Matrix-Network_YYYY-MM-DD.xlsx
+  ✅ Topology PNG: Tiesse-Matrix-Topology_*.png
+  ✅ Matrix PNG: Tiesse-Matrix_*.png
+  ✅ Drawio: Tiesse-Matrix-Topology_*.drawio
+  ✅ Logs: Tiesse-Matrix-Logs_*.json
+
+🔍 FILTER CONSISTENCY:
+  ✅ All location filters now show "00 - Name" format
+  ✅ Consistent across Devices, Topology, and Matrix tabs
+  ✅ Locations sorted by code number
+
+🖼️ TOPOLOGY IMPROVEMENTS:
+  ✅ External nodes (WAN, ISP, Cloud) now DRAGGABLE
+  ✅ Positions persist across sessions
+  ✅ Virtual external nodes created for non-WallJack connections
+
+🏠 LOGO AS HOME LINK:
+  ✅ Tiesse logo now clickable to refresh/return to home
+  ✅ Hover effect with opacity transition
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.028 (2026-02-03)
 --------------------------------------------------------------------------------

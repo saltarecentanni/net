@@ -87,15 +87,36 @@ function updateDeviceFilterBar() {
     var filterBar = document.getElementById('deviceFilterBar');
     if (!filterBar) return;
     
-    // Get unique locations, sources and types for dropdowns
-    var locations = [];
+    // Get unique locations using LocationFilter helper (with codes)
+    var locationsWithCode = [];
+    if (typeof LocationFilter !== 'undefined' && LocationFilter.getLocationsForFilter) {
+        locationsWithCode = LocationFilter.getLocationsForFilter();
+    } else {
+        // Fallback: collect from devices
+        var seen = {};
+        var idx = 1;
+        for (var i = 0; i < appState.devices.length; i++) {
+            var loc = appState.devices[i].location;
+            if (loc && !seen[loc]) {
+                seen[loc] = true;
+                locationsWithCode.push({
+                    value: loc,
+                    display: String(idx).padStart(2, '0') + ' - ' + loc,
+                    code: idx
+                });
+                idx++;
+            }
+        }
+        locationsWithCode.sort(function(a, b) { return a.code - b.code; });
+    }
+    
+    // Get unique groups and types
     var sources = [];
     var types = [];
     var selectedLocation = appState.deviceFilters.location || '';
     
     for (var i = 0; i < appState.devices.length; i++) {
         var d = appState.devices[i];
-        if (d.location && locations.indexOf(d.location) === -1) locations.push(d.location);
         // Only add groups from devices in the selected location (smart filtering)
         if (d.rackId && sources.indexOf(d.rackId) === -1) {
             if (!selectedLocation || d.location === selectedLocation) {
@@ -109,7 +130,6 @@ function updateDeviceFilterBar() {
             }
         }
     }
-    locations.sort();
     sources.sort();
     types.sort();
     
@@ -124,12 +144,13 @@ function updateDeviceFilterBar() {
     var html = '<div class="flex flex-wrap items-center gap-2 p-3 bg-slate-100 rounded-lg mb-3">';
     html += '<span class="text-xs font-semibold text-slate-600">Filters:</span>';
     
-    // Location filter (first, with purple styling)
+    // Location filter (first, with purple styling) - now with codes
     html += '<select id="filterDeviceLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold">';
     html += '<option value="">All Locations</option>';
-    for (var l = 0; l < locations.length; l++) {
-        var selectedL = appState.deviceFilters.location === locations[l] ? ' selected' : '';
-        html += '<option value="' + locations[l] + '"' + selectedL + '>' + locations[l] + '</option>';
+    for (var l = 0; l < locationsWithCode.length; l++) {
+        var loc = locationsWithCode[l];
+        var selectedL = appState.deviceFilters.location === loc.value ? ' selected' : '';
+        html += '<option value="' + escapeHtml(loc.value) + '"' + selectedL + '>' + escapeHtml(loc.display) + '</option>';
     }
     html += '</select>';
     
@@ -138,7 +159,7 @@ function updateDeviceFilterBar() {
     html += '<option value="">All Groups</option>';
     for (var s = 0; s < sources.length; s++) {
         var selected = appState.deviceFilters.source === sources[s] ? ' selected' : '';
-        html += '<option value="' + sources[s] + '"' + selected + '>' + sources[s] + '</option>';
+        html += '<option value="' + escapeHtml(sources[s]) + '"' + selected + '>' + escapeHtml(sources[s]) + '</option>';
     }
     html += '</select>';
     
@@ -1160,7 +1181,7 @@ var SVGMatrix = (function() {
         
         // Build filename
         var parts = ['Matrix'];
-        var fileParts = ['matrix'];
+        var fileParts = ['Tiesse-Matrix'];
         
         var locationFilter = document.getElementById('matrixLocationFilter');
         if (locationFilter && locationFilter.value) {
@@ -1493,14 +1514,34 @@ function updateMatrixFilters() {
     
     if (!locationSelect || !groupSelect) return;
     
-    // Get unique locations and groups
-    var locations = {};
-    var groups = {};
+    // Use LocationFilter helper for consistent display with codes
+    var locationsWithCode = [];
+    if (typeof LocationFilter !== 'undefined' && LocationFilter.getLocationsForFilter) {
+        locationsWithCode = LocationFilter.getLocationsForFilter();
+    } else {
+        // Fallback: collect from devices
+        var seen = {};
+        var idx = 1;
+        appState.devices.forEach(function(d) {
+            if (d.location && d.location.trim()) {
+                var loc = d.location.trim();
+                if (!seen[loc]) {
+                    seen[loc] = true;
+                    locationsWithCode.push({
+                        value: loc,
+                        display: String(idx).padStart(2, '0') + ' - ' + loc,
+                        code: idx
+                    });
+                    idx++;
+                }
+            }
+        });
+        locationsWithCode.sort(function(a, b) { return a.code - b.code; });
+    }
     
+    // Get unique groups
+    var groups = {};
     appState.devices.forEach(function(d) {
-        if (d.location && d.location.trim()) {
-            locations[d.location.trim()] = true;
-        }
         if (d.rackId && d.rackId.trim()) {
             // If location filter is active, only show groups from that location
             if (!matrixFilters.location || d.location === matrixFilters.location) {
@@ -1509,14 +1550,14 @@ function updateMatrixFilters() {
         }
     });
     
-    // Update location dropdown
+    // Update location dropdown with codes
     var currentLocation = locationSelect.value;
     locationSelect.innerHTML = '<option value="">📍 All Locations</option>';
-    Object.keys(locations).sort().forEach(function(loc) {
+    locationsWithCode.forEach(function(loc) {
         var option = document.createElement('option');
-        option.value = loc;
-        option.textContent = loc;
-        if (loc === currentLocation) option.selected = true;
+        option.value = loc.value;
+        option.textContent = loc.display;
+        if (loc.value === currentLocation) option.selected = true;
         locationSelect.appendChild(option);
     });
     
@@ -2446,7 +2487,7 @@ function exportExcel() {
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(locsData), 'Locations');
         }
 
-        XLSX.writeFile(wb, 'network_manager.xlsx');
+        XLSX.writeFile(wb, 'Tiesse-Matrix-Network_' + new Date().toISOString().slice(0,10) + '.xlsx');
         
         // Log the export
         if (typeof ActivityLog !== 'undefined') {

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.5.028
+ * Version: 3.5.029
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -171,7 +171,7 @@ var ActivityLog = (function() {
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'activity_logs_' + new Date().toISOString().split('T')[0] + '.json';
+        a.download = 'Tiesse-Matrix-Logs_' + new Date().toISOString().split('T')[0] + '.json';
         a.click();
         URL.revokeObjectURL(url);
         Toast.success('Logs exported');
@@ -385,6 +385,86 @@ var LocationFilter = (function() {
         }
     }
     
+    /**
+     * Get location display name with code prefix (e.g., "01 - Sala Server")
+     * Used for consistent display in all filters
+     */
+    function getLocationWithCode(locationName) {
+        if (!locationName || !appState) return locationName;
+        
+        // Check in appState.locations
+        if (appState.locations && appState.locations.length > 0) {
+            for (var i = 0; i < appState.locations.length; i++) {
+                if (appState.locations[i].name === locationName) {
+                    return appState.locations[i].code + ' - ' + locationName;
+                }
+            }
+        }
+        
+        // Check in rooms (fallback)
+        if (appState.rooms && appState.rooms.length > 0) {
+            for (var r = 0; r < appState.rooms.length; r++) {
+                var room = appState.rooms[r];
+                if (room.nickname === locationName || room.id === locationName) {
+                    return String(room.id).padStart(2, '0') + ' - ' + locationName;
+                }
+            }
+        }
+        
+        // No code found, return as-is
+        return locationName;
+    }
+    
+    /**
+     * Get sorted locations with codes for filter dropdowns
+     * Returns array of {value: 'name', display: '00 - name'}
+     */
+    function getLocationsForFilter() {
+        var result = [];
+        
+        if (appState.locations && appState.locations.length > 0) {
+            var mapped = [];
+            var custom = [];
+            
+            appState.locations.forEach(function(loc) {
+                var item = {
+                    value: loc.name,
+                    display: loc.code + ' - ' + loc.name,
+                    code: parseInt(loc.code) || 999,
+                    type: loc.type
+                };
+                if (loc.type === 'mapped') {
+                    mapped.push(item);
+                } else {
+                    custom.push(item);
+                }
+            });
+            
+            mapped.sort(function(a, b) { return a.code - b.code; });
+            custom.sort(function(a, b) { return a.code - b.code; });
+            
+            result = mapped.concat(custom);
+        } else {
+            // Fallback: use unique locations from devices
+            var seen = {};
+            var idx = 1;
+            appState.devices.forEach(function(d) {
+                if (d.location && !seen[d.location]) {
+                    seen[d.location] = true;
+                    result.push({
+                        value: d.location,
+                        display: String(idx).padStart(2, '0') + ' - ' + d.location,
+                        code: idx
+                    });
+                    idx++;
+                }
+            });
+            result.sort(function(a, b) { return a.display.localeCompare(b.display); });
+        }
+        
+        return result;
+    }
+    
     return {
         init: init,
         update: updateLocationList,
@@ -392,7 +472,9 @@ var LocationFilter = (function() {
         getFilteredDevices: getFilteredDevices,
         getFilteredConnections: getFilteredConnections,
         getCurrent: function() { return currentLocation; },
-        updateCounters: updateFilteredCounters
+        updateCounters: updateFilteredCounters,
+        getLocationWithCode: getLocationWithCode,
+        getLocationsForFilter: getLocationsForFilter
     };
 })();
 
@@ -1098,6 +1180,27 @@ var SVGTopology = (function() {
                 '<circle cx="55" cy="55" r="3" fill="#fdcb6e"/>' +
                 '</g>';
         },
+        // TV / Display / Monitor
+        tv: function(color) {
+            return '<g transform="translate(5,5) scale(0.85)">' +
+                // Moldura da TV
+                '<rect x="5" y="5" width="80" height="50" rx="3" fill="#2d3436"/>' +
+                '<rect x="8" y="8" width="74" height="44" rx="2" fill="#1e272e"/>' +
+                // Tela
+                '<rect x="10" y="10" width="70" height="40" rx="1" fill="#3498db"/>' +
+                // Reflexo na tela
+                '<rect x="12" y="12" width="25" height="15" fill="#fff" opacity="0.1" rx="1"/>' +
+                // Base/Suporte
+                '<rect x="35" y="56" width="20" height="4" fill="#2d3436" rx="1"/>' +
+                '<rect x="30" y="60" width="30" height="6" fill="#2d3436" rx="2"/>' +
+                // LED indicador
+                '<circle cx="45" cy="52" r="2" fill="#00b894"/>' +
+                // Logo marca
+                '<rect x="40" y="54" width="10" height="2" fill="#636e72" rx="0.5"/>' +
+                '</g>';
+        },
+        display: function(color) { return deviceIcons.tv(color); },
+        monitor: function(color) { return deviceIcons.tv(color); },
         // Wall Jack / Tomada de Parede
         walljack: function(color) {
             return '<g transform="translate(15,5) scale(0.85)">' +
@@ -1188,6 +1291,8 @@ var SVGTopology = (function() {
         ups: '#2d3436',         // Dark gray (power)
         walljack: '#ecf0f1',    // Light gray (wall plate)
         modem: '#2d3436',       // Dark gray (modem)
+        tv: '#2d3436',          // Dark gray (TV)
+        display: '#2d3436',     // Dark gray (display)
         others: '#636e72'       // Gray
     };
     
@@ -1218,6 +1323,8 @@ var SVGTopology = (function() {
         ups: 'UPS',
         walljack: 'Wall Jack',
         modem: 'Modem',
+        tv: 'TV/Display',
+        display: 'Display',
         others: 'Other'
     };
     
@@ -1248,6 +1355,8 @@ var SVGTopology = (function() {
         ups: '#27ae60',
         walljack: '#7f8c8d',
         modem: '#e67e22',
+        tv: '#3498db',
+        display: '#3498db',
         others: '#95a5a6'
     };
     
@@ -1307,21 +1416,43 @@ var SVGTopology = (function() {
         var select = document.getElementById('topologyLocationFilter');
         if (!select) return;
         
-        var locations = {};
-        appState.devices.forEach(function(d) {
-            if (d.location) locations[d.location] = true;
-        });
+        // Use LocationFilter helper for consistent display with codes
+        var locationsWithCode = [];
+        if (typeof LocationFilter !== 'undefined' && LocationFilter.getLocationsForFilter) {
+            locationsWithCode = LocationFilter.getLocationsForFilter();
+        } else {
+            // Fallback: collect from devices
+            var seen = {};
+            var idx = 1;
+            appState.devices.forEach(function(d) {
+                if (d.location && !seen[d.location]) {
+                    seen[d.location] = true;
+                    locationsWithCode.push({
+                        value: d.location,
+                        display: String(idx).padStart(2, '0') + ' - ' + d.location,
+                        code: idx
+                    });
+                    idx++;
+                }
+            });
+            locationsWithCode.sort(function(a, b) { return a.code - b.code; });
+        }
         
         var currentValue = select.value;
         var html = '<option value="">📍 All Locations</option>';
-        Object.keys(locations).sort().forEach(function(loc) {
-            html += '<option value="' + loc + '">' + loc + '</option>';
+        locationsWithCode.forEach(function(loc) {
+            html += '<option value="' + escapeHtml(loc.value) + '">' + escapeHtml(loc.display) + '</option>';
         });
         select.innerHTML = html;
         
         // Restore previous selection (topology filter is independent from global filter)
-        if (currentValue && locations[currentValue]) {
-            select.value = currentValue;
+        if (currentValue) {
+            for (var i = 0; i < locationsWithCode.length; i++) {
+                if (locationsWithCode[i].value === currentValue) {
+                    select.value = currentValue;
+                    break;
+                }
+            }
         }
         
         // Update rack filter based on location
@@ -1674,6 +1805,10 @@ var SVGTopology = (function() {
         var virtualWallJacks = [];
         var wallJackMap = {}; // Map externalDest to virtual device
         
+        // Also create virtual devices for external destinations (WAN, ISP, Cloud, etc)
+        var virtualExternals = [];
+        var externalMap = {}; // Map externalDest to virtual external device
+        
         connections.forEach(function(c) {
             // Only process external connections with isWallJack=true
             if (c.to || !c.externalDest || !c.isWallJack || !c.from || !devicePositions[c.from]) return;
@@ -1712,6 +1847,50 @@ var SVGTopology = (function() {
                 // Store position
                 if (!devicePositions[virtualId]) {
                     devicePositions[virtualId] = { x: wjX, y: wjY };
+                }
+            }
+        });
+        
+        // Create virtual external nodes for non-WallJack external connections
+        connections.forEach(function(c) {
+            if (c.to || !c.externalDest || c.isWallJack || !c.from || !devicePositions[c.from]) return;
+            
+            var extKey = c.externalDest;
+            if (!externalMap[extKey]) {
+                var from = devicePositions[c.from];
+                var fromCX = from.x + 40;
+                var fromCY = from.y + 35;
+                
+                // Calculate position for external node
+                var hashCode = 0;
+                var hashStr = c.from + '-' + c.externalDest;
+                for (var hi = 0; hi < hashStr.length; hi++) {
+                    hashCode = ((hashCode << 5) - hashCode + hashStr.charCodeAt(hi)) | 0;
+                }
+                var angle = (Math.abs(hashCode) % 360) * (Math.PI / 180);
+                var distance = 100;
+                
+                var extX = fromCX + Math.cos(angle) * distance - 30;
+                var extY = fromCY + Math.sin(angle) * distance - 10;
+                
+                var virtualId = 'ext_' + extKey.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                var virtualDevice = {
+                    id: virtualId,
+                    name: c.externalDest,
+                    type: 'external',
+                    _isVirtualExternal: true,
+                    _originalConnection: c
+                };
+                
+                virtualExternals.push(virtualDevice);
+                externalMap[extKey] = virtualDevice;
+                
+                // Use custom position if saved, otherwise use calculated
+                if (customPositions[virtualId]) {
+                    devicePositions[virtualId] = customPositions[virtualId];
+                } else if (!devicePositions[virtualId]) {
+                    devicePositions[virtualId] = { x: extX, y: extY };
                 }
             }
         });
@@ -1976,36 +2155,38 @@ var SVGTopology = (function() {
                 }
             }
             
-            // Non-Wall Jack external: stub line
-            var fromCX = from.x + 40;
-            var fromCY = from.y + 35;
-            var hashCode = 0;
-            var hashStr = c.from + '-' + externalDest;
-            for (var hi = 0; hi < hashStr.length; hi++) {
-                hashCode = ((hashCode << 5) - hashCode + hashStr.charCodeAt(hi)) | 0;
-            }
-            var angle = (Math.abs(hashCode) % 360) * (Math.PI / 180);
-            var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, fromCX + Math.cos(angle) * 100, fromCY + Math.sin(angle) * 100);
-            
-            var endX = fromDot.x + Math.cos(angle) * 60;
-            var endY = fromDot.y + Math.sin(angle) * 60;
-            
-            html += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + endX + ',' + endY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-            html += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-            
-            // External box
-            var boxWidth = Math.max(50, externalDest.length * 5 + 10);
-            html += '<rect x="' + (endX - boxWidth/2) + '" y="' + (endY - 10) + '" width="' + boxWidth + '" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>';
-            html += '<text x="' + endX + '" y="' + (endY + 4) + '" text-anchor="middle" fill="#374151" font-size="7" font-weight="600">🌐 ' + escapeHtml(externalDest) + '</text>';
-            
-            usedLabelPositions.push({ x: endX, y: endY, width: boxWidth + 10, height: 30 });
-            
-            if (fromPort) {
-                pendingLabels.push({ x: fromDot.x + (endX - fromDot.x) * 0.2, y: fromDot.y + (endY - fromDot.y) * 0.2, text: fromPort, color: cableColor, small: false, onLine: true });
-            }
-            if (cableId) {
-                pendingLabels.push({ x: (fromDot.x + endX) / 2, y: (fromDot.y + endY) / 2, text: cableId, color: cableColor, small: true, onLine: true });
+            // Non-Wall Jack external: draw line to virtual external node
+            if (externalMap[externalDest]) {
+                var virtualId = externalMap[externalDest].id;
+                var extPos = devicePositions[virtualId];
+                if (extPos) {
+                    // External node center (small box)
+                    var extCX = extPos.x + 30;
+                    var extCY = extPos.y + 10;
+                    
+                    // Get from dot
+                    var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, extCX, extCY);
+                    
+                    // Line to external node
+                    html += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + extCX + ',' + extCY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
+                        'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
+                    
+                    // Connection dots
+                    html += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
+                    html += '<circle cx="' + extCX + '" cy="' + extCY + '" r="3" fill="' + cableColor + '"/>';
+                    
+                    // Labels
+                    if (fromPort) {
+                        var l1x = fromDot.x + (extCX - fromDot.x) * 0.15;
+                        var l1y = fromDot.y + (extCY - fromDot.y) * 0.15;
+                        pendingLabels.push({ x: l1x, y: l1y, text: fromPort, color: cableColor, small: false, onLine: true });
+                    }
+                    if (cableId) {
+                        var midX = (fromDot.x + extCX) / 2;
+                        var midY = (fromDot.y + extCY) / 2;
+                        pendingLabels.push({ x: midX, y: midY, text: cableId, color: cableColor, small: true, onLine: true });
+                    }
+                }
             }
         });
         
@@ -2013,6 +2194,24 @@ var SVGTopology = (function() {
         
         // Draw devices
         html += '<g class="devices">';
+        
+        // First, draw virtual external nodes (draggable boxes)
+        virtualExternals.forEach(function(ext) {
+            var pos = devicePositions[ext.id];
+            if (!pos) return;
+            
+            var boxWidth = Math.max(60, ext.name.length * 6 + 20);
+            var boxHeight = 24;
+            
+            html += '<g class="device-node external-node" data-id="' + ext.id + '" transform="translate(' + pos.x + ',' + pos.y + ')" ' +
+                'style="cursor: move;">';
+            html += '<rect x="0" y="0" width="' + boxWidth + '" height="' + boxHeight + '" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>';
+            html += '<text x="' + (boxWidth/2) + '" y="' + (boxHeight/2 + 4) + '" text-anchor="middle" fill="#374151" font-size="8" font-weight="600">🌐 ' + escapeHtml(ext.name) + '</text>';
+            html += '</g>';
+            
+            usedLabelPositions.push({ x: pos.x + boxWidth/2, y: pos.y + boxHeight/2, width: boxWidth + 10, height: boxHeight + 10 });
+        });
+        
         devices.forEach(function(d) {
             var pos = devicePositions[d.id];
             if (!pos) return;
@@ -2644,7 +2843,7 @@ var SVGTopology = (function() {
     // Generate export filename and title based on current filters
     function getExportInfo() {
         var parts = [];
-        var fileParts = ['topology'];
+        var fileParts = ['Tiesse-Matrix-Topology'];
         
         var locationFilter = document.getElementById('topologyLocationFilter');
         if (locationFilter && locationFilter.value) {
@@ -3181,7 +3380,7 @@ var DrawioExport = (function() {
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'network_topology_' + new Date().toISOString().split('T')[0] + '.drawio';
+        a.download = 'Tiesse-Matrix-Topology_' + new Date().toISOString().split('T')[0] + '.drawio';
         a.click();
         URL.revokeObjectURL(url);
         
