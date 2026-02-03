@@ -3315,7 +3315,7 @@ var DeviceLinks = (function() {
     function renderLinks(links) {
         if (!links || !links.length) return '';
         
-        return links.map(function(link) {
+        return links.map(function(link, idx) {
             var typeInfo = linkTypes.find(function(t) { return t.value === link.type; }) || linkTypes[linkTypes.length - 1];
             // If no label, use "Gestione" as default
             var displayLabel = link.label || 'Gestione';
@@ -3329,14 +3329,53 @@ var DeviceLinks = (function() {
             }
             
             // Protocolos que precisam copiar (SSH, RDP, VNC, SMB, NFS, Telnet)
-            if (link.url.match(/^(ssh|rdp|vnc|smb|nfs|telnet):\/\//i) || link.type === 'ssh' || link.type === 'rdp' || link.type === 'vnc' || link.type === 'smb') {
-                return '<a href="#" onclick="copyToClipboard(\'' + safeUrl.replace(/'/g, "\\'") + '\'); return false;" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="📋 Click to copy: ' + safeUrl + '">' +
+            // Usa data-copy-url para evitar problemas de escape
+            if (link.url.match(/^(ssh|rdp|vnc|smb|nfs|telnet):\/\//i) || link.type === 'ssh' || link.type === 'rdp' || link.type === 'vnc' || link.type === 'smb' || link.type === 'telnet' || link.type === 'nfs') {
+                var uniqueId = 'copy-link-' + Date.now() + '-' + idx;
+                return '<a href="javascript:void(0)" id="' + uniqueId + '" data-copy-url="' + safeUrl + '" onclick="DeviceLinks.copyLinkUrl(this)" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="📋 Click to copy: ' + safeUrl + '">' +
                     typeInfo.icon + ' ' + safeLabel + '</a>';
             }
             
             return '<span class="inline-flex items-center gap-1 text-xs text-slate-600" title="' + safeUrl + '">' +
                 typeInfo.icon + ' ' + safeLabel + '</span>';
         }).join(' ');
+    }
+    
+    function copyLinkUrl(element) {
+        var url = element.getAttribute('data-copy-url');
+        if (url && typeof copyToClipboard === 'function') {
+            copyToClipboard(url);
+        } else if (url) {
+            // Fallback se copyToClipboard não existir
+            try {
+                navigator.clipboard.writeText(url).then(function() {
+                    if (typeof Toast !== 'undefined') Toast.success('📋 Copied: ' + url);
+                }).catch(function() {
+                    fallbackCopy(url);
+                });
+            } catch(e) {
+                fallbackCopy(url);
+            }
+        }
+    }
+    
+    function fallbackCopy(text) {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            if (typeof Toast !== 'undefined') Toast.success('📋 Copied: ' + text);
+        } catch (e) {
+            if (typeof Toast !== 'undefined') Toast.error('Failed to copy');
+            prompt('Copy this URL:', text);
+        }
+        document.body.removeChild(textarea);
     }
     
     // Use global escapeHtml function from app.js
@@ -3346,6 +3385,7 @@ var DeviceLinks = (function() {
         getLinks: getLinks,
         setLinks: setLinks,
         renderLinks: renderLinks,
+        copyLinkUrl: copyLinkUrl,
         types: linkTypes
     };
 })();
