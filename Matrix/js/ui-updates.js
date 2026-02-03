@@ -285,7 +285,7 @@ function updateDevicesListCards(cont) {
             '<span class="text-xs font-semibold px-1.5 py-0.5 rounded uppercase" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span>' +
             '<span class="text-xs text-slate-500">Pos.</span>' +
             '<span class="inline-flex items-center gap-0.5"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' +
-            ((d.isRear || d.rear) ? '<span class="text-[11px] font-bold text-amber-600" title="Rear/Back position">R</span>' : '') + '</span>' +
+            ((d.isRear || d.rear) ? '<span class="text-[11px] font-bold text-amber-600" title="Rear/Back position">↩</span>' : '') + '</span>' +
             '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
             '</div>' +
             '<div class="font-bold text-base text-slate-800 truncate">' + (disabled ? '<span class="text-red-500" title="Disabled">✗</span> ' : '') + d.name + '</div>' +
@@ -394,7 +394,7 @@ function updateDevicesListTable(cont) {
         html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200">';
         html += '<td class="p-2 text-purple-700 font-semibold max-w-xs truncate" title="' + safeLocation + '">📍 ' + (safeLocation || '-') + '</td>';
         html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + safeRackId.toUpperCase() + '</span></td>';
-        html += '<td class="p-2 text-center"><span class="inline-flex items-center justify-center gap-0.5" style="min-width:42px"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + ((d.isRear || d.rear) ? '<span class="text-[10px] text-amber-600 font-bold" title="Rear/Back position">R</span>' : '<span class="text-[10px] opacity-0">R</span>') + '</span></td>';
+        html += '<td class="p-2 text-center"><span class="inline-flex items-center justify-center gap-0.5" style="min-width:42px"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + ((d.isRear || d.rear) ? '<span class="text-[10px] text-amber-600 font-bold" title="Rear/Back position">↩</span>' : '<span class="text-[10px] opacity-0">↩</span>') + '</span></td>';
         html += '<td class="p-2 font-semibold text-slate-800">' + (disabled ? '<span class="text-red-500" title="Disabled">✗</span> ' : '') + safeName + '</td>';
         html += '<td class="p-2 text-slate-600">' + (safeBrandModel || '-') + '</td>';
         html += '<td class="p-2 text-slate-500 uppercase">' + safeType + '</td>';
