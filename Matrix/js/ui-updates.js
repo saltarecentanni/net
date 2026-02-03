@@ -2237,9 +2237,9 @@ function renderConnectionsTable(cont) {
             toDisplayPos = 'N/A';
         }
 
-        // Rear indicators - standardized icon (shown BEFORE position number for alignment)
-        var fromRearIndicator = (fromDevice && (fromDevice.isRear || fromDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold mr-0.5" title="Rear/Back position">↩</span>' : '<span class="inline-block w-3"></span>';
-        var toRearIndicator = (toDevice && (toDevice.isRear || toDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold mr-0.5" title="Rear/Back position">↩</span>' : '<span class="inline-block w-3"></span>';
+        // Rear indicators - standardized icon (shown AFTER position number, like in Devices list)
+        var fromRearIndicator = (fromDevice && (fromDevice.isRear || fromDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold" title="Rear/Back position">↩</span>' : '<span class="text-[10px] opacity-0">↩</span>';
+        var toRearIndicator = (toDevice && (toDevice.isRear || toDevice.rear)) ? '<span class="text-[10px] text-amber-600 font-bold" title="Rear/Back position">↩</span>' : '<span class="text-[10px] opacity-0">↩</span>';
         
         // Disabled indicators - standardized icon
         var fromDisabledIndicator = (fromDevice && fromDevice.status === 'disabled') ? '<span class="text-red-500 mr-0.5" title="Disabled">✗</span>' : '';
@@ -2255,7 +2255,7 @@ function renderConnectionsTable(cont) {
         html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 ' + borderClass + '">' +
             '<td class="px-3 py-2 align-top print-hide-id">' + idHtml + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + escapeHtml(fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="inline-flex items-center">' + fromRearIndicator + '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span></span></td>' +
+            '<td class="px-3 py-2 align-top"><span class="inline-flex items-center justify-center gap-0.5" style="min-width:42px"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span>' + fromRearIndicator + '</span></td>' +
             '<td class="px-3 py-2 align-top">' +
                 '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + fromDeviceNameEscaped + '\')">' + fromDisabledIndicator + escapeHtml(fromDevice ? fromDevice.name : 'N/A') + '</div>' +
                 (fromIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + fromIPs + '</div>' : '') +
@@ -2267,7 +2267,7 @@ function renderConnectionsTable(cont) {
                 '<div class="font-semibold cursor-pointer hover:text-blue-600" onclick="filterConnectionsByDevice(\'' + toDeviceNameEscaped + '\')">' + toDisabledIndicator + toDisplayName + '</div>' +
                 (toIPs ? '<div class="text-xs text-slate-600 font-mono mt-0.5">' + toIPs + '</div>' : '') +
             '</td>' +
-            '<td class="px-3 py-2 align-top"><span class="inline-flex items-center">' + toRearIndicator + '<span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span></span></td>' +
+            '<td class="px-3 py-2 align-top"><span class="inline-flex items-center justify-center gap-0.5" style="min-width:42px"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + toDisplayPos + '</span>' + toRearIndicator + '</span></td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + toRackColor + '">' + toDisplayRack + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color:' + connColor + '">' + escapeHtml(config.connLabels[c.type] || c.type) + '</span></td>' +
             '<td class="px-3 py-2 align-top">' + markerHtml + '</td>' +
