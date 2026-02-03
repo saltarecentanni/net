@@ -1,7 +1,7 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.5.013  
-**Date:** February 2, 2026  
+**Version:** 3.5.036  
+**Date:** February 3, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
 
@@ -29,7 +29,29 @@ A web-based network infrastructure documentation system for enterprise environme
 
 ## 2. VERSION HISTORY
 
-### v3.5.013 (Current) - February 2, 2026
+### v3.5.036 (Current) - February 3, 2026
+
+#### 🔧 Code Quality & Centralization
+| Feature | Description |
+|---------|-------------|
+| **standardDeviceSort()** | Centralized sort function for consistent ordering (rackId + order) |
+| **getDevicesSorted()** | Standard function to get sorted devices array |
+| **getDevicesFiltered()** | Standard function to filter and sort devices |
+| **NETWORK_ZONES** | Single source of truth for network zone options |
+| **IP + Zone Dropdown** | Each IP field now has integrated Network Zone selector |
+| **100 Verifications** | Complete syntax, balance, and code quality audit |
+| **Fixed getSorted()** | Removed duplicate function declaration |
+
+### v3.5.035 - February 3, 2026
+
+#### 🔗 Centralized Data Utilities
+| Feature | Description |
+|---------|-------------|
+| **Centralization** | Created centralized functions for sorting and filtering |
+| **IP Zone Integration** | Network Zone dropdown integrated with each IP field |
+| **Removed Redundancy** | Removed separate Network Zone form |
+
+### v3.5.013 - February 2, 2026
 
 #### 🔗 Links Column Sorting
 | Feature | Description |

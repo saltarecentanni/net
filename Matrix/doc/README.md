@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.030  
+**Version:** 3.5.036  
 **Date:** February 3, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
