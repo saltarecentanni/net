@@ -3322,22 +3322,48 @@ var DeviceLinks = (function() {
             var safeUrl = escapeHtml(link.url);
             var safeLabel = escapeHtml(displayLabel);
             
-            // Protocolos que abrem direto no navegador
+            // Protocolos que abrem direto no navegador (HTTP, HTTPS, FTP)
             if (link.url.match(/^(https?|ftp):\/\//i) || link.url.match(/^\\\\/) || link.url.match(/^\//)) {
                 return '<a href="' + safeUrl + '" target="_blank" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline" title="' + safeUrl + '">' +
                     typeInfo.icon + ' ' + safeLabel + '</a>';
             }
             
-            // Protocolos que precisam copiar (SSH, RDP, VNC, SMB, NFS, Telnet)
-            // Usa data-copy-url e função global para evitar problemas
+            // Protocolos especiais (SSH, RDP, VNC, Telnet) - tenta abrir nativo, fallback copia
             if (link.url.match(/^(ssh|rdp|vnc|smb|nfs|telnet):\/\//i) || link.type === 'ssh' || link.type === 'rdp' || link.type === 'vnc' || link.type === 'smb' || link.type === 'telnet' || link.type === 'nfs') {
-                return '<a href="javascript:void(0)" data-copy-url="' + safeUrl + '" onclick="copyLinkToClipboard(this)" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="📋 Click to copy: ' + safeUrl + '">' +
+                var protocolUrl = buildProtocolUrl(link.type, link.url);
+                return '<a href="javascript:void(0)" data-protocol-url="' + escapeHtml(protocolUrl) + '" data-copy-url="' + safeUrl + '" onclick="openProtocolLink(this)" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="🔗 Click to open: ' + safeUrl + '">' +
                     typeInfo.icon + ' ' + safeLabel + '</a>';
             }
             
             return '<span class="inline-flex items-center gap-1 text-xs text-slate-600" title="' + safeUrl + '">' +
                 typeInfo.icon + ' ' + safeLabel + '</span>';
         }).join(' ');
+    }
+    
+    // Constrói URL com protocolo correto para abrir no sistema
+    function buildProtocolUrl(type, url) {
+        // Se já tem protocolo, retorna como está
+        if (url.match(/^[a-z]+:\/\//i)) return url;
+        
+        // Adiciona protocolo baseado no tipo
+        switch(type) {
+            case 'ssh':
+                // ssh://user@host ou ssh://host
+                return 'ssh://' + url;
+            case 'rdp':
+                // Para Windows: ms-rd:// funciona melhor
+                return 'rdp://' + url;
+            case 'vnc':
+                return 'vnc://' + url;
+            case 'telnet':
+                return 'telnet://' + url;
+            case 'smb':
+                return 'smb://' + url;
+            case 'nfs':
+                return 'nfs://' + url;
+            default:
+                return url;
+        }
     }
     
     function copyLinkUrl(element) {
@@ -3596,4 +3622,51 @@ function fallbackCopyToClipboard(text) {
     }
     
     document.body.removeChild(textarea);
+}
+
+// Tenta abrir link com protocolo nativo (SSH, RDP, VNC, etc.)
+// Se falhar, copia para clipboard como fallback
+function openProtocolLink(element) {
+    var protocolUrl = element.getAttribute('data-protocol-url');
+    var copyUrl = element.getAttribute('data-copy-url');
+    
+    if (!protocolUrl) {
+        if (copyUrl) copyLinkToClipboard(element);
+        return;
+    }
+    
+    // Tenta abrir o protocolo nativo
+    var opened = false;
+    
+    try {
+        // Método 1: window.location (funciona para alguns protocolos)
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = protocolUrl;
+        document.body.appendChild(iframe);
+        
+        // Timeout para verificar se abriu
+        setTimeout(function() {
+            document.body.removeChild(iframe);
+        }, 2000);
+        
+        // Mostra mensagem de sucesso
+        if (typeof Toast !== 'undefined') {
+            Toast.info('🚀 Opening: ' + copyUrl + '\n\nIf nothing opens, the address was copied.');
+        }
+        
+        // Também copia como backup
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(copyUrl).catch(function() {});
+        }
+        
+        opened = true;
+    } catch (e) {
+        console.log('Protocol handler failed:', e);
+    }
+    
+    // Se não conseguiu abrir, copia
+    if (!opened && copyUrl) {
+        copyLinkToClipboard(element);
+    }
 }
