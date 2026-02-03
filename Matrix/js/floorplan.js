@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Floor Plan Module
- * Version: 3.5.031
+ * Version: 3.5.032
  * 
  * Interactive floor plan visualization with:
  * - SVG rendering and manipulation
@@ -528,7 +528,7 @@ var FloorPlan = (function() {
         // Active
         html += '<div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
         html += '<div style="font-size:22px;font-weight:700;color:#059669;">' + activeCount + '</div>';
-        html += '<div style="font-size:10px;color:#10b981;font-weight:600;">ACTIVE</div>';
+        html += '<div style="font-size:10px;color:#f87171;font-weight:600;">ACTIVE</div>';
         html += '</div>';
         
         // Disabled
@@ -613,37 +613,29 @@ var FloorPlan = (function() {
                     
                     if (deviceLinks.length > 0) {
                         html += '<div style="display:flex;gap:3px;flex-shrink:0;">';
-                        var linkColors = { 'SSH': '#10b981', 'RDP': '#3b82f6', 'VNC': '#8b5cf6', 'HTTP': '#f59e0b', 'HTTPS': '#f59e0b', 'SMB': '#6366f1', 'Telnet': '#64748b', 'default': '#64748b' };
+                        var linkColors = { 'SSH': '#f87171', 'RDP': '#3b82f6', 'VNC': '#8b5cf6', 'HTTP': '#a78bfa', 'HTTPS': '#a78bfa', 'SMB': '#6366f1', 'TELNET': '#64748b', 'default': '#64748b' };
                         deviceLinks.forEach(function(linkObj, idx) {
                             var url = linkObj.url || linkObj;
-                            var label = linkObj.label || linkObj.type || '🔗';
-                            var type = (linkObj.type || label || '').toUpperCase();
+                            var label = linkObj.label || linkObj.type || 'Link';
+                            var type = (linkObj.type || '').toUpperCase();
                             var bgColor = linkColors[type] || linkColors['default'];
+                            var icon = type === 'SSH' ? '💻' : (type === 'RDP' ? '🖥️' : (type === 'VNC' ? '📺' : (type === 'TELNET' ? '📟' : '🔗')));
                             
-                            // Determine handler based on protocol/type
-                            var onclick = '';
-                            var href = '#';
-                            if (type === 'SSH' || url.startsWith('ssh://')) {
-                                onclick = 'handleSshLink(\'' + escapeHtml(url.replace('ssh://', '')) + '\'); return false;';
-                            } else if (type === 'RDP' || url.startsWith('rdp://')) {
-                                onclick = 'handleRdpLink(\'' + escapeHtml(url.replace('rdp://', '')) + '\'); return false;';
-                            } else if (type === 'VNC' || url.startsWith('vnc://')) {
-                                onclick = 'handleVncLink(\'' + escapeHtml(url.replace('vnc://', '')) + '\'); return false;';
-                            } else if (type === 'TELNET' || url.startsWith('telnet://')) {
-                                onclick = 'handleTelnetLink(\'' + escapeHtml(url.replace('telnet://', '')) + '\'); return false;';
-                            } else {
-                                // HTTP/HTTPS/other - use regular link
-                                href = url;
-                                if (href && !href.match(/^[a-z]+:\/\//i) && !href.startsWith('//')) {
+                            // Use same system as DeviceLinks.renderLinks
+                            if (url.match(/^(https?|ftp):\/\//i) || url.match(/^\\\//) || url.match(/^\//) || type === 'HTTP' || type === 'HTTPS') {
+                                // HTTP/HTTPS/FTP - regular link
+                                var href = url;
+                                if (!href.match(/^[a-z]+:\/\//i) && !href.startsWith('//')) {
                                     href = 'http://' + href;
                                 }
-                            }
-                            
-                            var icon = type === 'SSH' ? '💻' : (type === 'RDP' ? '🖥️' : (type === 'VNC' ? '🖵' : (type === 'TELNET' ? '📟' : '🔗')));
-                            if (onclick) {
-                                html += '<a href="' + href + '" onclick="' + onclick + '" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;cursor:pointer;" title="' + escapeHtml(label + ': ' + url) + '">' + icon + '</a>';
-                            } else {
                                 html += '<a href="' + escapeHtml(href) + '" target="_blank" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;" title="' + escapeHtml(label + ': ' + url) + '">' + icon + '</a>';
+                            } else {
+                                // SSH/RDP/VNC/Telnet/SMB - use openProtocolLink system
+                                var protocolUrl = url;
+                                if (!url.match(/^[a-z]+:\/\//i)) {
+                                    protocolUrl = (type.toLowerCase() || 'ssh') + '://' + url;
+                                }
+                                html += '<a href="javascript:void(0)" data-protocol-url="' + escapeHtml(protocolUrl) + '" data-copy-url="' + escapeHtml(url) + '" onclick="openProtocolLink(this)" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;cursor:pointer;" title="🔗 Click to open: ' + escapeHtml(url) + '">' + icon + '</a>';
                             }
                         });
                         html += '</div>';

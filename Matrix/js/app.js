@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.031
+ * Version: 3.5.032
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -93,8 +93,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.031', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.031';
+var SUPPORTED_VERSIONS = ['3.5.032', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.032';
 
 /**
  * Valid enum values for schema validation
@@ -1230,6 +1230,13 @@ function serverLoad() {
                     appState.nextDeviceId = data.nextDeviceId || 1;
                     appState.nextLocationId = data.nextLocationId || 21;
                     
+                    // Sort locations by code to ensure 00 comes before 01
+                    if (appState.locations.length > 0) {
+                        appState.locations.sort(function(a, b) {
+                            return parseInt(a.code) - parseInt(b.code);
+                        });
+                    }
+                    
                     // Normalize data (uppercase rackId, etc.)
                     normalizeDataCase();
                     
@@ -1337,6 +1344,11 @@ function migrateToNewLocationSystem() {
         if (Object.keys(customLocs).length > 0) {
             Debug.log('Migration: Created ' + Object.keys(customLocs).length + ' custom locations');
         }
+        
+        // Sort locations by code to ensure 00 comes before 01
+        appState.locations.sort(function(a, b) {
+            return parseInt(a.code) - parseInt(b.code);
+        });
         
         appState.nextLocationId = customIndex;
         needsSave = true;
@@ -3962,6 +3974,13 @@ function importData(e) {
                 appState.rooms = data.rooms || [];
                 appState.sites = data.sites || [];
                 appState.locations = data.locations || [];
+                
+                // Sort locations by code to ensure 00 comes before 01
+                if (appState.locations.length > 0) {
+                    appState.locations.sort(function(a, b) {
+                        return parseInt(a.code) - parseInt(b.code);
+                    });
+                }
                 
                 // Calculate nextDeviceId
                 if (data.nextDeviceId && typeof data.nextDeviceId === 'number') {
