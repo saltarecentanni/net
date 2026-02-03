@@ -337,6 +337,11 @@ function updateDevicesListCards(cont) {
     }
     html += '</div>';
     cont.innerHTML = html;
+    
+    // Update edit-mode visibility after dynamic rendering
+    if (typeof Auth !== 'undefined' && Auth.updateUI) {
+        Auth.updateUI();
+    }
 }
 
 function updateDevicesListTable(cont) {
@@ -447,6 +452,11 @@ function updateDevicesListTable(cont) {
 
     html += '</tbody></table>';
     cont.innerHTML = html;
+    
+    // Update edit-mode visibility after dynamic rendering
+    if (typeof Auth !== 'undefined' && Auth.updateUI) {
+        Auth.updateUI();
+    }
 }
 
 function getDevicesSortedBy(key, asc, devicesList) {
@@ -2081,7 +2091,7 @@ function renderConnectionsTable(cont) {
         { key: 'marker', label: 'Cable' },
         { key: 'status', label: 'Status' },
         { key: 'notes', label: 'Notes' },
-        { key: 'actions', label: '', noPrint: true }
+        { key: 'actions', label: 'Actions', noPrint: true }
     ];
 
     var html = '';
@@ -2332,6 +2342,11 @@ function renderConnectionsTable(cont) {
     }
     html += '</tbody></table></div>';
     cont.innerHTML = html;
+    
+    // Update edit-mode visibility after dynamic rendering
+    if (typeof Auth !== 'undefined' && Auth.updateUI) {
+        Auth.updateUI();
+    }
 }
 
 // ============================================================================

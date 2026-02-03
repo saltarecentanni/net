@@ -2621,8 +2621,9 @@ var SVGTopology = (function() {
         // Mark this position as custom (user-dragged)
         customPositions[dragging.deviceId] = { x: newX, y: newY };
         
-        // Update connections
+        // Update connections and zones
         updateConnections();
+        updateZones();
     }
     
     function endDrag() {
@@ -2876,6 +2877,84 @@ var SVGTopology = (function() {
         if (labelGroup) {
             labelGroup.innerHTML = labelHtml;
         }
+    }
+    
+    // Update zone backgrounds when devices are moved
+    function updateZones() {
+        var zoneGroup = svg ? svg.querySelector('.network-zones') : null;
+        if (!zoneGroup) return;
+        
+        var devices = getTopologyFilteredDevices();
+        
+        // Collect devices by zone
+        var zoneGroups = {};
+        devices.forEach(function(d) {
+            if (d.zone && d.zone.trim() && devicePositions[d.id]) {
+                var zoneName = d.zone.trim();
+                if (!zoneGroups[zoneName]) {
+                    zoneGroups[zoneName] = {
+                        name: zoneName,
+                        zoneIP: d.zoneIP || '',
+                        devices: []
+                    };
+                }
+                zoneGroups[zoneName].devices.push(d);
+                if (d.zoneIP && !zoneGroups[zoneName].zoneIP) {
+                    zoneGroups[zoneName].zoneIP = d.zoneIP;
+                }
+            }
+        });
+        
+        // Zone colors
+        var zoneColors = {
+            'DMZ': { fill: '#fecaca', stroke: '#ef4444', text: '#b91c1c' },
+            'Backbone': { fill: '#fef3c7', stroke: '#f59e0b', text: '#b45309' },
+            'LAN': { fill: '#bfdbfe', stroke: '#3b82f6', text: '#1e40af' },
+            'WAN': { fill: '#bbf7d0', stroke: '#22c55e', text: '#166534' },
+            'Cloud': { fill: '#e0e7ff', stroke: '#6366f1', text: '#4338ca' },
+            'Management': { fill: '#f3e8ff', stroke: '#a855f7', text: '#7e22ce' }
+        };
+        var defaultZoneColor = { fill: '#e2e8f0', stroke: '#64748b', text: '#334155' };
+        
+        var html = '';
+        Object.keys(zoneGroups).forEach(function(zoneName) {
+            var zone = zoneGroups[zoneName];
+            var zc = zoneColors[zoneName] || defaultZoneColor;
+            
+            var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            zone.devices.forEach(function(d) {
+                var pos = devicePositions[d.id];
+                if (pos) {
+                    minX = Math.min(minX, pos.x);
+                    minY = Math.min(minY, pos.y);
+                    maxX = Math.max(maxX, pos.x + 80);
+                    maxY = Math.max(maxY, pos.y + 90);
+                }
+            });
+            
+            var padding = 25;
+            var zoneX = minX - padding;
+            var zoneY = minY - padding - 20;
+            var zoneWidth = (maxX - minX) + padding * 2;
+            var zoneHeight = (maxY - minY) + padding * 2 + 20;
+            
+            html += '<rect x="' + zoneX + '" y="' + zoneY + '" width="' + zoneWidth + '" height="' + zoneHeight + '" ' +
+                'rx="12" fill="' + zc.fill + '" fill-opacity="0.5" stroke="' + zc.stroke + '" stroke-width="2" stroke-dasharray="8,4"/>';
+            
+            var zoneIcon = zoneName === 'DMZ' ? '🛡️' : (zoneName === 'Backbone' ? '🔗' : '🔲');
+            var labelText = zoneIcon + ' ' + zoneName;
+            if (zone.zoneIP) {
+                labelText += ' (' + zone.zoneIP + ')';
+            }
+            
+            var labelWidth = labelText.length * 6 + 16;
+            html += '<rect x="' + (zoneX + 10) + '" y="' + (zoneY + 5) + '" width="' + labelWidth + '" height="18" rx="4" ' +
+                'fill="' + zc.stroke + '" fill-opacity="0.9"/>';
+            html += '<text x="' + (zoneX + 18) + '" y="' + (zoneY + 17) + '" fill="#fff" font-size="10" font-weight="bold">' +
+                escapeHtml(labelText) + '</text>';
+        });
+        
+        zoneGroup.innerHTML = html;
     }
 
     function handleZoom(e) {

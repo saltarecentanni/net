@@ -613,17 +613,38 @@ var FloorPlan = (function() {
                     
                     if (deviceLinks.length > 0) {
                         html += '<div style="display:flex;gap:3px;flex-shrink:0;">';
-                        var linkColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'];
+                        var linkColors = { 'SSH': '#10b981', 'RDP': '#3b82f6', 'VNC': '#8b5cf6', 'HTTP': '#f59e0b', 'HTTPS': '#f59e0b', 'SMB': '#6366f1', 'Telnet': '#64748b', 'default': '#64748b' };
                         deviceLinks.forEach(function(linkObj, idx) {
                             var url = linkObj.url || linkObj;
                             var label = linkObj.label || linkObj.type || '🔗';
-                            var bgColor = linkColors[idx % linkColors.length];
-                            // Add protocol if missing
-                            var href = url;
-                            if (href && !href.match(/^[a-z]+:\/\//i) && !href.startsWith('//')) {
-                                href = 'http://' + href;
+                            var type = (linkObj.type || label || '').toUpperCase();
+                            var bgColor = linkColors[type] || linkColors['default'];
+                            
+                            // Determine handler based on protocol/type
+                            var onclick = '';
+                            var href = '#';
+                            if (type === 'SSH' || url.startsWith('ssh://')) {
+                                onclick = 'handleSshLink(\'' + escapeHtml(url.replace('ssh://', '')) + '\'); return false;';
+                            } else if (type === 'RDP' || url.startsWith('rdp://')) {
+                                onclick = 'handleRdpLink(\'' + escapeHtml(url.replace('rdp://', '')) + '\'); return false;';
+                            } else if (type === 'VNC' || url.startsWith('vnc://')) {
+                                onclick = 'handleVncLink(\'' + escapeHtml(url.replace('vnc://', '')) + '\'); return false;';
+                            } else if (type === 'TELNET' || url.startsWith('telnet://')) {
+                                onclick = 'handleTelnetLink(\'' + escapeHtml(url.replace('telnet://', '')) + '\'); return false;';
+                            } else {
+                                // HTTP/HTTPS/other - use regular link
+                                href = url;
+                                if (href && !href.match(/^[a-z]+:\/\//i) && !href.startsWith('//')) {
+                                    href = 'http://' + href;
+                                }
                             }
-                            html += '<a href="' + escapeHtml(href) + '" target="_blank" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;" title="' + escapeHtml(label + ': ' + url) + '">🔗</a>';
+                            
+                            var icon = type === 'SSH' ? '💻' : (type === 'RDP' ? '🖥️' : (type === 'VNC' ? '🖵' : (type === 'TELNET' ? '📟' : '🔗')));
+                            if (onclick) {
+                                html += '<a href="' + href + '" onclick="' + onclick + '" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;cursor:pointer;" title="' + escapeHtml(label + ': ' + url) + '">' + icon + '</a>';
+                            } else {
+                                html += '<a href="' + escapeHtml(href) + '" target="_blank" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;" title="' + escapeHtml(label + ': ' + url) + '">' + icon + '</a>';
+                            }
                         });
                         html += '</div>';
                     }

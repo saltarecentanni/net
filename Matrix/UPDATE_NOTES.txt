@@ -1,8 +1,40 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.030
+Version: 3.5.031
 Last Updated: 2026-02-03
 ================================================================================
+
+CHANGELOG v3.5.031 (2026-02-03)
+--------------------------------------------------------------------------------
+🔧 Bug Fixes & UI Improvements
+
+🗺️ TOPOLOGY FIXES:
+  ✅ Zone boundaries now update when devices are dragged
+  ✅ Added updateZones() function called during drag
+  ✅ Zone colors stay consistent during movement
+
+📝 FORM REORGANIZATION:
+  ✅ Network Zone field moved to end of form (after Links)
+  ✅ Better logical grouping of fields
+
+🔗 FLOOR PLAN LINKS:
+  ✅ Links in room modals now use correct protocol handlers
+  ✅ SSH links use handleSshLink() with copy to clipboard
+  ✅ RDP links use handleRdpLink() with .rdp download
+  ✅ VNC links use handleVncLink() with copy to clipboard
+  ✅ Telnet links use handleTelnetLink() with copy to clipboard
+  ✅ Different icons per protocol type
+
+📊 CONNECTIONS TABLE:
+  ✅ Added "Actions" label to last column header
+  ✅ Consistent with Devices table
+
+🔒 ACTIONS VISIBILITY:
+  ✅ Actions column hidden for non-logged users
+  ✅ Auth.updateUI() called after dynamic table rendering
+  ✅ Applies to both Devices and Connections tables
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.030 (2026-02-03)
 --------------------------------------------------------------------------------
