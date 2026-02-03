@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.5.033
+ * Version: 3.5.034
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -1960,6 +1960,17 @@ var SVGTopology = (function() {
             }
         });
         
+        // Add virtual external node positions as occupied areas (BEFORE processing connections)
+        virtualExternals.forEach(function(ext) {
+            var pos = devicePositions[ext.id];
+            if (pos) {
+                var boxWidth = Math.max(60, ext.name.length * 6 + 20);
+                var boxHeight = 24;
+                // Large margin (40px) to ensure labels stay well away from external boxes
+                usedLabelPositions.push({ x: pos.x + boxWidth/2, y: pos.y + boxHeight/2, width: boxWidth + 40, height: boxHeight + 40 });
+            }
+        });
+        
         function isLabelOverlapping(x, y, width, height) {
             for (var i = 0; i < usedLabelPositions.length; i++) {
                 var pos = usedLabelPositions[i];
@@ -2341,8 +2352,7 @@ var SVGTopology = (function() {
             html += '<rect x="0" y="0" width="' + boxWidth + '" height="' + boxHeight + '" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>';
             html += '<text x="' + (boxWidth/2) + '" y="' + (boxHeight/2 + 4) + '" text-anchor="middle" fill="#374151" font-size="8" font-weight="600">🌐 ' + escapeHtml(ext.name) + '</text>';
             html += '</g>';
-            
-            usedLabelPositions.push({ x: pos.x + boxWidth/2, y: pos.y + boxHeight/2, width: boxWidth + 10, height: boxHeight + 10 });
+            // Note: usedLabelPositions for virtual externals is registered earlier (before connection processing)
         });
         
         devices.forEach(function(d) {
