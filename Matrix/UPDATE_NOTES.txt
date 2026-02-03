@@ -1,8 +1,30 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.027
+Version: 3.5.028
 Last Updated: 2026-02-03
 ================================================================================
+
+CHANGELOG v3.5.028 (2026-02-03)
+--------------------------------------------------------------------------------
+🛡️ Error Handling Improvements
+
+🔧 PROMISE HANDLING:
+  ✅ Added .catch() to copyTextToClipboard Promise chain
+  ✅ If clipboard fails, protocol still opens with copied=false
+  ✅ Better error recovery without silent failures
+
+🔧 TRY/CATCH HANDLERS:
+  ✅ handleSshLink() now wrapped in try/catch
+  ✅ handleVncLink() now wrapped in try/catch
+  ✅ handleTelnetLink() now wrapped in try/catch
+  ✅ Toast shows even if tryOpenProtocol fails
+
+📝 CODE CLEANUP:
+  ✅ Removed console.log from tryOpenProtocol()
+  ✅ Silent failure for protocol handlers (best-effort approach)
+  ✅ Toast messages now show copy status (✔ Copied / ⚠ Copy failed)
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.027 (2026-02-03)
 --------------------------------------------------------------------------------
