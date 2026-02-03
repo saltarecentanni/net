@@ -3329,10 +3329,9 @@ var DeviceLinks = (function() {
             }
             
             // Protocolos que precisam copiar (SSH, RDP, VNC, SMB, NFS, Telnet)
-            // Usa data-copy-url para evitar problemas de escape
+            // Usa data-copy-url e função global para evitar problemas
             if (link.url.match(/^(ssh|rdp|vnc|smb|nfs|telnet):\/\//i) || link.type === 'ssh' || link.type === 'rdp' || link.type === 'vnc' || link.type === 'smb' || link.type === 'telnet' || link.type === 'nfs') {
-                var uniqueId = 'copy-link-' + Date.now() + '-' + idx;
-                return '<a href="javascript:void(0)" id="' + uniqueId + '" data-copy-url="' + safeUrl + '" onclick="DeviceLinks.copyLinkUrl(this)" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="📋 Click to copy: ' + safeUrl + '">' +
+                return '<a href="javascript:void(0)" data-copy-url="' + safeUrl + '" onclick="copyLinkToClipboard(this)" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="📋 Click to copy: ' + safeUrl + '">' +
                     typeInfo.icon + ' ' + safeLabel + '</a>';
             }
             
@@ -3550,3 +3549,51 @@ function generateConnectionsPrintContent(location) {
         setTimeout(initExtendedFeatures, 100);
     }
 })();
+
+// Global function for copying link URLs (SSH, RDP, VNC, etc.)
+function copyLinkToClipboard(element) {
+    var url = element.getAttribute('data-copy-url');
+    if (!url) return;
+    
+    // Try clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function() {
+            if (typeof Toast !== 'undefined') Toast.success('📋 Copied: ' + url);
+        }).catch(function() {
+            fallbackCopyToClipboard(url);
+        });
+    } else {
+        fallbackCopyToClipboard(url);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.top = '0';
+    textarea.style.left = '0';
+    textarea.style.width = '2em';
+    textarea.style.height = '2em';
+    textarea.style.padding = '0';
+    textarea.style.border = 'none';
+    textarea.style.outline = 'none';
+    textarea.style.boxShadow = 'none';
+    textarea.style.background = 'transparent';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    
+    try {
+        var successful = document.execCommand('copy');
+        if (successful) {
+            if (typeof Toast !== 'undefined') Toast.success('📋 Copied: ' + text);
+        } else {
+            prompt('Copy this address manually:', text);
+        }
+    } catch (err) {
+        prompt('Copy this address manually:', text);
+    }
+    
+    document.body.removeChild(textarea);
+}
