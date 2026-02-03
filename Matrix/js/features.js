@@ -2192,6 +2192,90 @@ var SVGTopology = (function() {
         
         html += '</g>';
         
+        // ═══════════════════════════════════════════════════════════════════
+        // NETWORK ZONES - Draw zone backgrounds before devices
+        // Groups devices by zone and draws colored rectangles around them
+        // ═══════════════════════════════════════════════════════════════════
+        html += '<g class="network-zones">';
+        
+        // Collect devices by zone
+        var zoneGroups = {};
+        devices.forEach(function(d) {
+            if (d.zone && d.zone.trim() && devicePositions[d.id]) {
+                var zoneName = d.zone.trim();
+                if (!zoneGroups[zoneName]) {
+                    zoneGroups[zoneName] = {
+                        name: zoneName,
+                        zoneIP: d.zoneIP || '',
+                        devices: []
+                    };
+                }
+                zoneGroups[zoneName].devices.push(d);
+                // Use the most detailed zoneIP if multiple devices have different ones
+                if (d.zoneIP && !zoneGroups[zoneName].zoneIP) {
+                    zoneGroups[zoneName].zoneIP = d.zoneIP;
+                }
+            }
+        });
+        
+        // Zone colors
+        var zoneColors = {
+            'DMZ': { fill: '#fecaca', stroke: '#ef4444', text: '#b91c1c' },           // Red
+            'Backbone': { fill: '#fef3c7', stroke: '#f59e0b', text: '#b45309' },      // Amber/Orange
+            'LAN': { fill: '#bbf7d0', stroke: '#22c55e', text: '#166534' },           // Green
+            'WAN': { fill: '#bfdbfe', stroke: '#3b82f6', text: '#1e40af' },           // Blue
+            'Cloud': { fill: '#e0e7ff', stroke: '#6366f1', text: '#4338ca' },         // Indigo
+            'Management': { fill: '#f3e8ff', stroke: '#a855f7', text: '#7e22ce' }     // Purple
+        };
+        var defaultZoneColor = { fill: '#e2e8f0', stroke: '#64748b', text: '#334155' }; // Slate/Gray
+        
+        // Draw zone backgrounds
+        Object.keys(zoneGroups).forEach(function(zoneName) {
+            var zone = zoneGroups[zoneName];
+            var zc = zoneColors[zoneName] || defaultZoneColor;
+            
+            // Calculate bounding box for devices in this zone
+            var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            zone.devices.forEach(function(d) {
+                var pos = devicePositions[d.id];
+                if (pos) {
+                    minX = Math.min(minX, pos.x);
+                    minY = Math.min(minY, pos.y);
+                    maxX = Math.max(maxX, pos.x + 80); // Device width
+                    maxY = Math.max(maxY, pos.y + 90); // Device height
+                }
+            });
+            
+            // Add padding around the zone
+            var padding = 25;
+            var zoneX = minX - padding;
+            var zoneY = minY - padding - 20; // Extra space for label at top
+            var zoneWidth = (maxX - minX) + padding * 2;
+            var zoneHeight = (maxY - minY) + padding * 2 + 20;
+            
+            // Draw zone rectangle with rounded corners
+            html += '<rect x="' + zoneX + '" y="' + zoneY + '" width="' + zoneWidth + '" height="' + zoneHeight + '" ' +
+                'rx="12" fill="' + zc.fill + '" fill-opacity="0.5" stroke="' + zc.stroke + '" stroke-width="2" stroke-dasharray="8,4"/>';
+            
+            // Zone label with icon
+            var zoneIcon = zoneName === 'DMZ' ? '🛡️' : (zoneName === 'Backbone' ? '🔗' : '🔲');
+            var labelText = zoneIcon + ' ' + zoneName;
+            if (zone.zoneIP) {
+                labelText += ' (' + zone.zoneIP + ')';
+            }
+            
+            // Label background
+            var labelWidth = labelText.length * 6 + 16;
+            html += '<rect x="' + (zoneX + 10) + '" y="' + (zoneY + 5) + '" width="' + labelWidth + '" height="18" rx="4" ' +
+                'fill="' + zc.stroke + '" fill-opacity="0.9"/>';
+            
+            // Label text
+            html += '<text x="' + (zoneX + 18) + '" y="' + (zoneY + 17) + '" fill="#fff" font-size="10" font-weight="bold">' +
+                escapeHtml(labelText) + '</text>';
+        });
+        
+        html += '</g>';
+        
         // Draw devices
         html += '<g class="devices">';
         

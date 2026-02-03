@@ -1,8 +1,46 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.029
+Version: 3.5.030
 Last Updated: 2026-02-03
 ================================================================================
+
+CHANGELOG v3.5.030 (2026-02-03)
+--------------------------------------------------------------------------------
+🔲 NETWORK ZONES - Visual Device Grouping
+
+📍 NEW DEVICE PROPERTY:
+  ✅ Added "Network Zone" field to device form
+  ✅ Input with datalist suggestions (DMZ, Backbone)
+  ✅ Free text input allows custom zones (e.g., "Rete Microlan")
+  ✅ Added "Zone IP" field for CIDR notation (e.g., 172.24.254.0/24)
+  ✅ Datalist auto-populates with zones from existing devices
+
+📊 DEVICE LIST DISPLAY:
+  ✅ Zone displayed in device cards with icon
+  ✅ DMZ shows 🛡️, Backbone shows 🔗, others show 🔲
+  ✅ Zone IP (if set) shown in parentheses
+  ✅ Styled in indigo color for visibility
+
+🗺️ TOPOLOGY VISUALIZATION:
+  ✅ Devices grouped visually by zone
+  ✅ Colored semi-transparent rectangles around zone groups
+  ✅ Zone label with icon at top-left of each zone area
+  ✅ Zone IP range displayed in label when available
+  ✅ Pre-defined zone colors:
+     - DMZ: Red (#fecaca border, #ef4444 stroke)
+     - Backbone: Amber (#fef3c7 border, #f59e0b stroke)
+     - LAN: Green (#bbf7d0 border, #22c55e stroke)
+     - WAN: Blue (#bfdbfe border, #3b82f6 stroke)
+     - Cloud: Indigo (#e0e7ff border, #6366f1 stroke)
+     - Management: Purple (#f3e8ff border, #a855f7 stroke)
+     - Custom: Slate/Gray default
+
+📝 DATA PERSISTENCE:
+  ✅ Zone data saved with device (zone, zoneIP properties)
+  ✅ Zone fields cleared on form reset
+  ✅ Zone data loaded when editing device
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.029 (2026-02-03)
 --------------------------------------------------------------------------------

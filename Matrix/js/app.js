@@ -1099,7 +1099,7 @@ function highlightEditFields(formType, enable) {
     if (formType === 'connection') {
         fields = ['fromDevice', 'fromPort', 'toDevice', 'toPort', 'connType', 'connStatus', 'cableMarker', 'cableColor', 'connNotes'];
     } else if (formType === 'device') {
-        fields = ['rackId', 'deviceOrder', 'deviceRear', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceLocation', 'deviceIP1', 'deviceIP2', 'deviceIP3', 'deviceIP4', 'deviceService', 'deviceNotes'];
+        fields = ['rackId', 'deviceOrder', 'deviceRear', 'deviceName', 'deviceBrandModel', 'deviceType', 'deviceStatus', 'deviceLocation', 'deviceIP1', 'deviceIP2', 'deviceIP3', 'deviceIP4', 'deviceService', 'deviceZone', 'deviceZoneIP', 'deviceNotes'];
     }
     
     for (var i = 0; i < fields.length; i++) {
@@ -1513,6 +1513,10 @@ function saveDevice() {
         var service = document.getElementById('deviceService').value.trim();
         var notes = document.getElementById('deviceNotes').value.trim();
         
+        // Network Zone fields
+        var zone = document.getElementById('deviceZone') ? document.getElementById('deviceZone').value.trim() : '';
+        var zoneIP = document.getElementById('deviceZoneIP') ? document.getElementById('deviceZoneIP').value.trim() : '';
+        
         // New fields: location, IPs (dynamic), links
         var location = document.getElementById('deviceLocation') ? document.getElementById('deviceLocation').value.trim() : '';
         
@@ -1590,6 +1594,8 @@ function saveDevice() {
             addresses: addresses, // Dynamic IP array
             links: links,
             service: service,
+            zone: zone,
+            zoneIP: zoneIP,
             ports: ports,
             notes: notes
         };
@@ -1640,6 +1646,11 @@ function clearDeviceForm() {
     document.getElementById('deviceStatus').value = 'active';
     document.getElementById('deviceService').value = '';
     document.getElementById('deviceNotes').value = '';
+    
+    // Clear zone fields
+    if (document.getElementById('deviceZone')) document.getElementById('deviceZone').value = '';
+    if (document.getElementById('deviceZoneIP')) document.getElementById('deviceZoneIP').value = '';
+    
     document.getElementById('portTypeQuantityContainer').innerHTML = '';
     
     // Clear new fields
@@ -1683,6 +1694,15 @@ function editDevice(id) {
     document.getElementById('deviceStatus').value = d.status || 'active';
     document.getElementById('deviceService').value = d.service || '';
     document.getElementById('deviceNotes').value = d.notes || '';
+    
+    // Fill zone fields
+    if (document.getElementById('deviceZone')) {
+        document.getElementById('deviceZone').value = d.zone || '';
+    }
+    if (document.getElementById('deviceZoneIP')) {
+        document.getElementById('deviceZoneIP').value = d.zoneIP || '';
+    }
+    
     document.getElementById('saveDeviceButton').textContent = 'Update Device';
 
     // Fill new fields
@@ -2819,6 +2839,7 @@ function updateUI() {
     resetRackColors();
     updateRackIdDatalist();
     updateLocationSelect();
+    updateZoneDatalist();
     updateDevicesList();
     updateDeviceSelects();
     updateMatrix();
@@ -2895,6 +2916,48 @@ function updateRackIdDatalist() {
     for (var j = 0; j < racks.length; j++) {
         datalist.innerHTML += '<option value="' + racks[j] + '">';
     }
+}
+
+// Update zone datalist with existing zones from devices
+function updateZoneDatalist() {
+    var datalist = document.getElementById('zoneList');
+    if (!datalist) return;
+    
+    // Default zones
+    var defaultZones = [
+        { value: 'DMZ', label: '🛡️ DMZ' },
+        { value: 'Backbone', label: '🔗 Backbone' }
+    ];
+    
+    // Collect unique zones from devices
+    var existingZones = {};
+    appState.devices.forEach(function(device) {
+        if (device.zone && device.zone.trim()) {
+            var zoneName = device.zone.trim();
+            if (!existingZones[zoneName]) {
+                existingZones[zoneName] = device.zoneIP || '';
+            }
+        }
+    });
+    
+    // Build datalist HTML
+    var html = '';
+    
+    // Add default zones first
+    defaultZones.forEach(function(z) {
+        html += '<option value="' + z.value + '">' + z.label + '</option>';
+        delete existingZones[z.value]; // Remove if already in defaults
+    });
+    
+    // Add custom zones from devices
+    var customZones = Object.keys(existingZones).sort();
+    customZones.forEach(function(zoneName) {
+        var zoneIP = existingZones[zoneName];
+        var label = zoneIP ? zoneName + ' (' + zoneIP + ')' : zoneName;
+        html += '<option value="' + escapeHtml(zoneName) + '">📍 ' + escapeHtml(label) + '</option>';
+    });
+    
+    datalist.innerHTML = html;
 }
 
 // Populate Location select with mapped rooms + existing locations

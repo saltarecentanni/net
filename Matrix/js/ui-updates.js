@@ -293,6 +293,14 @@ function updateDevicesListCards(cont) {
         if (d.location) {
             locationText = '<div class="text-xs mt-1 text-purple-600">📍 ' + d.location + '</div>';
         }
+        
+        var zoneText = '';
+        if (d.zone) {
+            var zoneLabel = d.zone;
+            if (d.zoneIP) zoneLabel += ' (' + d.zoneIP + ')';
+            var zoneIcon = d.zone === 'DMZ' ? '🛡️' : (d.zone === 'Backbone' ? '🔗' : '🔲');
+            zoneText = '<div class="text-xs mt-1 text-indigo-600">' + zoneIcon + ' ' + zoneLabel + '</div>';
+        }
 
         var brandModelText = '';
         if (d.brandModel) {
@@ -313,6 +321,7 @@ function updateDevicesListCards(cont) {
             brandModelText +
             '<div class="text-xs text-slate-400 uppercase">' + d.type + '</div>' +
             locationText +
+            zoneText +
             addressText +
             '<div class="text-xs mt-1 text-slate-500">' + d.ports.length + ' ports (' + usedPorts + ' used) | ' + totalConnections + ' conn.</div>' +
             noConnectionsWarning +
