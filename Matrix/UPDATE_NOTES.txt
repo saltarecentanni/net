@@ -24,6 +24,14 @@ CHANGELOG v3.5.028 (2026-02-03)
   ✅ Silent failure for protocol handlers (best-effort approach)
   ✅ Toast messages now show copy status (✔ Copied / ⚠ Copy failed)
 
+📚 HELP SECTION UPDATES:
+  ✅ Added comprehensive protocol documentation (SSH, RDP, VNC, Telnet)
+  ✅ Added HTTP/HTTPS, SMB/NFS link documentation
+  ✅ Added Copy Device (📋) action documentation
+  ✅ Added Online Users indicator documentation
+  ✅ Updated Links field with detailed protocol examples
+  ✅ All Help sections now reference v3.5.028
+
 --------------------------------------------------------------------------------
 
 CHANGELOG v3.5.027 (2026-02-03)
