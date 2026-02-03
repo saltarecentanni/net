@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.5.032
+ * Version: 3.5.033
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -2262,7 +2262,14 @@ var SVGTopology = (function() {
             'LAN': { fill: '#bfdbfe', stroke: '#3b82f6', text: '#1e40af' },           // Blue
             'WAN': { fill: '#bbf7d0', stroke: '#22c55e', text: '#166534' },           // Green
             'Cloud': { fill: '#e0e7ff', stroke: '#6366f1', text: '#4338ca' },         // Indigo
-            'Management': { fill: '#f3e8ff', stroke: '#a855f7', text: '#7e22ce' }     // Purple
+            'Management': { fill: '#f3e8ff', stroke: '#a855f7', text: '#7e22ce' },    // Purple
+            'VPN': { fill: '#d1fae5', stroke: '#10b981', text: '#065f46' },           // Emerald (encrypted)
+            'VLAN': { fill: '#cffafe', stroke: '#06b6d4', text: '#0e7490' },          // Cyan
+            'Guest': { fill: '#fce7f3', stroke: '#ec4899', text: '#9d174d' },         // Pink
+            'IoT': { fill: '#fef9c3', stroke: '#eab308', text: '#a16207' },           // Yellow
+            'Servers': { fill: '#dbeafe', stroke: '#2563eb', text: '#1e3a8a' },       // Blue dark
+            'Voice': { fill: '#ede9fe', stroke: '#8b5cf6', text: '#5b21b6' },         // Violet
+            'Storage': { fill: '#f1f5f9', stroke: '#475569', text: '#1e293b' }        // Slate
         };
         var defaultZoneColor = { fill: '#e2e8f0', stroke: '#64748b', text: '#334155' }; // Slate/Gray
         
@@ -2295,7 +2302,12 @@ var SVGTopology = (function() {
                 'rx="12" fill="' + zc.fill + '" fill-opacity="0.5" stroke="' + zc.stroke + '" stroke-width="2" stroke-dasharray="8,4"/>';
             
             // Zone label with icon
-            var zoneIcon = zoneName === 'DMZ' ? '🛡️' : (zoneName === 'Backbone' ? '🔗' : '🔲');
+            var zoneIcons = {
+                'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
+                'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
+                'IoT': '📡', 'Servers': '🖥️', 'Management': '⚙️', 'Voice': '📞', 'Storage': '💾'
+            };
+            var zoneIcon = zoneIcons[zoneName] || '🔲';
             var labelText = zoneIcon + ' ' + zoneName;
             if (zone.zoneIP) {
                 labelText += ' (' + zone.zoneIP + ')';
@@ -2949,7 +2961,14 @@ var SVGTopology = (function() {
             'LAN': { fill: '#bfdbfe', stroke: '#3b82f6', text: '#1e40af' },
             'WAN': { fill: '#bbf7d0', stroke: '#22c55e', text: '#166534' },
             'Cloud': { fill: '#e0e7ff', stroke: '#6366f1', text: '#4338ca' },
-            'Management': { fill: '#f3e8ff', stroke: '#a855f7', text: '#7e22ce' }
+            'Management': { fill: '#f3e8ff', stroke: '#a855f7', text: '#7e22ce' },
+            'VPN': { fill: '#d1fae5', stroke: '#10b981', text: '#065f46' },
+            'VLAN': { fill: '#cffafe', stroke: '#06b6d4', text: '#0e7490' },
+            'Guest': { fill: '#fce7f3', stroke: '#ec4899', text: '#9d174d' },
+            'IoT': { fill: '#fef9c3', stroke: '#eab308', text: '#a16207' },
+            'Servers': { fill: '#dbeafe', stroke: '#2563eb', text: '#1e3a8a' },
+            'Voice': { fill: '#ede9fe', stroke: '#8b5cf6', text: '#5b21b6' },
+            'Storage': { fill: '#f1f5f9', stroke: '#475569', text: '#1e293b' }
         };
         var defaultZoneColor = { fill: '#e2e8f0', stroke: '#64748b', text: '#334155' };
         
@@ -2978,7 +2997,12 @@ var SVGTopology = (function() {
             html += '<rect x="' + zoneX + '" y="' + zoneY + '" width="' + zoneWidth + '" height="' + zoneHeight + '" ' +
                 'rx="12" fill="' + zc.fill + '" fill-opacity="0.5" stroke="' + zc.stroke + '" stroke-width="2" stroke-dasharray="8,4"/>';
             
-            var zoneIcon = zoneName === 'DMZ' ? '🛡️' : (zoneName === 'Backbone' ? '🔗' : '🔲');
+            var zoneIcons2 = {
+                'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
+                'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
+                'IoT': '📡', 'Servers': '🖥️', 'Management': '⚙️', 'Voice': '📞', 'Storage': '💾'
+            };
+            var zoneIcon = zoneIcons2[zoneName] || '🔲';
             var labelText = zoneIcon + ' ' + zoneName;
             if (zone.zoneIP) {
                 labelText += ' (' + zone.zoneIP + ')';

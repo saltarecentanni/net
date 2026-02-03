@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.5.032
+ * Version: 3.5.033
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -314,7 +314,12 @@ function updateDevicesListCards(cont) {
         if (d.zone) {
             var zoneLabel = escapeHtml(d.zone);
             if (d.zoneIP) zoneLabel += ' (' + escapeHtml(d.zoneIP) + ')';
-            var zoneIcon = d.zone === 'DMZ' ? '🛡️' : (d.zone === 'Backbone' ? '🔗' : '🔲');
+            var zoneIcons = {
+                'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
+                'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
+                'IoT': '📡', 'Servers': '🖥️', 'Management': '⚙️', 'Voice': '📞', 'Storage': '💾'
+            };
+            var zoneIcon = zoneIcons[d.zone] || '🔲';
             zoneText = '<div class="text-xs mt-1 text-indigo-600">' + zoneIcon + ' ' + zoneLabel + '</div>';
         }
 
