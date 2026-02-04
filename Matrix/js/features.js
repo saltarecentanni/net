@@ -1935,6 +1935,7 @@ var SVGTopology = (function() {
             var extWords = extLower.split(/[\s\-_\/\(\)]+/).filter(function(w) { return w.length > 2; });
             var bestMatch = null;
             var bestScore = 0;
+            var bestWordCount = 0; // Tie-breaker: prefer device with more total words (more specific)
             var minWordsRequired = Math.min(2, extWords.length); // Need at least 2 matching words or all words if less
             
             for (var i = 0; i < existingDeviceNamesList.length; i++) {
@@ -1955,9 +1956,10 @@ var SVGTopology = (function() {
                 // Calculate score (percentage of external words that matched)
                 var score = matchCount / extWords.length;
                 
-                // If this device has more matching words and meets minimum requirement, it's the best match
-                if (matchCount >= minWordsRequired && score > bestScore) {
+                // If this device has better score, OR same score but more specific (more words), it's the best match
+                if (matchCount >= minWordsRequired && (score > bestScore || (score === bestScore && devWords.length > bestWordCount))) {
                     bestScore = score;
+                    bestWordCount = devWords.length;
                     bestMatch = dev.id;
                 }
             }
