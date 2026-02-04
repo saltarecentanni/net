@@ -2630,10 +2630,10 @@ var SVGTopology = (function() {
         html += '<g class="connection-labels">';
         pendingLabels.forEach(function(lbl) {
             var textColor = getContrastTextColor(lbl.color);
-            var fontSize = lbl.small ? 8 : 9;
-            var padding = 4;
-            var textWidth = lbl.text.length * (lbl.small ? 5 : 6) + padding * 2;
-            var textHeight = lbl.small ? 14 : 16;
+            var fontSize = lbl.small ? 9 : 10;
+            var padding = 5;
+            var textWidth = lbl.text.length * (lbl.small ? 6 : 7) + padding * 2;
+            var textHeight = lbl.small ? 16 : 18;
             
             // Find non-overlapping position for this label
             var offsetDir = lbl.onLine ? 'both' : 'vertical';
