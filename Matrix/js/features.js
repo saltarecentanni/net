@@ -2493,21 +2493,39 @@ var SVGTopology = (function() {
         // Draw devices
         html += '<g class="devices">';
         
-        // First, draw virtual external nodes (draggable boxes)
-        virtualExternals.forEach(function(ext) {
-            var pos = devicePositions[ext.id];
-            if (!pos) return;
-            
-            var boxWidth = Math.max(60, ext.name.length * 6 + 20);
-            var boxHeight = 24;
-            
-            html += '<g class="device-node external-node" data-id="' + ext.id + '" transform="translate(' + pos.x + ',' + pos.y + ')" ' +
-                'style="cursor: move;">';
-            html += '<rect x="0" y="0" width="' + boxWidth + '" height="' + boxHeight + '" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>';
-            html += '<text x="' + (boxWidth/2) + '" y="' + (boxHeight/2 + 4) + '" text-anchor="middle" fill="#374151" font-size="8" font-weight="600">🌐 ' + escapeHtml(ext.name) + '</text>';
+        // Draw virtual external nodes as full devices with icons (like Wall Jacks)
+        if (virtualExternals.length > 0) {
+            html += '<g class="external-devices">';
+            virtualExternals.forEach(function(ext) {
+                var pos = devicePositions[ext.id];
+                if (!pos) return;
+                
+                // Use ISP icon and color for external connections
+                var color = typeColors.isp || '#f59e0b';
+                var iconFn = deviceIcons.isp || deviceIcons.router;
+                
+                html += '<g class="device-node external-node" data-id="' + ext.id + '" transform="translate(' + pos.x + ',' + pos.y + ')" ' +
+                    'style="cursor: move;" filter="url(#dropShadow)">';
+                
+                // Same background as standard devices with yellow/amber tint
+                html += '<rect x="-5" y="-5" width="90" height="100" rx="8" fill="#fef3c7" opacity="0.3" class="hover-bg"/>';
+                
+                // External/ISP icon
+                html += '<g class="device-icon">' + iconFn(color) + '</g>';
+                
+                // External destination name
+                var name = ext.name || 'External';
+                html += '<text x="40" y="78" text-anchor="middle" fill="#1e293b" font-size="9" font-weight="600" ' +
+                    'style="paint-order: stroke; stroke: white; stroke-width: 3px;">' + escapeHtml(name) + '</text>';
+                
+                // Type label
+                html += '<text x="40" y="90" text-anchor="middle" fill="#b45309" font-size="8" font-weight="600" ' +
+                    'style="paint-order: stroke; stroke: white; stroke-width: 2px;">EXTERNAL</text>';
+                
+                html += '</g>';
+            });
             html += '</g>';
-            // Note: usedLabelPositions for virtual externals is registered earlier (before connection processing)
-        });
+        }
         
         devices.forEach(function(d) {
             var pos = devicePositions[d.id];
@@ -3057,32 +3075,37 @@ var SVGTopology = (function() {
                 }
             }
             
-            // Non-Wall Jack external
-            var fromCX = from.x + 40;
-            var fromCY = from.y + 35;
-            var hashCode = 0;
-            var hashStr = c.from + '-' + externalDest;
-            for (var hi = 0; hi < hashStr.length; hi++) {
-                hashCode = ((hashCode << 5) - hashCode + hashStr.charCodeAt(hi)) | 0;
-            }
-            var angle = (Math.abs(hashCode) % 360) * (Math.PI / 180);
-            var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, fromCX + Math.cos(angle) * 100, fromCY + Math.sin(angle) * 100);
-            var endX = fromDot.x + Math.cos(angle) * 60;
-            var endY = fromDot.y + Math.sin(angle) * 60;
-            
-            connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + endX + ',' + endY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-            connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-            
-            var boxWidth = Math.max(50, externalDest.length * 5 + 10);
-            connHtml += '<rect x="' + (endX - boxWidth/2) + '" y="' + (endY - 10) + '" width="' + boxWidth + '" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>';
-            connHtml += '<text x="' + endX + '" y="' + (endY + 4) + '" text-anchor="middle" fill="#374151" font-size="7" font-weight="600">🌐 ' + escapeHtml(externalDest) + '</text>';
-            
-            if (fromPort) {
-                labelHtml += makeLabel(fromDot.x + (endX - fromDot.x) * 0.2, fromDot.y + (endY - fromDot.y) * 0.2, fromPort, cableColor, false);
-            }
-            if (cableId) {
-                labelHtml += makeLabel((fromDot.x + endX) / 2, (fromDot.y + endY) / 2, cableId, cableColor, true);
+            // Non-Wall Jack external - connect to virtual external node
+            if (externalMap[externalDest]) {
+                var virtualId = externalMap[externalDest].id;
+                var extPos = devicePositions[virtualId];
+                if (extPos) {
+                    var extCX = extPos.x + 40;
+                    var extCY = extPos.y + 35;
+                    
+                    var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, extCX, extCY);
+                    var toDot = getConnectionDot(virtualId, toIdx, toTotal, extPos.x, extPos.y, from.x + 40, from.y + 35);
+                    
+                    connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + toDot.x + ',' + toDot.y + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
+                        'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
+                    connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
+                    connHtml += '<circle cx="' + toDot.x + '" cy="' + toDot.y + '" r="3" fill="' + cableColor + '"/>';
+                    
+                    if (fromPort) {
+                        var l1x = fromDot.x + (toDot.x - fromDot.x) * 0.15;
+                        var l1y = fromDot.y + (toDot.y - fromDot.y) * 0.15;
+                        labelHtml += makeLabel(l1x, l1y, fromPort, cableColor, false);
+                    }
+                    if (cableId) {
+                        labelHtml += makeLabel((fromDot.x + toDot.x) / 2, (fromDot.y + toDot.y) / 2, cableId, cableColor, true);
+                    }
+                } else {
+                    // Fallback: if position not found, skip this connection
+                    console.warn('External position not found for', externalDest);
+                }
+            } else {
+                // Fallback: External destination not in map (shouldn't happen)
+                console.warn('External destination not in externalMap:', externalDest);
             }
         });
         
