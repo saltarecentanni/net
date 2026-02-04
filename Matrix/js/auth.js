@@ -1,12 +1,12 @@
 /**
  * TIESSE Matrix Network - Authentication Module
- * Version: 3.5.048
+ * Version: 3.5.049
  * 
  * Simple authentication for edit mode:
  * - Public: View, Print, Export
  * - Authenticated: Add, Edit, Delete, Import, Clear
  * 
- * Security Features (v3.5.048):
+ * Security Features (v3.5.049):
  * - CSRF token support for all POST requests
  * - localStorage cleanup on logout
  */
