@@ -2,8 +2,8 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.036  
-**Date:** February 3, 2026  
+**Version:** 3.5.038  
+**Date:** February 4, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
 ---
@@ -30,7 +30,26 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.5.030
+## 🆕 What's New in v3.5.038
+
+### 🔧 Location Order Bug Fix (v3.5.037-038)
+- **Critical Fix**: Location code "00" now correctly appears before "01" in all dropdowns
+- **Root Cause**: Fixed JavaScript falsy issue where `parseInt('00') || 999` returned 999
+- **Solution**: Changed to `isNaN(parsedCode) ? 999 : parsedCode` pattern
+
+### 🗺️ Zone Visualization Overhaul (v3.5.037-038)
+- **Star Topology Lines**: Zones now rendered as thick lines connecting devices to centroid
+- **Better Visual**: 5px stroke width with 35% opacity instead of filled rectangles
+- **Single Device Zones**: Shows zone badge below device instead of surrounding area
+- **Division by Zero Protection**: Added safety check for empty zones
+
+### 🎨 UI Styling (v3.5.037)
+- **Location Selects**: Changed from orange to neutral slate/gray styling
+- **Consistent Theme**: `border-slate-400 bg-slate-50 text-slate-800`
+
+---
+
+## 🆕 Previous Updates
 
 ### 🔲 Network Zones (v3.5.030)
 - **New Device Property**: Assign devices to network zones (DMZ, Backbone, LAN, WAN, etc.)

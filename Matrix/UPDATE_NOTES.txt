@@ -1,8 +1,53 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.031
-Last Updated: 2026-02-03
+Version: 3.5.038
+Last Updated: 2026-02-04
 ================================================================================
+
+CHANGELOG v3.5.038 (2026-02-04)
+--------------------------------------------------------------------------------
+🔧 Critical Bug Fixes & Visual Improvements
+
+🐛 LOCATION ORDER BUG FIX:
+  ✅ Fixed: Location code "00" now appears before "01" in all dropdowns
+  ✅ Root cause: parseInt('00') || 999 was returning 999 (0 is falsy)
+  ✅ Solution: Changed to isNaN(parsedCode) ? 999 : parsedCode pattern
+  ✅ Verified with test: "00 - B → 01 - A → 19 - C" order works correctly
+  ✅ Applied to getLocationsForFilter() in features.js (line 434)
+
+🔒 DIVISION BY ZERO PROTECTION:
+  ✅ Added safety check: if (deviceCenters.length === 0) return;
+  ✅ Prevents crash when zone has no devices in topology view
+  ✅ Applied to zone centroid calculation in features.js
+
+📚 DOCUMENTATION SYNC:
+  ✅ All documents updated to v3.5.038
+  ✅ README.md, BLUEPRINT.md, UPDATE_NOTES.txt synchronized
+
+--------------------------------------------------------------------------------
+
+CHANGELOG v3.5.037 (2026-02-04)
+--------------------------------------------------------------------------------
+🗺️ Zone Visualization Overhaul
+
+📊 ZONE LINES (REPLACED RECTANGLES):
+  ✅ Zones now rendered as thick lines (5px stroke width)
+  ✅ Star topology: devices connect to zone centroid
+  ✅ Opacity 0.35 for subtle visualization
+  ✅ Removed filled rectangles (stroke-dasharray="8,4")
+  ✅ Applied to SVGTopology.updateTopology() and updateZonesOverlay()
+
+📍 SINGLE DEVICE ZONES:
+  ✅ When zone has only one device, shows badge below device
+  ✅ Badge format: "🔲 ZONE_NAME" (or zone-specific icon)
+  ✅ Positioned 35px below device center
+
+🎨 UI STYLING CHANGES:
+  ✅ Location selects changed from orange to neutral slate
+  ✅ Color scheme: border-slate-400 bg-slate-50 text-slate-800
+  ✅ Applied to 3 location filter selects in index.html
+
+--------------------------------------------------------------------------------
 
 CHANGELOG v3.5.031 (2026-02-03)
 --------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.5.036  
-**Date:** February 3, 2026  
+**Version:** 3.5.038  
+**Date:** February 4, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
 
@@ -29,7 +29,28 @@ A web-based network infrastructure documentation system for enterprise environme
 
 ## 2. VERSION HISTORY
 
-### v3.5.036 (Current) - February 3, 2026
+### v3.5.038 (Current) - February 4, 2026
+
+#### 🔧 Critical Bug Fixes & Visual Improvements
+| Feature | Description |
+|---------|-------------|
+| **Location Order Fix** | Fixed parseInt('00') falsy bug - code 00 now appears before 01 |
+| **isNaN Pattern** | Changed `parseInt(x) || 999` to `isNaN(parsedCode) ? 999 : parsedCode` |
+| **Zone Lines** | Zones rendered as thick lines (5px, 35% opacity) instead of rectangles |
+| **Star Topology** | Devices connect to zone centroid in star pattern |
+| **Single Device Zones** | Badge displayed below device instead of surrounding area |
+| **Division by Zero** | Added protection in centroid calculation |
+
+### v3.5.037 - February 4, 2026
+
+#### 🎨 UI/UX Improvements
+| Feature | Description |
+|---------|-------------|
+| **Location Selects** | Changed from orange to neutral slate styling |
+| **Color Scheme** | `border-slate-400 bg-slate-50 text-slate-800` |
+| **Zone Visualization** | Initial thick line implementation |
+
+### v3.5.036 - February 3, 2026
 
 #### 🔧 Code Quality & Centralization
 | Feature | Description |

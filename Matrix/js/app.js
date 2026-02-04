@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.037
+ * Version: 3.5.038
  * 
  * Features:
  * - Encapsulated state (appState)
