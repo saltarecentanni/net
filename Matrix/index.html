@@ -75,11 +75,11 @@
                 <div class="flex items-center gap-4">
                     <h2 class="text-lg font-bold text-slate-800">Actions</h2>
                     <!-- Global Location Filter -->
-                    <div class="flex items-center gap-2 bg-orange-50 border border-orange-300 rounded-lg px-2 py-1">
-                        <select id="locationFilter" onchange="filterByLocation();" class="px-2 py-1 text-sm border-0 bg-transparent font-semibold text-orange-800 cursor-pointer focus:outline-none" aria-label="Filter by location">
+                    <div class="flex items-center gap-2 bg-slate-100 border border-slate-300 rounded-lg px-2 py-1">
+                        <select id="locationFilter" onchange="filterByLocation();" class="px-2 py-1 text-sm border-0 bg-transparent font-semibold text-slate-800 cursor-pointer focus:outline-none" aria-label="Filter by location">
                             <option value="">🌐 All Locations</option>
                         </select>
-                        <span id="totalLocationsCount" class="bg-orange-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                        <span id="totalLocationsCount" class="bg-slate-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
                     </div>
                     <!-- Stats Counters -->
                     <div class="flex items-center gap-2">
@@ -152,7 +152,7 @@
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block" for="deviceLocation">📍 Location *</label>
                             <div class="flex gap-1">
-                                <select id="deviceLocation" class="flex-1 px-2 py-1.5 border-2 border-orange-400 rounded-lg focus:ring-2 focus:ring-orange-500 text-xs bg-orange-50 font-semibold text-orange-800" aria-label="Device location" aria-required="true">
+                                <select id="deviceLocation" class="flex-1 px-2 py-1.5 border-2 border-slate-400 rounded-lg focus:ring-2 focus:ring-slate-500 text-xs bg-slate-50 font-semibold text-slate-800" aria-label="Device location" aria-required="true">
                                     <option value="">📍 Select Location...</option>
                                 </select>
                                 <button type="button" onclick="openLocationManager()" title="Manage Locations" 
@@ -339,7 +339,7 @@
                                 <div>
                                     <label class="text-xs text-slate-600 mb-1 block">📍 Location</label>
                                     <select id="fromLocation" onchange="updateFromGroups()" 
-                                        class="w-full px-2 py-1.5 border-2 border-orange-400 rounded-lg text-xs bg-orange-50 font-semibold text-orange-800">
+                                        class="w-full px-2 py-1.5 border-2 border-slate-400 rounded-lg text-xs bg-slate-50 font-semibold text-slate-800">
                                         <option value="">📍 All</option>
                                     </select>
                                 </div>
@@ -373,7 +373,7 @@
                                 <div>
                                     <label class="text-xs text-slate-600 mb-1 block">📍 Location</label>
                                     <select id="toLocation" onchange="updateToGroups()" 
-                                        class="w-full px-2 py-1.5 border-2 border-orange-400 rounded-lg text-xs bg-orange-50 font-semibold text-orange-800">
+                                        class="w-full px-2 py-1.5 border-2 border-slate-400 rounded-lg text-xs bg-slate-50 font-semibold text-slate-800">
                                         <option value="">📍 All</option>
                                     </select>
                                 </div>
@@ -524,7 +524,7 @@
                         <!-- Right: Filters + Zoom + Actions -->
                         <div class="flex items-center gap-2 flex-wrap no-print">
                             <!-- Filters -->
-                            <select id="matrixLocationFilter" onchange="filterMatrixByLocation()" class="px-2 py-1.5 border-2 border-orange-400 rounded-lg text-sm bg-orange-50 font-semibold text-orange-800">
+                            <select id="matrixLocationFilter" onchange="filterMatrixByLocation()" class="px-2 py-1.5 border-2 border-slate-400 rounded-lg text-sm bg-slate-50 font-semibold text-slate-800">
                                 <option value="">📍 All Locations</option>
                             </select>
                             <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
@@ -2951,7 +2951,7 @@ ip addr show | grep "inet "</pre>
                     <!-- Right: Filters + Zoom + Actions -->
                     <div class="flex items-center gap-2 flex-wrap">
                         <!-- Filters -->
-                        <select id="topologyLocationFilter" onchange="filterTopologyByLocation()" class="px-2 py-1.5 border-2 border-orange-400 rounded-lg text-sm bg-orange-50 font-semibold text-orange-800">
+                        <select id="topologyLocationFilter" onchange="filterTopologyByLocation()" class="px-2 py-1.5 border-2 border-slate-400 rounded-lg text-sm bg-slate-50 font-semibold text-slate-800">
                             <option value="">📍 All Locations</option>
                         </select>
                         <select id="topologyRackFilter" onchange="filterTopologyByRack()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
@@ -3079,12 +3079,12 @@ ip addr show | grep "inet "</pre>
     </div>
 
     <!-- Load external JavaScript modules with cache-buster -->
-    <script src="js/editlock.js?v=3.5.037"></script>
-    <script src="js/auth.js?v=3.5.037"></script>
-    <script src="js/app.js?v=3.5.037"></script>
-    <script src="js/ui-updates.js?v=3.5.037"></script>
-    <script src="js/features.js?v=3.5.037"></script>
-    <script src="js/floorplan.js?v=3.5.037"></script>
+    <script src="js/editlock.js?v=3.5.038"></script>
+    <script src="js/auth.js?v=3.5.038"></script>
+    <script src="js/app.js?v=3.5.038"></script>
+    <script src="js/ui-updates.js?v=3.5.038"></script>
+    <script src="js/features.js?v=3.5.038"></script>
+    <script src="js/floorplan.js?v=3.5.038"></script>
     
     <!-- Update connections count when list lists -->
     <script>

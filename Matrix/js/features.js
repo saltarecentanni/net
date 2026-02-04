@@ -427,10 +427,11 @@ var LocationFilter = (function() {
             var custom = [];
             
             appState.locations.forEach(function(loc) {
+                var parsedCode = parseInt(loc.code, 10);
                 var item = {
                     value: loc.name,
                     display: loc.code + ' - ' + loc.name,
-                    code: parseInt(loc.code) || 999,
+                    code: isNaN(parsedCode) ? 999 : parsedCode,
                     type: loc.type
                 };
                 if (loc.type === 'mapped') {
@@ -2292,35 +2293,67 @@ var SVGTopology = (function() {
         };
         var defaultZoneColor = { fill: '#e2e8f0', stroke: '#64748b', text: '#334155' }; // Slate/Gray
         
-        // Draw zone backgrounds
+        // Draw zone connections as thick lines between devices in same zone
+        // This replaces the old rectangular zone backgrounds
         Object.keys(zoneGroups).forEach(function(zoneName) {
             var zone = zoneGroups[zoneName];
             var zc = zoneColors[zoneName] || defaultZoneColor;
+            var zoneDevices = zone.devices;
             
-            // Calculate bounding box for devices in this zone
-            var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-            zone.devices.forEach(function(d) {
+            // Need at least 2 devices to draw zone connections
+            if (zoneDevices.length < 2) {
+                // Single device - just draw a small indicator badge on the device
+                if (zoneDevices.length === 1) {
+                    var singlePos = devicePositions[zoneDevices[0].id];
+                    if (singlePos) {
+                        var zoneIcons = {
+                            'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
+                            'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
+                            'IoT': '📡', 'Servers': '🖥️', 'Management': '⚙️', 'Voice': '📞', 'Storage': '💾'
+                        };
+                        var icon = zoneIcons[zoneName] || '🔲';
+                        var badgeText = icon + ' ' + zoneName;
+                        if (zone.zoneIP) badgeText += ' ' + zone.zoneIP;
+                        var badgeWidth = badgeText.length * 5.5 + 8;
+                        // Draw badge below device
+                        html += '<rect x="' + (singlePos.x + 40 - badgeWidth/2) + '" y="' + (singlePos.y + 92) + '" ' +
+                            'width="' + badgeWidth + '" height="14" rx="3" fill="' + zc.stroke + '" fill-opacity="0.85"/>';
+                        html += '<text x="' + (singlePos.x + 40) + '" y="' + (singlePos.y + 102) + '" ' +
+                            'text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">' + escapeHtml(badgeText) + '</text>';
+                    }
+                }
+                return;
+            }
+            
+            // Get device centers
+            var deviceCenters = [];
+            zoneDevices.forEach(function(d) {
                 var pos = devicePositions[d.id];
                 if (pos) {
-                    minX = Math.min(minX, pos.x);
-                    minY = Math.min(minY, pos.y);
-                    maxX = Math.max(maxX, pos.x + 80); // Device width
-                    maxY = Math.max(maxY, pos.y + 90); // Device height
+                    deviceCenters.push({
+                        id: d.id,
+                        x: pos.x + 40, // Center of device (80px width / 2)
+                        y: pos.y + 45  // Center of device (90px height / 2)
+                    });
                 }
             });
             
-            // Add padding around the zone
-            var padding = 25;
-            var zoneX = minX - padding;
-            var zoneY = minY - padding - 20; // Extra space for label at top
-            var zoneWidth = (maxX - minX) + padding * 2;
-            var zoneHeight = (maxY - minY) + padding * 2 + 20;
+            // Calculate centroid of all devices in zone
+            var centroidX = 0, centroidY = 0;
+            deviceCenters.forEach(function(dc) {
+                centroidX += dc.x;
+                centroidY += dc.y;
+            });
+            centroidX /= deviceCenters.length;
+            centroidY /= deviceCenters.length;
             
-            // Draw zone rectangle with rounded corners
-            html += '<rect x="' + zoneX + '" y="' + zoneY + '" width="' + zoneWidth + '" height="' + zoneHeight + '" ' +
-                'rx="12" fill="' + zc.fill + '" fill-opacity="0.5" stroke="' + zc.stroke + '" stroke-width="2" stroke-dasharray="8,4"/>';
+            // Draw thick lines from each device to the centroid (star topology for zone)
+            deviceCenters.forEach(function(dc) {
+                html += '<line x1="' + dc.x + '" y1="' + dc.y + '" x2="' + centroidX + '" y2="' + centroidY + '" ' +
+                    'stroke="' + zc.stroke + '" stroke-width="5" stroke-opacity="0.35" stroke-linecap="round"/>';
+            });
             
-            // Zone label with icon
+            // Draw zone label at centroid
             var zoneIcons = {
                 'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
                 'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
@@ -2332,14 +2365,12 @@ var SVGTopology = (function() {
                 labelText += ' (' + zone.zoneIP + ')';
             }
             
-            // Label background
-            var labelWidth = labelText.length * 6 + 16;
-            html += '<rect x="' + (zoneX + 10) + '" y="' + (zoneY + 5) + '" width="' + labelWidth + '" height="18" rx="4" ' +
-                'fill="' + zc.stroke + '" fill-opacity="0.9"/>';
-            
-            // Label text
-            html += '<text x="' + (zoneX + 18) + '" y="' + (zoneY + 17) + '" fill="#fff" font-size="10" font-weight="bold">' +
-                escapeHtml(labelText) + '</text>';
+            // Label background pill at centroid
+            var labelWidth = labelText.length * 5.5 + 12;
+            html += '<rect x="' + (centroidX - labelWidth/2) + '" y="' + (centroidY - 9) + '" ' +
+                'width="' + labelWidth + '" height="18" rx="9" fill="' + zc.stroke + '" fill-opacity="0.9"/>';
+            html += '<text x="' + centroidX + '" y="' + (centroidY + 4) + '" text-anchor="middle" ' +
+                'fill="#fff" font-size="9" font-weight="bold">' + escapeHtml(labelText) + '</text>';
         });
         
         html += '</g>';
@@ -2994,27 +3025,61 @@ var SVGTopology = (function() {
         Object.keys(zoneGroups).forEach(function(zoneName) {
             var zone = zoneGroups[zoneName];
             var zc = zoneColors[zoneName] || defaultZoneColor;
+            var zoneDevices = zone.devices;
             
-            var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-            zone.devices.forEach(function(d) {
+            // Need at least 2 devices to draw zone connections
+            if (zoneDevices.length < 2) {
+                // Single device - just draw a small indicator badge
+                if (zoneDevices.length === 1) {
+                    var singlePos = devicePositions[zoneDevices[0].id];
+                    if (singlePos) {
+                        var zoneIcons = {
+                            'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
+                            'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
+                            'IoT': '📡', 'Servers': '🖥️', 'Management': '⚙️', 'Voice': '📞', 'Storage': '💾'
+                        };
+                        var icon = zoneIcons[zoneName] || '🔲';
+                        var badgeText = icon + ' ' + zoneName;
+                        if (zone.zoneIP) badgeText += ' ' + zone.zoneIP;
+                        var badgeWidth = badgeText.length * 5.5 + 8;
+                        html += '<rect x="' + (singlePos.x + 40 - badgeWidth/2) + '" y="' + (singlePos.y + 92) + '" ' +
+                            'width="' + badgeWidth + '" height="14" rx="3" fill="' + zc.stroke + '" fill-opacity="0.85"/>';
+                        html += '<text x="' + (singlePos.x + 40) + '" y="' + (singlePos.y + 102) + '" ' +
+                            'text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">' + escapeHtml(badgeText) + '</text>';
+                    }
+                }
+                return;
+            }
+            
+            // Get device centers
+            var deviceCenters = [];
+            zoneDevices.forEach(function(d) {
                 var pos = devicePositions[d.id];
                 if (pos) {
-                    minX = Math.min(minX, pos.x);
-                    minY = Math.min(minY, pos.y);
-                    maxX = Math.max(maxX, pos.x + 80);
-                    maxY = Math.max(maxY, pos.y + 90);
+                    deviceCenters.push({
+                        id: d.id,
+                        x: pos.x + 40,
+                        y: pos.y + 45
+                    });
                 }
             });
             
-            var padding = 25;
-            var zoneX = minX - padding;
-            var zoneY = minY - padding - 20;
-            var zoneWidth = (maxX - minX) + padding * 2;
-            var zoneHeight = (maxY - minY) + padding * 2 + 20;
+            // Calculate centroid
+            var centroidX = 0, centroidY = 0;
+            deviceCenters.forEach(function(dc) {
+                centroidX += dc.x;
+                centroidY += dc.y;
+            });
+            centroidX /= deviceCenters.length;
+            centroidY /= deviceCenters.length;
             
-            html += '<rect x="' + zoneX + '" y="' + zoneY + '" width="' + zoneWidth + '" height="' + zoneHeight + '" ' +
-                'rx="12" fill="' + zc.fill + '" fill-opacity="0.5" stroke="' + zc.stroke + '" stroke-width="2" stroke-dasharray="8,4"/>';
+            // Draw thick lines from each device to centroid
+            deviceCenters.forEach(function(dc) {
+                html += '<line x1="' + dc.x + '" y1="' + dc.y + '" x2="' + centroidX + '" y2="' + centroidY + '" ' +
+                    'stroke="' + zc.stroke + '" stroke-width="5" stroke-opacity="0.35" stroke-linecap="round"/>';
+            });
             
+            // Zone label at centroid
             var zoneIcons2 = {
                 'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
                 'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
@@ -3026,11 +3091,11 @@ var SVGTopology = (function() {
                 labelText += ' (' + zone.zoneIP + ')';
             }
             
-            var labelWidth = labelText.length * 6 + 16;
-            html += '<rect x="' + (zoneX + 10) + '" y="' + (zoneY + 5) + '" width="' + labelWidth + '" height="18" rx="4" ' +
-                'fill="' + zc.stroke + '" fill-opacity="0.9"/>';
-            html += '<text x="' + (zoneX + 18) + '" y="' + (zoneY + 17) + '" fill="#fff" font-size="10" font-weight="bold">' +
-                escapeHtml(labelText) + '</text>';
+            var labelWidth = labelText.length * 5.5 + 12;
+            html += '<rect x="' + (centroidX - labelWidth/2) + '" y="' + (centroidY - 9) + '" ' +
+                'width="' + labelWidth + '" height="18" rx="9" fill="' + zc.stroke + '" fill-opacity="0.9"/>';
+            html += '<text x="' + centroidX + '" y="' + (centroidY + 4) + '" text-anchor="middle" ' +
+                'fill="#fff" font-size="9" font-weight="bold">' + escapeHtml(labelText) + '</text>';
         });
         
         zoneGroup.innerHTML = html;
