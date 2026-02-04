@@ -2577,7 +2577,7 @@ function toggleExternalDest() {
     } else if (toDevice === 'walljack') {
         toPortContainer.classList.add('hidden');
         externalDestContainer.classList.remove('hidden');
-        if (externalDestLabel) externalDestLabel.textContent = '🔌 Wall Jack ID';
+        if (externalDestLabel) externalDestLabel.textContent = '🔌 Wall Jack';
         if (externalDestInput) externalDestInput.placeholder = 'Z1, Z2, Z3...';
         if (wallJackRoomContainer) {
             wallJackRoomContainer.classList.remove('hidden');

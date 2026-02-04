@@ -1204,12 +1204,30 @@ var SVGTopology = (function() {
         display: function(color) { return deviceIcons.tv(color); },
         monitor: function(color) { return deviceIcons.tv(color); },
         // Wall Jack / Tomada de Parede
+        // External/ISP (Internet, WAN, Cloud)
+        external: function(color) {
+            return '<g transform="translate(5,8) scale(0.9)">' +
+                // Nuvem/Mundo externo
+                '<ellipse cx="45" cy="30" rx="38" ry="26" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>' +
+                '<ellipse cx="45" cy="30" rx="32" ry="20" fill="#f0f9ff" stroke="#38bdf8" stroke-width="1"/>' +
+                // Globo interno
+                '<circle cx="45" cy="30" r="14" fill="#0ea5e9" opacity="0.2"/>' +
+                '<path d="M45,16 Q52,23 45,30 Q38,37 45,44" stroke="#0369a1" stroke-width="1.5" fill="none"/>' +
+                '<path d="M31,30 Q38,23 45,30 Q52,37 59,30" stroke="#0369a1" stroke-width="1.5" fill="none"/>' +
+                '<ellipse cx="45" cy="30" rx="14" ry="8" fill="none" stroke="#0369a1" stroke-width="1"/>' +
+                // Setas de conexão
+                '<path d="M25,25 L35,28" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowExternal)"/>' +
+                '<path d="M25,35 L35,32" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowExternal)"/>' +
+                '<defs><marker id="arrowExternal" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">' +
+                '<polygon points="0 0, 6 3, 0 6" fill="#0ea5e9"/></marker></defs>' +
+                '</g>';
+        },
         walljack: function(color) {
             return '<g transform="translate(15,5) scale(0.85)">' +
                 // Placa da parede
                 '<rect x="5" y="5" width="55" height="60" rx="3" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>' +
                 // Moldura interna
-                '<rect x="10" y="10" width="45" height="50" rx="2" fill="#dfe6e9"/>' +
+                '<rect x="10" y="10" width="45" height="50" rx="2" fill="#dfe6e9"/>'  +
                 // Porta RJ45 superior
                 '<rect x="18" y="15" width="30" height="18" rx="2" fill="#2d3436"/>' +
                 '<rect x="21" y="18" width="24" height="12" fill="#0c0c0c" rx="1"/>' +
@@ -1292,6 +1310,7 @@ var SVGTopology = (function() {
         nas: '#2d3436',         // Dark gray (storage)
         ups: '#2d3436',         // Dark gray (power)
         walljack: '#ecf0f1',    // Light gray (wall plate)
+        external: '#e0f2fe',    // Light blue (external/internet)
         modem: '#2d3436',       // Dark gray (modem)
         tv: '#2d3436',          // Dark gray (TV)
         display: '#2d3436',     // Dark gray (display)
@@ -1324,6 +1343,7 @@ var SVGTopology = (function() {
         nas: 'NAS',
         ups: 'UPS',
         walljack: 'Wall Jack',
+        external: 'External/Internet',
         modem: 'Modem',
         tv: 'TV/Display',
         display: 'Display',
@@ -1356,6 +1376,7 @@ var SVGTopology = (function() {
         nas: '#9b59b6',
         ups: '#27ae60',
         walljack: '#7f8c8d',
+        external: '#0ea5e9',
         modem: '#e67e22',
         tv: '#3498db',
         display: '#3498db',

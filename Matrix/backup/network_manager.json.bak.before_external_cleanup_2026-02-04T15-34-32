@@ -7449,7 +7449,7 @@
       "cableMarker": "",
       "cableColor": "#3b82f6",
       "notes": "Fiber TIM",
-      "externalDest": "Internet/ISP",
+      "externalDest": "External/WAN",
       "isWallJack": false
     },
     {
@@ -7491,7 +7491,7 @@
       "cableMarker": "A5",
       "cableColor": "#ef4444",
       "notes": "POE WIND FWA",
-      "externalDest": "Internet/ISP",
+      "externalDest": "External/WAN",
       "isWallJack": false
     },
     {
@@ -7533,6 +7533,20 @@
       "cableMarker": "AB02",
       "cableColor": "#3b82f6",
       "notes": "Collegamento Rack-Network-01 <> Rack-Network-02"
+    },
+    {
+      "from": 9,
+      "fromPort": "",
+      "to": null,
+      "toPort": "",
+      "externalDest": "Firewall",
+      "isWallJack": false,
+      "type": "other",
+      "color": "#6b7280",
+      "status": "disabled",
+      "cableMarker": "",
+      "cableColor": "",
+      "notes": ""
     },
     {
       "from": 10,
@@ -7666,7 +7680,7 @@
       "fromPort": "others01",
       "to": null,
       "toPort": "",
-      "externalDest": "Internet/ISP",
+      "externalDest": "ISP",
       "isWallJack": false,
       "roomId": null,
       "type": "lan",
@@ -8094,6 +8108,48 @@
       "status": "active",
       "cableMarker": "C1",
       "cableColor": "#6b7280",
+      "notes": ""
+    },
+    {
+      "from": 55,
+      "fromPort": "eth04",
+      "to": null,
+      "toPort": "",
+      "externalDest": "BIG ONE - Laboratorio di Prove",
+      "isWallJack": false,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "AA0",
+      "cableColor": "#ffffff",
+      "notes": "IXIA"
+    },
+    {
+      "from": 55,
+      "fromPort": "eth03",
+      "to": null,
+      "toPort": "",
+      "externalDest": "BIG ONE - Laboratorio di Prove",
+      "isWallJack": false,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "AA1",
+      "cableColor": "#ffffff",
+      "notes": ""
+    },
+    {
+      "from": 58,
+      "fromPort": "eth03",
+      "to": null,
+      "toPort": "",
+      "externalDest": "BIG ONE - Laboratorio di Prove",
+      "isWallJack": false,
+      "type": "lan",
+      "color": "#3b82f6",
+      "status": "active",
+      "cableMarker": "AA2",
+      "cableColor": "#ffffff",
       "notes": ""
     },
     {
