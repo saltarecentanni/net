@@ -147,7 +147,7 @@ A web-based network infrastructure documentation system for enterprise environme
 | **Excel** | SheetJS (XLSX) 0.18.5 | Local vendor |
 | **Backend** | Node.js 16+ / PHP 8.3 | Dual-mode support |
 | **Auth** | Session-based | PHP sessions |
-| **Data** | JSON file | `data/matrix-network-data.json` |
+| **Data** | JSON file | `data/network_manager.json` |
 
 ### 3.2 File Structure
 
@@ -182,7 +182,7 @@ Matrix/
 │   └── xlsx.full.min.js    # Excel export
 │
 ├── data/
-│   ├── matrix-network-data.json # Main data file
+│   ├── network_manager.json # Main data file
 │   └── online_users.json    # Active users tracking
 │
 ├── backup/

@@ -1,10 +1,10 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.5.049
+ * Version: 3.5.042
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  * 
- * Security Features (v3.5.050):
+ * Security Features (v3.5.042):
  * - bcrypt password hashing (compatible with PHP)
  * - CORS whitelist (configurable)
  * - CSRF token validation
@@ -52,7 +52,7 @@ if (fs.existsSync(envPath)) {
 
 const PORT = parseInt(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0'; // Use 127.0.0.1 for local-only access
-const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'data/matrix-network-data.json');
+const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'data/network_manager.json');
 const LOCK_FILE = path.join(__dirname, 'data/edit.lock');
 const LOCK_TIMEOUT = 300; // 5 minutes in seconds
 
@@ -767,7 +767,7 @@ const server = http.createServer(requestHandler);
 server.listen(PORT, HOST, () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.5.051                  ║');
+    console.log('║     TIESSE Matrix Network Server v3.5.042                  ║');
     console.log('║              🏢 Internal/Intranet Use Only                 ║');
     console.log('╠════════════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                          ║`);

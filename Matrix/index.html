@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.5.051">
+    <meta name="app-version" content="3.5.042">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%231e40af'/><circle cx='25' cy='25' r='8' fill='%2360a5fa'/><circle cx='75' cy='25' r='8' fill='%2360a5fa'/><circle cx='25' cy='75' r='8' fill='%2360a5fa'/><circle cx='75' cy='75' r='8' fill='%2360a5fa'/><circle cx='50' cy='50' r='10' fill='%23fbbf24'/><line x1='25' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='25' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/></svg>">
@@ -15,7 +15,7 @@
     <script src="assets/vendor/xlsx.full.min.js"></script>
     <script src="assets/vendor/sweetalert2.min.js"></script>
     <!-- Custom CSS with cache-busting -->
-    <link rel="stylesheet" href="css/styles.css?v=3.5.051">
+    <link rel="stylesheet" href="css/styles.css?v=3.5.042">
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
     <div id="syncIndicator" class="sync-indicator" style="display:none;"></div>
@@ -302,11 +302,8 @@
 
                 <!-- Devices List -->
                 <div>
-                    <div class="flex items-center justify-between gap-4 mb-3">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-800">Devices List</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Catalogo completo dei dispositivi di rete</p>
-                        </div>
+                    <div class="flex items-center gap-4 mb-3">
+                        <h2 class="text-lg font-bold text-slate-800">Devices List</h2>
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-slate-500">View:</span>
                             <button onclick="setDeviceView('cards')" id="deviceViewCards" class="px-2 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300">
@@ -499,10 +496,7 @@
                 <!-- Connections List -->
                 <div id="connectionsPrintArea">
                     <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-800">Active Connections</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Mappa dei collegamenti tra dispositivi</p>
-                        </div>
+                        <h2 class="text-lg font-bold text-slate-800">Active Connections</h2>
                         <button onclick="printConnections()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
                             🖨️ Print List
                         </button>
@@ -524,10 +518,7 @@
                     <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
                         <!-- Left: Title + Stats -->
                         <div class="flex items-center gap-3">
-                            <div>
-                                <h2 class="text-xl font-bold text-slate-800">📊 Connection Matrix</h2>
-                                <p class="text-xs text-slate-500 mt-0.5">Matrice completa delle interconnessioni di rete</p>
-                            </div>
+                            <h2 class="text-xl font-bold text-slate-800">📊 Connection Matrix</h2>
                             <div id="matrixStats" class="no-print">
                                 <!-- Stats populated by JS -->
                             </div>
@@ -585,10 +576,7 @@
                 <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
                     <!-- Left: Title + Stats -->
                     <div class="flex items-center gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-800">🏢 Floor Plan</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Planimetria dell'edificio con mappatura dispositivi</p>
-                        </div>
+                        <h2 class="text-xl font-bold text-slate-800">🏢 Floor Plan</h2>
                         <div id="floorplanStats" class="flex items-center gap-2 text-xs">
                             <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-semibold">
                                 📍 <span id="totalRoomsCount">0</span> Rooms
@@ -665,7 +653,7 @@
                     <!-- ========== HEADER ========== -->
                     <div class="text-center mb-6">
                         <h1 class="text-3xl font-bold text-slate-800 mb-2">📚 Guida Utente Completa</h1>
-                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.5.051</p>
+                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.5.040</p>
                         <p class="text-slate-500 text-sm mt-1">Documentazione completa per utenti e amministratori di sistema</p>
                         <div class="flex justify-center gap-2 mt-3">
                             <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">Guida Operativa</span>
@@ -826,7 +814,7 @@
                                 <div class="grid md:grid-cols-2 gap-3">
                                     <div class="bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
                                         <span class="font-bold text-green-800">✅ Dove vengono salvati?</span>
-                                        <p class="text-green-700 text-xs mt-1">I dati sono salvati in un file JSON sul server (<code class="bg-green-200 px-1 rounded">data/matrix-network-data.json</code>). Quando clicchi "Save Now", il browser invia i dati al server che li scrive nel file.</p>
+                                        <p class="text-green-700 text-xs mt-1">I dati sono salvati in un file JSON sul server (<code class="bg-green-200 px-1 rounded">data/network_manager.json</code>). Quando clicchi "Save Now", il browser invia i dati al server che li scrive nel file.</p>
                                     </div>
                                     <div class="bg-red-50 p-3 rounded-lg border-l-4 border-red-500">
                                         <span class="font-bold text-red-800">⚠️ Attenzione!</span>
@@ -2654,7 +2642,7 @@ Device-C  │          │   🟢     │    -     │</pre>
 ├── config/
 │   └── config.php      <span class="text-slate-500"># Configurazione</span>
 ├── data/
-│   └── matrix-network-data.json  <span class="text-slate-500"># Dati della rete</span>
+│   └── network_manager.json  <span class="text-slate-500"># Dati della rete</span>
 ├── js/                 <span class="text-slate-500"># Script JavaScript</span>
 ├── css/                <span class="text-slate-500"># Stili CSS</span>
 └── assets/             <span class="text-slate-500"># Librerie e risorse</span></pre>
@@ -2677,7 +2665,7 @@ Device-C  │          │   🟢     │    -     │</pre>
 
 <span class="text-slate-500"># Permesso di scrittura per la cartella dati (importante!)</span>
 <span class="text-cyan-400">sudo</span> chmod 775 /var/www/html/matrix/data
-<span class="text-cyan-400">sudo</span> chmod 664 /var/www/html/matrix/data/matrix-network-data.json</pre>
+<span class="text-cyan-400">sudo</span> chmod 664 /var/www/html/matrix/data/network_manager.json</pre>
                                 </div>
 
                                 <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs">
@@ -2747,9 +2735,9 @@ php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
                                         <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mt-2">
 <pre><span class="text-slate-500"># Copiare file dati direttamente</span>
 <span class="text-cyan-400">sudo</span> cp /percorso/backup.json \
-  /var/www/html/matrix/data/matrix-network-data.json
+  /var/www/html/matrix/data/network_manager.json
 <span class="text-cyan-400">sudo</span> chown www-data:www-data \
-  /var/www/html/matrix/data/matrix-network-data.json</pre>
+  /var/www/html/matrix/data/network_manager.json</pre>
                                         </div>
                                     </div>
                                 </div>
@@ -2848,7 +2836,7 @@ php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
 
                                         <div class="bg-amber-50 border border-amber-200 rounded-lg p-2">
                                             <p class="font-semibold text-amber-900 text-xs">⚠️ Ripristino da Backup:</p>
-                                            <p class="text-amber-700 text-xs">Per ripristinare, copiare il file .json desiderato in <code class="bg-amber-200 px-1 rounded">data/matrix-network-data.json</code></p>
+                                            <p class="text-amber-700 text-xs">Per ripristinare, copiare il file .json desiderato in <code class="bg-amber-200 px-1 rounded">data/network_manager.json</code></p>
                                         </div>
                                     </div>
                                 </details>
@@ -2922,7 +2910,7 @@ df -h /var/www/html/
 php -v
 
 <span class="text-slate-500"># Fare backup manuale dei dati</span>
-<span class="text-cyan-400">sudo</span> cp /var/www/html/matrix/data/matrix-network-data.json \
+<span class="text-cyan-400">sudo</span> cp /var/www/html/matrix/data/network_manager.json \
    ~/backup_matrix_$(date +%Y%m%d_%H%M%S).json
 
 <span class="text-slate-500"># Verificare IP del server</span>
@@ -2945,7 +2933,7 @@ ip addr show | grep "inet "</pre>
                     <!-- ========== FOOTER ========== -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.5.051</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.5.040</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -2957,10 +2945,7 @@ ip addr show | grep "inet "</pre>
                 <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
                     <!-- Left: Title + Stats -->
                     <div class="flex items-center gap-3">
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-800">🗺️ Network Topology</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Visualizzazione grafica automatica della rete</p>
-                        </div>
+                        <h2 class="text-xl font-bold text-slate-800">🗺️ Network Topology</h2>
                         <div id="topologyStats" class="flex items-center gap-2 text-xs">
                             <!-- Stats populated by JS -->
                         </div>

@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.051  
+**Version:** 3.5.040  
 **Date:** February 4, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
@@ -30,74 +30,7 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.5.051
-
-### 🎯 BREAKING CHANGE: Data File Renamed
-- **Old name:** `data/network_manager.json`
-- **New name:** `data/matrix-network-data.json`
-- **Reason:** File name now reflects program name (TIESSE Matrix Network)
-- **Impact:** All 29 references in 18 files updated automatically
-- **Migration:** Automatic - file renamed, all internal references updated
-
-### ✨ External Connections Reorganized
-- External connections now displayed as organized icons (like Wall Jacks)
-- New "External Connections" section in Room Info modal
-- Visual consistency with Wall Jacks (yellow/gold theme)
-- Shows: destination, source device, port, cable, notes, status
-- Visual counter with 🌐 icon
-
-### 🐛 Duplicate Connections Fixed
-- Removed 4 duplicate connections causing duplicate yellow boxes
-- Device 55 ↔ 57 (BIG ONE): 2 duplicates with empty toPort removed
-- Device 11 ↔ 6: 1 duplicate removed
-- Device 15 ↔ 16: 1 duplicate removed
-- Final: 90 connections (73 device-to-device + 17 external/wall jacks)
-- New scripts: `remove-duplicate-connections.js`, `verify-no-duplicates.js`
-
-### ✅ Validation & Testing
-- Export/Import: ✅ PERFECT (101 devices, 90 connections)
-- Data Integrity: ✅ 7/7 checks passing
-- Duplicates: ✅ Zero duplicates found
-- No data corruption detected
-
----
-
-## 🆕 What's New in v3.5.050
-
-### 🔧 FIX: Delete All Data Function (v3.5.050)
-- **Problem**: "Delete All Data" button was failing silently
-- **Root Cause**: Missing HTTP status validation and improper error handling
-- **Solution**: Enhanced error handling, strict comparisons, SweetAlert2 feedback
-- **Result**: Function now works reliably with clear user feedback
-
-### 📝 CONSISTENCY: File Naming Standardization (v3.5.050)
-- **All exports** now follow consistent naming pattern:
-  - Network data: `Tiesse-Matrix-Network_YYYY-MM-DD.json`
-  - Logs: `Tiesse-Matrix-Logs_YYYY-MM-DD.json`
-  - Topology PNG: `Tiesse-Matrix-Network_*.png` (was `Tiesse-Matrix_*.png`)
-  - Excel exports: `Tiesse-Matrix-Network_YYYY-MM-DD.xlsx`
-  - Draw.io diagrams: `Tiesse-Matrix-Topology_YYYY-MM-DD.drawio`
-- **Documentation** updated across all files (README, server.js, version tags)
-
-### 🔴 CRITICAL: Data Corruption Fixed (v3.5.049)
-- **Root Cause Discovered**: Duplicate yellow boxes in topology caused by DATA CORRUPTION, not code bug
-- **Problem**: 4 connections incorrectly used `externalDest` field instead of device IDs
-- **Examples**: 
-  - "BIG ONE - Laboratorio di Prove" (externalDest) → Should be device ID 57
-  - "Firewall" (externalDest) → Should be device ID 9
-- **Solution**: Created automated repair script `fix-connections-data.js`
-- **Result**: All 4 connections repaired, duplicate boxes eliminated
-- **Backup**: Automatic backup created before modification
-
-### 🎨 Connection Colors & UI Improvements (v3.5.043-046)
-- **Softer Colors**: WAN, DMZ, Management, Wallport connections now use pastel tones
-- **UI Descriptions**: Added informative text to all tab headers (Italian)
-- **Better UX**: More professional appearance, less visual fatigue
-
-### 🔧 Smart Topology Matching (v3.5.047-048)
-- **3-Level Algorithm**: Exact → Partial → Multi-word matching with tie-breaker
-- **Better Accuracy**: Prevents false positives while catching all real matches
-- **Consistent Logic**: Same algorithm used in frontend and data repair tool
+## 🆕 What's New in v3.5.040
 
 ### 🔧 Location Order Bug Fix (v3.5.037-038)
 - **Critical Fix**: Location code "00" now correctly appears before "01" in all dropdowns
@@ -192,7 +125,7 @@ Matrix/
 │   ├── auth.php            # Authentication API
 │   └── editlock.php        # Edit lock API
 ├── data/
-│   ├── matrix-network-data.json     # Main data storage
+│   ├── network_manager.json     # Main data storage
 │   └── online_users.json        # Active users tracker
 ├── backup/
 │   ├── backup.sh           # Backup script

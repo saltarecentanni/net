@@ -1,7 +1,7 @@
 <?php
 /**
  * TIESSE Matrix Network - Configuration
- * Version: 3.5.049
+ * Version: 3.5.042
  */
 
 // Prevent direct access
@@ -56,7 +56,7 @@ define('SESSION_TIMEOUT', (int)(getenv('SESSION_TIMEOUT') ?: 28800));
 // =============================================================================
 
 define('DATA_DIR', __DIR__ . '/../data/');
-define('DATA_FILE', DATA_DIR . 'matrix-network-data.json');
+define('DATA_FILE', DATA_DIR . 'network_manager.json');
 
 // =============================================================================
 // SECURITY

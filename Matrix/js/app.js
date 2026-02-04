@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.050
+ * Version: 3.5.042
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -94,8 +94,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.051', '3.5.050', '3.5.049', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.051';
+var SUPPORTED_VERSIONS = ['3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.042';
 
 /**
  * Valid enum values for schema validation
@@ -1333,10 +1333,10 @@ function serverLoad() {
             return tryUrl('./data.php')
                 .catch(function(err2) {
                     Debug.log('./data.php failed:', err2.message);
-                    return tryUrl('data/matrix-network-data.json')
+                    return tryUrl('data/network_manager.json')
                         .catch(function(err3) {
-                            Debug.log('data/matrix-network-data.json failed:', err3.message);
-                            return tryUrl('./data/matrix-network-data.json')
+                            Debug.log('data/network_manager.json failed:', err3.message);
+                            return tryUrl('./data/network_manager.json')
                                 .catch(function(err4) {
                                     Debug.warn('All server load endpoints failed');
                                     return false;
@@ -4249,15 +4249,9 @@ function clearAll() {
                             method: 'POST',
                             body: formData
                         })
-                        .then(function(response) {
-                            if (!response.ok) {
-                                throw new Error('HTTP error ' + response.status);
-                            }
-                            return response.json();
-                        })
+                        .then(function(response) { return response.json(); })
                         .then(function(data) {
-                            console.log('Password verification response:', data);
-                            if (data.valid === true) {
+                            if (data.valid) {
                                 appState.devices = [];
                                 appState.connections = [];
                                 appState.locations = [];
@@ -4267,32 +4261,16 @@ function clearAll() {
                                 serverSave();
                                 updateUI();
                                 updateLocationSelect();
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Data Cleared',
-                                    text: 'All devices and connections have been deleted successfully.',
-                                    confirmButtonColor: '#10b981'
-                                });
+                                Toast.success('All data cleared');
                                 if (typeof ActivityLog !== 'undefined') {
                                     ActivityLog.add('clear', 'system', 'All data cleared by ' + (Auth.getUser() || 'admin'));
                                 }
                             } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Invalid Password',
-                                    text: 'The password you entered is incorrect.',
-                                    confirmButtonColor: '#ef4444'
-                                });
+                                Toast.error('Invalid password');
                             }
                         })
-                        .catch(function(error) {
-                            console.error('Clear all error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Failed to verify password: ' + error.message,
-                                confirmButtonColor: '#ef4444'
-                            });
+                        .catch(function() {
+                            Toast.error('Authentication error');
                         });
                     }
                 });

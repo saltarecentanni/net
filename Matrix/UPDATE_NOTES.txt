@@ -1,165 +1,38 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.050
+Version: 3.5.043
 Last Updated: 2026-02-04
 ================================================================================
 
-CHANGELOG v3.5.050 (2026-02-04) - CLEAR ALL DATA FIX + OBSOLETE FIELDS CLEANUP
+CHANGELOG v3.5.043 (2026-02-04)
 --------------------------------------------------------------------------------
-🔧 FIX: "Delete All Data" Function Repaired
+CRITICAL TOPOLOGY FIXES - Duplicate Boxes & Connection Colors
 
-PROBLEM ANALYSIS:
-  [ISSUE] "Delete All Data" button was not functioning correctly
-       -> HTTP response not being properly validated
-       -> Error messages not displaying clearly
-       -> Promise chain lacking proper error handling
-
-FIXES IMPLEMENTED:
-  1. Added HTTP status check before JSON parsing
-  2. Implemented strict comparison (=== true) for password validation
-  3. Enhanced error handling with detailed error messages
-  4. Replaced Toast with SweetAlert2 for consistent UI feedback
-  5. Added console logging for debugging password verification
-  6. Improved catch blocks with specific error reporting
-
-📝 CONSISTENCY: File Naming Standardization
-  [FIXED] Standardized all export filenames across the application
-       -> Network PNG exports: Tiesse-Matrix_*.png → Tiesse-Matrix-Network_*.png
-       -> All exports now follow consistent "Tiesse-Matrix-Network" prefix
-       -> Updated documentation (README.md, server.js) to version 3.5.050
-
-🔄 IMPORT: Version Support Update
-  [FIXED] Added v3.5.050 to SUPPORTED_VERSIONS array
-       -> Exports from v3.5.050 can now be imported without errors
-       -> Maintains backward compatibility with all previous versions
-
-🧹 DATA CLEANUP: Obsolete Fields Removed
-  [CRITICAL FIX] Removed obsolete zone/zoneIP fields from devices
+TOPOLOGY DUPLICATE PREVENTION:
+  [OK] FIXED: Duplicate yellow boxes in topology (e.g., "Firewall" box when device is "Firewall Fortinet")
+       -> Implemented smart matching: exact match, partial match (substring), and word-based match
+       -> Example: externalDest="Firewall" now correctly connects to device="Firewall Fortinet"
+       -> Example: externalDest="ISP" correctly connects to device="ISP Provider"
+       -> Prevents ANY duplicate boxes when real device exists with similar name
+       -> Applies to ALL external connections (not just ISP)
   
-  PROBLEM DISCOVERED:
-    -> 4 devices had old "zone" and "zoneIP" fields at device root level
-    -> These devices were INVISIBLE in selection lists and dropdowns
-    -> UI expects IPs in ips[] array, not in separate zone/zoneIP fields
-    -> User reported: "dmz 1.1.1.1 não aparece nos campos"
-  
-  DEVICES AFFECTED:
-    - Device 8:   IMOLA-SGR-FWA-WIND (Wind) - zone="DMZ"
-    - Device 11:  IMOLA-LX-GW-TLC-FO (Fibra-TIM) - zone="DMZ"
-    - Device 121: Telefono R.Russo - zone="DMZ", zoneIP="1.1.1.1"
-    - Device 122: Telefono G.Cappai - zone="DMZ", zoneIP="1.1.1.1"
-  
-  SOLUTION:
-    -> Created clean-obsolete-fields.js script
-    -> Automatically removes zone/zoneIP fields from device root
-    -> Devices now appear correctly in all selection lists
-    -> Backup created automatically before cleanup
-  
-  TECHNICAL NOTE:
-    Old structure (WRONG):
-      { id: 121, name: "...", zone: "DMZ", zoneIP: "1.1.1.1" }
-    
-    Correct structure (RIGHT):
-      { id: 121, name: "...", ips: [{ip: "1.1.1.1", zone: "DMZ"}] }
-  
-  IMPACT:
-    ✅ All 4 devices now visible in device selection dropdowns
-    ✅ Can be selected for connections
-    ✅ Can be edited/deleted normally
-    ⚠️  Users need to manually re-add zone info via IP tab if needed
-
-TECHNICAL DETAILS:
-  Files Modified:
-    - js/app.js (clearAll function, lines ~4244-4287)
-    - js/ui-updates.js (PNG export filename standardization)
-    - server.js (version banner updated)
-    - doc/README.md (version + new features documented)
-    - index.html (meta version tag)
-    - data.php (header version)
-  
-  Changes:
-    - Added response.ok validation before JSON parse
-    - Changed if (data.valid) to if (data.valid === true)
-    - Replaced Toast.error() with Swal.fire() for errors
-    - Added console.log for response debugging
-    - Improved error.message display in catch block
-    - Standardized fileParts from 'Tiesse-Matrix' to 'Tiesse-Matrix-Network'
-
-VERIFICATION REQUIRED:
-  ☐ Test "Clear All" button in edit mode
-  ☐ Verify backup download is forced before deletion
-  ☐ Confirm password validation works correctly
-  ☐ Check that data is actually cleared after confirmation
-  ☐ Verify PNG exports have correct filename format
-
-FILES CHANGED:
-  - js/app.js (clearAll function enhanced)
-  - js/ui-updates.js (PNG export naming)
-  - server.js (version 3.5.050)
-  - doc/README.md (version + changelog)
-  - index.html (version meta tag)
-  - data.php (version header)
-
-================================================================================
-
-CHANGELOG v3.5.049 (2026-02-04) - FORENSIC DATA REPAIR
---------------------------------------------------------------------------------
-🔴 CRITICAL FIX: Data Corruption Resolved - Eliminated ALL Duplicate Yellow Boxes
-
-ROOT CAUSE ANALYSIS:
-  [OK] FORENSIC INVESTIGATION: Duplicate boxes were NOT a code bug but DATA CORRUPTION
-       -> Connections incorrectly using externalDest field for device-to-device links
-       -> Example: Device 55 → externalDest="BIG ONE - Laboratorio di Prove" (WRONG)
-       -> Should be: Device 55 → to: 57 (device ID) (CORRECT)
-       -> Topology created duplicate yellow boxes because it couldn't find matching device
-
-DATA CORRUPTION DISCOVERED (4 connections):
-  1. Firewall Fortinet (ID: 9) → externalDest: "Firewall" instead of to: 9
-  2. Device 55 (eth04) → externalDest: "BIG ONE - Laboratorio di Prove" instead of to: 57
-  3. Device 55 (eth03) → externalDest: "BIG ONE - Laboratorio di Prove" instead of to: 57
-  4. Device 58 (eth03) → externalDest: "BIG ONE - Laboratorio di Prove" instead of to: 57
-
-AUTOMATED REPAIR IMPLEMENTED:
-  [OK] Created fix-connections-data.js - Node.js script for automated data repair
-       -> Scans all connections with externalDest
-       -> Finds matching real devices using same algorithm as frontend
-       -> Converts externalDest → to: deviceId when device exists
-       -> Creates automatic backup before modification
-  
-  [OK] DATA FIXED: 4 connections automatically repaired
-       -> Removed incorrect externalDest fields
-       -> Added proper to: <deviceId> fields
-       -> Backup created: matrix-network-data.json.bak.auto_fix
-       -> ALL duplicate yellow boxes eliminated
-
-SEMANTIC CLARIFICATION:
-  - externalDest: For REAL external destinations ONLY (ISP, Internet, Cloud services)
-  - to: <deviceId>: For device-to-device connections within infrastructure
-  - isWallJack: true: For physical wall jacks/outlets (gray boxes in topology)
-
-CONNECTION COLORS & UI IMPROVEMENTS (from v3.5.043-046):
   [OK] FIXED: Connection color scheme - softer, less intrusive colors
        -> WAN: #ef4444 (bright red) → #fca5a5 (soft pink/red-300)
        -> DMZ: #f97316 (bright orange) → #fdba74 (soft peach/orange-300)
        -> Management: #8b5cf6 (bright purple) → #d8b4fe (soft lavender/purple-300)
        -> Wallport: #a78bfa (violet) → #e9d5ff (very soft lilac/purple-200)
-  
-  [OK] ADDED: Informative UI descriptions to all tab headers
-       -> Devices: "Catalogo completo dei dispositivi di rete"
-       -> Connections: "Mappa dei collegamenti tra dispositivi"
-       -> Topology: "Visualizzazione grafica automatica della rete"
-       -> Matrix: "Matrice completa delle interconnessioni di rete"
-       -> Floor Plan: "Planimetria dell'edificio con mappatura dispositivi"
+       -> All other connection colors remain unchanged
 
-TOPOLOGY MATCHING ALGORITHM (v3.5.047-048):
-  - findMatchingDevice() function with 3-level matching + tie-breaker:
+TECHNICAL DETAILS:
+  - findMatchingDevice() function with 3-level matching:
     1. Exact match (case-insensitive)
     2. Partial match (substring in either direction)
-    3. Multi-word scoring (minimum 2 matching words, length > 2 chars)
-    4. Tie-breaker: Prefer device with more total words (better specificity)
+    3. Word-based match (any significant word matches)
+  - Minimum word length 3 characters to avoid false positives
   - Applied consistently across all topology rendering and connection drawing
 
 
-CHANGELOG v3.5.049 (2026-02-04)
+CHANGELOG v3.5.042 (2026-02-04)
 --------------------------------------------------------------------------------
 BUG FIXES & UI IMPROVEMENTS
 
