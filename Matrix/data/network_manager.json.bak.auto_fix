@@ -6482,8 +6482,9 @@
     {
       "from": 9,
       "fromPort": "",
-      "to": 9,
+      "to": null,
       "toPort": "",
+      "externalDest": "Firewall",
       "isWallJack": false,
       "type": "other",
       "color": "#6b7280",
@@ -7057,8 +7058,9 @@
     {
       "from": 55,
       "fromPort": "eth04",
-      "to": 57,
+      "to": null,
       "toPort": "",
+      "externalDest": "BIG ONE - Laboratorio di Prove",
       "isWallJack": false,
       "type": "lan",
       "color": "#3b82f6",
@@ -7070,8 +7072,9 @@
     {
       "from": 55,
       "fromPort": "eth03",
-      "to": 57,
+      "to": null,
       "toPort": "",
+      "externalDest": "BIG ONE - Laboratorio di Prove",
       "isWallJack": false,
       "type": "lan",
       "color": "#3b82f6",
@@ -7083,8 +7086,9 @@
     {
       "from": 58,
       "fromPort": "eth03",
-      "to": 57,
+      "to": null,
       "toPort": "",
+      "externalDest": "BIG ONE - Laboratorio di Prove",
       "isWallJack": false,
       "type": "lan",
       "color": "#3b82f6",
