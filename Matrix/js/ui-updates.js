@@ -1221,7 +1221,7 @@ var SVGMatrix = (function() {
         
         // Build filename
         var parts = ['Matrix'];
-        var fileParts = ['Tiesse-Matrix'];
+        var fileParts = ['Tiesse-Matrix-Network'];
         
         var locationFilter = document.getElementById('matrixLocationFilter');
         if (locationFilter && locationFilter.value) {

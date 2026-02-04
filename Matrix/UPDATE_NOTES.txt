@@ -22,23 +22,43 @@ FIXES IMPLEMENTED:
   5. Added console logging for debugging password verification
   6. Improved catch blocks with specific error reporting
 
+📝 CONSISTENCY: File Naming Standardization
+  [FIXED] Standardized all export filenames across the application
+       -> Network PNG exports: Tiesse-Matrix_*.png → Tiesse-Matrix-Network_*.png
+       -> All exports now follow consistent "Tiesse-Matrix-Network" prefix
+       -> Updated documentation (README.md, server.js) to version 3.5.050
+
 TECHNICAL DETAILS:
-  File Modified: js/app.js (clearAll function, lines ~4244-4287)
+  Files Modified:
+    - js/app.js (clearAll function, lines ~4244-4287)
+    - js/ui-updates.js (PNG export filename standardization)
+    - server.js (version banner updated)
+    - doc/README.md (version + new features documented)
+    - index.html (meta version tag)
+    - data.php (header version)
+  
   Changes:
     - Added response.ok validation before JSON parse
     - Changed if (data.valid) to if (data.valid === true)
     - Replaced Toast.error() with Swal.fire() for errors
     - Added console.log for response debugging
     - Improved error.message display in catch block
+    - Standardized fileParts from 'Tiesse-Matrix' to 'Tiesse-Matrix-Network'
 
 VERIFICATION REQUIRED:
   ☐ Test "Clear All" button in edit mode
   ☐ Verify backup download is forced before deletion
   ☐ Confirm password validation works correctly
   ☐ Check that data is actually cleared after confirmation
+  ☐ Verify PNG exports have correct filename format
 
 FILES CHANGED:
   - js/app.js (clearAll function enhanced)
+  - js/ui-updates.js (PNG export naming)
+  - server.js (version 3.5.050)
+  - doc/README.md (version + changelog)
+  - index.html (version meta tag)
+  - data.php (version header)
 
 ================================================================================
 

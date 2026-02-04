@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.049  
+**Version:** 3.5.050  
 **Date:** February 4, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
@@ -30,7 +30,22 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.5.049
+## 🆕 What's New in v3.5.050
+
+### 🔧 FIX: Delete All Data Function (v3.5.050)
+- **Problem**: "Delete All Data" button was failing silently
+- **Root Cause**: Missing HTTP status validation and improper error handling
+- **Solution**: Enhanced error handling, strict comparisons, SweetAlert2 feedback
+- **Result**: Function now works reliably with clear user feedback
+
+### 📝 CONSISTENCY: File Naming Standardization (v3.5.050)
+- **All exports** now follow consistent naming pattern:
+  - Network data: `Tiesse-Matrix-Network_YYYY-MM-DD.json`
+  - Logs: `Tiesse-Matrix-Logs_YYYY-MM-DD.json`
+  - Topology PNG: `Tiesse-Matrix-Network_*.png` (was `Tiesse-Matrix_*.png`)
+  - Excel exports: `Tiesse-Matrix-Network_YYYY-MM-DD.xlsx`
+  - Draw.io diagrams: `Tiesse-Matrix-Topology_YYYY-MM-DD.drawio`
+- **Documentation** updated across all files (README, server.js, version tags)
 
 ### 🔴 CRITICAL: Data Corruption Fixed (v3.5.049)
 - **Root Cause Discovered**: Duplicate yellow boxes in topology caused by DATA CORRUPTION, not code bug
