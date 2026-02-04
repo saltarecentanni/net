@@ -1204,30 +1204,12 @@ var SVGTopology = (function() {
         display: function(color) { return deviceIcons.tv(color); },
         monitor: function(color) { return deviceIcons.tv(color); },
         // Wall Jack / Tomada de Parede
-        // External/ISP (Internet, WAN, Cloud)
-        external: function(color) {
-            return '<g transform="translate(5,8) scale(0.9)">' +
-                // Nuvem/Mundo externo
-                '<ellipse cx="45" cy="30" rx="38" ry="26" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>' +
-                '<ellipse cx="45" cy="30" rx="32" ry="20" fill="#f0f9ff" stroke="#38bdf8" stroke-width="1"/>' +
-                // Globo interno
-                '<circle cx="45" cy="30" r="14" fill="#0ea5e9" opacity="0.2"/>' +
-                '<path d="M45,16 Q52,23 45,30 Q38,37 45,44" stroke="#0369a1" stroke-width="1.5" fill="none"/>' +
-                '<path d="M31,30 Q38,23 45,30 Q52,37 59,30" stroke="#0369a1" stroke-width="1.5" fill="none"/>' +
-                '<ellipse cx="45" cy="30" rx="14" ry="8" fill="none" stroke="#0369a1" stroke-width="1"/>' +
-                // Setas de conexão
-                '<path d="M25,25 L35,28" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowExternal)"/>' +
-                '<path d="M25,35 L35,32" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrowExternal)"/>' +
-                '<defs><marker id="arrowExternal" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">' +
-                '<polygon points="0 0, 6 3, 0 6" fill="#0ea5e9"/></marker></defs>' +
-                '</g>';
-        },
         walljack: function(color) {
             return '<g transform="translate(15,5) scale(0.85)">' +
                 // Placa da parede
                 '<rect x="5" y="5" width="55" height="60" rx="3" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>' +
                 // Moldura interna
-                '<rect x="10" y="10" width="45" height="50" rx="2" fill="#dfe6e9"/>'  +
+                '<rect x="10" y="10" width="45" height="50" rx="2" fill="#dfe6e9"/>' +
                 // Porta RJ45 superior
                 '<rect x="18" y="15" width="30" height="18" rx="2" fill="#2d3436"/>' +
                 '<rect x="21" y="18" width="24" height="12" fill="#0c0c0c" rx="1"/>' +
@@ -1310,7 +1292,6 @@ var SVGTopology = (function() {
         nas: '#2d3436',         // Dark gray (storage)
         ups: '#2d3436',         // Dark gray (power)
         walljack: '#ecf0f1',    // Light gray (wall plate)
-        external: '#e0f2fe',    // Light blue (external/internet)
         modem: '#2d3436',       // Dark gray (modem)
         tv: '#2d3436',          // Dark gray (TV)
         display: '#2d3436',     // Dark gray (display)
@@ -1343,7 +1324,6 @@ var SVGTopology = (function() {
         nas: 'NAS',
         ups: 'UPS',
         walljack: 'Wall Jack',
-        external: 'External/Internet',
         modem: 'Modem',
         tv: 'TV/Display',
         display: 'Display',
@@ -1376,7 +1356,6 @@ var SVGTopology = (function() {
         nas: '#9b59b6',
         ups: '#27ae60',
         walljack: '#7f8c8d',
-        external: '#0ea5e9',
         modem: '#e67e22',
         tv: '#3498db',
         display: '#3498db',
@@ -2368,22 +2347,29 @@ var SVGTopology = (function() {
         html += '<g class="network-zones">';
         
         // Collect devices by zone
+        // Zone is calculated dynamically from addresses[].zone (not from d.zone in JSON)
         var zoneGroups = {};
         devices.forEach(function(d) {
-            if (d.zone && d.zone.trim() && devicePositions[d.id]) {
-                var zoneName = d.zone.trim();
+            // Calculate zone dynamically from addresses
+            var deviceZone = '';
+            if (d.addresses && d.addresses.length > 0) {
+                for (var i = 0; i < d.addresses.length; i++) {
+                    if (d.addresses[i].zone && d.addresses[i].zone.trim()) {
+                        deviceZone = d.addresses[i].zone.trim();
+                        break;
+                    }
+                }
+            }
+            
+            if (deviceZone && devicePositions[d.id]) {
+                var zoneName = deviceZone;
                 if (!zoneGroups[zoneName]) {
                     zoneGroups[zoneName] = {
                         name: zoneName,
-                        zoneIP: d.zoneIP || '',
                         devices: []
                     };
                 }
                 zoneGroups[zoneName].devices.push(d);
-                // Use the most detailed zoneIP if multiple devices have different ones
-                if (d.zoneIP && !zoneGroups[zoneName].zoneIP) {
-                    zoneGroups[zoneName].zoneIP = d.zoneIP;
-                }
             }
         });
         
@@ -2425,7 +2411,7 @@ var SVGTopology = (function() {
                         };
                         var icon = zoneIcons[zoneName] || '🔲';
                         var badgeText = icon + ' ' + zoneName;
-                        if (zone.zoneIP) badgeText += ' ' + zone.zoneIP;
+                        
                         var badgeWidth = badgeText.length * 5.5 + 8;
                         // Draw badge below device
                         html += '<rect x="' + (singlePos.x + 40 - badgeWidth/2) + '" y="' + (singlePos.y + 92) + '" ' +
@@ -2476,9 +2462,6 @@ var SVGTopology = (function() {
             };
             var zoneIcon = zoneIcons[zoneName] || '🔲';
             var labelText = zoneIcon + ' ' + zoneName;
-            if (zone.zoneIP) {
-                labelText += ' (' + zone.zoneIP + ')';
-            }
             
             // Label background pill at centroid
             var labelWidth = labelText.length * 5.5 + 12;
@@ -2493,39 +2476,21 @@ var SVGTopology = (function() {
         // Draw devices
         html += '<g class="devices">';
         
-        // Draw virtual external nodes as full devices with icons (like Wall Jacks)
-        if (virtualExternals.length > 0) {
-            html += '<g class="external-devices">';
-            virtualExternals.forEach(function(ext) {
-                var pos = devicePositions[ext.id];
-                if (!pos) return;
-                
-                // Use ISP icon and color for external connections
-                var color = typeColors.isp || '#f59e0b';
-                var iconFn = deviceIcons.isp || deviceIcons.router;
-                
-                html += '<g class="device-node external-node" data-id="' + ext.id + '" transform="translate(' + pos.x + ',' + pos.y + ')" ' +
-                    'style="cursor: move;" filter="url(#dropShadow)">';
-                
-                // Same background as standard devices with yellow/amber tint
-                html += '<rect x="-5" y="-5" width="90" height="100" rx="8" fill="#fef3c7" opacity="0.3" class="hover-bg"/>';
-                
-                // External/ISP icon
-                html += '<g class="device-icon">' + iconFn(color) + '</g>';
-                
-                // External destination name
-                var name = ext.name || 'External';
-                html += '<text x="40" y="78" text-anchor="middle" fill="#1e293b" font-size="9" font-weight="600" ' +
-                    'style="paint-order: stroke; stroke: white; stroke-width: 3px;">' + escapeHtml(name) + '</text>';
-                
-                // Type label
-                html += '<text x="40" y="90" text-anchor="middle" fill="#b45309" font-size="8" font-weight="600" ' +
-                    'style="paint-order: stroke; stroke: white; stroke-width: 2px;">EXTERNAL</text>';
-                
-                html += '</g>';
-            });
+        // First, draw virtual external nodes (draggable boxes)
+        virtualExternals.forEach(function(ext) {
+            var pos = devicePositions[ext.id];
+            if (!pos) return;
+            
+            var boxWidth = Math.max(60, ext.name.length * 6 + 20);
+            var boxHeight = 24;
+            
+            html += '<g class="device-node external-node" data-id="' + ext.id + '" transform="translate(' + pos.x + ',' + pos.y + ')" ' +
+                'style="cursor: move;">';
+            html += '<rect x="0" y="0" width="' + boxWidth + '" height="' + boxHeight + '" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>';
+            html += '<text x="' + (boxWidth/2) + '" y="' + (boxHeight/2 + 4) + '" text-anchor="middle" fill="#374151" font-size="8" font-weight="600">🌐 ' + escapeHtml(ext.name) + '</text>';
             html += '</g>';
-        }
+            // Note: usedLabelPositions for virtual externals is registered earlier (before connection processing)
+        });
         
         devices.forEach(function(d) {
             var pos = devicePositions[d.id];
@@ -2648,10 +2613,10 @@ var SVGTopology = (function() {
         html += '<g class="connection-labels">';
         pendingLabels.forEach(function(lbl) {
             var textColor = getContrastTextColor(lbl.color);
-            var fontSize = lbl.small ? 9 : 10;
-            var padding = 5;
-            var textWidth = lbl.text.length * (lbl.small ? 6 : 7) + padding * 2;
-            var textHeight = lbl.small ? 16 : 18;
+            var fontSize = lbl.small ? 8 : 9;
+            var padding = 4;
+            var textWidth = lbl.text.length * (lbl.small ? 5 : 6) + padding * 2;
+            var textHeight = lbl.small ? 14 : 16;
             
             // Find non-overlapping position for this label
             var offsetDir = lbl.onLine ? 'both' : 'vertical';
@@ -2954,7 +2919,7 @@ var SVGTopology = (function() {
                 escapeHtml(text) + '</text></g>';
         }
         
-        // Count connections per device (including virtual externals)
+        // Count connections per device
         var deviceConnectionCount = {};
         var deviceConnectionIndex = {};
         
@@ -2972,17 +2937,6 @@ var SVGTopology = (function() {
                 var toKey = 'to-' + c.from;
                 deviceConnectionIndex[c.to][toKey] = deviceConnectionCount[c.to];
                 deviceConnectionCount[c.to]++;
-            }
-            // Count connections to virtual external nodes
-            if (!c.to && c.externalDest && !c.isWallJack) {
-                var virtualId = externalMap[c.externalDest] ? externalMap[c.externalDest].id : null;
-                if (virtualId) {
-                    if (!deviceConnectionCount[virtualId]) deviceConnectionCount[virtualId] = 0;
-                    if (!deviceConnectionIndex[virtualId]) deviceConnectionIndex[virtualId] = {};
-                    var extKey = 'to-' + c.from;
-                    deviceConnectionIndex[virtualId][extKey] = deviceConnectionCount[virtualId];
-                    deviceConnectionCount[virtualId]++;
-                }
             }
         });
         
@@ -3086,42 +3040,32 @@ var SVGTopology = (function() {
                 }
             }
             
-            // Non-Wall Jack external - connect to virtual external node
-            if (externalMap[externalDest]) {
-                var virtualId = externalMap[externalDest].id;
-                var extPos = devicePositions[virtualId];
-                if (extPos) {
-                    var extCX = extPos.x + 40;
-                    var extCY = extPos.y + 35;
-                    
-                    // Get connection indices for virtual external node
-                    var extKey = 'to-' + c.from;
-                    var extIdx = deviceConnectionIndex[virtualId] && deviceConnectionIndex[virtualId][extKey] !== undefined ? deviceConnectionIndex[virtualId][extKey] : 0;
-                    var extTotal = deviceConnectionCount[virtualId] || 1;
-                    
-                    var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, extCX, extCY);
-                    var toDot = getConnectionDot(virtualId, extIdx, extTotal, extPos.x, extPos.y, from.x + 40, from.y + 35);
-                    
-                    connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + toDot.x + ',' + toDot.y + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                        'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-                    connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-                    connHtml += '<circle cx="' + toDot.x + '" cy="' + toDot.y + '" r="3" fill="' + cableColor + '"/>';
-                    
-                    if (fromPort) {
-                        var l1x = fromDot.x + (toDot.x - fromDot.x) * 0.15;
-                        var l1y = fromDot.y + (toDot.y - fromDot.y) * 0.15;
-                        labelHtml += makeLabel(l1x, l1y, fromPort, cableColor, false);
-                    }
-                    if (cableId) {
-                        labelHtml += makeLabel((fromDot.x + toDot.x) / 2, (fromDot.y + toDot.y) / 2, cableId, cableColor, true);
-                    }
-                } else {
-                    // Fallback: if position not found, skip this connection
-                    console.warn('External position not found for', externalDest);
-                }
-            } else {
-                // Fallback: External destination not in map (shouldn't happen)
-                console.warn('External destination not in externalMap:', externalDest);
+            // Non-Wall Jack external
+            var fromCX = from.x + 40;
+            var fromCY = from.y + 35;
+            var hashCode = 0;
+            var hashStr = c.from + '-' + externalDest;
+            for (var hi = 0; hi < hashStr.length; hi++) {
+                hashCode = ((hashCode << 5) - hashCode + hashStr.charCodeAt(hi)) | 0;
+            }
+            var angle = (Math.abs(hashCode) % 360) * (Math.PI / 180);
+            var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, fromCX + Math.cos(angle) * 100, fromCY + Math.sin(angle) * 100);
+            var endX = fromDot.x + Math.cos(angle) * 60;
+            var endY = fromDot.y + Math.sin(angle) * 60;
+            
+            connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + endX + ',' + endY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
+                'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
+            connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
+            
+            var boxWidth = Math.max(50, externalDest.length * 5 + 10);
+            connHtml += '<rect x="' + (endX - boxWidth/2) + '" y="' + (endY - 10) + '" width="' + boxWidth + '" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>';
+            connHtml += '<text x="' + endX + '" y="' + (endY + 4) + '" text-anchor="middle" fill="#374151" font-size="7" font-weight="600">🌐 ' + escapeHtml(externalDest) + '</text>';
+            
+            if (fromPort) {
+                labelHtml += makeLabel(fromDot.x + (endX - fromDot.x) * 0.2, fromDot.y + (endY - fromDot.y) * 0.2, fromPort, cableColor, false);
+            }
+            if (cableId) {
+                labelHtml += makeLabel((fromDot.x + endX) / 2, (fromDot.y + endY) / 2, cableId, cableColor, true);
             }
         });
         
@@ -3139,21 +3083,29 @@ var SVGTopology = (function() {
         var devices = getTopologyFilteredDevices();
         
         // Collect devices by zone
+        // Zone is calculated dynamically from addresses[].zone (not from d.zone in JSON)
         var zoneGroups = {};
         devices.forEach(function(d) {
-            if (d.zone && d.zone.trim() && devicePositions[d.id]) {
-                var zoneName = d.zone.trim();
+            // Calculate zone dynamically from addresses
+            var deviceZone = '';
+            if (d.addresses && d.addresses.length > 0) {
+                for (var i = 0; i < d.addresses.length; i++) {
+                    if (d.addresses[i].zone && d.addresses[i].zone.trim()) {
+                        deviceZone = d.addresses[i].zone.trim();
+                        break;
+                    }
+                }
+            }
+            
+            if (deviceZone && devicePositions[d.id]) {
+                var zoneName = deviceZone;
                 if (!zoneGroups[zoneName]) {
                     zoneGroups[zoneName] = {
                         name: zoneName,
-                        zoneIP: d.zoneIP || '',
                         devices: []
                     };
                 }
                 zoneGroups[zoneName].devices.push(d);
-                if (d.zoneIP && !zoneGroups[zoneName].zoneIP) {
-                    zoneGroups[zoneName].zoneIP = d.zoneIP;
-                }
             }
         });
         
@@ -3194,7 +3146,7 @@ var SVGTopology = (function() {
                         };
                         var icon = zoneIcons[zoneName] || '🔲';
                         var badgeText = icon + ' ' + zoneName;
-                        if (zone.zoneIP) badgeText += ' ' + zone.zoneIP;
+                        
                         var badgeWidth = badgeText.length * 5.5 + 8;
                         html += '<rect x="' + (singlePos.x + 40 - badgeWidth/2) + '" y="' + (singlePos.y + 92) + '" ' +
                             'width="' + badgeWidth + '" height="14" rx="3" fill="' + zc.stroke + '" fill-opacity="0.85"/>';
@@ -3244,9 +3196,6 @@ var SVGTopology = (function() {
             };
             var zoneIcon = zoneIcons2[zoneName] || '🔲';
             var labelText = zoneIcon + ' ' + zoneName;
-            if (zone.zoneIP) {
-                labelText += ' (' + zone.zoneIP + ')';
-            }
             
             var labelWidth = labelText.length * 5.5 + 12;
             html += '<rect x="' + (centroidX - labelWidth/2) + '" y="' + (centroidY - 9) + '" ' +

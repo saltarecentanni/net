@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.5.040  
+**Version:** 3.5.044  
 **Date:** February 4, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
@@ -29,7 +29,47 @@ A web-based network infrastructure documentation system for enterprise environme
 
 ## 2. VERSION HISTORY
 
-### v3.5.040 (Current) - February 4, 2026
+### v3.5.044 (Current) - February 4, 2026
+
+#### 🔍 Data Integrity Investigation & Debug Logging
+| Feature | Description |
+|---------|-------------|
+| **Device Count Analysis** | Identified 29 devices without IP addresses (infrastructure elements) |
+| **Filter Detection** | Added debug logging to report hidden devices on load |
+| **JSON Validation** | Confirmed all 101 devices fully present and valid |
+| **Transparency** | Clear identification of why some devices don't appear in default view |
+
+### v3.5.043 - February 4, 2026
+
+#### 🔧 Topology Improvements & Data Integrity
+| Feature | Description |
+|---------|-------------|
+| **Smart Device Matching** | 3-level algorithm prevents duplicate boxes (exact, partial, word-based) |
+| **findMatchingDevice()** | Intelligent function matches external destinations to real devices |
+| **Connection Colors** | Softer color palette (#fca5a5, #fdba74, #d8b4fe, #e9d5ff) |
+| **Topology Stability** | Reduced visual complexity with improved color scheme |
+| **Data Validation** | SHA-256 checksum for all imports |
+| **Version Tracking** | All exports include version and exportedAt timestamp |
+
+### v3.5.042 (February 4, 2026)
+
+#### 🐛 Bug Fixes & UI Improvements
+| Feature | Description |
+|---------|-------------|
+| **UI Fixes** | Removed "+ Add location" from dropdown, centered Order label |
+| **Topology Connections** | External connections now link to real devices when available |
+| **Label Management** | Reduced label overlap on connection lines |
+
+### v3.5.041 (February 4, 2026)
+
+#### 🔧 Security & Compatibility
+| Feature | Description |
+|---------|-------------|
+| **bcrypt Compatibility** | PHP-compatible password hashing with bcrypt/bcryptjs |
+| **CSRF Protection** | Token validation for all POST requests |
+| **Rate Limiting** | Enhanced rate limiting by IP and username |
+
+### v3.5.040 (February 4, 2026)
 
 #### 🔧 Critical Bug Fixes & Visual Improvements
 | Feature | Description |

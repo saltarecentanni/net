@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.042
+ * Version: 3.5.044
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -94,8 +94,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.042';
+var SUPPORTED_VERSIONS = ['3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.044';
 
 /**
  * Valid enum values for schema validation
@@ -1689,6 +1689,7 @@ function saveDevice() {
         status = status.toLowerCase();
         
         // Derive main zone from IP addresses (use first non-empty zone)
+        // This is calculated dynamically and NOT saved to JSON
         var mainZone = '';
         for (var i = 0; i < addresses.length; i++) {
             if (addresses[i].zone) {
@@ -1700,22 +1701,22 @@ function saveDevice() {
         var deviceData = {
             id: editId ? parseInt(editId, 10) : appState.nextDeviceId++,
             rackId: rackId,
-            rack: rackId, // alias for compatibility
             order: order,
             isRear: isRear,
-            rear: isRear, // alias
             name: name,
             brandModel: brandModel,
             type: type,
             status: status,
             location: location,
             addresses: addresses, // Dynamic IP array with zones
-            links: links,
             service: service,
-            zone: mainZone, // Derived from IP zones
-            ports: ports,
             notes: notes
         };
+        
+        // Add calculated zone for runtime use (not saved to JSON)
+        if (mainZone) {
+            deviceData._zone = mainZone;
+        }
 
         var actionType = editId ? 'edit' : 'add';
         
@@ -2267,6 +2268,15 @@ function saveConnection() {
             return;
         }
 
+        // Get roomId for Wall Jacks
+        var roomId = null;
+        if (isWallJack) {
+            var roomSelect = document.getElementById('wallJackRoomId');
+            if (roomSelect && roomSelect.value) {
+                roomId = roomSelect.value;
+            }
+        }
+
         // ================================================================
         // DATA NORMALIZATION - Professional Standard
         // type/status: lowercase
@@ -2281,6 +2291,7 @@ function saveConnection() {
             toPort: (isExternal || isWallJack) ? '' : (toPort || ''),
             externalDest: (isExternal || isWallJack) ? externalDest : '',
             isWallJack: isWallJack,
+            roomId: roomId,
             type: isWallJack ? 'wallport' : type,
             color: config.connColors[isWallJack ? 'wallport' : type],
             status: status,
@@ -2354,6 +2365,10 @@ function editConnection(idx) {
         document.getElementById('toDevice').value = 'walljack';
         document.getElementById('externalDest').value = c.externalDest;
         toggleExternalDest();
+        // Set the room after dropdown is populated
+        if (c.roomId !== undefined && c.roomId !== null) {
+            document.getElementById('wallJackRoomId').value = c.roomId;
+        }
     } else if (c.externalDest && !c.to) {
         document.getElementById('toLocation').value = '';
         updateToGroups();
@@ -2442,6 +2457,7 @@ function clearConnectionForm() {
     document.getElementById('toDevice').value = '';
     document.getElementById('toPort').innerHTML = '<option value="">Port</option>';
     document.getElementById('externalDest').value = '';
+    document.getElementById('wallJackRoomId').value = '';
     toggleExternalDest();
     document.getElementById('connType').value = 'lan';
     document.getElementById('connStatus').value = 'active';
@@ -2551,17 +2567,23 @@ function toggleExternalDest() {
     var externalDestContainer = document.getElementById('externalDestContainer');
     var externalDestLabel = document.getElementById('externalDestLabel');
     var externalDestInput = document.getElementById('externalDest');
+    var wallJackRoomContainer = document.getElementById('wallJackRoomContainer');
     
     if (toDevice === 'external') {
         toPortContainer.classList.add('hidden');
         externalDestContainer.classList.remove('hidden');
         if (externalDestLabel) externalDestLabel.textContent = '🌐 External Destination';
         if (externalDestInput) externalDestInput.placeholder = 'ISP Name, Fiber Provider...';
+        if (wallJackRoomContainer) wallJackRoomContainer.classList.add('hidden');
     } else if (toDevice === 'walljack') {
         toPortContainer.classList.add('hidden');
         externalDestContainer.classList.remove('hidden');
-        if (externalDestLabel) externalDestLabel.textContent = '🔌 Wall Jack';
+        if (externalDestLabel) externalDestLabel.textContent = '🔌 Wall Jack ID';
         if (externalDestInput) externalDestInput.placeholder = 'Z1, Z2, Z3...';
+        if (wallJackRoomContainer) {
+            wallJackRoomContainer.classList.remove('hidden');
+            populateWallJackRoomSelect();
+        }
     } else {
         toPortContainer.classList.remove('hidden');
         externalDestContainer.classList.add('hidden');
@@ -2571,6 +2593,38 @@ function toggleExternalDest() {
 /**
  * Populate the Wall Jack room dropdown with available rooms
  */
+function populateWallJackRoomSelect() {
+    var select = document.getElementById('wallJackRoomId');
+    if (!select) return;
+    
+    var currentValue = select.value;
+    select.innerHTML = '<option value="">(Not Assigned)</option>';
+    
+    // Get rooms from FloorPlan
+    var rooms = [];
+    if (typeof FloorPlan !== 'undefined' && FloorPlan.getRooms) {
+        rooms = FloorPlan.getRooms();
+    }
+    
+    // Sort rooms by id
+    rooms.sort(function(a, b) { 
+        return parseInt(a.id) - parseInt(b.id); 
+    });
+    
+    rooms.forEach(function(room) {
+        var option = document.createElement('option');
+        option.value = room.id;
+        option.textContent = room.nickname 
+            ? room.nickname + ' (Room ' + room.id + ')' 
+            : 'Room ' + room.id;
+        select.appendChild(option);
+    });
+    
+    // Restore previous value
+    if (currentValue) {
+        select.value = currentValue;
+    }
+}
 function isPortUsed(deviceId, portName, excludeConnIdx) {
     // Get device to check if it's a patch panel
     var device = null;
@@ -4618,11 +4672,32 @@ function initApp() {
         updateUI();
         // Auto-save disabled to prevent data loss with multiple sessions
         Toast.info('Tiesse Matrix Network loaded');
+        
+        // Debug: Check if filters are hiding devices
+        debugFilterStatus();
     }).catch(function() {
         loadFromStorage();
         updateUI();
         // Auto-save disabled to prevent data loss with multiple sessions
+        debugFilterStatus();
     });
+}
+
+/**
+ * Debug function to detect and report filter status
+ */
+function debugFilterStatus() {
+    var total = appState.devices.length;
+    var filtered = typeof getFilteredDevices === 'function' ? getFilteredDevices().length : total;
+    var hasActiveFilters = appState.deviceFilters.location || appState.deviceFilters.source || 
+                          appState.deviceFilters.name || appState.deviceFilters.type || 
+                          appState.deviceFilters.status || appState.deviceFilters.hasConnections;
+    
+    if (filtered < total) {
+        console.warn('⚠️  FILTER DETECTED: Showing ' + filtered + ' of ' + total + ' devices');
+        console.warn('    Active filters:', appState.deviceFilters);
+        console.warn('    To clear filters, run: clearDeviceFilters(); updateUI();');
+    }
 }
 
 // Initialize when DOM is ready

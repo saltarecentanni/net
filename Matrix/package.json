@@ -1,7 +1,7 @@
 {
   "name": "matrix",
-  "version": "3.5.043",
-  "description": "Tiesse Matrix Network Manager - v3.5.043 with External/ISP improvements",
+  "version": "1.0.0",
+  "description": "",
   "main": "server.js",
   "directories": {
     "doc": "doc",

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.5.040
+ * Version: 3.5.044
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -991,7 +991,7 @@ var SVGMatrix = (function() {
         
         // Special column headers
         if (hasWallJack) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-accent);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-warning-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
                 '<div style="font-size:20px;">🔌</div>' +
                 '<div style="font-size:9px;font-weight:600;color:var(--color-primary-light);">Wall Jack</div>' +
                 '</div>';
@@ -1124,30 +1124,11 @@ var SVGMatrix = (function() {
                 for (var wj = 0; wj < wallJackConns.length; wj++) {
                     if (wallJackConns[wj].conn.from === row.id) { wjConn = wallJackConns[wj].conn; wjConnIdx = wallJackConns[wj].idx; break; }
                 }
-                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-accent-light)" stroke="var(--color-accent)"/>';
+                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-primary-lightest)" stroke="var(--color-primary-light)"/>';
                 if (wjConn) {
-                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-accent)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
-                    
-                    // Top port (FROM) with amber tint
-                    html += '<rect x="' + (wjX+12) + '" y="' + (y+8) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+21) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((wjConn.fromPort || '-').substring(0,8)) + '</text>';
-                    
-                    // Arrow indicator
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
-                    
-                    // Bottom port (TO/External Dest) with amber tint
-                    html += '<rect x="' + (wjX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((wjConn.externalDest || 'WJ').substring(0,8)) + '</text>';
-                    
-                    // Cable marker
-                    if (wjConn.cableMarker) {
-                        var wjMarkerText = wjConn.cableMarker.toUpperCase().substring(0,4);
-                        var wjCableColor = wjConn.cableColor || 'var(--color-warning)';
-                        var isWJLightColor = wjCableColor === '#ffffff' || wjCableColor === '#eab308' || wjCableColor === 'var(--color-text-inverse)' || wjCableColor === '';
-                        var wjMarkerTextColor = isWJLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
-                        html += '<rect x="' + (wjX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + wjCableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
-                        html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+80) + '" fill="' + wjMarkerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjMarkerText) + '</text>';
-                    }
+                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-warning-dark)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
+                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjConn.fromPort || '-') + '</text>';
+                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((wjConn.externalDest || 'WJ').substring(0,6)) + '</text>';
                 }
             }
             
@@ -1162,27 +1143,8 @@ var SVGMatrix = (function() {
                 if (extConn) {
                     var extColIdx = deviceCount + (hasWallJack ? 1 : 0);
                     html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-danger)" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
-                    
-                    // Top port (FROM) with amber tint
-                    html += '<rect x="' + (extX+12) + '" y="' + (y+8) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+21) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((extConn.fromPort || '-').substring(0,8)) + '</text>';
-                    
-                    // Arrow indicator
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
-                    
-                    // Bottom port (TO/External Dest) with amber tint
-                    html += '<rect x="' + (extX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((extConn.externalDest || 'EXT').substring(0,8)) + '</text>';
-                    
-                    // Cable marker
-                    if (extConn.cableMarker) {
-                        var extMarkerText = extConn.cableMarker.toUpperCase().substring(0,4);
-                        var extCableColor = extConn.cableColor || 'var(--color-danger)';
-                        var isExtLightColor = extCableColor === '#ffffff' || extCableColor === '#eab308' || extCableColor === 'var(--color-text-inverse)' || extCableColor === '';
-                        var extMarkerTextColor = isExtLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
-                        html += '<rect x="' + (extX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + extCableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
-                        html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+80) + '" fill="' + extMarkerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(extMarkerText) + '</text>';
-                    }
+                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(extConn.fromPort || '-') + '</text>';
+                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((extConn.externalDest || 'EXT').substring(0,6)) + '</text>';
                 }
             }
         }
@@ -1423,7 +1385,7 @@ var SVGMatrix = (function() {
         if (hasWallJack) {
             var wjX = headerWidth + deviceCount * cellSize;
             exportSvg.appendChild(createSvgRect(wjX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-accent)'));
+            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-warning-dark)'));
             exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', 'var(--color-primary-light)', '20'));
             exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', 'var(--color-primary-light)', '9', {fontWeight: '600'}));
         }

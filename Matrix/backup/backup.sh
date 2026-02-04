@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# TIESSE Matrix Network - Automated Backup Script v3.4.3
+# TIESSE Matrix Network - Automated Backup Script v3.5.043
 # ============================================================
 # 
 # This script creates automated backups of network_manager.json
@@ -10,7 +10,7 @@
 # - Monthly backups: 12 (one per month, last 12 months)
 #
 # Directory Structure:
-# /var/www/html/matrix/backup/
+# /workspaces/net/Matrix/backup/
 # ├── weekly/
 # │   ├── backup_week_01.json
 # │   ├── backup_week_02.json
@@ -28,14 +28,14 @@
 #
 # Crontab examples:
 # Weekly (every Sunday at 2:00 AM):
-# 0 2 * * 0 /var/www/html/matrix/backup/backup.sh weekly
+# 0 2 * * 0 /workspaces/net/Matrix/backup/backup.sh weekly
 #
 # Monthly (1st day of month at 3:00 AM):
-# 0 3 1 * * /var/www/html/matrix/backup/backup.sh monthly
+# 0 3 1 * * /workspaces/net/Matrix/backup/backup.sh monthly
 # ============================================================
 
 # Configuration
-MATRIX_DIR="/var/www/html/matrix"
+MATRIX_DIR="/workspaces/net/Matrix"
 BACKUP_DIR="${MATRIX_DIR}/backup"
 DATA_FILE="${MATRIX_DIR}/data/network_manager.json"
 LOG_FILE="${BACKUP_DIR}/backup.log"

@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.040  
+**Version:** 3.5.044  
 **Date:** February 4, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
@@ -30,7 +30,28 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.5.040
+## 🆕 What's New in v3.5.044
+
+### 🔍 Investigated Display Issue - 92 vs 101 Devices (v3.5.044)
+- Found 29 devices without IP addresses (intended design for infrastructure elements)
+- 5 active devices + 4 disabled devices = 9 hidden from default list view
+- Verified JSON integrity - all 101 devices fully present and valid
+- Added debug logging to detect filter status on page load
+- **Smart Device Matching**: Implemented 3-level matching algorithm to prevent duplicate boxes
+  - Exact match (case-insensitive)
+  - Partial match (substring matching)
+  - Word-based match (significant words only)
+- **Connection Color Scheme**: Softer, less intrusive colors
+  - WAN: #ef4444 → #fca5a5 (soft pink)
+  - DMZ: #f97316 → #fdba74 (soft peach)
+  - Management: #8b5cf6 → #d8b4fe (soft lavender)
+  - Wallport: #a78bfa → #e9d5ff (very soft lilac)
+- **findMatchingDevice()**: New function with intelligent device matching
+- **Data Integrity**: SHA-256 checksum validation for imports
+
+---
+
+## 🆕 Previous Updates
 
 ### 🔧 Location Order Bug Fix (v3.5.037-038)
 - **Critical Fix**: Location code "00" now correctly appears before "01" in all dropdowns
