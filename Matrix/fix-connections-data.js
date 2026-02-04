@@ -8,8 +8,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = path.join(__dirname, 'data', 'network_manager.json');
-const BACKUP_FILE = path.join(__dirname, 'data', 'network_manager.json.bak.auto_fix');
+// Allow custom file path as argument, otherwise use default
+const DATA_FILE = process.argv[2] || path.join(__dirname, 'data', 'network_manager.json');
+const BACKUP_FILE = DATA_FILE + '.bak.auto_fix';
 
 function findMatchingDevice(externalDest, devices) {
     if (!externalDest) return null;
