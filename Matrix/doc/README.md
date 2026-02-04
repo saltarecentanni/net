@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.038  
+**Version:** 3.5.039  
 **Date:** February 4, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
@@ -30,7 +30,7 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.5.038
+## 🆕 What's New in v3.5.039
 
 ### 🔧 Location Order Bug Fix (v3.5.037-038)
 - **Critical Fix**: Location code "00" now correctly appears before "01" in all dropdowns

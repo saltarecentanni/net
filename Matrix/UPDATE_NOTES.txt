@@ -1,12 +1,29 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.038
+Version: 3.5.039
 Last Updated: 2026-02-04
 ================================================================================
 
+CHANGELOG v3.5.039 (2026-02-04)
+--------------------------------------------------------------------------------
+� Connection Form Location Dropdowns - Standardized Format
+
+🔧 SOURCE/DESTINATION LOCATION FORMAT:
+  ✅ Source and Destination location dropdowns now show "XX - Name" format
+  ✅ Consistent with Location Manager and other dropdowns in the system
+  ✅ Uses LocationFilter.getLocationsForFilter() for unified data source
+  ✅ Proper sorting by code (00, 01, 02, ...)
+
+📊 IMPROVED LOCATION MATCHING:
+  ✅ getDevicesFiltered() now handles both "XX - Name" and "Name" formats
+  ✅ getGroupsByLocation() updated for flexible matching
+  ✅ Supports legacy devices with old location format
+
+--------------------------------------------------------------------------------
+
 CHANGELOG v3.5.038 (2026-02-04)
 --------------------------------------------------------------------------------
-🔧 Critical Bug Fixes & Visual Improvements
+�🔧 Critical Bug Fixes & Visual Improvements
 
 🐛 LOCATION ORDER BUG FIX:
   ✅ Fixed: Location code "00" now appears before "01" in all dropdowns
@@ -21,7 +38,7 @@ CHANGELOG v3.5.038 (2026-02-04)
   ✅ Applied to zone centroid calculation in features.js
 
 📚 DOCUMENTATION SYNC:
-  ✅ All documents updated to v3.5.038
+  ✅ All documents updated to v3.5.039
   ✅ README.md, BLUEPRINT.md, UPDATE_NOTES.txt synchronized
 
 --------------------------------------------------------------------------------
