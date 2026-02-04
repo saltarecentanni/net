@@ -1930,19 +1930,40 @@ var SVGTopology = (function() {
                 }
             }
             
-            // 3. Word-based match - check if any word in externalDest matches device name
-            // Example: externalDest="ISP Provider" matches device="ISP"
-            var extWords = extLower.split(/[\s\-_\/]+/);
+            // 3. Multi-word match with scoring - find device with most matching significant words
+            // Example: "BIG ONE - Laboratorio" matches "Imola6 (BIG ONE)" by words "big" + "one"
+            var extWords = extLower.split(/[\s\-_\/\(\)]+/).filter(function(w) { return w.length > 2; });
+            var bestMatch = null;
+            var bestScore = 0;
+            var minWordsRequired = Math.min(2, extWords.length); // Need at least 2 matching words or all words if less
+            
             for (var i = 0; i < existingDeviceNamesList.length; i++) {
                 var dev = existingDeviceNamesList[i];
-                var devWords = dev.name.split(/[\s\-_\/]+/);
+                var devWords = dev.name.split(/[\s\-_\/\(\)]+/).filter(function(w) { return w.length > 2; });
+                var matchCount = 0;
+                
+                // Count how many words match
                 for (var j = 0; j < extWords.length; j++) {
                     for (var k = 0; k < devWords.length; k++) {
-                        if (extWords[j] && devWords[k] && extWords[j].length > 2 && extWords[j] === devWords[k]) {
-                            return dev.id;
+                        if (extWords[j] === devWords[k]) {
+                            matchCount++;
+                            break; // Each external word can only match once
                         }
                     }
                 }
+                
+                // Calculate score (percentage of external words that matched)
+                var score = matchCount / extWords.length;
+                
+                // If this device has more matching words and meets minimum requirement, it's the best match
+                if (matchCount >= minWordsRequired && score > bestScore) {
+                    bestScore = score;
+                    bestMatch = dev.id;
+                }
+            }
+            
+            if (bestMatch) {
+                return bestMatch;
             }
             
             return null;
