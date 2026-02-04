@@ -1,10 +1,14 @@
 /**
  * TIESSE Matrix Network - Authentication Module
- * Version: 3.5.040
+ * Version: 3.5.041
  * 
  * Simple authentication for edit mode:
  * - Public: View, Print, Export
  * - Authenticated: Add, Edit, Delete, Import, Clear
+ * 
+ * Security Features (v3.5.041):
+ * - CSRF token support for all POST requests
+ * - localStorage cleanup on logout
  */
 
 'use strict';
@@ -12,6 +16,7 @@
 var Auth = (function() {
     var isLoggedIn = false;
     var currentUser = null;
+    var csrfToken = null; // CSRF token for secure POST requests
     
     // Check auth status on load
     function init() {
@@ -22,17 +27,22 @@ var Auth = (function() {
     
     // Check if user is authenticated
     function checkAuth() {
-        return fetch('api/auth.php?action=check')
+        return fetch('api/auth.php?action=check', { credentials: 'same-origin' })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 isLoggedIn = data.authenticated === true;
                 currentUser = data.user || null;
+                // Capture CSRF token if provided
+                if (data.csrfToken) {
+                    csrfToken = data.csrfToken;
+                }
                 return isLoggedIn;
             })
             .catch(function(err) {
                 Debug.warn('Auth check failed:', err);
                 isLoggedIn = false;
                 currentUser = null;
+                csrfToken = null;
                 return false;
             });
     }
@@ -42,6 +52,7 @@ var Auth = (function() {
         return fetch('api/auth.php?action=login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ username: username, password: password })
         })
         .then(function(r) {
@@ -55,6 +66,10 @@ var Auth = (function() {
         .then(function(data) {
             isLoggedIn = true;
             currentUser = data.user;
+            // Capture CSRF token from login response
+            if (data.csrfToken) {
+                csrfToken = data.csrfToken;
+            }
             
             // Try to acquire edit lock
             if (typeof EditLock !== 'undefined') {
@@ -116,6 +131,22 @@ var Auth = (function() {
         });
     }
     
+    // Clear sensitive data from localStorage
+    function clearLocalStorage() {
+        try {
+            localStorage.removeItem('networkDevices');
+            localStorage.removeItem('networkConnections');
+            localStorage.removeItem('networkRooms');
+            localStorage.removeItem('networkSites');
+            localStorage.removeItem('networkLocations');
+            localStorage.removeItem('nextDeviceId');
+            localStorage.removeItem('nextLocationId');
+            Debug.log('localStorage cleared on logout');
+        } catch (e) {
+            Debug.warn('Failed to clear localStorage:', e);
+        }
+    }
+    
     // Logout
     function logout() {
         var loggedOutUser = currentUser;
@@ -126,12 +157,20 @@ var Auth = (function() {
             : Promise.resolve();
         
         return releaseLockPromise.then(function() {
-            return fetch('api/auth.php?action=logout', { method: 'POST' });
+            return fetch('api/auth.php?action=logout', { 
+                method: 'POST',
+                credentials: 'same-origin'
+            });
         })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 isLoggedIn = false;
                 currentUser = null;
+                csrfToken = null;
+                
+                // Clear sensitive data from localStorage on logout
+                clearLocalStorage();
+                
                 updateUI();
                 
                 // Refresh lists to hide edit buttons
@@ -151,6 +190,8 @@ var Auth = (function() {
                 // Force local logout anyway
                 isLoggedIn = false;
                 currentUser = null;
+                csrfToken = null;
+                clearLocalStorage();
                 updateUI();
             });
     }
@@ -248,10 +289,12 @@ var Auth = (function() {
         checkAuth: checkAuth,
         isLoggedIn: function() { return isLoggedIn; },
         getUser: function() { return currentUser; },
+        getCSRFToken: function() { return csrfToken; },
         showLoginModal: showLoginModal,
         hideLoginModal: hideLoginModal,
         handleLoginSubmit: handleLoginSubmit,
-        updateUI: updateUI
+        updateUI: updateUI,
+        clearLocalStorage: clearLocalStorage
     };
 })();
 

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.040
+ * Version: 3.5.041
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -94,8 +94,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.040';
+var SUPPORTED_VERSIONS = ['3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.041';
 
 /**
  * Valid enum values for schema validation
@@ -1467,9 +1467,15 @@ function serverSave() {
     });
     
     function postUrl(url) {
+        // Get CSRF token from Auth module if available
+        var headers = { 'Content-Type': 'application/json' };
+        if (typeof Auth !== 'undefined' && Auth.getCSRFToken()) {
+            headers['X-CSRF-Token'] = Auth.getCSRFToken();
+        }
+        
         return fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             credentials: 'same-origin',
             body: payload
         }).then(function(r) {
@@ -1479,6 +1485,12 @@ function serverSave() {
                     var authError = new Error('AUTH_REQUIRED');
                     authError.authRequired = true;
                     throw authError;
+                }
+                // Check for CSRF error
+                if (data.code === 'CSRF_INVALID' || r.status === 403) {
+                    var csrfError = new Error('CSRF token invalid - please login again');
+                    csrfError.csrfInvalid = true;
+                    throw csrfError;
                 }
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 if (data.error) throw new Error(data.error);
@@ -2897,18 +2909,18 @@ function updateFromPorts(selectedPort) {
                 // Count current connections for patch panel/walljack port
                 var connCount = getPortConnectionCount(id, p.name, excludeIdx);
                 if (connCount === 0) {
-                    label = icon + ' ' + p.name + ' (Libera)';
+                    label = icon + ' ' + escapeHtml(p.name) + ' (Libera)';
                 } else if (connCount === 1) {
-                    label = icon + ' ' + p.name + ' (1/2 - disponibile)';
+                    label = icon + ' ' + escapeHtml(p.name) + ' (1/2 - disponibile)';
                 } else {
-                    label = icon + ' ' + p.name + ' (2/2 - completa)';
+                    label = icon + ' ' + escapeHtml(p.name) + ' (2/2 - completa)';
                 }
             } else {
-                label = icon + ' ' + p.name + ' ' + (used ? '(In uso)' : '(Libera)');
+                label = icon + ' ' + escapeHtml(p.name) + ' ' + (used ? '(In uso)' : '(Libera)');
             }
             
             var selected = (selectedPort === p.name) ? 'selected' : '';
-            sel.innerHTML += '<option value="' + p.name + '" ' + selected + '>' + label + '</option>';
+            sel.innerHTML += '<option value="' + escapeHtml(p.name) + '" ' + selected + '>' + label + '</option>';
         }
     }
 }
@@ -2939,18 +2951,18 @@ function updateToPorts(selectedPort) {
             if (isPassthrough) {
                 var connCount = getPortConnectionCount(id, p.name, excludeIdx);
                 if (connCount === 0) {
-                    label = icon + ' ' + p.name + ' (Libera)';
+                    label = icon + ' ' + escapeHtml(p.name) + ' (Libera)';
                 } else if (connCount === 1) {
-                    label = icon + ' ' + p.name + ' (1/2 - disponibile)';
+                    label = icon + ' ' + escapeHtml(p.name) + ' (1/2 - disponibile)';
                 } else {
-                    label = icon + ' ' + p.name + ' (2/2 - completa)';
+                    label = icon + ' ' + escapeHtml(p.name) + ' (2/2 - completa)';
                 }
             } else {
-                label = icon + ' ' + p.name + ' ' + (used ? '(In uso)' : '(Libera)');
+                label = icon + ' ' + escapeHtml(p.name) + ' ' + (used ? '(In uso)' : '(Libera)');
             }
             
             var selected = (selectedPort === p.name) ? 'selected' : '';
-            sel.innerHTML += '<option value="' + p.name + '" ' + selected + '>' + label + '</option>';
+            sel.innerHTML += '<option value="' + escapeHtml(p.name) + '" ' + selected + '>' + label + '</option>';
         }
     }
 }

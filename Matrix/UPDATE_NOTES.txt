@@ -1,12 +1,75 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.040
+Version: 3.5.041
 Last Updated: 2026-02-04
 ================================================================================
 
+CHANGELOG v3.5.041 (2026-02-04)
+--------------------------------------------------------------------------------
+🔒 CRITICAL SECURITY UPDATE - Professional Security Hardening
+
+⚠️  This is a MANDATORY security update addressing 47+ issues from audit.
+
+🔐 PASSWORD SECURITY:
+  ✅ Node.js now uses bcrypt password hashing (was plain-text!)
+  ✅ PHP and Node.js share same bcrypt hash format
+  ✅ Unified AUTH_PASSWORD_HASH configuration
+  ✅ Compatible with PHP $2y$ and Node.js $2b$ prefixes
+
+🛡️ CSRF PROTECTION:
+  ✅ CSRF tokens generated on login
+  ✅ All POST requests require X-CSRF-Token header
+  ✅ Tokens stored server-side and validated
+  ✅ Auth.getCSRFToken() available in frontend
+
+🌐 CORS SECURITY:
+  ✅ Removed wildcard '*' CORS (was allowing any domain!)
+  ✅ Configurable CORS_ORIGINS whitelist in .env
+  ✅ CORS_ALLOW_ALL option for development only
+  ✅ Access-Control-Allow-Credentials properly set
+
+🔒 HTTPS SUPPORT:
+  ✅ Server designed for INTERNAL/INTRANET use only
+  ✅ No HTTPS required for internal networks
+  ✅ Secure cookie flags (HttpOnly, SameSite=Strict)
+
+📝 EDIT LOCK VERIFICATION:
+  ✅ Server validates edit lock before accepting saves
+  ✅ Prevents data overwrites when lock expired/stolen
+  ✅ Returns LOCK_INVALID error code on mismatch
+
+🚫 RATE LIMITING IMPROVEMENTS:
+  ✅ Rate limit by IP + username (was IP only)
+  ✅ Exponential backoff (15min → 30min → 1hr → 2hr → 4hr)
+  ✅ Timing-safe comparison with padding
+
+🧹 LOGOUT SECURITY:
+  ✅ localStorage cleared on logout (sensitive data cleanup)
+  ✅ Auth.clearLocalStorage() available for manual cleanup
+  ✅ CSRF token cleared on logout
+
+🛡️ XSS PROTECTION:
+  ✅ escapeHtml() now used in port name innerHTML
+  ✅ Security headers: X-Content-Type-Options, X-Frame-Options
+  ✅ Content-Security-Policy for HTML files
+
+📋 CONFIGURATION:
+  ✅ Updated .env.example with all new options
+  ✅ HOST binding configurable (127.0.0.1 vs 0.0.0.0)
+  ✅ Detailed comments for security settings
+
+🔧 BREAKING CHANGES:
+  ⚠️  AUTH_PASSWORD removed - use AUTH_PASSWORD_HASH
+  ⚠️  POST requests require CSRF token
+
+📦 NEW DEPENDENCY:
+  • bcrypt (npm install bcrypt)
+
+--------------------------------------------------------------------------------
+
 CHANGELOG v3.5.040 (2026-02-04)
 --------------------------------------------------------------------------------
-� Connection Form Location Dropdowns - Standardized Format
+🔧 Connection Form Location Dropdowns - Standardized Format
 
 🔧 SOURCE/DESTINATION LOCATION FORMAT:
   ✅ Source and Destination location dropdowns now show "XX - Name" format
@@ -23,7 +86,7 @@ CHANGELOG v3.5.040 (2026-02-04)
 
 CHANGELOG v3.5.038 (2026-02-04)
 --------------------------------------------------------------------------------
-�🔧 Critical Bug Fixes & Visual Improvements
+🔧 Critical Bug Fixes & Visual Improvements
 
 🐛 LOCATION ORDER BUG FIX:
   ✅ Fixed: Location code "00" now appears before "01" in all dropdowns
