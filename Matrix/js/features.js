@@ -2198,11 +2198,6 @@ var SVGTopology = (function() {
             var toPort = c.toPort || '';
             var cableId = c.cableMarker || '';
             
-            // DEBUG: Log cables with markers
-            if (cableId) {
-                console.log('🔍 Rendering cable marker:', cableId, 'for', c.from, '→', c.to, '| color:', cableColor);
-            }
-            
             // Get unique connection dots
             var fromKey = 'from-' + c.to;
             var toKey = 'to-' + c.from;
