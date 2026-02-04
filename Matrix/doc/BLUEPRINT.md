@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.5.039  
+**Version:** 3.5.040  
 **Date:** February 4, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
@@ -29,7 +29,7 @@ A web-based network infrastructure documentation system for enterprise environme
 
 ## 2. VERSION HISTORY
 
-### v3.5.039 (Current) - February 4, 2026
+### v3.5.040 (Current) - February 4, 2026
 
 #### 🔧 Critical Bug Fixes & Visual Improvements
 | Feature | Description |

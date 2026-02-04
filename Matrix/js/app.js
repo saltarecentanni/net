@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.039
+ * Version: 3.5.040
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -94,8 +94,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.039', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.039';
+var SUPPORTED_VERSIONS = ['3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.040';
 
 /**
  * Valid enum values for schema validation
@@ -2693,7 +2693,7 @@ function getDevicesByLocationAndGroup(location, group) {
 
 /**
  * Initialize location dropdowns for connection form
- * Uses LocationFilter.getLocationsForFilter() for consistent "XX - Name" format
+ * Shows only locations that HAVE devices (with "XX - Name" format)
  */
 function initConnectionFormLocations() {
     var fromLoc = document.getElementById('fromLocation');
@@ -2701,32 +2701,57 @@ function initConnectionFormLocations() {
     
     if (!fromLoc || !toLoc) return;
     
-    // Get locations with code using LocationFilter if available
+    // First, get unique location names from devices (only locations with data)
+    var deviceLocations = {};
+    for (var i = 0; i < appState.devices.length; i++) {
+        var d = appState.devices[i];
+        var locName = d.location || 'No Location';
+        deviceLocations[locName] = true;
+    }
+    
+    // Now build display list with "XX - Name" format for locations that have devices
     var locationsWithCode = [];
-    if (typeof LocationFilter !== 'undefined' && LocationFilter.getLocationsForFilter) {
-        locationsWithCode = LocationFilter.getLocationsForFilter();
-    } else {
-        // Fallback: build from appState.locations
-        var sortedLocs = (appState.locations || []).slice().sort(function(a, b) {
-            var codeA = parseInt(a.code, 10);
-            var codeB = parseInt(b.code, 10);
-            codeA = isNaN(codeA) ? 999 : codeA;
-            codeB = isNaN(codeB) ? 999 : codeB;
-            return codeA - codeB;
-        });
-        for (var i = 0; i < sortedLocs.length; i++) {
-            var loc = sortedLocs[i];
-            locationsWithCode.push({
-                value: loc.name,
-                display: (loc.code || '00') + ' - ' + (loc.name || 'Unknown')
-            });
+    
+    // Try to match device locations with appState.locations for code
+    for (var locName in deviceLocations) {
+        if (deviceLocations.hasOwnProperty(locName)) {
+            var matchedLoc = null;
+            
+            // Find matching location in appState.locations
+            for (var j = 0; j < (appState.locations || []).length; j++) {
+                var loc = appState.locations[j];
+                if (loc.name === locName || locName.indexOf(loc.name) !== -1 || (loc.name && loc.name.indexOf(locName) !== -1)) {
+                    matchedLoc = loc;
+                    break;
+                }
+            }
+            
+            if (matchedLoc) {
+                var parsedCode = parseInt(matchedLoc.code, 10);
+                locationsWithCode.push({
+                    value: locName,
+                    display: (matchedLoc.code || '00') + ' - ' + matchedLoc.name,
+                    code: isNaN(parsedCode) ? 999 : parsedCode
+                });
+            } else {
+                // No match found, use location name as-is
+                locationsWithCode.push({
+                    value: locName,
+                    display: locName,
+                    code: 999
+                });
+            }
         }
     }
+    
+    // Sort by code
+    locationsWithCode.sort(function(a, b) {
+        return a.code - b.code;
+    });
     
     var opts = '<option value="">All</option>';
     for (var i = 0; i < locationsWithCode.length; i++) {
         var loc = locationsWithCode[i];
-        // Value is the location name (for filtering), display shows "XX - Name"
         opts += '<option value="' + escapeHtml(loc.value) + '">' + escapeHtml(loc.display) + '</option>';
     }
     
