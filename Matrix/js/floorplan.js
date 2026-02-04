@@ -418,6 +418,7 @@ var FloorPlan = (function() {
         // Simple logic: Wall Jack has roomId -> appears in that room
         // No roomId -> doesn't appear anywhere (until assigned)
         var roomWallJacks = [];
+        var roomExternals = [];
         if (typeof appState !== 'undefined' && appState.connections) {
             var roomId = room.id.toString();
             
@@ -426,6 +427,14 @@ var FloorPlan = (function() {
                 // Only show if explicitly assigned to this room
                 return c.roomId !== undefined && c.roomId !== null && 
                        c.roomId !== '' && c.roomId.toString() === roomId;
+            });
+            
+            // Collect External connections (non-WallJack, with externalDest)
+            roomExternals = appState.connections.filter(function(c) {
+                if (c.isWallJack || !c.externalDest || c.to) return false;
+                // Only show if from a device in this room
+                var deviceIds = roomDevices.map(function(d) { return d.id; });
+                return deviceIds.indexOf(c.from) >= 0;
             });
         }
         
@@ -550,6 +559,14 @@ var FloorPlan = (function() {
             html += '<div style="background:linear-gradient(135deg,#ecf0f1,#bdc3c7);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
             html += '<div style="font-size:22px;font-weight:700;color:#2c3e50;">' + roomWallJacks.length + '</div>';
             html += '<div style="font-size:10px;color:#7f8c8d;font-weight:600;">WALL JACKS</div>';
+            html += '</div>';
+        }
+        
+        // External Connections
+        if (roomExternals.length > 0) {
+            html += '<div style="background:linear-gradient(135deg,#fef3c7,#fde047);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
+            html += '<div style="font-size:22px;font-weight:700;color:#b45309;">' + roomExternals.length + '</div>';
+            html += '<div style="font-size:10px;color:#d97706;font-weight:600;">EXTERNAL</div>';
             html += '</div>';
         }
 
@@ -696,6 +713,61 @@ var FloorPlan = (function() {
                 if (wj.cableMarker) infoItems.push('Cable: ' + wj.cableMarker);
                 if (sourceDevice) infoItems.push('From: ' + sourceDevice);
                 if (wj.fromPort) infoItems.push('Port: ' + wj.fromPort);
+                if (infoItems.length > 0) {
+                    html += '<div style="font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + infoItems.join(' • ') + '</div>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+            });
+            
+            html += '</div></div>';
+        }
+        
+        // External Connections section
+        if (roomExternals.length > 0) {
+            html += '<div style="margin-top:16px;background:#fefce8;border-radius:12px;border:1px solid #fde047;overflow:hidden;">';
+            
+            // External header
+            html += '<div style="background:linear-gradient(135deg,#fef3c7,#fde047);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #fde047;">';
+            html += '<div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;">🌐</div>';
+            html += '<span style="font-weight:600;color:#713f12;font-size:13px;flex-grow:1;">External Connections</span>';
+            html += '<span style="background:#d97706;color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;">' + roomExternals.length + '</span>';
+            html += '</div>';
+            
+            // External list
+            html += '<div style="padding:8px;max-height:180px;overflow-y:auto;">';
+            
+            roomExternals.forEach(function(ext) {
+                var isActive = ext.status === 'active';
+                var bgColor = isActive ? '#fefce8' : '#fef2f2';
+                var dotColor = isActive ? '#eab308' : '#ef4444';
+                
+                // Get source device name
+                var sourceDevice = '';
+                if (typeof appState !== 'undefined' && appState.devices && ext.from) {
+                    var dev = appState.devices.find(function(d) { return d.id === ext.from; });
+                    if (dev) sourceDevice = dev.name;
+                }
+                
+                // Get connection type label
+                var typeLabel = ext.type || 'external';
+                var typeEmoji = typeLabel === 'wan' ? '🌍' : (typeLabel === 'internet' ? '🌐' : '🔗');
+                
+                html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;margin:4px 0;border-radius:8px;background:' + bgColor + ';">';
+                
+                // Status dot
+                html += '<span style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;"></span>';
+                
+                // External connection info
+                html += '<div style="flex-grow:1;min-width:0;">';
+                html += '<div style="font-weight:500;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + escapeHtml(ext.externalDest) + '">' + typeEmoji + ' ' + escapeHtml(ext.externalDest) + '</div>';
+                
+                var infoItems = [];
+                if (ext.cableMarker) infoItems.push('Cable: ' + ext.cableMarker);
+                if (sourceDevice) infoItems.push('From: ' + sourceDevice);
+                if (ext.fromPort) infoItems.push('Port: ' + ext.fromPort);
+                if (ext.notes) infoItems.push(ext.notes);
                 if (infoItems.length > 0) {
                     html += '<div style="font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + infoItems.join(' • ') + '</div>';
                 }
