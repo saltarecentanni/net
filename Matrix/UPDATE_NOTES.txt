@@ -4,7 +4,7 @@ Version: 3.5.050
 Last Updated: 2026-02-04
 ================================================================================
 
-CHANGELOG v3.5.050 (2026-02-04) - CLEAR ALL DATA FIX
+CHANGELOG v3.5.050 (2026-02-04) - CLEAR ALL DATA FIX + OBSOLETE FIELDS CLEANUP
 --------------------------------------------------------------------------------
 🔧 FIX: "Delete All Data" Function Repaired
 
@@ -32,6 +32,40 @@ FIXES IMPLEMENTED:
   [FIXED] Added v3.5.050 to SUPPORTED_VERSIONS array
        -> Exports from v3.5.050 can now be imported without errors
        -> Maintains backward compatibility with all previous versions
+
+🧹 DATA CLEANUP: Obsolete Fields Removed
+  [CRITICAL FIX] Removed obsolete zone/zoneIP fields from devices
+  
+  PROBLEM DISCOVERED:
+    -> 4 devices had old "zone" and "zoneIP" fields at device root level
+    -> These devices were INVISIBLE in selection lists and dropdowns
+    -> UI expects IPs in ips[] array, not in separate zone/zoneIP fields
+    -> User reported: "dmz 1.1.1.1 não aparece nos campos"
+  
+  DEVICES AFFECTED:
+    - Device 8:   IMOLA-SGR-FWA-WIND (Wind) - zone="DMZ"
+    - Device 11:  IMOLA-LX-GW-TLC-FO (Fibra-TIM) - zone="DMZ"
+    - Device 121: Telefono R.Russo - zone="DMZ", zoneIP="1.1.1.1"
+    - Device 122: Telefono G.Cappai - zone="DMZ", zoneIP="1.1.1.1"
+  
+  SOLUTION:
+    -> Created clean-obsolete-fields.js script
+    -> Automatically removes zone/zoneIP fields from device root
+    -> Devices now appear correctly in all selection lists
+    -> Backup created automatically before cleanup
+  
+  TECHNICAL NOTE:
+    Old structure (WRONG):
+      { id: 121, name: "...", zone: "DMZ", zoneIP: "1.1.1.1" }
+    
+    Correct structure (RIGHT):
+      { id: 121, name: "...", ips: [{ip: "1.1.1.1", zone: "DMZ"}] }
+  
+  IMPACT:
+    ✅ All 4 devices now visible in device selection dropdowns
+    ✅ Can be selected for connections
+    ✅ Can be edited/deleted normally
+    ⚠️  Users need to manually re-add zone info via IP tab if needed
 
 TECHNICAL DETAILS:
   Files Modified:

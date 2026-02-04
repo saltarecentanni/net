@@ -593,7 +593,6 @@
         }
       ],
       "service": "FWA Wind",
-      "zone": "DMZ",
       "ports": [
         {
           "name": "eth01",
@@ -995,7 +994,6 @@
         }
       ],
       "service": "GW-Fibra-TIM, Gestione Telecamera di sicurezza",
-      "zone": "DMZ",
       "ports": [
         {
           "name": "WAN01",
@@ -6220,8 +6218,6 @@
       ],
       "links": [],
       "service": "Telefono Voip Cisco",
-      "zone": "DMZ",
-      "zoneIP": "1.1.1.1",
       "ports": [
         {
           "name": "eth01",
@@ -6253,8 +6249,6 @@
       ],
       "links": [],
       "service": "Telefono Voip Cisco",
-      "zone": "DMZ",
-      "zoneIP": "1.1.1.1",
       "ports": [
         {
           "name": "eth01",
