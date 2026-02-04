@@ -2169,7 +2169,7 @@ function renderConnectionsTable(cont) {
 
     var html = '';
     
-    html += '<div class="overflow-x-auto"><table class="min-w-full divide-y text-xs"><thead class="bg-slate-50"><tr>';
+    html += '<div class="overflow-x-auto"><table class="min-w-full divide-y text-xs"><thead class="bg-indigo-700"><tr>';
     for (var h = 0; h < headers.length; h++) {
         var hdr = headers[h];
         var sortIndicator = '';
@@ -2188,11 +2188,11 @@ function renderConnectionsTable(cont) {
         }
         
         if (hdr.key === 'actions') {
-            html += '<th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase no-print edit-mode-only">' + hdr.label + '</th>';
+            html += '<th class="px-3 py-2 text-left text-xs font-medium text-white uppercase no-print edit-mode-only">' + hdr.label + '</th>';
         } else if (hdr.key === 'arrow') {
-            html += '<th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase' + printClass + '">' + hdr.label + '</th>';
+            html += '<th class="px-3 py-2 text-left text-xs font-medium text-white uppercase' + printClass + '">' + hdr.label + '</th>';
         } else {
-            html += '<th onclick="toggleConnSort(\'' + hdr.key + '\', event)" class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100' + printClass + '" title="Click to sort, Shift+Click to add level">' + hdr.label + sortIndicator + '</th>';
+            html += '<th onclick="toggleConnSort(\'' + hdr.key + '\', event)" class="px-3 py-2 text-left text-xs font-medium text-white uppercase cursor-pointer hover:bg-indigo-600' + printClass + '" title="Click to sort, Shift+Click to add level">' + hdr.label + sortIndicator + '</th>';
         }
     }
     html += '</tr></thead><tbody class="bg-white divide-y">';
