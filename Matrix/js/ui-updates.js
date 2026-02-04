@@ -991,7 +991,7 @@ var SVGMatrix = (function() {
         
         // Special column headers
         if (hasWallJack) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-warning-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-accent);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
                 '<div style="font-size:20px;">🔌</div>' +
                 '<div style="font-size:9px;font-weight:600;color:var(--color-primary-light);">Wall Jack</div>' +
                 '</div>';
@@ -1124,9 +1124,9 @@ var SVGMatrix = (function() {
                 for (var wj = 0; wj < wallJackConns.length; wj++) {
                     if (wallJackConns[wj].conn.from === row.id) { wjConn = wallJackConns[wj].conn; wjConnIdx = wallJackConns[wj].idx; break; }
                 }
-                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-primary-lightest)" stroke="var(--color-primary-light)"/>';
+                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-accent-light)" stroke="var(--color-accent)"/>';
                 if (wjConn) {
-                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-warning-dark)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
+                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-accent)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
                     
                     // Top port (FROM) with amber tint
                     html += '<rect x="' + (wjX+12) + '" y="' + (y+8) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
@@ -1423,7 +1423,7 @@ var SVGMatrix = (function() {
         if (hasWallJack) {
             var wjX = headerWidth + deviceCount * cellSize;
             exportSvg.appendChild(createSvgRect(wjX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-warning-dark)'));
+            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-accent)'));
             exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', 'var(--color-primary-light)', '20'));
             exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', 'var(--color-primary-light)', '9', {fontWeight: '600'}));
         }
