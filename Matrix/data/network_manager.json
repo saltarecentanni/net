@@ -7606,20 +7606,6 @@
       "notes": ""
     },
     {
-      "from": 11,
-      "fromPort": "eth03",
-      "to": 6,
-      "toPort": "eth09",
-      "externalDest": "",
-      "isWallJack": false,
-      "type": "lan",
-      "color": "#3b82f6",
-      "status": "active",
-      "cableMarker": "A8",
-      "cableColor": "#eab308",
-      "notes": ""
-    },
-    {
       "from": 13,
       "fromPort": "WAN01",
       "to": 6,
@@ -7717,20 +7703,6 @@
       "status": "active",
       "cableMarker": "02.19",
       "cableColor": "#22c55e",
-      "notes": ""
-    },
-    {
-      "from": 15,
-      "fromPort": "eth20",
-      "to": 16,
-      "toPort": "eth15",
-      "externalDest": "",
-      "isWallJack": false,
-      "type": "lan",
-      "color": "#3b82f6",
-      "status": "active",
-      "cableMarker": "02.20",
-      "cableColor": "#ef4444",
       "notes": ""
     },
     {
@@ -8109,32 +8081,6 @@
       "status": "active",
       "cableMarker": "C1",
       "cableColor": "#6b7280",
-      "notes": ""
-    },
-    {
-      "from": 55,
-      "fromPort": "eth04",
-      "to": 57,
-      "toPort": "",
-      "isWallJack": false,
-      "type": "lan",
-      "color": "#3b82f6",
-      "status": "active",
-      "cableMarker": "AA0",
-      "cableColor": "#ffffff",
-      "notes": "IXIA"
-    },
-    {
-      "from": 55,
-      "fromPort": "eth03",
-      "to": 57,
-      "toPort": "",
-      "isWallJack": false,
-      "type": "lan",
-      "color": "#3b82f6",
-      "status": "active",
-      "cableMarker": "AA1",
-      "cableColor": "#ffffff",
       "notes": ""
     },
     {
@@ -9661,7 +9607,7 @@
   "nextDeviceId": 140,
   "nextLocationId": 26,
   "exportedAt": "2026-02-04T11:45:29.642Z",
-  "version": "3.5.049",
+  "version": "3.5.050",
   "__checksum": "fb-7a6d3f6d",
   "__checksumAlgorithm": "SHA-256"
 }

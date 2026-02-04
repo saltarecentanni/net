@@ -1,0 +1,91 @@
+================================================================================
+RELATÓRIO DE CAIXAS AMARELAS DUPLICADAS
+Data: 2026-02-04
+================================================================================
+
+🔴 PROBLEMA: 4 GRUPOS DE CONEXÕES DUPLICADAS ENCONTRADOS
+
+Estas conexões estão criando caixas amarelas duplicadas na topologia porque
+existem múltiplas conexões entre os mesmos dispositivos.
+
+================================================================================
+GRUPO 1: Device 11 ↔ Device 6 (DUPLICATA)
+================================================================================
+Device 11: IMOLA-LX-GW-TLC-FO (Fibra-TIM)
+Device 6:  Switch D-Link /24
+
+CONEXÃO 1 (Existente):
+  From: Device 11 porta WAN01
+  To:   Device 6 porta eth02
+
+CONEXÃO 2 (Duplicata):
+  From: Device 11 porta eth03
+  To:   Device 6 porta eth09
+
+IMPACTO: 2 caixas amarelas aparecendo para a mesma conexão
+
+================================================================================
+GRUPO 2: Device 15 ↔ Device 16 (DUPLICATA)
+================================================================================
+Device 15: Switch D-Link /24
+Device 16: Switch D-Link /48
+
+CONEXÃO 1 (Existente):
+  From: Device 15 porta eth19
+  To:   Device 16 porta eth33
+
+CONEXÃO 2 (Duplicata):
+  From: Device 15 porta eth20
+  To:   Device 16 porta eth15
+
+IMPACTO: 2 caixas amarelas aparecendo para a mesma conexão
+
+================================================================================
+GRUPO 3: Device 55 ↔ Device 57 (TRIPLICATA!) ⚠️⚠️⚠️
+================================================================================
+Device 55: IMOLA-VM-GW-01
+Device 57: Imola6 5272 ADSL (BIG ONE)
+
+CONEXÃO 1 (Existente):
+  From: Device 55 porta eth01
+  To:   Device 57 porta eth01
+
+CONEXÃO 2 (Duplicata):
+  From: Device 55 porta eth04
+  To:   Device 57 porta (VAZIA!)
+
+CONEXÃO 3 (Duplicata):
+  From: Device 55 porta eth03
+  To:   Device 57 porta (VAZIA!)
+
+IMPACTO: 3 caixas amarelas aparecendo para o mesmo par de dispositivos!
+
+================================================================================
+ANÁLISE:
+================================================================================
+✅ LEGÍTIMAS: Se são portas diferentes conectando os mesmos dispositivos
+              (ex: links agregados, redundância)
+
+❌ ERRO DE DADOS: Se são duplicatas não intencionais que devem ser removidas
+
+RECOMENDAÇÃO:
+1. Verificar se Device 11-6 realmente precisa de 2 conexões (redundância?)
+2. Verificar se Device 15-16 realmente precisa de 2 conexões
+3. Device 55-57: CLARAMENTE ERRO - 2 conexões com portas vazias!
+   → Manter apenas eth01-eth01, remover eth03 e eth04
+
+================================================================================
+TOP 10 DISPOSITIVOS MAIS CONECTADOS:
+================================================================================
+   1. Device 35 (Switch D-Link /24): 12 conexões
+   2. Device 6  (Switch D-Link /24): 8 conexões
+   3. Device 10 (Switch Elba): 6 conexões
+   4. Device 50 (Switch D-link /24): 6 conexões
+   5. Device 57 (Imola6 5272 ADSL - BIG ONE): 5 conexões ⚠️ 3 duplicatas!
+   6. Device 82 (IRA-Nord07): 5 conexões
+   7. Device 123 (Switch D-Link): 5 conexões
+   8. Device 16 (Switch D-Link /48): 4 conexões ⚠️ 1 duplicata
+   9. Device 36 (Switch D-Link /16): 4 conexões
+  10. Device 41 (NAS-VM-VOLUMES): 4 conexões
+
+================================================================================
