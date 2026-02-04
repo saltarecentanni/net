@@ -2338,6 +2338,9 @@ var SVGTopology = (function() {
                 }
             });
             
+            // Skip if no devices have positions
+            if (deviceCenters.length === 0) return;
+            
             // Calculate centroid of all devices in zone
             var centroidX = 0, centroidY = 0;
             deviceCenters.forEach(function(dc) {
@@ -3063,6 +3066,9 @@ var SVGTopology = (function() {
                     });
                 }
             });
+            
+            // Skip if no devices have positions
+            if (deviceCenters.length === 0) return;
             
             // Calculate centroid
             var centroidX = 0, centroidY = 0;
