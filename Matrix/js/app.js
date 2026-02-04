@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.049
+ * Version: 3.5.050
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -95,7 +95,7 @@ async function sha256(message) {
  * Supported versions for import (current + backward compatible)
  */
 var SUPPORTED_VERSIONS = ['3.5.049', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.049';
+var CURRENT_VERSION = '3.5.050';
 
 /**
  * Valid enum values for schema validation
@@ -4249,9 +4249,15 @@ function clearAll() {
                             method: 'POST',
                             body: formData
                         })
-                        .then(function(response) { return response.json(); })
+                        .then(function(response) {
+                            if (!response.ok) {
+                                throw new Error('HTTP error ' + response.status);
+                            }
+                            return response.json();
+                        })
                         .then(function(data) {
-                            if (data.valid) {
+                            console.log('Password verification response:', data);
+                            if (data.valid === true) {
                                 appState.devices = [];
                                 appState.connections = [];
                                 appState.locations = [];
@@ -4261,16 +4267,32 @@ function clearAll() {
                                 serverSave();
                                 updateUI();
                                 updateLocationSelect();
-                                Toast.success('All data cleared');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Data Cleared',
+                                    text: 'All devices and connections have been deleted successfully.',
+                                    confirmButtonColor: '#10b981'
+                                });
                                 if (typeof ActivityLog !== 'undefined') {
                                     ActivityLog.add('clear', 'system', 'All data cleared by ' + (Auth.getUser() || 'admin'));
                                 }
                             } else {
-                                Toast.error('Invalid password');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Invalid Password',
+                                    text: 'The password you entered is incorrect.',
+                                    confirmButtonColor: '#ef4444'
+                                });
                             }
                         })
-                        .catch(function() {
-                            Toast.error('Authentication error');
+                        .catch(function(error) {
+                            console.error('Clear all error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to verify password: ' + error.message,
+                                confirmButtonColor: '#ef4444'
+                            });
                         });
                     }
                 });

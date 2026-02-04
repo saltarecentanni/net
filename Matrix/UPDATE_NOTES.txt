@@ -1,7 +1,45 @@
 ================================================================================
 TIESSE MATRIX NETWORK MANAGER - UPDATE NOTES
-Version: 3.5.049
+Version: 3.5.050
 Last Updated: 2026-02-04
+================================================================================
+
+CHANGELOG v3.5.050 (2026-02-04) - CLEAR ALL DATA FIX
+--------------------------------------------------------------------------------
+🔧 FIX: "Delete All Data" Function Repaired
+
+PROBLEM ANALYSIS:
+  [ISSUE] "Delete All Data" button was not functioning correctly
+       -> HTTP response not being properly validated
+       -> Error messages not displaying clearly
+       -> Promise chain lacking proper error handling
+
+FIXES IMPLEMENTED:
+  1. Added HTTP status check before JSON parsing
+  2. Implemented strict comparison (=== true) for password validation
+  3. Enhanced error handling with detailed error messages
+  4. Replaced Toast with SweetAlert2 for consistent UI feedback
+  5. Added console logging for debugging password verification
+  6. Improved catch blocks with specific error reporting
+
+TECHNICAL DETAILS:
+  File Modified: js/app.js (clearAll function, lines ~4244-4287)
+  Changes:
+    - Added response.ok validation before JSON parse
+    - Changed if (data.valid) to if (data.valid === true)
+    - Replaced Toast.error() with Swal.fire() for errors
+    - Added console.log for response debugging
+    - Improved error.message display in catch block
+
+VERIFICATION REQUIRED:
+  ☐ Test "Clear All" button in edit mode
+  ☐ Verify backup download is forced before deletion
+  ☐ Confirm password validation works correctly
+  ☐ Check that data is actually cleared after confirmation
+
+FILES CHANGED:
+  - js/app.js (clearAll function enhanced)
+
 ================================================================================
 
 CHANGELOG v3.5.049 (2026-02-04) - FORENSIC DATA REPAIR
