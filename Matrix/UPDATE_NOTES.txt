@@ -32,7 +32,7 @@ TECHNICAL DETAILS:
   - Applied consistently across all topology rendering and connection drawing
 
 
-CHANGELOG v3.5.042 (2026-02-04)
+CHANGELOG v3.5.043 (2026-02-04)
 --------------------------------------------------------------------------------
 BUG FIXES & UI IMPROVEMENTS
 
