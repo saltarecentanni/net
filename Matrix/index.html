@@ -302,8 +302,11 @@
 
                 <!-- Devices List -->
                 <div>
-                    <div class="flex items-center gap-4 mb-3">
-                        <h2 class="text-lg font-bold text-slate-800">Devices List</h2>
+                    <div class="flex items-center justify-between gap-4 mb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">Devices List</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Catalogo completo dei dispositivi di rete</p>
+                        </div>
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-slate-500">View:</span>
                             <button onclick="setDeviceView('cards')" id="deviceViewCards" class="px-2 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300">
@@ -496,7 +499,10 @@
                 <!-- Connections List -->
                 <div id="connectionsPrintArea">
                     <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                        <h2 class="text-lg font-bold text-slate-800">Active Connections</h2>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">Active Connections</h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Mappa dei collegamenti tra dispositivi</p>
+                        </div>
                         <button onclick="printConnections()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
                             🖨️ Print List
                         </button>
