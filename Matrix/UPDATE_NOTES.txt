@@ -4,31 +4,61 @@ Version: 3.5.049
 Last Updated: 2026-02-04
 ================================================================================
 
-CHANGELOG v3.5.049 (2026-02-04)
+CHANGELOG v3.5.049 (2026-02-04) - FORENSIC DATA REPAIR
 --------------------------------------------------------------------------------
-CRITICAL TOPOLOGY FIXES - Duplicate Boxes & Connection Colors
+🔴 CRITICAL FIX: Data Corruption Resolved - Eliminated ALL Duplicate Yellow Boxes
 
-TOPOLOGY DUPLICATE PREVENTION:
-  [OK] FIXED: Duplicate yellow boxes in topology (e.g., "Firewall" box when device is "Firewall Fortinet")
-       -> Implemented smart matching: exact match, partial match (substring), and word-based match
-       -> Example: externalDest="Firewall" now correctly connects to device="Firewall Fortinet"
-       -> Example: externalDest="ISP" correctly connects to device="ISP Provider"
-       -> Prevents ANY duplicate boxes when real device exists with similar name
-       -> Applies to ALL external connections (not just ISP)
+ROOT CAUSE ANALYSIS:
+  [OK] FORENSIC INVESTIGATION: Duplicate boxes were NOT a code bug but DATA CORRUPTION
+       -> Connections incorrectly using externalDest field for device-to-device links
+       -> Example: Device 55 → externalDest="BIG ONE - Laboratorio di Prove" (WRONG)
+       -> Should be: Device 55 → to: 57 (device ID) (CORRECT)
+       -> Topology created duplicate yellow boxes because it couldn't find matching device
+
+DATA CORRUPTION DISCOVERED (4 connections):
+  1. Firewall Fortinet (ID: 9) → externalDest: "Firewall" instead of to: 9
+  2. Device 55 (eth04) → externalDest: "BIG ONE - Laboratorio di Prove" instead of to: 57
+  3. Device 55 (eth03) → externalDest: "BIG ONE - Laboratorio di Prove" instead of to: 57
+  4. Device 58 (eth03) → externalDest: "BIG ONE - Laboratorio di Prove" instead of to: 57
+
+AUTOMATED REPAIR IMPLEMENTED:
+  [OK] Created fix-connections-data.js - Node.js script for automated data repair
+       -> Scans all connections with externalDest
+       -> Finds matching real devices using same algorithm as frontend
+       -> Converts externalDest → to: deviceId when device exists
+       -> Creates automatic backup before modification
   
+  [OK] DATA FIXED: 4 connections automatically repaired
+       -> Removed incorrect externalDest fields
+       -> Added proper to: <deviceId> fields
+       -> Backup created: network_manager.json.bak.auto_fix
+       -> ALL duplicate yellow boxes eliminated
+
+SEMANTIC CLARIFICATION:
+  - externalDest: For REAL external destinations ONLY (ISP, Internet, Cloud services)
+  - to: <deviceId>: For device-to-device connections within infrastructure
+  - isWallJack: true: For physical wall jacks/outlets (gray boxes in topology)
+
+CONNECTION COLORS & UI IMPROVEMENTS (from v3.5.043-046):
   [OK] FIXED: Connection color scheme - softer, less intrusive colors
        -> WAN: #ef4444 (bright red) → #fca5a5 (soft pink/red-300)
        -> DMZ: #f97316 (bright orange) → #fdba74 (soft peach/orange-300)
        -> Management: #8b5cf6 (bright purple) → #d8b4fe (soft lavender/purple-300)
        -> Wallport: #a78bfa (violet) → #e9d5ff (very soft lilac/purple-200)
-       -> All other connection colors remain unchanged
+  
+  [OK] ADDED: Informative UI descriptions to all tab headers
+       -> Devices: "Catalogo completo dei dispositivi di rete"
+       -> Connections: "Mappa dei collegamenti tra dispositivi"
+       -> Topology: "Visualizzazione grafica automatica della rete"
+       -> Matrix: "Matrice completa delle interconnessioni di rete"
+       -> Floor Plan: "Planimetria dell'edificio con mappatura dispositivi"
 
-TECHNICAL DETAILS:
-  - findMatchingDevice() function with 3-level matching:
+TOPOLOGY MATCHING ALGORITHM (v3.5.047-048):
+  - findMatchingDevice() function with 3-level matching + tie-breaker:
     1. Exact match (case-insensitive)
     2. Partial match (substring in either direction)
-    3. Word-based match (any significant word matches)
-  - Minimum word length 3 characters to avoid false positives
+    3. Multi-word scoring (minimum 2 matching words, length > 2 chars)
+    4. Tie-breaker: Prefer device with more total words (better specificity)
   - Applied consistently across all topology rendering and connection drawing
 
 

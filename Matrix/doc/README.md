@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.040  
+**Version:** 3.5.049  
 **Date:** February 4, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
@@ -30,7 +30,27 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.5.040
+## 🆕 What's New in v3.5.049
+
+### 🔴 CRITICAL: Data Corruption Fixed (v3.5.049)
+- **Root Cause Discovered**: Duplicate yellow boxes in topology caused by DATA CORRUPTION, not code bug
+- **Problem**: 4 connections incorrectly used `externalDest` field instead of device IDs
+- **Examples**: 
+  - "BIG ONE - Laboratorio di Prove" (externalDest) → Should be device ID 57
+  - "Firewall" (externalDest) → Should be device ID 9
+- **Solution**: Created automated repair script `fix-connections-data.js`
+- **Result**: All 4 connections repaired, duplicate boxes eliminated
+- **Backup**: Automatic backup created before modification
+
+### 🎨 Connection Colors & UI Improvements (v3.5.043-046)
+- **Softer Colors**: WAN, DMZ, Management, Wallport connections now use pastel tones
+- **UI Descriptions**: Added informative text to all tab headers (Italian)
+- **Better UX**: More professional appearance, less visual fatigue
+
+### 🔧 Smart Topology Matching (v3.5.047-048)
+- **3-Level Algorithm**: Exact → Partial → Multi-word matching with tie-breaker
+- **Better Accuracy**: Prevents false positives while catching all real matches
+- **Consistent Logic**: Same algorithm used in frontend and data repair tool
 
 ### 🔧 Location Order Bug Fix (v3.5.037-038)
 - **Critical Fix**: Location code "00" now correctly appears before "01" in all dropdowns
