@@ -1333,10 +1333,10 @@ function serverLoad() {
             return tryUrl('./data.php')
                 .catch(function(err2) {
                     Debug.log('./data.php failed:', err2.message);
-                    return tryUrl('data/network_manager.json')
+                    return tryUrl('data/matrix-network-data.json')
                         .catch(function(err3) {
-                            Debug.log('data/network_manager.json failed:', err3.message);
-                            return tryUrl('./data/network_manager.json')
+                            Debug.log('data/matrix-network-data.json failed:', err3.message);
+                            return tryUrl('./data/matrix-network-data.json')
                                 .catch(function(err4) {
                                     Debug.warn('All server load endpoints failed');
                                     return false;

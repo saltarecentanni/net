@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Allow custom file path as argument, otherwise use default
-const DATA_FILE = process.argv[2] || path.join(__dirname, 'data', 'network_manager.json');
+const DATA_FILE = process.argv[2] || path.join(__dirname, 'data', 'matrix-network-data.json');
 const BACKUP_FILE = DATA_FILE + '.bak.auto_fix';
 
 function findMatchingDevice(externalDest, devices) {

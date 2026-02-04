@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = path.join(__dirname, 'data', 'network_manager.json');
+const DATA_FILE = path.join(__dirname, 'data', 'matrix-network-data.json');
 const EXPORT_FILE = path.join(__dirname, 'test-export.json');
 const REIMPORT_FILE = path.join(__dirname, 'test-reimport.json');
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const data = JSON.parse(fs.readFileSync('data/network_manager.json', 'utf8'));
+const data = JSON.parse(fs.readFileSync('data/matrix-network-data.json', 'utf8'));
 
 console.log('🔍 VERIFICAÇÃO FINAL DE DUPLICATAS\n');
 console.log('='.repeat(70));

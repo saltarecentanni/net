@@ -566,7 +566,7 @@
       "order": 8,
       "isRear": false,
       "rear": false,
-      "name": "IMOLA-SGR-FWA-WIND",
+      "name": "IMOLA-SGR-FWA-WIND (Wind)",
       "brandModel": "Imola-0272-SGR",
       "type": "isp",
       "status": "active",
@@ -575,7 +575,14 @@
         {
           "network": "151.13.131.2/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
+        },
+        {
+          "network": "172.24.254.11/24",
+          "ip": "",
+          "vlan": null,
+          "zone": "DMZ"
         }
       ],
       "links": [
@@ -586,6 +593,7 @@
         }
       ],
       "service": "FWA Wind",
+      "zone": "DMZ",
       "ports": [
         {
           "name": "eth01",
@@ -639,56 +647,67 @@
     {
       "id": 9,
       "rackId": "RACK-NETWORK-01",
+      "rack": "RACK-NETWORK-01",
       "order": 9,
+      "isRear": false,
+      "rear": false,
       "name": "Firewall Fortinet",
       "brandModel": "Fortigate 101E",
       "type": "firewall",
       "status": "disabled",
-      "addresses": [],
+      "location": "Sala Server",
+      "addresses": [
+        {
+          "network": "151.13.131.5/24",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [],
       "service": "",
       "ports": [
         {
-          "name": "eth1",
+          "name": "eth01",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth2",
+          "name": "eth02",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth3",
+          "name": "eth03",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth4",
+          "name": "eth04",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth5",
+          "name": "eth05",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth6",
+          "name": "eth06",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth7",
+          "name": "eth07",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth8",
+          "name": "eth08",
           "type": "eth",
           "status": "active"
         },
         {
-          "name": "eth9",
+          "name": "eth09",
           "type": "eth",
           "status": "active"
         },
@@ -774,7 +793,6 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server",
       "_isExternal": false
     },
     {
@@ -959,7 +977,14 @@
         {
           "network": "80.18.165.234/29",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
+        },
+        {
+          "network": "172.24.254.10",
+          "ip": "",
+          "vlan": null,
+          "zone": "DMZ"
         }
       ],
       "links": [
@@ -970,6 +995,7 @@
         }
       ],
       "service": "GW-Fibra-TIM, Gestione Telecamera di sicurezza",
+      "zone": "DMZ",
       "ports": [
         {
           "name": "WAN01",
@@ -1691,7 +1717,7 @@
         }
       ],
       "notes": "Le 4 ultime porte (45,46,47,48) appartengono a un'altra rete.Questo Dlink ha sostituito due switch Elba.",
-      "_isExternal": false
+      "_isExternal": true
     },
     {
       "id": 17,
@@ -1978,7 +2004,7 @@
       ],
       "notes": "Accesso rete Lottomatica",
       "location": "Sala Server",
-      "_isExternal": false
+      "_isExternal": true
     },
     {
       "id": 21,
@@ -2246,7 +2272,7 @@
         }
       ],
       "notes": "TVCC - DVR",
-      "_isExternal": false
+      "_isExternal": true
     },
     {
       "id": 27,
@@ -2397,7 +2423,7 @@
         }
       ],
       "notes": "",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "_isExternal": false
     },
     {
@@ -2411,7 +2437,7 @@
       "brandModel": "SED/Multitel",
       "type": "router",
       "status": "active",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "addresses": [],
       "links": [],
       "service": "",
@@ -2628,7 +2654,7 @@
         }
       ],
       "notes": "Rete Localport - 151.13.131.0/24",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "_isExternal": false
     },
     {
@@ -2724,7 +2750,7 @@
         }
       ],
       "notes": "",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "_isExternal": false
     },
     {
@@ -2820,7 +2846,7 @@
         }
       ],
       "notes": "",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "_isExternal": false
     },
     {
@@ -2916,7 +2942,7 @@
         }
       ],
       "notes": "",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "_isExternal": false
     },
     {
@@ -3188,7 +3214,7 @@
       ],
       "notes": "",
       "location": "Sala Server",
-      "_isExternal": false
+      "_isExternal": true
     },
     {
       "id": 36,
@@ -5858,7 +5884,7 @@
       "links": [
         {
           "type": "ssh",
-          "url": "ssh -p 22022 root@151.13.131.13",
+          "url": "151.13.131.13",
           "label": "ssh"
         }
       ],
@@ -6046,7 +6072,7 @@
       "brandModel": "AXE5700 TEnda Wholw Home Mesh Wi-Fi 6",
       "type": "wifi",
       "status": "active",
-      "location": "Q.A.",
+      "location": "QA",
       "addresses": [
         {
           "network": "10.10.100.144",
@@ -6068,8 +6094,8 @@
     },
     {
       "id": 120,
-      "rackId": "ROUTER-AREA",
-      "rack": "ROUTER-AREA",
+      "rackId": "AREA",
+      "rack": "AREA",
       "order": 0,
       "isRear": false,
       "rear": false,
@@ -6077,7 +6103,7 @@
       "brandModel": "IMOLA6",
       "type": "router",
       "status": "active",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "addresses": [
         {
           "network": "10.10.254.121",
@@ -6092,7 +6118,7 @@
           "label": "ssh"
         }
       ],
-      "service": "Router Area",
+      "service": "Router GW Area ICT",
       "ports": [
         {
           "name": "eth01",
@@ -6175,16 +6201,16 @@
     },
     {
       "id": 121,
-      "rackId": "IP-PHONE",
-      "rack": "IP-PHONE",
+      "rackId": "AREA",
+      "rack": "AREA",
       "order": 0,
       "isRear": false,
       "rear": false,
-      "name": "Telefono Voip R.Russo",
+      "name": "Telefono R.Russo",
       "brandModel": "Cisco CP6821",
       "type": "ip_phone",
       "status": "active",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "addresses": [
         {
           "network": "10.10.100.210",
@@ -6194,6 +6220,8 @@
       ],
       "links": [],
       "service": "Telefono Voip Cisco",
+      "zone": "DMZ",
+      "zoneIP": "1.1.1.1",
       "ports": [
         {
           "name": "eth01",
@@ -6206,16 +6234,16 @@
     },
     {
       "id": 122,
-      "rackId": "IP-PHONE",
-      "rack": "IP-PHONE",
+      "rackId": "AREA",
+      "rack": "AREA",
       "order": 0,
       "isRear": false,
       "rear": false,
-      "name": "Telefono Voip G.Cappai",
+      "name": "Telefono G.Cappai",
       "brandModel": "Cisco CP6821",
       "type": "ip_phone",
       "status": "active",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "addresses": [
         {
           "network": "10.10.10.16",
@@ -6225,6 +6253,8 @@
       ],
       "links": [],
       "service": "Telefono Voip Cisco",
+      "zone": "DMZ",
+      "zoneIP": "1.1.1.1",
       "ports": [
         {
           "name": "eth01",
@@ -6237,8 +6267,8 @@
     },
     {
       "id": 123,
-      "rackId": "SWITCH-AREA",
-      "rack": "SWITCH-AREA",
+      "rackId": "AREA",
+      "rack": "AREA",
       "order": 1,
       "isRear": false,
       "rear": false,
@@ -6246,7 +6276,7 @@
       "brandModel": "DSG-108",
       "type": "switch",
       "status": "active",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "addresses": [],
       "links": [],
       "service": "",
@@ -6297,8 +6327,8 @@
     },
     {
       "id": 124,
-      "rackId": "SWITCH-AREA",
-      "rack": "SWITCH-AREA",
+      "rackId": "AREA",
+      "rack": "AREA",
       "order": 2,
       "isRear": false,
       "rear": false,
@@ -6306,10 +6336,1043 @@
       "brandModel": "DSG-1100-08",
       "type": "switch",
       "status": "active",
-      "location": "ICT",
+      "location": "ICT - G.Cappai/R.Russo",
       "addresses": [],
       "links": [],
       "service": "",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 125,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-AreaEPA",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "EPA - Riparazioni",
+      "addresses": [
+        {
+          "network": "10.10.254.120",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.120",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area EPA",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 126,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Ovest2",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "Reception",
+      "addresses": [
+        {
+          "network": "10.10.254.102",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.102",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area Reception",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 127,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Est03",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "Amministrazione",
+      "addresses": [
+        {
+          "network": "10.10.254.106",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.106",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area Amministrazione",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 128,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Ovest06",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "BIGONE / L.Corfiati/R.Belletti",
+      "addresses": [
+        {
+          "network": "10.10.254.108",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.108",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area R.Belletti",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 129,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Cesanelli",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "QA",
+      "addresses": [
+        {
+          "network": "10.10.254.109",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.109",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area QA - B.Cesanelli",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 130,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Ovest05",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "BIGONE / L.Corfiati/R.Belletti",
+      "addresses": [
+        {
+          "network": "10.10.254.107",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.107",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area L.Corfiati",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 131,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Nord06",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "QA",
+      "addresses": [
+        {
+          "network": "10.10.254.113",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.113",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area QA - M. Di Gregorio",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 132,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Nord8",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "C.Frigiolini",
+      "addresses": [
+        {
+          "network": "10.10.254.115",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.115",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area C.Frigiolini",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 133,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Est04",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "Hardware",
+      "addresses": [
+        {
+          "network": "10.10.254.105",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.105",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area Hardware",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 134,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Nord02",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "QA",
+      "addresses": [
+        {
+          "network": "10.10.254.112",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.112",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area QA - M.Masri",
+      "ports": [],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 135,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Ovest04",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "O.Miraglio",
+      "addresses": [
+        {
+          "network": "10.10.254.104",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.104",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area O.Miraglio",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 136,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Ovest03",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "E.Saroglia/E.Zanellato/F.Lucrezia",
+      "addresses": [
+        {
+          "network": "10.10.254.103",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.103",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area E.Saroglia/E.Zanellato/F.Lucrezia",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 137,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Carmine",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "QA",
+      "addresses": [
+        {
+          "network": "10.10.254.110",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.110",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area QA - C.Ritota",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 138,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "IRA-Nord07",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "QA",
+      "addresses": [
+        {
+          "network": "10.10.254.114",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [
+        {
+          "type": "ssh",
+          "url": "10.10.254.114",
+          "label": "ssh"
+        }
+      ],
+      "service": "Router GW Area QA - C.Spizzo/D.Quaglia",
+      "ports": [
+        {
+          "name": "eth01",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth02",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth03",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth04",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth05",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth06",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth07",
+          "type": "eth",
+          "status": "active"
+        },
+        {
+          "name": "eth08",
+          "type": "eth",
+          "status": "active"
+        }
+      ],
+      "notes": "",
+      "_isExternal": false
+    },
+    {
+      "id": 139,
+      "rackId": "AREA",
+      "rack": "AREA",
+      "order": 0,
+      "isRear": false,
+      "rear": false,
+      "name": "GW (Via Asti 8)",
+      "brandModel": "",
+      "type": "router",
+      "status": "active",
+      "location": "Via Asti 8",
+      "addresses": [
+        {
+          "network": "88.46.97.73",
+          "ip": "",
+          "vlan": null
+        }
+      ],
+      "links": [],
+      "service": "Router GW Area - Via Asti 8",
       "ports": [
         {
           "name": "eth01",
@@ -8007,7 +9070,7 @@
     {
       "id": "15",
       "name": "15",
-      "nickname": "Etichettatura",
+      "nickname": "Imballo/Etichettatura",
       "type": "office",
       "area": 149725,
       "capacity": 10,
@@ -8131,7 +9194,7 @@
     {
       "id": "12",
       "name": "12",
-      "nickname": "ICT",
+      "nickname": "ICT - G.Cappai/R.Russo",
       "type": "office",
       "area": 69402,
       "capacity": 10,
@@ -8162,7 +9225,7 @@
     {
       "id": "8",
       "name": "8",
-      "nickname": "BIGONE/L.Corfiati/R.Belletti",
+      "nickname": "BIGONE / L.Corfiati/R.Belletti",
       "type": "office",
       "area": 287216,
       "capacity": 10,
@@ -8279,7 +9342,7 @@
     {
       "id": "13",
       "name": "13",
-      "nickname": "Riparazioni",
+      "nickname": "EPA - Riparazioni",
       "type": "office",
       "area": 404915,
       "capacity": 10,
@@ -8322,7 +9385,7 @@
     {
       "id": "9",
       "name": "9",
-      "nickname": "Q.A.",
+      "nickname": "QA",
       "type": "office",
       "area": 490253,
       "capacity": 10,
@@ -8375,6 +9438,15 @@
     }
   ],
   "locations": [
+    {
+      "id": "loc-00",
+      "siteId": "main",
+      "code": "00",
+      "name": "Sala Server",
+      "type": "mapped",
+      "roomRef": "0",
+      "color": "#7c3aed"
+    },
     {
       "id": "loc-01",
       "siteId": "main",
@@ -8439,48 +9511,21 @@
       "color": "#7c3aed"
     },
     {
-      "id": "loc-00",
+      "id": "loc-08",
       "siteId": "main",
-      "code": "00",
-      "name": "Sala Server",
+      "code": "08",
+      "name": "BIGONE / L.Corfiati/R.Belletti",
       "type": "mapped",
-      "roomRef": "0",
+      "roomRef": "8",
       "color": "#7c3aed"
     },
     {
-      "id": "loc-19",
+      "id": "loc-09",
       "siteId": "main",
-      "code": "19",
-      "name": "Reception",
+      "code": "09",
+      "name": "QA",
       "type": "mapped",
-      "roomRef": "19",
-      "color": "#7c3aed"
-    },
-    {
-      "id": "loc-17",
-      "siteId": "main",
-      "code": "17",
-      "name": "G.Deiaco",
-      "type": "mapped",
-      "roomRef": "17",
-      "color": "#7c3aed"
-    },
-    {
-      "id": "loc-15",
-      "siteId": "main",
-      "code": "15",
-      "name": "Etichettatura",
-      "type": "mapped",
-      "roomRef": "15",
-      "color": "#7c3aed"
-    },
-    {
-      "id": "loc-14",
-      "siteId": "main",
-      "code": "14",
-      "name": "S.Rotondo",
-      "type": "mapped",
-      "roomRef": "14",
+      "roomRef": "9",
       "color": "#7c3aed"
     },
     {
@@ -8505,27 +9550,36 @@
       "id": "loc-12",
       "siteId": "main",
       "code": "12",
-      "name": "ICT",
+      "name": "ICT - G.Cappai/R.Russo",
       "type": "mapped",
       "roomRef": "12",
       "color": "#7c3aed"
     },
     {
-      "id": "loc-08",
+      "id": "loc-13",
       "siteId": "main",
-      "code": "08",
-      "name": "BIGONE/L.Corfiati/R.Belletti",
+      "code": "13",
+      "name": "EPA - Riparazioni",
       "type": "mapped",
-      "roomRef": "8",
+      "roomRef": "13",
       "color": "#7c3aed"
     },
     {
-      "id": "loc-18",
+      "id": "loc-14",
       "siteId": "main",
-      "code": "18",
-      "name": "Sala Riunioni II",
+      "code": "14",
+      "name": "S.Rotondo",
       "type": "mapped",
-      "roomRef": "18",
+      "roomRef": "14",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-15",
+      "siteId": "main",
+      "code": "15",
+      "name": "Imballo/Etichettatura",
+      "type": "mapped",
+      "roomRef": "15",
       "color": "#7c3aed"
     },
     {
@@ -8538,28 +9592,37 @@
       "color": "#7c3aed"
     },
     {
-      "id": "loc-13",
+      "id": "loc-17",
       "siteId": "main",
-      "code": "13",
-      "name": "Riparazioni",
+      "code": "17",
+      "name": "G.Deiaco",
       "type": "mapped",
-      "roomRef": "13",
+      "roomRef": "17",
       "color": "#7c3aed"
     },
     {
-      "id": "loc-09",
+      "id": "loc-18",
       "siteId": "main",
-      "code": "09",
-      "name": "Q.A.",
+      "code": "18",
+      "name": "Sala Riunioni II",
       "type": "mapped",
-      "roomRef": "9",
+      "roomRef": "18",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "loc-19",
+      "siteId": "main",
+      "code": "19",
+      "name": "Reception",
+      "type": "mapped",
+      "roomRef": "19",
       "color": "#7c3aed"
     },
     {
       "id": "loc-21",
       "siteId": "main",
       "code": "21",
-      "name": "Torino",
+      "name": "Via Asti 8",
       "type": "custom",
       "roomRef": null,
       "color": "#f97316"
@@ -8568,7 +9631,7 @@
       "id": "loc-22",
       "siteId": "main",
       "code": "22",
-      "name": "Roma",
+      "name": "Torino",
       "type": "custom",
       "roomRef": null,
       "color": "#f97316"
@@ -8577,12 +9640,34 @@
       "id": "loc-23",
       "siteId": "main",
       "code": "23",
+      "name": "Roma",
+      "type": "custom",
+      "roomRef": null,
+      "color": "#f97316"
+    },
+    {
+      "id": "loc-24",
+      "siteId": "main",
+      "code": "24",
       "name": "Avezzano",
+      "type": "custom",
+      "roomRef": null,
+      "color": "#f97316"
+    },
+    {
+      "id": "loc-25",
+      "siteId": "main",
+      "code": "25",
+      "name": "Microlys",
       "type": "custom",
       "roomRef": null,
       "color": "#f97316"
     }
   ],
-  "nextDeviceId": 125,
-  "nextLocationId": 24
+  "nextDeviceId": 140,
+  "nextLocationId": 26,
+  "exportedAt": "2026-02-04T11:45:29.642Z",
+  "version": "3.5.049",
+  "__checksum": "fb-7a6d3f6d",
+  "__checksumAlgorithm": "SHA-256"
 }

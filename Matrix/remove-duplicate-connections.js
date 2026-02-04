@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = path.join(__dirname, 'data', 'network_manager.json');
+const DATA_FILE = path.join(__dirname, 'data', 'matrix-network-data.json');
 const BACKUP_DIR = path.join(__dirname, 'data', 'backups');
 
 // Ensure backup directory exists

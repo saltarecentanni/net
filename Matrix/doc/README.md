@@ -160,7 +160,7 @@ Matrix/
 │   ├── auth.php            # Authentication API
 │   └── editlock.php        # Edit lock API
 ├── data/
-│   ├── network_manager.json     # Main data storage
+│   ├── matrix-network-data.json     # Main data storage
 │   └── online_users.json        # Active users tracker
 ├── backup/
 │   ├── backup.sh           # Backup script

@@ -262,7 +262,7 @@ FloorPlan.exportToPNG();  // Esporta come immagine PNG
 
 ### 8.1 Dove Viene Salvato
 
-Le stanze sono salvate in `network_manager.json`:
+Le stanze sono salvate in `matrix-network-data.json`:
 
 ```json
 {
@@ -284,7 +284,7 @@ appState.rooms = rooms
        ↓
 serverSave()  →  POST /data
        ↓
-network_manager.json aggiornato
+matrix-network-data.json aggiornato
 ```
 
 ### 8.3 Flusso di Caricamento

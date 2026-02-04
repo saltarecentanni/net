@@ -52,7 +52,7 @@ if (fs.existsSync(envPath)) {
 
 const PORT = parseInt(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '0.0.0.0'; // Use 127.0.0.1 for local-only access
-const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'data/network_manager.json');
+const DATA_FILE = path.join(__dirname, process.env.DATA_FILE || 'data/matrix-network-data.json');
 const LOCK_FILE = path.join(__dirname, 'data/edit.lock');
 const LOCK_TIMEOUT = 300; // 5 minutes in seconds
 

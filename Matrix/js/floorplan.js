@@ -59,7 +59,7 @@ var FloorPlan = (function() {
     }
     
     function loadRoomsData() {
-        // Try to load from appState (will be saved with network_manager.json)
+        // Try to load from appState (will be saved with matrix-network-data.json)
         if (typeof appState !== 'undefined' && appState.rooms) {
             rooms = appState.rooms;
         } else {

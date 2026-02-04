@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * DATA INTEGRITY VALIDATOR
- * Comprehensive validation of network_manager.json data structure
+ * Comprehensive validation of matrix-network-data.json data structure
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = process.argv[2] || path.join(__dirname, 'data', 'network_manager.json');
+const DATA_FILE = process.argv[2] || path.join(__dirname, 'data', 'matrix-network-data.json');
 
 console.log('======================================================================');
 console.log('DATA INTEGRITY VALIDATOR - Comprehensive Check');

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Clean Obsolete Fields from network_manager.json
+ * Clean Obsolete Fields from matrix-network-data.json
  * 
  * This script removes obsolete fields that are no longer used in the UI:
  * - zone (old field, replaced by ips[].zone)
@@ -13,7 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = process.argv[2] || path.join(__dirname, 'data', 'network_manager.json');
+const DATA_FILE = process.argv[2] || path.join(__dirname, 'data', 'matrix-network-data.json');
 
 console.log('===========================================');
 console.log('Clean Obsolete Fields - Network Manager');

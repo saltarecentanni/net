@@ -826,7 +826,7 @@
                                 <div class="grid md:grid-cols-2 gap-3">
                                     <div class="bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
                                         <span class="font-bold text-green-800">✅ Dove vengono salvati?</span>
-                                        <p class="text-green-700 text-xs mt-1">I dati sono salvati in un file JSON sul server (<code class="bg-green-200 px-1 rounded">data/network_manager.json</code>). Quando clicchi "Save Now", il browser invia i dati al server che li scrive nel file.</p>
+                                        <p class="text-green-700 text-xs mt-1">I dati sono salvati in un file JSON sul server (<code class="bg-green-200 px-1 rounded">data/matrix-network-data.json</code>). Quando clicchi "Save Now", il browser invia i dati al server che li scrive nel file.</p>
                                     </div>
                                     <div class="bg-red-50 p-3 rounded-lg border-l-4 border-red-500">
                                         <span class="font-bold text-red-800">⚠️ Attenzione!</span>
@@ -2654,7 +2654,7 @@ Device-C  │          │   🟢     │    -     │</pre>
 ├── config/
 │   └── config.php      <span class="text-slate-500"># Configurazione</span>
 ├── data/
-│   └── network_manager.json  <span class="text-slate-500"># Dati della rete</span>
+│   └── matrix-network-data.json  <span class="text-slate-500"># Dati della rete</span>
 ├── js/                 <span class="text-slate-500"># Script JavaScript</span>
 ├── css/                <span class="text-slate-500"># Stili CSS</span>
 └── assets/             <span class="text-slate-500"># Librerie e risorse</span></pre>
@@ -2677,7 +2677,7 @@ Device-C  │          │   🟢     │    -     │</pre>
 
 <span class="text-slate-500"># Permesso di scrittura per la cartella dati (importante!)</span>
 <span class="text-cyan-400">sudo</span> chmod 775 /var/www/html/matrix/data
-<span class="text-cyan-400">sudo</span> chmod 664 /var/www/html/matrix/data/network_manager.json</pre>
+<span class="text-cyan-400">sudo</span> chmod 664 /var/www/html/matrix/data/matrix-network-data.json</pre>
                                 </div>
 
                                 <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs">
@@ -2747,9 +2747,9 @@ php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
                                         <div class="bg-slate-800 rounded p-2 font-mono text-green-400 text-xs mt-2">
 <pre><span class="text-slate-500"># Copiare file dati direttamente</span>
 <span class="text-cyan-400">sudo</span> cp /percorso/backup.json \
-  /var/www/html/matrix/data/network_manager.json
+  /var/www/html/matrix/data/matrix-network-data.json
 <span class="text-cyan-400">sudo</span> chown www-data:www-data \
-  /var/www/html/matrix/data/network_manager.json</pre>
+  /var/www/html/matrix/data/matrix-network-data.json</pre>
                                         </div>
                                     </div>
                                 </div>
@@ -2848,7 +2848,7 @@ php -r "echo password_hash('NuovaPassword', PASSWORD_DEFAULT);"
 
                                         <div class="bg-amber-50 border border-amber-200 rounded-lg p-2">
                                             <p class="font-semibold text-amber-900 text-xs">⚠️ Ripristino da Backup:</p>
-                                            <p class="text-amber-700 text-xs">Per ripristinare, copiare il file .json desiderato in <code class="bg-amber-200 px-1 rounded">data/network_manager.json</code></p>
+                                            <p class="text-amber-700 text-xs">Per ripristinare, copiare il file .json desiderato in <code class="bg-amber-200 px-1 rounded">data/matrix-network-data.json</code></p>
                                         </div>
                                     </div>
                                 </details>
@@ -2922,7 +2922,7 @@ df -h /var/www/html/
 php -v
 
 <span class="text-slate-500"># Fare backup manuale dei dati</span>
-<span class="text-cyan-400">sudo</span> cp /var/www/html/matrix/data/network_manager.json \
+<span class="text-cyan-400">sudo</span> cp /var/www/html/matrix/data/matrix-network-data.json \
    ~/backup_matrix_$(date +%Y%m%d_%H%M%S).json
 
 <span class="text-slate-500"># Verificare IP del server</span>

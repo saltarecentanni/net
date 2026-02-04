@@ -3,7 +3,7 @@
 # TIESSE Matrix Network - Automated Backup Script v3.4.3
 # ============================================================
 # 
-# This script creates automated backups of network_manager.json
+# This script creates automated backups of matrix-network-data.json
 # 
 # Retention Policy:
 # - Weekly backups: 4 (one per week, last 4 weeks)
@@ -37,7 +37,7 @@
 # Configuration
 MATRIX_DIR="/var/www/html/matrix"
 BACKUP_DIR="${MATRIX_DIR}/backup"
-DATA_FILE="${MATRIX_DIR}/data/network_manager.json"
+DATA_FILE="${MATRIX_DIR}/data/matrix-network-data.json"
 LOG_FILE="${BACKUP_DIR}/backup.log"
 
 # Retention settings
