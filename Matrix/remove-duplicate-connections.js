@@ -3,7 +3,7 @@
 /**
  * Remove Duplicate Connections Script
  * Fixes duplicate yellow boxes in topology by removing duplicate bidirectional connections
- * v3.5.050
+ * v3.5.051
  */
 
 const fs = require('fs');

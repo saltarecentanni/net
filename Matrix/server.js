@@ -767,7 +767,7 @@ const server = http.createServer(requestHandler);
 server.listen(PORT, HOST, () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.5.050                  ║');
+    console.log('║     TIESSE Matrix Network Server v3.5.051                  ║');
     console.log('║              🏢 Internal/Intranet Use Only                 ║');
     console.log('╠════════════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                          ║`);

@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.050  
+**Version:** 3.5.051  
 **Date:** February 4, 2026  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
 
@@ -27,6 +27,38 @@ This is a **documentation tool**, NOT a monitoring system:
 - Devices are added **manually** (no auto-discovery)
 - Status is set **manually** (no SNMP/ping checks)
 - Data is saved **manually** (click "Save Now" button)
+
+---
+
+## 🆕 What's New in v3.5.051
+
+### 🎯 BREAKING CHANGE: Data File Renamed
+- **Old name:** `data/network_manager.json`
+- **New name:** `data/matrix-network-data.json`
+- **Reason:** File name now reflects program name (TIESSE Matrix Network)
+- **Impact:** All 29 references in 18 files updated automatically
+- **Migration:** Automatic - file renamed, all internal references updated
+
+### ✨ External Connections Reorganized
+- External connections now displayed as organized icons (like Wall Jacks)
+- New "External Connections" section in Room Info modal
+- Visual consistency with Wall Jacks (yellow/gold theme)
+- Shows: destination, source device, port, cable, notes, status
+- Visual counter with 🌐 icon
+
+### 🐛 Duplicate Connections Fixed
+- Removed 4 duplicate connections causing duplicate yellow boxes
+- Device 55 ↔ 57 (BIG ONE): 2 duplicates with empty toPort removed
+- Device 11 ↔ 6: 1 duplicate removed
+- Device 15 ↔ 16: 1 duplicate removed
+- Final: 90 connections (73 device-to-device + 17 external/wall jacks)
+- New scripts: `remove-duplicate-connections.js`, `verify-no-duplicates.js`
+
+### ✅ Validation & Testing
+- Export/Import: ✅ PERFECT (101 devices, 90 connections)
+- Data Integrity: ✅ 7/7 checks passing
+- Duplicates: ✅ Zero duplicates found
+- No data corruption detected
 
 ---
 
