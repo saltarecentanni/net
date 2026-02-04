@@ -1129,6 +1129,15 @@ var SVGMatrix = (function() {
                     html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-warning-dark)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
                     html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjConn.fromPort || '-') + '</text>';
                     html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((wjConn.externalDest || 'WJ').substring(0,6)) + '</text>';
+                    // Add cable marker for Wall Jack
+                    if (wjConn.cableMarker) {
+                        var wjMarkerText = wjConn.cableMarker.toUpperCase().substring(0,4);
+                        var wjCableColor = wjConn.cableColor || 'var(--color-warning)';
+                        var isWJLightColor = wjCableColor === '#ffffff' || wjCableColor === '#eab308' || wjCableColor === 'var(--color-text-inverse)' || wjCableColor === '';
+                        var wjMarkerTextColor = isWJLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
+                        html += '<rect x="' + (wjX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + wjCableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
+                        html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+80) + '" fill="' + wjMarkerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjMarkerText) + '</text>';
+                    }
                 }
             }
             
@@ -1145,6 +1154,15 @@ var SVGMatrix = (function() {
                     html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-danger)" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
                     html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(extConn.fromPort || '-') + '</text>';
                     html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((extConn.externalDest || 'EXT').substring(0,6)) + '</text>';
+                    // Add cable marker for External
+                    if (extConn.cableMarker) {
+                        var extMarkerText = extConn.cableMarker.toUpperCase().substring(0,4);
+                        var extCableColor = extConn.cableColor || 'var(--color-danger)';
+                        var isExtLightColor = extCableColor === '#ffffff' || extCableColor === '#eab308' || extCableColor === 'var(--color-text-inverse)' || extCableColor === '';
+                        var extMarkerTextColor = isExtLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
+                        html += '<rect x="' + (extX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + extCableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
+                        html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+80) + '" fill="' + extMarkerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(extMarkerText) + '</text>';
+                    }
                 }
             }
         }
