@@ -28,6 +28,11 @@ FIXES IMPLEMENTED:
        -> All exports now follow consistent "Tiesse-Matrix-Network" prefix
        -> Updated documentation (README.md, server.js) to version 3.5.050
 
+🔄 IMPORT: Version Support Update
+  [FIXED] Added v3.5.050 to SUPPORTED_VERSIONS array
+       -> Exports from v3.5.050 can now be imported without errors
+       -> Maintains backward compatibility with all previous versions
+
 TECHNICAL DETAILS:
   Files Modified:
     - js/app.js (clearAll function, lines ~4244-4287)
