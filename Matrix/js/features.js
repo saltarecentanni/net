@@ -2954,7 +2954,7 @@ var SVGTopology = (function() {
                 escapeHtml(text) + '</text></g>';
         }
         
-        // Count connections per device
+        // Count connections per device (including virtual externals)
         var deviceConnectionCount = {};
         var deviceConnectionIndex = {};
         
@@ -2972,6 +2972,17 @@ var SVGTopology = (function() {
                 var toKey = 'to-' + c.from;
                 deviceConnectionIndex[c.to][toKey] = deviceConnectionCount[c.to];
                 deviceConnectionCount[c.to]++;
+            }
+            // Count connections to virtual external nodes
+            if (!c.to && c.externalDest && !c.isWallJack) {
+                var virtualId = externalMap[c.externalDest] ? externalMap[c.externalDest].id : null;
+                if (virtualId) {
+                    if (!deviceConnectionCount[virtualId]) deviceConnectionCount[virtualId] = 0;
+                    if (!deviceConnectionIndex[virtualId]) deviceConnectionIndex[virtualId] = {};
+                    var extKey = 'to-' + c.from;
+                    deviceConnectionIndex[virtualId][extKey] = deviceConnectionCount[virtualId];
+                    deviceConnectionCount[virtualId]++;
+                }
             }
         });
         
@@ -3083,8 +3094,13 @@ var SVGTopology = (function() {
                     var extCX = extPos.x + 40;
                     var extCY = extPos.y + 35;
                     
+                    // Get connection indices for virtual external node
+                    var extKey = 'to-' + c.from;
+                    var extIdx = deviceConnectionIndex[virtualId] && deviceConnectionIndex[virtualId][extKey] !== undefined ? deviceConnectionIndex[virtualId][extKey] : 0;
+                    var extTotal = deviceConnectionCount[virtualId] || 1;
+                    
                     var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, extCX, extCY);
-                    var toDot = getConnectionDot(virtualId, toIdx, toTotal, extPos.x, extPos.y, from.x + 40, from.y + 35);
+                    var toDot = getConnectionDot(virtualId, extIdx, extTotal, extPos.x, extPos.y, from.x + 40, from.y + 35);
                     
                     connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + toDot.x + ',' + toDot.y + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
                         'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
