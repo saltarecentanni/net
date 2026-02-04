@@ -2281,7 +2281,6 @@ function saveConnection() {
             toPort: (isExternal || isWallJack) ? '' : (toPort || ''),
             externalDest: (isExternal || isWallJack) ? externalDest : '',
             isWallJack: isWallJack,
-            roomId: roomId,
             type: isWallJack ? 'wallport' : type,
             color: config.connColors[isWallJack ? 'wallport' : type],
             status: status,
