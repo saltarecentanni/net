@@ -6,7 +6,7 @@
  * - Public: View, Print, Export
  * - Authenticated: Add, Edit, Delete, Import, Clear
  * 
- * Security Features (v3.5.042):
+ * Security Features (v3.5.043):
  * - CSRF token support for all POST requests
  * - localStorage cleanup on logout
  */
