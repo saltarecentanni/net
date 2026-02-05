@@ -1,0 +1,235 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TIESSE Matrix Network Data Schema",
+  "description": "Validates the structure of network_manager.json",
+  "type": "object",
+  "required": ["devices", "connections", "nextDeviceId", "rooms", "locations", "sites"],
+  "additionalProperties": false,
+  "properties": {
+    "devices": {
+      "type": "array",
+      "description": "Array of network devices",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "status", "location"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Unique device identifier"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Device name"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["server", "switch", "router", "firewall", "workstation", "laptop", "phone", "access_point", "printer", "storage", "nas", "pdu", "camera", "sensor", "patch_panel", "patch", "wifi", "isp", "router_wifi", "modem", "hub", "pc", "ip_phone", "ups", "walljack", "tv", "display", "monitor", "others", "other"],
+            "description": "Device type"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "disabled", "online", "offline", "maintenance", "warning", "error"],
+            "description": "Device status"
+          },
+          "location": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Physical location"
+          },
+          "rackId": {
+            "type": "string",
+            "description": "Rack identifier (CANONICAL - preferred over 'rack')"
+          },
+          "rack": {
+            "type": ["string", "null"],
+            "description": "DEPRECATED: Use rackId instead"
+          },
+          "order": {
+            "type": "number",
+            "description": "Order in rack"
+          },
+          "isRear": {
+            "type": "boolean",
+            "description": "Rear position (CANONICAL - preferred over 'rear')"
+          },
+          "rear": {
+            "type": "boolean",
+            "description": "DEPRECATED: Use isRear instead"
+          },
+          "brandModel": {
+            "type": "string",
+            "description": "Brand and model"
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "network": {
+                  "type": "string"
+                },
+                "ip": {
+                  "type": "string"
+                },
+                "vlan": {
+                  "type": ["number", "null"]
+                },
+                "zone": {
+                  "type": ["string", "null"],
+                  "description": "DEPRECATED: Legacy field"
+                }
+              }
+            }
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "url": { "type": "string" },
+                "label": { "type": "string" }
+              }
+            }
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "status": { "type": "string" }
+              }
+            }
+          },
+          "service": { "type": "string" },
+          "notes": { "type": "string" },
+          "_isExternal": {
+            "type": "boolean",
+            "description": "DEPRECATED: Legacy field, always false"
+          },
+          "zone": {
+            "type": ["string", "null"],
+            "description": "DEPRECATED: Legacy zone support"
+          },
+          "zoneIP": {
+            "type": ["string", "null"],
+            "description": "DEPRECATED: Legacy zone IP"
+          }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "description": "Array of network connections",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["from", "type", "status"],
+        "additionalProperties": true,
+        "properties": {
+          "from": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Source device ID"
+          },
+          "fromPort": {
+            "type": "string"
+          },
+          "to": {
+            "type": ["number", "null"],
+            "description": "Destination device ID (null for external)"
+          },
+          "toPort": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["lan", "wan", "dmz", "trunk", "management", "backup", "fiber", "wallport", "walljack", "external", "other", "LAN", "WAN", "DMZ", "Trunk", "Management", "Backup", "Fiber", "Wall Jack", "External"],
+            "description": "Connection type"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "disabled", "inactive", "maintenance", "reserved", "planned"],
+            "description": "Connection status"
+          },
+          "cableMarker": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "description": "DEPRECATED: UI color (use cableColor)"
+          },
+          "cableColor": {
+            "type": "string",
+            "description": "Cable color (CANONICAL)"
+          },
+          "externalDest": {
+            "type": "string"
+          },
+          "isWallJack": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "roomId": {
+            "type": ["number", "null"],
+            "description": "DEPRECATED: Legacy room ID"
+          }
+        }
+      }
+    },
+    "nextDeviceId": {
+      "type": "number",
+      "minimum": 1,
+      "description": "Next available device ID"
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "number" },
+          "name": { "type": "string" },
+          "floor": { "type": "string" },
+          "polygon": { "type": "array" }
+        }
+      }
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "number" },
+          "name": { "type": "string" },
+          "siteId": { "type": "number" }
+        }
+      }
+    },
+    "sites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "number" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "nextLocationId": {
+      "type": "number"
+    }
+  }
+}
