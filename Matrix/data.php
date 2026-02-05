@@ -1,7 +1,7 @@
 <?php
 /**
  * TIESSE Matrix Network - Data API
- * Version: 3.5.049
+ * Version: 3.6.000
  * 
  * GET  - Public (anyone can view)
  * POST - Requires authentication (edit mode)

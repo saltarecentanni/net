@@ -33,33 +33,21 @@ function findMatchingDevice(externalDest, devices) {
         }
     }
     
-    // 3. Multi-word match (min 2 common significant words)
+    // 3. Word-based match - any significant word matches (aligned with features.js)
     const extWords = extLower.split(/[\s\-_\/\(\)]+/).filter(w => w.length > 2);
-    let bestMatch = null;
-    let bestScore = 0;
-    let bestWordCount = 0;
-    const minWordsRequired = Math.min(2, extWords.length);
     
     for (const dev of devices) {
         if (!dev.name) continue;
         const devWords = dev.name.toLowerCase().split(/[\s\-_\/\(\)]+/).filter(w => w.length > 2);
-        let matchCount = 0;
         
         for (const extWord of extWords) {
             if (devWords.includes(extWord)) {
-                matchCount++;
+                return dev;  // 1 word match is enough (same as production)
             }
-        }
-        
-        const score = matchCount / extWords.length;
-        if (matchCount >= minWordsRequired && (score > bestScore || (score === bestScore && devWords.length > bestWordCount))) {
-            bestScore = score;
-            bestWordCount = devWords.length;
-            bestMatch = dev;
         }
     }
     
-    return bestMatch;
+    return null;
 }
 
 function fixConnectionsData() {
