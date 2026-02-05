@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.5.044
+ * Version: 3.5.049
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -94,8 +94,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.5.044';
+var SUPPORTED_VERSIONS = ['3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.5.049';
 
 /**
  * Valid enum values for schema validation
@@ -104,7 +104,7 @@ var CURRENT_VERSION = '3.5.044';
 var VALID_ENUMS = {
     deviceTypes: ['server', 'switch', 'router', 'firewall', 'workstation', 'laptop', 'phone', 'access_point', 'printer', 'storage', 'nas', 'pdu', 'camera', 'sensor', 'patch_panel', 'patch', 'wifi', 'isp', 'router_wifi', 'modem', 'hub', 'pc', 'ip_phone', 'ups', 'walljack', 'tv', 'display', 'monitor', 'others', 'other'],
     deviceStatus: ['active', 'disabled', 'online', 'offline', 'maintenance', 'warning', 'error'],
-    connectionTypes: ['lan', 'wan', 'dmz', 'trunk', 'management', 'backup', 'fiber', 'wallport', 'walljack', 'external', 'other', 'LAN', 'WAN', 'DMZ', 'Trunk', 'Management', 'Backup', 'Fiber', 'Wall Jack', 'External'],
+    connectionTypes: ['lan', 'wan', 'dmz', 'trunk', 'management', 'backup', 'fiber', 'wallport', 'walljack', 'external', 'other', 'LAN', 'WAN', 'DMZ', 'Trunk', 'Management', 'Backup', 'Fiber', 'Wall Jack', 'External/ISP'],
     connectionStatus: ['active', 'disabled', 'inactive', 'maintenance', 'reserved', 'planned']
 };
 
@@ -300,6 +300,38 @@ var NETWORK_ZONES = [
 // ============================================================================
 // GLOBAL STATE (Encapsulated)
 // ============================================================================
+/**
+ * ============================================================================
+ * CENTRAL APPLICATION STATE
+ * ============================================================================
+ * 
+ * @typedef {Object} AppState
+ * @property {Array<Device>} devices - All network devices
+ * @property {Array<Connection>} connections - All device connections
+ * @property {Array<Room>} rooms - Floor plan rooms (geometry for visualization)
+ * @property {Array<Site>} sites - Company sites/branches
+ * @property {Array<Location>} locations - All location entries (mapped + custom)
+ * @property {number} nextDeviceId - Auto-increment ID for next device (starts at 1)
+ * @property {number} nextLocationId - Auto-increment ID for custom locations (starts at 21)
+ * @property {Array<SortConfig>} connSort - Multi-level sort config for connections
+ * @property {SortConfig} deviceSort - Sort config for devices
+ * @property {string} deviceView - Display mode: 'table' or 'grid'
+ * @property {number} matrixLimit - Pagination limit (default 12)
+ * @property {boolean} matrixExpanded - Expand all matrix rows
+ * @property {Object<string, string>} rackColorMap - Custom colors per rack
+ * @property {Object} deviceFilters - Active filter state for device list
+ * @property {Object} connFilters - Active filter state for connection list
+ * 
+ * DATA SCHEMA VALIDATION:
+ * - Device: { id, name, type, location, rackId, unit, vendor, model, status, notes, ports, ips, connectedTo }
+ * - Connection: { id, from, fromPort, to, toPort, cable, type, status, dxLabel }
+ * - Room: { id, name, svg, width, height }
+ * - Location: { id, name, type: 'mapped'|'custom' }
+ * 
+ * SYNCHRONIZATION: appState is synced via saveToStorage() which updates BOTH:
+ * 1. localStorage (for client-side persistence)
+ * 2. server via data.php (for server-side backup)
+ */
 var appState = {
     devices: [],
     connections: [],
@@ -344,14 +376,14 @@ var config = {
     // autoSaveInterval removed - auto-save disabled to prevent race conditions
     connColors: {
         lan: '#3b82f6',
-        wan: '#fca5a5',       // Red-300 - soft pink instead of bright red
-        dmz: '#fdba74',       // Orange-300 - soft peach instead of bright orange
+        wan: '#dc2626',       // Red-600 - vibrant red
+        dmz: '#f97316',       // Orange-500 - vibrant orange
         trunk: '#22c55e',
-        management: '#d8b4fe', // Purple-300 - soft lavender instead of bright purple
+        management: '#ec4899', // Pink-500 - vibrant pink
         backup: '#eab308',
         fiber: '#06b6d4',
-        wallport: '#e9d5ff',  // Purple-200 - very soft lilac instead of bright violet
-        external: '#64748b',
+        wallport: '#a855f7',  // Purple-500 - vibrant purple
+        external: '#dc2626',  // Red-600 - vibrant red (same as WAN)
         other: '#6b7280'
     },
     connLabels: {
@@ -363,7 +395,7 @@ var config = {
         backup: 'Backup',
         fiber: 'Fiber Optic',
         wallport: 'Wall Jack',
-        external: 'External',
+        external: 'External/ISP',
         other: 'Other'
     },
     portTypes: [
@@ -862,7 +894,7 @@ function getFilteredConnections() {
         // Auto-inverts the display if the searched rack is in destination
         if (filters.source) {
             var fromRack = fromDevice ? (fromDevice.rackId || '') : '';
-            var toRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'External'));
+            var toRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'ISP'));
             var searchTerm = filters.source.toLowerCase();
             var foundInSource = fromRack.toLowerCase().indexOf(searchTerm) !== -1;
             var foundInDest = toRack.toLowerCase().indexOf(searchTerm) !== -1;
@@ -924,7 +956,7 @@ function getFilteredConnections() {
         
         // Destination filter (to device's rack or external)
         if (filters.destination) {
-            var destRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'External'));
+            var destRack = toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest || 'ISP'));
             if (destRack.toLowerCase().indexOf(filters.destination.toLowerCase()) === -1) {
                 continue;
             }
@@ -1216,6 +1248,7 @@ function saveToStorage() {
         localStorage.setItem('networkLocations', JSON.stringify(appState.locations || []));
         localStorage.setItem('nextDeviceId', String(appState.nextDeviceId));
         localStorage.setItem('nextLocationId', String(appState.nextLocationId || 21));
+        localStorage.setItem('lastModified', new Date().toISOString().split('T')[0]);
         showSyncIndicator('saved', '✓ Saved');
         serverSave();
     } catch (e) {
@@ -1241,7 +1274,9 @@ function saveNow() {
         localStorage.setItem('networkLocations', JSON.stringify(appState.locations || []));
         localStorage.setItem('nextDeviceId', String(appState.nextDeviceId));
         localStorage.setItem('nextLocationId', String(appState.nextLocationId || 21));
+        localStorage.setItem('lastModified', new Date().toISOString().split('T')[0]);
         showSyncIndicator('saved', '✓ Saved!');
+        updateGlobalCounters();
         serverSave();
         Toast.success('Data saved successfully!');
     } catch (e) {
@@ -1969,8 +2004,8 @@ function removeDevice(id) {
                 ActivityLog.add('delete', 'device', deviceName + ' (' + deviceType + ')');
             }
             
-            // Save to server immediately
-            serverSave();
+            // Save to both localStorage and server
+            saveToStorage();
             
             clearDeviceForm();
             updateUI();
@@ -2208,7 +2243,7 @@ function saveConnection() {
         }
 
         if ((isExternal || isWallJack) && !externalDest) {
-            var destType = isWallJack ? 'Wall Jack location (e.g., Room 101, Reception)' : 'external destination name';
+            var destType = isWallJack ? 'Wall Jack location (e.g., Room 101, Reception)' : 'ISP name';
             Toast.warning('Please enter ' + destType);
             document.getElementById('externalDest').focus();
             return;
@@ -2551,8 +2586,8 @@ function removeConnection(idx) {
                 ActivityLog.add('delete', 'connection', logDetails);
             }
             
-            // Save to server immediately
-            serverSave();
+            // Save to both localStorage and server
+            saveToStorage();
             
             clearConnectionForm();
             updateUI();
@@ -2572,8 +2607,8 @@ function toggleExternalDest() {
     if (toDevice === 'external') {
         toPortContainer.classList.add('hidden');
         externalDestContainer.classList.remove('hidden');
-        if (externalDestLabel) externalDestLabel.textContent = '🌐 External Destination';
-        if (externalDestInput) externalDestInput.placeholder = 'ISP Name, Fiber Provider...';
+        if (externalDestLabel) externalDestLabel.textContent = '🌐 ISP';
+        if (externalDestInput) externalDestInput.placeholder = 'External Connection';
         if (wallJackRoomContainer) wallJackRoomContainer.classList.add('hidden');
     } else if (toDevice === 'walljack') {
         toPortContainer.classList.add('hidden');
@@ -2598,27 +2633,31 @@ function populateWallJackRoomSelect() {
     if (!select) return;
     
     var currentValue = select.value;
-    select.innerHTML = '<option value="">(Not Assigned)</option>';
+    select.innerHTML = '<option value="">(No Room)</option>';
     
-    // Get rooms from FloorPlan
-    var rooms = [];
-    if (typeof FloorPlan !== 'undefined' && FloorPlan.getRooms) {
-        rooms = FloorPlan.getRooms();
+    // Get rooms from appState (main data source)
+    var rooms = appState.rooms || [];
+    
+    // Also try FloorPlan if available (fallback for backwards compatibility)
+    if (rooms.length === 0 && typeof FloorPlan !== 'undefined' && FloorPlan.getRooms) {
+        rooms = FloorPlan.getRooms() || [];
     }
     
     // Sort rooms by id
-    rooms.sort(function(a, b) { 
-        return parseInt(a.id) - parseInt(b.id); 
-    });
-    
-    rooms.forEach(function(room) {
-        var option = document.createElement('option');
-        option.value = room.id;
-        option.textContent = room.nickname 
-            ? room.nickname + ' (Room ' + room.id + ')' 
-            : 'Room ' + room.id;
-        select.appendChild(option);
-    });
+    if (rooms.length > 0) {
+        rooms.sort(function(a, b) { 
+            return parseInt(a.id) - parseInt(b.id); 
+        });
+        
+        rooms.forEach(function(room) {
+            var option = document.createElement('option');
+            option.value = room.id;
+            option.textContent = room.nickname 
+                ? room.nickname + ' (Room ' + room.id + ')' 
+                : 'Room ' + room.id;
+            select.appendChild(option);
+        });
+    }
     
     // Restore previous value
     if (currentValue) {
@@ -2869,7 +2908,7 @@ function updateToDevices(selectedDeviceId) {
     // Special destinations
     opts += '<option disabled style="font-size:10px;color:var(--color-text-muted);">── Special ──</option>';
     opts += '<option value="walljack" style="color:var(--color-accent-hover);font-weight:bold;">🔌 Wall Jack / Presa LAN</option>';
-    opts += '<option value="external" style="color:var(--color-danger-hover);font-weight:bold;">📡 External (ISP/WAN)</option>';
+    opts += '<option value="external" style="color:var(--color-danger-hover);font-weight:bold;">📡 External/ISP</option>';
     
     sel.innerHTML = opts;
     
@@ -3055,6 +3094,16 @@ function updateGlobalCounters() {
         if (connectionsCount) {
             connectionsCount.textContent = appState.connections.length;
         }
+    }
+    
+    // Update last modification date
+    var lastUpdateDate = document.getElementById('lastUpdateDate');
+    if (lastUpdateDate) {
+        var lastModified = localStorage.getItem('lastModified') || new Date().toISOString().split('T')[0];
+        // Convert YYYY-MM-DD to DD/MM/YYYY
+        var parts = lastModified.split('-');
+        var formattedDate = parts[2] + '/' + parts[1] + '/' + parts[0];
+        lastUpdateDate.textContent = formattedDate;
     }
 }
 
@@ -3903,6 +3952,16 @@ function toggleConnSort(key, event) {
  */
 async function exportJSON() {
     try {
+        // ===== PRE-EXPORT VALIDATION =====
+        if (typeof JSONValidatorFrontend !== 'undefined') {
+            var preExportReport = JSONValidatorFrontend.validateBeforeExport(appState);
+            if (preExportReport.critical.length > 0) {
+                Toast.error('❌ Cannot export - validation errors:\n' + preExportReport.critical.slice(0, 3).join('\n'));
+                Debug.error('Export validation failed:', preExportReport.critical);
+                return;
+            }
+        }
+        
         var payload = {
             devices: appState.devices,
             connections: appState.connections,
@@ -4099,6 +4158,19 @@ function importData(e) {
                 }
             }
             
+            // ===== INTELLIGENT JSON VALIDATION (Frontend System) =====
+            if (typeof JSONValidatorFrontend !== 'undefined') {
+                var validationReport = JSONValidatorFrontend.validateImportData(data);
+                if (validationReport.critical.length > 0) {
+                    Toast.error('❌ Import blocked by validation system:\n' + validationReport.critical.slice(0, 3).join('\n'));
+                    Debug.error('Validation critical errors:', validationReport.critical);
+                    return;
+                }
+                if (validationReport.deprecated.length > 0) {
+                    Debug.warn('⚠️ Import contains deprecated fields:', validationReport.deprecated.slice(0, 3));
+                }
+            }
+            
             // ===== ALL VALIDATIONS PASSED - APPLY DATA =====
             Debug.log('✅ All validations passed, applying import...');
             
@@ -4259,7 +4331,7 @@ function clearAll() {
                                 appState.nextDeviceId = 1;
                                 appState.nextLocationId = 21;
                                 // Keep rooms and sites (floor plan structure)
-                                serverSave();
+                                saveToStorage();
                                 updateUI();
                                 updateLocationSelect();
                                 Toast.success('All data cleared');
@@ -4575,11 +4647,14 @@ function printDevices() {
 
 /**
  * Online Users Tracker - Tracks users viewing/editing the application
+ * FIXED v3.5.049: Added proper cleanup to prevent memory leaks
  */
 var OnlineTracker = (function() {
     var userId = null;
     var heartbeatInterval = null;
     var HEARTBEAT_INTERVAL = 30000; // 30 seconds
+    var visibilityChangeListener = null;
+    var beforeUnloadListener = null;
 
     function init() {
         // Get or create user ID
@@ -4595,17 +4670,37 @@ var OnlineTracker = (function() {
         // Start periodic heartbeat
         heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
         
-        // Send heartbeat on visibility change
-        document.addEventListener('visibilitychange', function() {
+        // Send heartbeat on visibility change (store listener for cleanup)
+        visibilityChangeListener = function() {
             if (document.visibilityState === 'visible') {
                 sendHeartbeat();
             }
-        });
+        };
+        document.addEventListener('visibilitychange', visibilityChangeListener);
         
-        // Send final heartbeat on unload (best effort)
-        window.addEventListener('beforeunload', function() {
-            // Can't do much here as async requests may not complete
-        });
+        // Setup cleanup on page unload
+        beforeUnloadListener = function() {
+            cleanup();
+        };
+        window.addEventListener('beforeunload', beforeUnloadListener);
+    }
+    
+    function cleanup() {
+        // Clear heartbeat interval to prevent memory leak
+        if (heartbeatInterval !== null) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+        }
+        
+        // Remove event listeners to prevent memory leak
+        if (visibilityChangeListener !== null) {
+            document.removeEventListener('visibilitychange', visibilityChangeListener);
+            visibilityChangeListener = null;
+        }
+        if (beforeUnloadListener !== null) {
+            window.removeEventListener('beforeunload', beforeUnloadListener);
+            beforeUnloadListener = null;
+        }
     }
 
     function sendHeartbeat() {
@@ -4656,7 +4751,8 @@ var OnlineTracker = (function() {
     return {
         init: init,
         sendHeartbeat: sendHeartbeat,
-        getUserId: getUserId
+        getUserId: getUserId,
+        cleanup: cleanup
     };
 })();
 
@@ -4670,6 +4766,7 @@ function initApp() {
     serverLoad().then(function(ok) {
         if (!ok) loadFromStorage();
         updateUI();
+        updateGlobalCounters();
         // Auto-save disabled to prevent data loss with multiple sessions
         Toast.info('Tiesse Matrix Network loaded');
         
@@ -4678,6 +4775,7 @@ function initApp() {
     }).catch(function() {
         loadFromStorage();
         updateUI();
+        updateGlobalCounters();
         // Auto-save disabled to prevent data loss with multiple sessions
         debugFilterStatus();
     });

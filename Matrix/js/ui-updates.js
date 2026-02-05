@@ -150,7 +150,7 @@ function updateDeviceFilterBar() {
         if (loc.type === 'mapped') mappedLocsDevices.push(loc);
         else customLocsDevices.push(loc);
     });
-    html += '<select id="filterDeviceLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold text-slate-800">';
+    html += '<select id="filterDeviceLocation" onchange="updateDeviceFilter(\'location\', this.value)" class="px-2 py-1 text-xs border-2 border-purple-400 rounded-lg bg-white font-semibold text-slate-800 filter-control">';
     html += '<option value="">All Locations</option>';
     if (mappedLocsDevices.length > 0) {
         html += '<optgroup label="📍 Mapped Locations" style="color:#334155;font-weight:600">';
@@ -171,7 +171,7 @@ function updateDeviceFilterBar() {
     html += '</select>';
     
     // Group filter (campo rackId - vedi nota in index.html)
-    html += '<select id="filterDeviceSource" onchange="updateDeviceFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
+    html += '<select id="filterDeviceSource" onchange="updateDeviceFilter(\'source\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white filter-control">';
     html += '<option value="">All Groups</option>';
     for (var s = 0; s < sources.length; s++) {
         var selected = appState.deviceFilters.source === sources[s] ? ' selected' : '';
@@ -180,10 +180,10 @@ function updateDeviceFilterBar() {
     html += '</select>';
     
     // Name search filter (simple text input)
-    html += '<input type="text" id="filterDeviceName" placeholder="Search name..." value="' + (appState.deviceFilters.name || '') + '" oninput="updateDeviceFilter(\'name\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white w-28">';
+    html += '<input type="text" id="filterDeviceName" placeholder="Search name..." value="' + (appState.deviceFilters.name || '') + '" oninput="updateDeviceFilter(\'name\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white filter-input">';
     
     // Type filter
-    html += '<select id="filterDeviceType" onchange="updateDeviceFilter(\'type\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
+    html += '<select id="filterDeviceType" onchange="updateDeviceFilter(\'type\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white filter-control">';
     html += '<option value="">All Types</option>';
     for (var t = 0; t < types.length; t++) {
         var selectedT = appState.deviceFilters.type === types[t] ? ' selected' : '';
@@ -192,14 +192,14 @@ function updateDeviceFilterBar() {
     html += '</select>';
     
     // Status filter
-    html += '<select id="filterDeviceStatus" onchange="updateDeviceFilter(\'status\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
+    html += '<select id="filterDeviceStatus" onchange="updateDeviceFilter(\'status\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white filter-control">';
     html += '<option value="">All Status</option>';
     html += '<option value="active"' + (appState.deviceFilters.status === 'active' ? ' selected' : '') + '>Active</option>';
     html += '<option value="disabled"' + (appState.deviceFilters.status === 'disabled' ? ' selected' : '') + '>Disabled</option>';
     html += '</select>';
     
     // Connections filter
-    html += '<select id="filterDeviceConnections" onchange="updateDeviceFilter(\'hasConnections\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white">';
+    html += '<select id="filterDeviceConnections" onchange="updateDeviceFilter(\'hasConnections\', this.value)" class="px-2 py-1 text-xs border border-slate-300 rounded-lg bg-white filter-control">';
     html += '<option value="">Connections</option>';
     html += '<option value="yes"' + (appState.deviceFilters.hasConnections === 'yes' ? ' selected' : '') + '>With conn.</option>';
     html += '<option value="no"' + (appState.deviceFilters.hasConnections === 'no' ? ' selected' : '') + '>No conn.</option>';
@@ -1124,11 +1124,37 @@ var SVGMatrix = (function() {
                 for (var wj = 0; wj < wallJackConns.length; wj++) {
                     if (wallJackConns[wj].conn.from === row.id) { wjConn = wallJackConns[wj].conn; wjConnIdx = wallJackConns[wj].idx; break; }
                 }
-                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-primary-lightest)" stroke="var(--color-primary-light)"/>';
+                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-accent-light)" stroke="var(--color-accent)"/>';
                 if (wjConn) {
-                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-warning-dark)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjConn.fromPort || '-') + '</text>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((wjConn.externalDest || 'WJ').substring(0,6)) + '</text>';
+                    var portFrom = wjConn.fromPort || '-';
+                    var externalDest = wjConn.externalDest || 'WJ';
+                    
+                    // Main cell with rounded corners
+                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="var(--color-accent)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
+                    
+                    // Overlay gradient for 3D effect
+                    html += '<rect x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="url(#cellGradient)" style="pointer-events:none"/>';
+                    
+                    // Top port (TO/wall jack destination) - cyan tint
+                    html += '<rect x="' + (wjX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(34,211,238,0.35)" stroke="rgba(34,211,238,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((externalDest).substring(0,8)) + '</text>';
+                    
+                    // Connection arrow/indicator
+                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
+                    
+                    // Bottom port (FROM/ROW) - amber tint
+                    html += '<rect x="' + (wjX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom).substring(0,8)) + '</text>';
+                    
+                    // Cable marker - official pill style with black border
+                    if (wjConn.cableMarker) {
+                        var markerText = wjConn.cableMarker.toUpperCase().substring(0,4);
+                        var cableColor = wjConn.cableColor || 'var(--color-warning)';
+                        var isLightColor = cableColor === '#ffffff' || cableColor === '#eab308' || cableColor === 'var(--color-text-inverse)' || cableColor === '' || cableColor === 'var(--color-warning)';
+                        var markerTextColor = isLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
+                        html += '<rect x="' + (wjX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
+                        html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+80) + '" fill="' + markerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(markerText) + '</text>';
+                    }
                 }
             }
             
@@ -1141,10 +1167,36 @@ var SVGMatrix = (function() {
                 }
                 html += '<rect x="' + extX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-danger-lightest)" stroke="var(--color-danger-light)"/>';
                 if (extConn) {
+                    var portFrom = extConn.fromPort || '-';
+                    var externalDest = extConn.externalDest || 'EXT';
                     var extColIdx = deviceCount + (hasWallJack ? 1 : 0);
-                    html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="4" fill="var(--color-danger)" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+38) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(extConn.fromPort || '-') + '</text>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+55) + '" fill="rgba(255,255,255,0.8)" font-size="11" font-family="monospace" text-anchor="middle" style="pointer-events:none">→' + escapeXml((extConn.externalDest || 'EXT').substring(0,6)) + '</text>';
+                    
+                    // Main cell with rounded corners
+                    html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="var(--color-danger)" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
+                    
+                    // Overlay gradient for 3D effect
+                    html += '<rect x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="url(#cellGradient)" style="pointer-events:none"/>';
+                    
+                    // Top port (TO/external destination) - cyan tint
+                    html += '<rect x="' + (extX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(34,211,238,0.35)" stroke="rgba(34,211,238,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((externalDest).substring(0,8)) + '</text>';
+                    
+                    // Connection arrow/indicator
+                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
+                    
+                    // Bottom port (FROM/ROW) - amber tint
+                    html += '<rect x="' + (extX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom).substring(0,8)) + '</text>';
+                    
+                    // Cable marker - official pill style with black border
+                    if (extConn.cableMarker) {
+                        var markerText = extConn.cableMarker.toUpperCase().substring(0,4);
+                        var cableColor = extConn.cableColor || 'var(--color-warning)';
+                        var isLightColor = cableColor === '#ffffff' || cableColor === '#eab308' || cableColor === 'var(--color-text-inverse)' || cableColor === '' || cableColor === 'var(--color-warning)';
+                        var markerTextColor = isLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
+                        html += '<rect x="' + (extX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
+                        html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+80) + '" fill="' + markerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(markerText) + '</text>';
+                    }
                 }
             }
         }
@@ -1385,9 +1437,9 @@ var SVGMatrix = (function() {
         if (hasWallJack) {
             var wjX = headerWidth + deviceCount * cellSize;
             exportSvg.appendChild(createSvgRect(wjX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-warning-dark)'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', 'var(--color-primary-light)', '20'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', 'var(--color-primary-light)', '9', {fontWeight: '600'}));
+            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-accent)'));
+            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', 'var(--color-accent)', '20'));
+            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', 'var(--color-accent)', '9', {fontWeight: '600'}));
         }
         
         // External header
@@ -1396,7 +1448,7 @@ var SVGMatrix = (function() {
             exportSvg.appendChild(createSvgRect(extX, 0, cellSize, headerHeight, colors.headerBg));
             exportSvg.appendChild(createSvgRect(extX, 0, 3, headerHeight, 'var(--color-danger)'));
             exportSvg.appendChild(createSvgText(extX + cellSize/2, 40, '🌐', 'var(--color-danger-light)', '20'));
-            exportSvg.appendChild(createSvgText(extX + cellSize/2, 65, 'External', 'var(--color-danger-light)', '9', {fontWeight: '600'}));
+            exportSvg.appendChild(createSvgText(extX + cellSize/2, 65, 'ISP', 'var(--color-danger-light)', '9', {fontWeight: '600'}));
         }
         
         // Row headers
@@ -1771,10 +1823,9 @@ function updateMatrixStats() {
     var totalConnections = filteredConnections.length;
     var totalAllConnections = appState.connections.length;
     
-    // Show filtered vs total if filters are active
-    var isFiltered = matrixFilters.location || matrixFilters.group || matrixFilters.onlyConnected;
-    var deviceLabel = isFiltered ? totalDevices + '/' + totalAllDevices : String(totalDevices);
-    var connLabel = isFiltered ? totalConnections + '/' + totalAllConnections : String(totalConnections);
+    // Show only current count (no "/" or totals)
+    var deviceLabel = String(totalDevices);
+    var connLabel = String(totalConnections);
     
     // Simple stats: just devices and connections
     var html = '<div class="flex items-center gap-2 text-xs">';
@@ -1832,7 +1883,7 @@ function showMatrixTooltip(event, connIdx) {
         html += '<div>🔌 <span class="text-cyan-300 font-mono font-bold text-base">' + (conn.toPort || '-') + '</span></div>';
         html += '</div>';
     } else {
-        html += '<div class="font-bold text-white text-base">' + (conn.externalDest || 'External') + '</div>';
+        html += '<div class="font-bold text-white text-base">' + (conn.externalDest || 'ISP') + '</div>';
         html += '<div class="text-sm mt-1">🔌 <span class="text-blue-300 font-mono font-bold">' + (conn.toPort || '-') + '</span></div>';
     }
     html += '</div>';
@@ -2233,7 +2284,7 @@ function renderConnectionsTable(cont) {
                 case 'toPort': return toPort || '';
                 case 'toDevice': return toDevice ? (toDevice.name || '') : (c.externalDest || '');
                 case 'toPos': return toDevice ? (toDevice.order || 0) : 0;
-                case 'toRack': return toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest ? 'External' : ''));
+                case 'toRack': return toDevice ? (toDevice.rackId || '') : (c.isWallJack ? 'Wall Jack' : (c.externalDest ? 'ISP' : ''));
                 case 'type': return config.connLabels[c.type] || (c.type || '');
                 case 'marker': return c.cableMarker || '';
                 case 'status': return c.status || '';
@@ -2305,7 +2356,18 @@ function renderConnectionsTable(cont) {
         var connColor = c.color || config.connColors[c.type] || 'var(--color-secondary)';
 
         var fromRackColor = getRackColor(fromDevice ? fromDevice.rackId : '');
-        var toRackColor = getRackColor(toDevice ? toDevice.rackId : '');
+        
+        // For WallJack and External, use connection type color instead of gray
+        var toRackColor;
+        if (toDevice) {
+            toRackColor = getRackColor(toDevice.rackId);
+        } else if (c.isWallJack) {
+            toRackColor = config.connColors['wallport'] || 'var(--conn-management)';
+        } else if (c.externalDest) {
+            toRackColor = config.connColors['external'] || 'var(--color-danger)';
+        } else {
+            toRackColor = 'var(--color-secondary)';
+        }
 
         // Get IPs
         var fromIPs = '';
@@ -2362,7 +2424,7 @@ function renderConnectionsTable(cont) {
             toDisplayPos = '-';
         } else if (c.externalDest) {
             toDisplayName = '📡 ' + escapeHtml(c.externalDest);
-            toDisplayRack = 'External';
+            toDisplayRack = 'ISP';
             toDisplayPos = '-';
         } else {
             toDisplayName = 'N/A';
@@ -2427,6 +2489,16 @@ function renderConnectionsTable(cont) {
 // ============================================================================
 function exportExcel() {
     try {
+        // ===== PRE-EXPORT VALIDATION =====
+        if (typeof JSONValidatorFrontend !== 'undefined') {
+            var excelValidationReport = JSONValidatorFrontend.validateBeforeExport(appState);
+            if (excelValidationReport.critical.length > 0) {
+                Toast.error('❌ Cannot export Excel - validation errors:\n' + excelValidationReport.critical.slice(0, 2).join('\n'));
+                Debug.error('Excel export validation failed:', excelValidationReport.critical);
+                return;
+            }
+        }
+        
         if (typeof XLSX === 'undefined') {
             Toast.error('Excel library not loaded. Please check your internet connection.');
             return;
@@ -2484,7 +2556,7 @@ function exportExcel() {
                 'Dst Port': c.toPort,
                 'Dst Device': toDevice ? toDevice.name : (c.isWallJack ? '[WJ] ' + c.externalDest : (c.externalDest ? '[EXT] ' + c.externalDest : '')),
                 'Dst Pos': toDevice ? toDevice.order : '',
-                'Dst Rack': toDevice ? toDevice.rackId : (c.isWallJack ? 'Wall Jack' : (c.externalDest ? 'External' : '')),
+                'Dst Rack': toDevice ? toDevice.rackId : (c.isWallJack ? 'Wall Jack' : (c.externalDest ? 'ISP' : '')),
                 'Type': config.connLabels[c.type],
                 'Cable ID': c.cableMarker || '',
                 'Cable Color': c.cableColor || '',

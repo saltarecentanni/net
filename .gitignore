@@ -19,3 +19,6 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
+Matrix.before_restore_*
+Matrix.v3.5.050_*
+Matrix-3.5.050.tar.gz

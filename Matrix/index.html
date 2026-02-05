@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="3.5.044">
+    <meta name="app-version" content="3.5.049">
     <title>TIESSE Matrix Network - Tiesse S.P.A.</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%231e40af'/><circle cx='25' cy='25' r='8' fill='%2360a5fa'/><circle cx='75' cy='25' r='8' fill='%2360a5fa'/><circle cx='25' cy='75' r='8' fill='%2360a5fa'/><circle cx='75' cy='75' r='8' fill='%2360a5fa'/><circle cx='50' cy='50' r='10' fill='%23fbbf24'/><line x1='25' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='25' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='25' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/><line x1='75' y1='75' x2='50' y2='50' stroke='%2393c5fd' stroke-width='3'/></svg>">
@@ -15,7 +15,7 @@
     <script src="assets/vendor/xlsx.full.min.js"></script>
     <script src="assets/vendor/sweetalert2.min.js"></script>
     <!-- Custom CSS with cache-busting -->
-    <link rel="stylesheet" href="css/styles.css?v=3.5.044">
+    <link rel="stylesheet" href="css/styles.css?v=3.5.049">
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
     <div id="syncIndicator" class="sync-indicator" style="display:none;"></div>
@@ -54,7 +54,7 @@
                     </div>
                     <div class="text-right text-xs text-slate-500">
                         <div class="font-semibold text-slate-700">Tiesse S.P.A.</div>
-                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.5.040</span></div>
+                        <div class="text-slate-600">Versione: <span id="appVersion" class="font-semibold">v3.5.049</span></div>
                     </div>
                 </div>
             </div>
@@ -96,6 +96,11 @@
                     <button onclick="saveNow()" class="edit-mode-only bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 px-3 rounded-lg text-sm" style="display:none;">
                         💾 Save Now
                     </button>
+                    <!-- Last Update Badge -->
+                    <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-3 rounded-lg text-sm shadow-sm transition-all" 
+                            title="Data dell'ultimo salvataggio del sistema">
+                        📅 <span id="lastUpdateDate">00/00/0000</span>
+                    </button>
                     <!-- Public -->
                     <button onclick="exportExcel()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-lg text-sm">
                         📊 Export to Excel
@@ -118,19 +123,19 @@
         <!-- Tabs Navigation -->
         <div class="bg-white rounded-t-xl shadow-lg">
             <div class="flex border-b overflow-x-auto">
-                <button class="tab-btn active" onclick="switchTab('devices')" id="tab-devices">
+                <button class="tab-btn active" onclick="switchTab('devices')" id="tab-devices" title="Aggiungi, modifica o rimuovi dispositivi di rete Tiesse.">
                     📱 Devices
                 </button>
-                <button class="tab-btn" onclick="switchTab('active')" id="tab-active">
+                <button class="tab-btn" onclick="switchTab('active')" id="tab-active" title="Crea e gestisci le connessioni tra dispositivi.">
                     ⚡ Active Connections
                 </button>
-                <button class="tab-btn" onclick="switchTab('drawio')" id="tab-drawio">
+                <button class="tab-btn" onclick="switchTab('drawio')" id="tab-drawio" title="Visualizza graficamente la topologia della rete.">
                     🗺️ Topology
                 </button>
-                <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix">
+                <button class="tab-btn" onclick="switchTab('matrix')" id="tab-matrix" title="Matrici visiva di tutte le connessioni.">
                     📊 Matrix
                 </button>
-                <button class="tab-btn" onclick="switchTab('floorplan')" id="tab-floorplan">
+                <button class="tab-btn" onclick="switchTab('floorplan')" id="tab-floorplan" title="Mappa fisica della posizione degli equipaggiamenti.">
                     🏢 Floor Plan
                 </button>
                 <button class="tab-btn" onclick="switchTab('help')" id="tab-help">
@@ -146,7 +151,7 @@
             <div id="content-devices" class="tab-content active">
                 <!-- Add Device Form -->
                 <div class="edit-mode-only bg-slate-50 rounded-lg p-3 mb-4" style="display:none;">
-                    <h2 class="text-lg font-bold text-slate-800 mb-3">Add Device</h2>
+                    <h2 class="text-lg font-bold text-slate-800 mb-3">+ Add Device</h2>
                     <input type="hidden" id="deviceEditId" value="">
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 xl:grid-cols-12 gap-2 items-end">
                         <div class="col-span-2">
@@ -301,22 +306,26 @@
                 </div>
 
                 <!-- Devices List -->
-                <div>
-                    <div class="flex items-center gap-4 mb-3">
-                        <h2 class="text-lg font-bold text-slate-800">Devices List</h2>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-slate-500">View:</span>
-                            <button onclick="setDeviceView('cards')" id="deviceViewCards" class="px-2 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300">
-                                🃏 Cards
-                            </button>
-                            <button onclick="setDeviceView('table')" id="deviceViewTable" class="px-2 py-1 text-xs font-semibold rounded bg-blue-500 text-white">
-                                📋 Table
-                            </button>
-                            <button onclick="printDevices()" class="no-print px-2 py-1 text-xs font-semibold rounded bg-slate-500 text-white hover:bg-slate-600">
-                                🖨️ Print
-                            </button>
-                        </div>
+                <div class="flex items-center justify-between gap-4 mb-3">
+                    <!-- Left: Title + Subtitle -->
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">📱 Devices List</h2>
+                        <p class="text-xs text-slate-500 italic">Aggiungi, modifica o rimuovi dispositivi di rete Tiesse.</p>
                     </div>
+                    <!-- Right: View Options -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-slate-500">View:</span>
+                        <button onclick="setDeviceView('cards')" id="deviceViewCards" class="px-2 py-1 text-xs font-semibold rounded bg-slate-200 text-slate-700 hover:bg-slate-300">
+                            🃏 Cards
+                        </button>
+                        <button onclick="setDeviceView('table')" id="deviceViewTable" class="px-2 py-1 text-xs font-semibold rounded bg-blue-500 text-white">
+                            📋 Table
+                        </button>
+                        <button onclick="printDevices()" class="no-print px-2 py-1 text-xs font-semibold rounded bg-slate-500 text-white hover:bg-slate-600">
+                            🖨️ Print
+                        </button>
+                    </div>
+                </div>
                     <!-- Filter Bar for Devices -->
                     <div id="deviceFilterBar">
                         <!-- Filters will be populated by JS -->
@@ -331,7 +340,7 @@
             <div id="content-active" class="tab-content">
                 <!-- Connection Form -->
                 <div class="edit-mode-only bg-slate-50 rounded-lg p-3 mb-4" style="display:none;">
-                    <h2 class="text-lg font-bold text-slate-800 mb-3" id="connectionFormTitle">Add Connection</h2>
+                    <h2 class="text-lg font-bold text-slate-800 mb-3" id="connectionFormTitle">+ Add Connection</h2>
                     <input type="hidden" id="connEditIndex" value="">
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
@@ -402,16 +411,16 @@
                                 </div>
                             </div>
                             <div class="hidden mt-2" id="externalDestContainer">
-                                <div class="grid grid-cols-2 gap-2">
+                                <div class="grid gap-2">
                                     <div>
-                                        <label class="text-xs text-slate-600 mb-1 block" id="externalDestLabel">🔌 Wall Jack ID</label>
+                                        <label class="text-xs text-slate-600 mb-1 block" id="externalDestLabel">🔌 Wall Jack ID / 🌐 ISP</label>
                                         <input type="text" id="externalDest" placeholder="Z1, Z2, Z3..."
-                                            class="w-full px-2 py-1.5 border border-amber-300 rounded-lg text-xs bg-white">
+                                            class="w-full px-2 py-1.5 border-2 border-slate-400 rounded-lg text-xs bg-white">
                                     </div>
-                                    <div id="wallJackRoomContainer">
+                                    <div id="wallJackRoomContainer" class="hidden">
                                         <label class="text-xs text-slate-600 mb-1 block">🏠 Room</label>
-                                        <select id="wallJackRoomId" class="w-full px-2 py-1.5 border border-amber-300 rounded-lg text-xs bg-white">
-                                            <option value="">(Not Assigned)</option>
+                                        <select id="wallJackRoomId" onchange="updateConnectionUI('room')" class="w-full px-2 py-1.5 border-2 border-slate-400 rounded-lg text-xs bg-white text-slate-800" aria-label="Select room for wall jack">
+                                            <option value="">(No Room)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -432,7 +441,7 @@
                                 <option value="backup">💾 Backup</option>
                                 <option value="fiber">💡 Fiber Optic</option>
                                 <option value="wallport">🔌 Wall Jack</option>
-                                <option value="external">📡 External</option>
+                                <option value="external">📡 External/ISP</option>
                                 <option value="other">📦 Other</option>
                             </select>
                         </div>
@@ -495,8 +504,13 @@
 
                 <!-- Connections List -->
                 <div id="connectionsPrintArea">
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                        <h2 class="text-lg font-bold text-slate-800">Active Connections</h2>
+                    <div class="flex items-center justify-between gap-4 mb-3">
+                        <!-- Left: Title + Subtitle -->
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">⚡ Active Connections</h2>
+                            <p class="text-xs text-slate-500 italic">Crea e gestisci le connessioni tra dispositivi.</p>
+                        </div>
+                        <!-- Right: Print Button -->
                         <button onclick="printConnections()" class="no-print bg-slate-500 hover:bg-slate-600 text-white font-semibold py-1 px-3 rounded-lg text-xs">
                             🖨️ Print List
                         </button>
@@ -514,26 +528,26 @@
             <!-- Tab 3: Matrix (Refactored - Topology Style) -->
             <div id="content-matrix" class="tab-content">
                 <div id="matrixPrintArea">
-                    <!-- Header with all controls in one line -->
-                    <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
-                        <!-- Left: Title + Stats -->
-                        <div class="flex items-center gap-3">
-                            <h2 class="text-xl font-bold text-slate-800">📊 Connection Matrix</h2>
-                            <div id="matrixStats" class="no-print">
-                                <!-- Stats populated by JS -->
-                            </div>
+                    <!-- Header with title -->
+                    <div class="flex items-center gap-3 mb-1">
+                        <h2 class="text-xl font-bold text-slate-800">📊 Connection Matrix</h2>
+                        <div id="matrixStats" class="no-print">
+                            <!-- Stats populated by JS -->
                         </div>
-                        
-                        <!-- Right: Filters + Zoom + Actions -->
+                    </div>
+                    <!-- Subtitle + Controls (same line) -->
+                    <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+                        <p class="text-xs text-slate-500 italic">Matrici visiva di tutte le connessioni.</p>
+                        <!-- Right: Controls -->
                         <div class="flex items-center gap-2 flex-wrap no-print">
                             <!-- Filters -->
-                            <select id="matrixLocationFilter" onchange="filterMatrixByLocation()" class="px-2 py-1.5 border-2 border-slate-400 rounded-lg text-sm bg-slate-50 font-semibold text-slate-800">
+                            <select id="matrixLocationFilter" onchange="filterMatrixByLocation()" class="px-2 py-1 border-2 border-slate-400 rounded-lg text-sm bg-slate-50 font-semibold text-slate-800">
                                 <option value="">📍 All Locations</option>
                             </select>
-                            <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                            <select id="matrixGroupFilter" onchange="filterMatrixByGroup()" class="px-2 py-1 border border-slate-300 rounded-lg text-sm">
                                 <option value="">🗂️ All Groups</option>
                             </select>
-                            <label class="flex items-center gap-1.5 cursor-pointer bg-green-50 border border-green-300 rounded-lg px-2 py-1.5" title="Hide devices without connections">
+                            <label class="flex items-center gap-1.5 cursor-pointer bg-green-50 border border-green-300 rounded-lg px-2 py-1" title="Hide devices without connections">
                                 <input type="checkbox" id="matrixOnlyConnected" onchange="toggleMatrixOnlyConnected()" checked class="w-3.5 h-3.5 accent-green-600">
                                 <span class="text-xs text-green-700 font-medium">Connected</span>
                             </label>
@@ -573,18 +587,19 @@
 
             <!-- Tab 4: Floor Plan -->
             <div id="content-floorplan" class="tab-content">
-                <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
-                    <!-- Left: Title + Stats -->
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-xl font-bold text-slate-800">🏢 Floor Plan</h2>
-                        <div id="floorplanStats" class="flex items-center gap-2 text-xs">
-                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-semibold">
-                                📍 <span id="totalRoomsCount">0</span> Rooms
-                            </span>
-                        </div>
+                <!-- Header with title -->
+                <div class="flex items-center gap-3 mb-1">
+                    <h2 class="text-xl font-bold text-slate-800">🏢 Floor Plan</h2>
+                    <div id="floorplanStats" class="flex items-center gap-2 text-xs">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-semibold">
+                            📍 <span id="totalRoomsCount">0</span> Rooms
+                        </span>
                     </div>
-                    
-                    <!-- Right: Filters + Zoom + Actions -->
+                </div>
+                <!-- Subtitle + Controls (same line) -->
+                <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+                    <p class="text-xs text-slate-500 italic">Mappa fisica della posizione degli equipaggiamenti.</p>
+                    <!-- Right: Controls -->
                     <div class="flex items-center gap-2 flex-wrap">
                         <!-- Zoom Controls -->
                         <div class="flex items-center gap-1">
@@ -653,7 +668,7 @@
                     <!-- ========== HEADER ========== -->
                     <div class="text-center mb-6">
                         <h1 class="text-3xl font-bold text-slate-800 mb-2">📚 Guida Utente Completa</h1>
-                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.5.040</p>
+                        <p class="text-slate-600">TIESSE Matrix Network Manager v3.5.049</p>
                         <p class="text-slate-500 text-sm mt-1">Documentazione completa per utenti e amministratori di sistema</p>
                         <div class="flex justify-center gap-2 mt-3">
                             <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">Guida Operativa</span>
@@ -850,7 +865,7 @@
                                                 <div class="flex gap-2">
                                                     <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">🔓 Edit Mode</span>
                                                     <span class="bg-slate-200 px-2 py-0.5 rounded text-xs">📋</span>
-                                                    <span class="text-slate-500 text-xs">v3.5.040</span>
+                                                    <span class="text-slate-500 text-xs">v3.5.049</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -951,7 +966,7 @@
                                     </div>
                                     <div class="bg-slate-50 p-3 rounded-lg">
                                         <div class="flex items-center gap-2 mb-2">
-                                            <span class="text-slate-500 px-2 py-1 bg-slate-100 rounded">v3.5.040</span>
+                                            <span class="text-slate-500 px-2 py-1 bg-slate-100 rounded">v3.5.049</span>
                                         </div>
                                         <p class="text-slate-700"><strong>Funzione:</strong> Mostra la versione corrente del sistema.</p>
                                         <p class="text-slate-600 mt-1"><strong>Quando visibile:</strong> Sempre.</p>
@@ -1736,7 +1751,7 @@
                                             <tr class="bg-amber-50">
                                                 <td class="px-2 py-2 font-semibold text-amber-800">📟 To Device</td>
                                                 <td class="px-2 py-2 text-red-600 font-bold">*</td>
-                                                <td class="px-2 py-2 text-amber-700">Dispositivo destinazione (o "External")</td>
+                                                <td class="px-2 py-2 text-amber-700">Dispositivo destinazione (o "External/ISP")</td>
                                             </tr>
                                             <tr class="bg-amber-50">
                                                 <td class="px-2 py-2 font-semibold text-amber-800">🔌 To Port</td>
@@ -2933,7 +2948,7 @@ ip addr show | grep "inet "</pre>
                     <!-- ========== FOOTER ========== -->
                     <div class="text-center text-slate-400 text-xs py-4 border-t border-slate-200 mt-6">
                         <p class="font-semibold text-slate-600">© 2026 Tiesse S.P.A. — All rights reserved</p>
-                        <p class="mt-1">TIESSE Matrix Network v3.5.040</p>
+                        <p class="mt-1">TIESSE Matrix Network v3.5.049</p>
                         <p class="mt-2 text-red-500 font-medium">⚠️ Confidential document — Reproduction prohibited — For internal use only</p>
                     </div>
                 </div>
@@ -2941,26 +2956,26 @@ ip addr show | grep "inet "</pre>
 
             <!-- Tab: SVG Topology with Cisco Icons -->
             <div id="content-drawio" class="tab-content">
-                <!-- Header with all controls in one line -->
-                <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
-                    <!-- Left: Title + Stats -->
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-xl font-bold text-slate-800">🗺️ Network Topology</h2>
-                        <div id="topologyStats" class="flex items-center gap-2 text-xs">
-                            <!-- Stats populated by JS -->
-                        </div>
+                <!-- Header with title -->
+                <div class="flex items-center gap-3 mb-1">
+                    <h2 class="text-xl font-bold text-slate-800">🗺️ Network Topology</h2>
+                    <div id="topologyStats" class="flex items-center gap-2 text-xs">
+                        <!-- Stats populated by JS -->
                     </div>
-                    
-                    <!-- Right: Filters + Zoom + Actions -->
+                </div>
+                <!-- Subtitle + Controls (same line) -->
+                <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+                    <p class="text-xs text-slate-500 italic">Visualizza graficamente la topologia della rete.</p>
+                    <!-- Right: Controls -->
                     <div class="flex items-center gap-2 flex-wrap">
                         <!-- Filters -->
-                        <select id="topologyLocationFilter" onchange="filterTopologyByLocation()" class="px-2 py-1.5 border-2 border-slate-400 rounded-lg text-sm bg-slate-50 font-semibold text-slate-800">
+                        <select id="topologyLocationFilter" onchange="filterTopologyByLocation()" class="px-2 py-1 border-2 border-slate-400 rounded-lg text-sm bg-slate-50 font-semibold text-slate-800">
                             <option value="">📍 All Locations</option>
                         </select>
-                        <select id="topologyRackFilter" onchange="filterTopologyByRack()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        <select id="topologyRackFilter" onchange="filterTopologyByRack()" class="px-2 py-1 border border-slate-300 rounded-lg text-sm">
                             <option value="">🗄️ All Groups</option>
                         </select>
-                        <select id="drawioLayout" onchange="updateDrawioLayout()" class="px-2 py-1.5 border border-slate-300 rounded-lg text-sm">
+                        <select id="drawioLayout" onchange="updateDrawioLayout()" class="px-2 py-1 border border-slate-300 rounded-lg text-sm">
                             <option value="auto">Auto Layout</option>
                             <option value="circle">Circle</option>
                             <option value="grid">Grid</option>
@@ -3089,6 +3104,7 @@ ip addr show | grep "inet "</pre>
     <script src="js/ui-updates.js?v=3.5.040"></script>
     <script src="js/features.js?v=3.5.040"></script>
     <script src="js/floorplan.js?v=3.5.040"></script>
+    <script src="js/json-validator.js?v=3.5.047"></script>
     
     <!-- Update connections count when list lists -->
     <script>

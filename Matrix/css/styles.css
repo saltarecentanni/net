@@ -177,6 +177,15 @@ thead th.sticky-col {
    3. COMPONENT CLASSES
    ============================================================================= */
 
+/* Filter controls sizing (consistent widths across tabs) */
+.filter-control {
+    min-width: 140px;
+}
+
+.filter-input {
+    min-width: 120px;
+}
+
 /* --- Tabs --- */
 .tab-btn {
     padding: 12px 24px;

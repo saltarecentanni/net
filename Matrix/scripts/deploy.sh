@@ -1,13 +1,21 @@
 #!/bin/bash
 # =================================================================
 # TIESSE Matrix Network - Deploy Script for Ubuntu/Apache
-# Version: 3.4.3
+# Version: 3.5.046
 # =================================================================
 # This script deploys the application to /var/www/html/matrix
 # Run with sudo: sudo bash deploy.sh
 # =================================================================
 
 set -e
+
+# Get version from package.json
+if [ -f "$(dirname "$(readlink -f "$0")")/../Matrix/package.json" ]; then
+    VERSION=$(grep -oP '(?<="version": ")[^"]*' "$(dirname "$(readlink -f "$0")")/../Matrix/package.json" | head -1)
+else
+    VERSION=$(grep -oP '(?<="version": ")[^"]*' "$(dirname "$(readlink -f "$0")")package.json" | head -1)
+fi
+VERSION=${VERSION:-"3.5.046"}
 
 # Colors for output
 RED='\033[0;31m'
@@ -16,7 +24,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}  TIESSE Matrix Network - Deploy v3.0.0${NC}"
+echo -e "${GREEN}  TIESSE Matrix Network - Deploy${NC}"
+echo -e "${GREEN}  Version: ${VERSION}${NC}"
 echo -e "${GREEN}========================================${NC}"
 
 # Check if running as root
@@ -49,9 +58,10 @@ echo -e "${YELLOW}Creating deploy directory...${NC}"
 mkdir -p "${DEPLOY_DIR}"
 
 # Copy files
-echo -e "${YELLOW}Copying files...${NC}"
+echo -e "${YELLOW}Copying files (v${VERSION})...${NC}"
 cp -r "${SOURCE_DIR}/index.html" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/data.php" "${DEPLOY_DIR}/"
+cp -r "${SOURCE_DIR}/package.json" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/js" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/api" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/config" "${DEPLOY_DIR}/"
@@ -88,17 +98,25 @@ fi
 echo -e "${YELLOW}Restarting Apache...${NC}"
 systemctl restart apache2
 
+# Create deployment record
+echo -e "${YELLOW}Creating deployment record...${NC}"
+echo "Deployed: $(date)" > "${DEPLOY_DIR}/.deployment"
+echo "Version: ${VERSION}" >> "${DEPLOY_DIR}/.deployment"
+echo "Source: ${SOURCE_DIR}" >> "${DEPLOY_DIR}/.deployment"
+
 # Get server IP
 SERVER_IP=$(hostname -I | awk '{print $1}')
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}  Deployment Complete!${NC}"
+echo -e "${GREEN}  Deployment Complete! (v${VERSION})${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "Access the application at:"
 echo -e "${GREEN}  http://${SERVER_IP}/matrix${NC}"
 echo -e "${GREEN}  http://localhost/matrix${NC}"
+echo ""
+echo -e "Deployed version: ${GREEN}${VERSION}${NC}"
 echo ""
 echo -e "Credentials for editing:"
 echo -e "  Username: ${YELLOW}tiesse${NC}"
