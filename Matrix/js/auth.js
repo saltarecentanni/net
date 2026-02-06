@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Authentication Module
- * Version: 3.6.010
+ * Version: 3.6.011
  * 
  * Simple authentication for edit mode:
  * - Public: View, Print, Export

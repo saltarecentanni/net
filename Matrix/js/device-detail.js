@@ -817,8 +817,8 @@ var DeviceDetail = (function() {
     }
 
     /**
-     * Open Guacamole remote connection
-     * Works without Matrix login - opens Guacamole directly
+     * Open remote connection - Simple and Direct
+     * Uses native protocol handlers (ssh://, rdp://, etc)
      */
     function openGuacamole(deviceId, protocol) {
         var device = findDevice(deviceId);
@@ -835,149 +835,66 @@ var DeviceDetail = (function() {
             if (window.Swal) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'No IP Address',
-                    text: 'This device has no IP address configured.',
+                    title: 'Sem IP',
+                    text: 'Este dispositivo não tem endereço IP configurado.',
                     confirmButtonText: 'OK'
                 });
             } else {
-                alert('This device has no IP address configured.');
+                alert('Este dispositivo não tem endereço IP configurado.');
             }
             return;
         }
 
-        // Load config and open Guacamole
-        loadGuacamoleConfig().then(function(config) {
-            if (!config.enabled || !config.baseUrl) {
-                // Guacamole not configured - show helpful message
-                var copyText = '';
-                var helpHtml = '';
-                
-                switch(protocol) {
-                    case 'ssh':
-                        copyText = 'ssh admin@' + ip;
-                        helpHtml = 'Command copied: <code>' + copyText + '</code>';
-                        break;
-                    case 'rdp':
-                        copyText = ip;
-                        helpHtml = 'IP copied. Use Remote Desktop to connect to: <code>' + ip + '</code>';
-                        break;
-                    case 'vnc':
-                        copyText = ip + ':5900';
-                        helpHtml = 'VNC address copied: <code>' + copyText + '</code>';
-                        break;
-                    case 'telnet':
-                        copyText = 'telnet ' + ip;
-                        helpHtml = 'Command copied: <code>' + copyText + '</code>';
-                        break;
-                }
-                
-                copyToClipboard(copyText);
-                
-                if (window.Swal) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '📋 Copied!',
-                        html: helpHtml + '<br><br><small class="text-slate-500">Configure Guacamole for direct access</small>',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        showConfirmButton: false
-                    });
-                }
-                return;
-            }
-
-            // Determine port
-            var port = protocol === 'rdp' ? 3389 : (protocol === 'vnc' ? 5900 : (protocol === 'telnet' ? 23 : 22));
-            
-            // Show connection options dialog
-            if (window.Swal) {
+        // Determine port and build connection info
+        var port = protocol === 'rdp' ? 3389 : (protocol === 'vnc' ? 5900 : (protocol === 'telnet' ? 23 : 22));
+        var nativeUrl = '';
+        var copyText = '';
+        
+        switch(protocol) {
+            case 'ssh':
+                nativeUrl = 'ssh://admin@' + ip;
+                copyText = 'ssh admin@' + ip;
+                break;
+            case 'rdp':
+                nativeUrl = 'rdp://' + ip;
+                copyText = ip;
+                break;
+            case 'vnc':
+                nativeUrl = 'vnc://' + ip;
+                copyText = ip + ':5900';
+                break;
+            case 'telnet':
+                nativeUrl = 'telnet://' + ip;
+                copyText = 'telnet ' + ip;
+                break;
+        }
+        
+        // Copy command to clipboard
+        copyToClipboard(copyText);
+        
+        // Try to open native protocol handler
+        window.open(nativeUrl, '_self');
+        
+        // Show confirmation with fallback instructions
+        if (window.Swal) {
+            setTimeout(function() {
                 Swal.fire({
-                    title: '🔗 ' + protocol.toUpperCase() + ' Connection',
+                    icon: 'success',
+                    title: '📋 ' + protocol.toUpperCase(),
                     html: '<div class="text-left">' +
-                          '<div class="bg-slate-100 rounded p-3 mb-4 font-mono text-sm">' +
-                          '<div><b>Device:</b> ' + device.name + '</div>' +
-                          '<div><b>IP:</b> ' + ip + '</div>' +
-                          '<div><b>Port:</b> ' + port + '</div>' +
+                          '<div class="bg-slate-100 rounded p-3 mb-3 font-mono text-sm">' +
+                          '<div><b>' + device.name + '</b></div>' +
+                          '<div class="text-blue-600">' + copyText + '</div>' +
                           '</div>' +
-                          '<p class="text-sm text-slate-600 mb-2">Choose connection method:</p>' +
+                          '<p class="text-sm text-slate-600">Comando copiado!</p>' +
+                          '<p class="text-xs text-slate-400 mt-2">Se não abriu automaticamente, cole no terminal.</p>' +
                           '</div>',
-                    showCancelButton: true,
-                    showDenyButton: true,
-                    confirmButtonText: '🌐 Guacamole',
-                    denyButtonText: '💻 Native ' + protocol.toUpperCase(),
-                    cancelButtonText: '📋 Copy Only',
-                    confirmButtonColor: '#3085d6',
-                    denyButtonColor: '#10b981',
-                    reverseButtons: false
-                }).then(function(result) {
-                    if (result.isConfirmed) {
-                        // Open Guacamole Quick Connect
-                        // Format: ?quickConnect=protocol://hostname:port (Guacamole 1.4+)
-                        var quickConnectUri = protocol + '://' + ip + ':' + port;
-                        var guacUrl = config.baseUrl + '/#/?quickConnect=' + encodeURIComponent(quickConnectUri);
-                        window.open(guacUrl, '_blank');
-                        
-                        // Also copy for manual setup if quick-connect not available
-                        copyToClipboard(ip);
-                        
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Guacamole',
-                            html: '<p>If Quick Connect is not enabled, create a new connection:</p>' +
-                                  '<ol class="text-left text-sm mt-2 ml-4">' +
-                                  '<li>1. Login to Guacamole</li>' +
-                                  '<li>2. Settings → Connections → New</li>' +
-                                  '<li>3. Protocol: <b>' + protocol.toUpperCase() + '</b></li>' +
-                                  '<li>4. Hostname: <b>' + ip + '</b></li>' +
-                                  '<li>5. Port: <b>' + port + '</b></li>' +
-                                  '</ol>' +
-                                  '<p class="mt-2 text-xs text-slate-500">IP copied to clipboard</p>',
-                            confirmButtonText: 'OK'
-                        });
-                    } else if (result.isDenied) {
-                        // Open native protocol handler
-                        var nativeUrl = '';
-                        switch(protocol) {
-                            case 'ssh':
-                                nativeUrl = 'ssh://admin@' + ip + ':' + port;
-                                break;
-                            case 'rdp':
-                                nativeUrl = 'rdp://' + ip + ':' + port;
-                                break;
-                            case 'vnc':
-                                nativeUrl = 'vnc://' + ip + ':' + (port === 5900 ? '' : port);
-                                break;
-                            case 'telnet':
-                                nativeUrl = 'telnet://' + ip + ':' + port;
-                                break;
-                        }
-                        window.open(nativeUrl, '_self');
-                        
-                        // Fallback: copy command
-                        var cmd = protocol === 'ssh' ? 'ssh admin@' + ip : 
-                                  protocol === 'telnet' ? 'telnet ' + ip : ip;
-                        copyToClipboard(cmd);
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        // Just copy
-                        var copyText = protocol === 'ssh' ? 'ssh admin@' + ip : 
-                                       protocol === 'telnet' ? 'telnet ' + ip : ip + ':' + port;
-                        copyToClipboard(copyText);
-                        Swal.fire({
-                            icon: 'success',
-                            title: '📋 Copied!',
-                            text: copyText,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    }
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
                 });
-            } else {
-                // No SweetAlert - direct open
-                var quickConnectUri = protocol + '://' + ip + ':' + port;
-                var guacUrl = config.baseUrl + '/#/?quickConnect=' + encodeURIComponent(quickConnectUri);
-                window.open(guacUrl, '_blank');
-            }
-        });
+            }, 100);
+        }
     }
 
     // Public API
