@@ -1,6 +1,6 @@
 /**
  * Device Detail Modal - TIESSE Matrix Network
- * Version: 3.6.007
+ * Version: 3.6.008
  * Shows complete device information with port visualization and VLAN colors
  */
 
@@ -488,14 +488,14 @@ var DeviceDetail = (function() {
         var hasTelnet = links.some(function(l) { return l.type === 'telnet'; });
 
         // No buttons if no links configured
-        if (!hasWeb && !hasSsh && !hasRdp && !hasVnc && !hasTelnet && !device.location) {
+        if (!hasWeb && !hasSsh && !hasRdp && !hasVnc && !hasTelnet) {
             return '';
         }
 
         html += '<div class="flex flex-wrap gap-2 mt-3">';
         
-        // Web access - show if configured OR if device has IP (common default)
-        if (hasWeb || ip) {
+        // Web access - only if web link is configured
+        if (hasWeb) {
             var webLink = links.find(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
             var url = webLink ? webLink.url : 'http://' + ip;
             if (!url.startsWith('http')) url = 'http://' + url;
