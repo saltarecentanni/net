@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.6.024  
+**Version:** 3.6.025  
 **Date:** February 6, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4.58 + PHP 8.3
@@ -31,7 +31,7 @@ A comprehensive web-based network infrastructure documentation system for enterp
 
 ## 2. VERSION HISTORY
 
-### v3.6.024 (Current) - February 6, 2026
+### v3.6.025 (Current) - February 6, 2026
 
 #### 🏢 Room Structure & FloorPlan
 | Feature | Description |
@@ -301,7 +301,7 @@ appState = {
     }],
     
     // Metadata
-    version: "3.6.024",
+    version: "3.6.025",
     lastModified: "2026-02-06T14:00:00Z",
     checksum: "sha256..."         // Data integrity
 }
@@ -700,13 +700,13 @@ See doc/GUACAMOLE_SETUP.md for detailed Docker installation.
 - [ ] Dark mode theme
 - [ ] PDF report generation
 - [ ] VLAN visualization improvements
-- [x] ~~Guacamole integration~~ (v3.6.024)
+- [x] ~~Guacamole integration~~ (v3.6.025)
 - [x] ~~Device detail modal~~ (v3.6.003)
 - [x] ~~Dashboard charts~~ (v3.6.003)
 - [x] ~~JSON validation~~ (v3.6.005)
 
 ---
 
-**Document Version:** 3.6.024  
+**Document Version:** 3.6.025  
 **Last Updated:** February 6, 2026  
 **Total Project Lines:** ~19,000
