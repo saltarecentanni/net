@@ -1,23 +1,25 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** PHP endpoint for Guacamole config (Apache compatibility)  
-**Date:** February 5, 2026  
+**Version:** 3.6.023  
+**Date:** February 6, 2026  
 **Author:** Tiesse S.P.A.  
-**Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
+**Environment:** Ubuntu 24.04 LTS + Apache 2.4.58 + PHP 8.3
 
 ---
 
 ## 1. OVERVIEW
 
 ### 1.1 Description
-A web-based network infrastructure documentation system for enterprise environments. Allows users to register network devices, map physical connections between them, visualize the topology in matrix and graphical formats, and manage room/floor plans with device associations.
+A comprehensive web-based network infrastructure documentation system for enterprise environments. Provides device inventory management, physical connection mapping, interactive topology visualization, floor plan design with device placement, and **remote access via Guacamole** (SSH, RDP, VNC, Telnet directly in the browser).
 
 ### 1.2 What This System IS
 - ✅ **Documentation tool** for network infrastructure
 - ✅ **Visual mapper** for device connections
 - ✅ **Inventory manager** for network equipment
 - ✅ **Floor plan** designer with device placement
+- ✅ **Remote access gateway** via Apache Guacamole (SSH, RDP, VNC, Telnet)
 - ✅ **Export system** for Excel, JSON, PNG, Draw.io
+- ✅ **Multi-user system** with edit locking
 
 ### 1.3 What This System IS NOT
 - ❌ **NOT a monitoring system** - does not check if devices are online
@@ -29,197 +31,106 @@ A web-based network infrastructure documentation system for enterprise environme
 
 ## 2. VERSION HISTORY
 
-### vPHP endpoint for Guacamole config (Apache compatibility) (Current) - February 6, 2026
+### v3.6.023 (Current) - February 6, 2026
 
-#### 🔍 Device Detail Modal
+#### 🖥️ Apache Guacamole Integration
 | Feature | Description |
 |---------|-------------|
-| **Device Detail Modal** | New modal showing complete device information with port visualization |
-| **Port Map by VLAN** | Colored port visualization grouped by VLAN with click-to-detail |
-| **VLAN Summary** | Lists all VLANs with port assignments and color coding |
-| **Connections List** | Shows all device connections with clickable navigation |
-| **Quick Access Links** | Web, SSH, FloorPlan, Edit buttons in modal header |
-| **SVG Device Icons** | Large device type icons from SVGTopology |
-| **device-detail.js** | New JS module for device detail functionality |
-| **🔍 View Button** | Added to device cards and table for easy access |
+| **Browser-based SSH** | Open SSH sessions directly in browser via Guacamole |
+| **RDP/VNC/Telnet** | Support for multiple remote desktop protocols |
+| **Auto-login** | Token-based authentication bypasses Guacamole login |
+| **Popup window** | SSH opens in 850x550 popup (PuTTY-like experience) |
+| **Terminal config** | 100x30 chars, green-on-black, font size 14 |
+| **Auto-create connections** | Connections created on-demand in Guacamole |
+| **guacamole.php** | Complete API proxy for Guacamole REST API (242 lines) |
+| **guacamole.json** | Configuration file for server settings |
 
-### v3.6.002 (Previous) - February 6, 2026
+### v3.6.003-3.6.018 - February 5-6, 2026
+
+#### 🔍 Device Detail & UI Improvements
+| Feature | Description |
+|---------|-------------|
+| **Device Detail Modal** | Complete device information with port visualization |
+| **Port Map by VLAN** | Colored port visualization grouped by VLAN |
+| **VLAN Summary** | Lists all VLANs with port assignments |
+| **Connections List** | Device connections with clickable navigation |
+| **Guacamole Buttons** | SSH/Telnet/RDP buttons in device detail header |
+| **Quick Access Links** | Web, SSH, FloorPlan, Edit buttons |
+| **SVG Device Icons** | Large device type icons from SVGTopology |
+| **device-detail.js** | New dedicated module (826 lines) |
+| **JSON Validator** | Data validation with comprehensive error reporting |
+| **Dashboard Charts** | Interactive charts for device statistics |
+
+### v3.6.002 - February 6, 2026
 
 #### 🎨 UI Enhancements & Location Numbering
 | Feature | Description |
 |---------|-------------|
-| **Footer Branding** | Changed "TIESSE" to "Tiesse" in footer text |
-| **Room Numbers in Cards** | Device cards now show "00 - Sala Server" format like Floor Plan |
-| **Room Numbers in Charts** | Location charts display room numbers prefix |
-| **formatLabel()** | New function converts "router_wifi" to "Router WiFi" with special handling |
-| **formatLocationLabel()** | Returns formatted location with room number prefix |
-| **findRoomNumber()** | Helper function searches rooms and custom locations for numbers |
-| **Search Results** | Enhanced format: "NAME • Group • #Position" with purple location color |
-| **Tab Navigation Fix** | Fixed conflict between inline styles and CSS classes |
-| **Dashboard Layout** | Added min-height styling to keep footer at bottom |
+| **Room Numbers in Cards** | Device cards show "00 - Sala Server" format |
+| **Room Numbers in Charts** | Location charts display room number prefix |
+| **formatLabel()** | Converts "router_wifi" to "Router WiFi" |
+| **formatLocationLabel()** | Returns formatted location with room number |
+| **Search Results** | Enhanced format: "NAME • Group • #Position" |
 
-### v3.5.050 (Previous) - February 5, 2026
+### v3.5.050 - February 5, 2026
 
-#### 🔧 Script Organization & Deployment Enhancement
+#### 🔧 Script Organization & Versioning
 | Feature | Description |
 |---------|-------------|
-| **Duplicate Removal** | Removed duplicate update-version.sh from root (kept /scripts/ version) |
-| **Deploy Script Enhancement** | Added automatic version extraction from package.json |
-| **Version Tracking** | Deploy script now displays deployed version and creates .deployment record |
-| **Consistent Versioning** | All files synchronized to 3.5.050 |
+| **Deploy Script** | Automatic version extraction from package.json |
+| **Version Tracking** | Deploy displays version and creates .deployment record |
+| **Consistent Versioning** | All files synchronized |
 
-### v3.5.045 (Previous) - February 4, 2026
+### v3.5.044-045 - February 4, 2026
 
-#### 📦 Version Management & Refactoring Completion
+#### 📦 Version Management & Refactoring
 | Feature | Description |
 |---------|-------------|
-| **Automatic Backup** | Created v3.5.045-refactored.tar.gz with full system state |
-| **Version Increment** | Updated from 3.5.044 to 3.5.045 across all files |
-| **Script Organization** | Moved maintenance scripts to /scripts/ directory |
-| **Documentation Organization** | Consolidated 13 doc files in /doc/ directory |
+| **Automatic Backup** | .tar.gz backup system |
+| **Script Organization** | Maintenance scripts in /scripts/ |
+| **Documentation** | 13+ doc files in /doc/ directory |
 
-### v3.5.044 (Previous) - February 4, 2026
+### v3.5.040-043 - February 4, 2026
 
-#### 🔍 Data Integrity Investigation & Debug Logging
+#### 🔧 Topology & Data Integrity
 | Feature | Description |
 |---------|-------------|
-| **Device Count Analysis** | Identified 29 devices without IP addresses (infrastructure elements) |
-| **Filter Detection** | Added debug logging to report hidden devices on load |
-| **JSON Validation** | Confirmed all 101 devices fully present and valid |
-| **Transparency** | Clear identification of why some devices don't appear in default view |
+| **Smart Device Matching** | 3-level algorithm prevents duplicate boxes |
+| **Connection Colors** | Softer color palette for visual clarity |
+| **Zone Lines** | Zones rendered as thick lines (5px, 35% opacity) |
+| **Star Topology** | Devices connect to zone centroid |
+| **Data Validation** | SHA-256 checksum for imports |
 
-### v3.5.043 - February 4, 2026
+### v3.5.035-037 - February 3-4, 2026
 
-#### 🔧 Topology Improvements & Data Integrity
+#### 🔗 Centralized Data & UI
 | Feature | Description |
 |---------|-------------|
-| **Smart Device Matching** | 3-level algorithm prevents duplicate boxes (exact, partial, word-based) |
-| **findMatchingDevice()** | Intelligent function matches external destinations to real devices |
-| **Connection Colors** | Softer color palette (#fca5a5, #fdba74, #d8b4fe, #e9d5ff) |
-| **Topology Stability** | Reduced visual complexity with improved color scheme |
-| **Data Validation** | SHA-256 checksum for all imports |
-| **Version Tracking** | All exports include version and exportedAt timestamp |
+| **standardDeviceSort()** | Centralized sort function (rackId + order) |
+| **NETWORK_ZONES** | Single source of truth for zone options |
+| **IP + Zone Dropdown** | Network Zone selector with each IP field |
+| **UI Styling** | Neutral slate color scheme |
 
-### v3.5.042 (February 4, 2026)
+### v3.5.005-013 - February 2, 2026
 
-#### 🐛 Bug Fixes & UI Improvements
-| Feature | Description |
-|---------|-------------|
-| **UI Fixes** | Removed "+ Add location" from dropdown, centered Order label |
-| **Topology Connections** | External connections now link to real devices when available |
-| **Label Management** | Reduced label overlap on connection lines |
-
-### v3.5.041 (February 4, 2026)
-
-#### 🔧 Security & Compatibility
-| Feature | Description |
-|---------|-------------|
-| **bcrypt Compatibility** | PHP-compatible password hashing with bcrypt/bcryptjs |
-| **CSRF Protection** | Token validation for all POST requests |
-| **Rate Limiting** | Enhanced rate limiting by IP and username |
-
-### v3.5.040 (February 4, 2026)
-
-#### 🔧 Critical Bug Fixes & Visual Improvements
-| Feature | Description |
-|---------|-------------|
-| **Location Order Fix** | Fixed parseInt('00') falsy bug - code 00 now appears before 01 |
-| **isNaN Pattern** | Changed `parseInt(x) || 999` to `isNaN(parsedCode) ? 999 : parsedCode` |
-| **Zone Lines** | Zones rendered as thick lines (5px, 35% opacity) instead of rectangles |
-| **Star Topology** | Devices connect to zone centroid in star pattern |
-| **Single Device Zones** | Badge displayed below device instead of surrounding area |
-| **Division by Zero** | Added protection in centroid calculation |
-
-### v3.5.037 - February 4, 2026
-
-#### 🎨 UI/UX Improvements
-| Feature | Description |
-|---------|-------------|
-| **Location Selects** | Changed from orange to neutral slate styling |
-| **Color Scheme** | `border-slate-400 bg-slate-50 text-slate-800` |
-| **Zone Visualization** | Initial thick line implementation |
-
-### v3.5.036 - February 3, 2026
-
-#### 🔧 Code Quality & Centralization
-| Feature | Description |
-|---------|-------------|
-| **standardDeviceSort()** | Centralized sort function for consistent ordering (rackId + order) |
-| **getDevicesSorted()** | Standard function to get sorted devices array |
-| **getDevicesFiltered()** | Standard function to filter and sort devices |
-| **NETWORK_ZONES** | Single source of truth for network zone options |
-| **IP + Zone Dropdown** | Each IP field now has integrated Network Zone selector |
-| **100 Verifications** | Complete syntax, balance, and code quality audit |
-| **Fixed getSorted()** | Removed duplicate function declaration |
-
-### v3.5.035 - February 3, 2026
-
-#### 🔗 Centralized Data Utilities
-| Feature | Description |
-|---------|-------------|
-| **Centralization** | Created centralized functions for sorting and filtering |
-| **IP Zone Integration** | Network Zone dropdown integrated with each IP field |
-| **Removed Redundancy** | Removed separate Network Zone form |
-
-### v3.5.013 - February 2, 2026
-
-#### 🔗 Links Column Sorting
-| Feature | Description |
-|---------|-------------|
-| **Sortable Links** | 🔗 Links column in Devices table now sortable |
-| **Click Handler** | Added onclick to Links header |
-| **Sort Logic** | Sorts by number of connections (links.length) |
-
-#### 🔍 Audit 3.0 Review
-| Verification | Status |
-|--------------|--------|
-| **Promises** | All critical .then() chains have .catch() |
-| **Clipboard** | copyToClipboard has fallback for older browsers |
-| **Swal.fire** | Confirmed - never rejects, no .catch() needed |
-| **i18n** | Interface consistent in English |
-
-### v3.5.011 - February 2, 2026
-
-#### 🔧 Code Quality Fixes
-| Fix | Description |
-|-----|-------------|
-| **Dead Code** | Removed unused `autoResizeTextarea()` and `countDevicesInRoom()` |
-| **Deprecated API** | Replaced `.substr()` with `.substring()` |
-| **Auto-zoom** | Implemented auto-zoom to room in Floor Plan |
-| **Storage Error** | Added QuotaExceededError detection |
-| **Accessibility** | Added ARIA labels and roles |
-
-### v3.5.010 - February 2, 2026
-
-#### 📶 WiFi AP Without Warning
-| Feature | Description |
-|---------|-------------|
-| **Wireless Devices** | `wifi`, `router_wifi`, `access_point` no longer show ⚠ warning |
-| **Dedicated Icon** | 📶 Wireless in cyan instead of orange ⚠ |
-| **Background** | Cyan light background for wireless devices without connections |
-| **Updated Legend** | ✗ disabled · ↩ rear · ⚠ not connected · 📶 wireless · 🌐 link |
-
-### v3.5.005-008 - Location System
-
-#### 📍 Persistent Location System
+#### 📍 Location System & Quality
 | Feature | Description |
 |---------|-------------|
 | **appState.sites[]** | Company sites array |
-| **appState.locations[]** | Persistent locations with id, code, name, type |
-| **Auto Migration** | migrateToNewLocationSystem() converts existing data |
-| **Location Manager** | Full management: create, rename, delete locations |
-| **Three Types** | site (🏢), mapped (📍 from Floor Plan), custom (🪧) |
+| **appState.locations[]** | Persistent locations with type |
+| **Location Manager** | Create, rename, delete locations |
+| **Sortable Links** | Links column in table is sortable |
+| **Code Quality** | Removed dead code, deprecated APIs |
+| **Accessibility** | ARIA labels and roles |
 
-### v3.5.001 - Online Users
+### v3.5.001 - February 2, 2026
 
-#### ✨ Online Users Indicator
+#### ✨ Online Users
 | Feature | Description |
 |---------|-------------|
-| **Real-time Counter** | Shows number of users viewing the application |
-| **Visual Indicator** | Badge with count (01, 02...) |
-| **Color Coding** | Green = viewers only, Amber = editor present |
-| **Heartbeat** | 30-second ping to maintain presence |
-| **Auto-cleanup** | Inactive users removed after 60 seconds |
+| **Real-time Counter** | Shows active users |
+| **Color Coding** | Green = viewers, Amber = editor |
+| **Heartbeat** | 30-second ping for presence |
 
 ---
 
@@ -230,37 +141,50 @@ A web-based network infrastructure documentation system for enterprise environme
 | Layer | Technology | Notes |
 |-------|------------|-------|
 | **Frontend** | HTML5 + Tailwind CSS 3.x | Local vendor file |
-| **JavaScript** | ES6 Vanilla | No framework |
+| **JavaScript** | ES6 Vanilla | No framework, 19,000+ lines |
 | **Icons** | Custom SVG | Cisco-style topology icons |
 | **Modals** | SweetAlert2 | Local vendor |
 | **Excel** | SheetJS (XLSX) 0.18.5 | Local vendor |
-| **Backend** | Node.js 16+ / PHP 8.3 | Dual-mode support |
-| **Auth** | Session-based | PHP sessions |
-| **Data** | JSON file | `data/network_manager.json` |
+| **Backend** | PHP 8.3 (Apache) | Production mode |
+| **Backend Alt** | Node.js 16+ | Development mode |
+| **Auth** | Session-based | PHP sessions with bcrypt |
+| **Data** | JSON file | data/network_manager.json |
+| **Remote Access** | Apache Guacamole | Docker on port 8080 |
 
 ### 3.2 File Structure
 
-```
+\`\`\`
 Matrix/
 ├── index.html              # Main application (SPA)
-├── server.js               # Node.js server (alternative)
-├── data.php                # PHP API endpoint
+├── server.js               # Node.js server (development)
+├── data.php                # PHP API endpoint (production)
 ├── deploy.sh               # Deployment script
+├── package.json            # Node dependencies
 │
 ├── api/
-│   ├── auth.php            # Authentication API
-│   └── editlock.php        # Multi-user lock API
+│   ├── auth.php            # Authentication API (95 lines)
+│   ├── editlock.php        # Multi-user lock API (164 lines)
+│   ├── guacamole.php       # Guacamole proxy API (242 lines)
+│   ├── guacamole-config.php # Config endpoint (39 lines)
+│   ├── guacamole-test.php  # Diagnostic tool (195 lines)
+│   ├── guacamole.js        # Node.js version (397 lines)
+│   └── json-validator.js   # Node.js validator (286 lines)
 │
 ├── config/
-│   └── config.php          # Server configuration
+│   ├── config.php          # Server configuration
+│   ├── guacamole.json      # Guacamole settings
+│   └── json-schema.json    # Data validation schema
 │
 ├── js/
-│   ├── app.js              # Core application logic (4200+ lines)
-│   ├── auth.js             # Authentication module
-│   ├── features.js         # Topology, activity log, export (3400+ lines)
-│   ├── ui-updates.js       # UI rendering (2100+ lines)
-│   ├── floorplan.js        # Floor plan module (850+ lines)
-│   └── editlock.js         # Edit lock client (160 lines)
+│   ├── app.js              # Core application (4,816 lines)
+│   ├── features.js         # Topology, export (4,678 lines)
+│   ├── ui-updates.js       # UI rendering (2,806 lines)
+│   ├── floorplan.js        # Floor plan module (1,187 lines)
+│   ├── device-detail.js    # Device detail modal (826 lines)
+│   ├── dashboard.js        # Dashboard charts (553 lines)
+│   ├── json-validator.js   # Data validator (277 lines)
+│   ├── editlock.js         # Edit lock client (228 lines)
+│   └── auth.js             # Authentication (150+ lines)
 │
 ├── css/
 │   └── styles.css          # Custom styles + CSS variables
@@ -279,15 +203,22 @@ Matrix/
 │   ├── weekly/             # Weekly backups (4 weeks)
 │   └── monthly/            # Monthly backups (12 months)
 │
+├── scripts/
+│   ├── audit-code.js       # Code audit tool
+│   ├── audit-json.js       # JSON audit tool
+│   └── update-version.sh   # Version updater
+│
 └── doc/
     ├── BLUEPRINT.md        # This file
     ├── README.md           # User guide
-    └── ROOM_STRUCTURE.md   # Data structure docs
-```
+    ├── GUACAMOLE_SETUP.md  # Guacamole installation
+    ├── ROOM_STRUCTURE.md   # Data structure docs
+    └── [other docs...]     # Additional documentation
+\`\`\`
 
 ### 3.3 Data Model
 
-```javascript
+\`\`\`javascript
 appState = {
     // Core data
     devices: [{
@@ -298,10 +229,16 @@ appState = {
         group: "Rack-01",
         rackId: "A-01",
         ip: "192.168.1.1",
+        ip2: "10.0.0.1",          // Secondary IP
+        networkZone: "LAN",       // Network zone
+        networkZone2: "MGMT",     // Secondary zone
         ports: 48,
         status: "active",
         links: ["https://...", "ssh://..."],
-        notes: "Main core switch"
+        notes: "Main core switch",
+        order: 1,                 // Rack position
+        manufacturer: "Cisco",
+        model: "C9300-48P"
     }],
     
     connections: [{
@@ -313,17 +250,18 @@ appState = {
         type: "trunk",
         status: "active",
         cableColor: "#3b82f6",
-        notes: "Uplink to distribution"
+        notes: "Uplink to distribution",
+        vlan: "100"
     }],
     
     rooms: [{
         id: "room-uuid",
         nickname: "Server Room",
+        number: "01",             // Room number (sorting)
         polygon: [[x1,y1], [x2,y2], ...],
         color: "#3b82f6"
     }],
     
-    // New in v3.5.005+
     sites: ["Sede Ivrea", "Filiale Torino"],
     
     locations: [{
@@ -331,101 +269,172 @@ appState = {
         code: "DC01",
         name: "Data Center",
         type: "site|mapped|custom",
-        roomRef: "room-uuid" // if type=mapped
+        roomRef: "room-uuid"      // if type=mapped
     }],
     
     // Metadata
-    version: "3.5.013",
-    lastModified: "2026-02-02T12:00:00Z"
+    version: "3.6.023",
+    lastModified: "2026-02-06T14:00:00Z",
+    checksum: "sha256..."         // Data integrity
 }
-```
+\`\`\`
 
 ---
 
 ## 4. MODULES
 
-### 4.1 Core Modules (app.js)
+### 4.1 Core (app.js) - 4,816 lines
 
-| Module | Purpose |
-|--------|---------|
-| **Toast** | Notification system (success, error, warning, info) |
-| **Debug** | Conditional logging (DEBUG_MODE flag) |
-| **OnlineTracker** | Real-time user presence tracking |
-| **ActivityLog** | Action history (add, edit, delete operations) |
+| Component | Purpose |
+|-----------|---------|
+| **State Management** | appState object with all data |
+| **Toast Notifications** | Success, error, warning, info |
+| **Debug Logging** | Conditional console output |
+| **OnlineTracker** | Real-time user presence |
+| **ActivityLog** | Action history tracking |
+| **Import/Export** | JSON data handling with checksum |
+| **Version Support** | Backward compatibility array |
 
-### 4.2 Feature Modules (features.js)
+### 4.2 Features (features.js) - 4,678 lines
 
-| Module | Purpose |
-|--------|---------|
-| **SVGTopology** | Interactive network diagram with Cisco icons |
-| **ConnectionStatus** | Badge rendering for connection states |
-| **LocationManager** | Site/location management UI |
+| Component | Purpose |
+|-----------|---------|
+| **SVGTopology** | Interactive network diagram |
+| **Cisco Icons** | 25+ device type SVG icons |
+| **ConnectionStatus** | Badge rendering for states |
+| **LocationManager** | Site/location management |
 | **ExportDrawIO** | Draw.io XML export |
+| **ExportExcel** | XLSX generation |
+| **ExportPNG** | Topology image export |
 
-### 4.3 UI Module (ui-updates.js)
-
-| Function | Purpose |
-|----------|---------|
-| `updateUI()` | Master UI refresh |
-| `updateDevicesList()` | Devices tab rendering (cards/table) |
-| `updateConnectionsList()` | Connections tab rendering |
-| `updateMatrix()` | SVG connection matrix |
-| `getDevicesSortedBy()` | Multi-column sorting |
-
-### 4.4 Floor Plan Module (floorplan.js)
+### 4.3 UI Updates (ui-updates.js) - 2,806 lines
 
 | Function | Purpose |
 |----------|---------|
-| `FloorPlan.init()` | Initialize canvas and tools |
-| `FloorPlan.getRooms()` | Get all rooms |
-| `FloorPlan.setRooms()` | Import rooms from data |
-| `FloorPlan.editRoom()` | Room editing modal |
-| `FloorPlan.zoomToRoom()` | Auto-zoom to selected room |
+| updateUI() | Master UI refresh |
+| updateDevicesList() | Device cards/table |
+| updateConnectionsList() | Connections list |
+| updateMatrix() | SVG connection matrix |
+| getDevicesSortedBy() | Multi-column sorting |
+| formatLabel() | Type label formatting |
+| formatLocationLabel() | Location with room number |
 
-### 4.5 Auth Module (auth.js)
-
-| Function | Purpose |
-|----------|---------|
-| `Auth.showLoginModal()` | Login dialog |
-| `Auth.login()` | Authentication |
-| `Auth.logout()` | Session end |
-| `Auth.isLoggedIn()` | Check auth state |
-
-### 4.6 Edit Lock Module (editlock.js)
+### 4.4 Device Detail (device-detail.js) - 826 lines
 
 | Function | Purpose |
 |----------|---------|
-| `EditLock.acquire()` | Get edit lock |
-| `EditLock.release()` | Release lock |
-| `EditLock.heartbeat()` | Keep lock alive |
+| openDeviceDetail() | Open detail modal |
+| openGuacamole() | Launch SSH/RDP/VNC session |
+| renderPortMap() | VLAN-colored port grid |
+| renderConnectionsList() | Device connections |
+| renderVlanSummary() | VLAN usage summary |
+
+### 4.5 Dashboard (dashboard.js) - 553 lines
+
+| Function | Purpose |
+|----------|---------|
+| initDashboard() | Initialize charts |
+| updateDashboardCharts() | Refresh all charts |
+| createDeviceTypeChart() | Pie chart by type |
+| createLocationChart() | Bar chart by location |
+| createConnectionChart() | Connection statistics |
+
+### 4.6 Floor Plan (floorplan.js) - 1,187 lines
+
+| Function | Purpose |
+|----------|---------|
+| FloorPlan.init() | Initialize canvas |
+| FloorPlan.getRooms() | Get all rooms |
+| FloorPlan.setRooms() | Import rooms |
+| FloorPlan.editRoom() | Room editing modal |
+| FloorPlan.zoomToRoom() | Auto-zoom to room |
+| FloorPlan.drawDevices() | Device placement |
+
+### 4.7 Guacamole Proxy (guacamole.php) - 242 lines
+
+| Function | Purpose |
+|----------|---------|
+| authenticate() | Get Guacamole token |
+| findConnection() | Find existing connection |
+| createConnection() | Create new connection |
+| buildClientUrl() | Generate auto-login URL |
+
+### 4.8 Auth (auth.js + auth.php)
+
+| Function | Purpose |
+|----------|---------|
+| Auth.login() | User authentication |
+| Auth.logout() | End session |
+| Auth.isLoggedIn() | Check auth state |
+| Rate limiting | 5 attempts/minute |
+
+### 4.9 Edit Lock (editlock.js + editlock.php)
+
+| Function | Purpose |
+|----------|---------|
+| EditLock.acquire() | Get edit lock |
+| EditLock.release() | Release lock |
+| EditLock.heartbeat() | Keep lock alive |
 
 ---
 
 ## 5. API ENDPOINTS
 
-### 5.1 Data API (data.php / server.js)
+### 5.1 Data API (data.php)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/data.php` | Load all data |
-| POST | `/data.php` | Save all data |
-| GET | `/data.php?action=online` | Get online users |
+| GET | /data.php | Load all data |
+| POST | /data.php | Save all data |
+| GET | /data.php?action=online | Get online users |
 
 ### 5.2 Auth API (api/auth.php)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth.php` | Login/logout |
-| GET | `/api/auth.php?check=1` | Check session |
+| POST | /api/auth.php | Login/logout |
+| GET | /api/auth.php?check=1 | Check session |
 
 ### 5.3 Edit Lock API (api/editlock.php)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `action=acquire` | Get edit lock |
-| POST | `action=release` | Release lock |
-| POST | `action=heartbeat` | Keep lock alive |
-| GET | `action=status` | Check lock status |
+| POST | action=acquire | Get edit lock |
+| POST | action=release | Release lock |
+| POST | action=heartbeat | Keep alive |
+| GET | action=status | Check status |
+
+### 5.4 Guacamole API (api/guacamole.php)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | ?action=status | Check Guacamole connectivity |
+| GET | ?action=health | Health check |
+| POST | action=connect | Create/find connection, return URL |
+
+**Request body for connect:**
+\`\`\`json
+{
+    "action": "connect",
+    "ip": "10.10.254.121",
+    "protocol": "ssh",
+    "deviceName": "Switch-01"
+}
+\`\`\`
+
+**Response:**
+\`\`\`json
+{
+    "success": true,
+    "url": "http://server:8080/guacamole/#/client/...",
+    "connection": {
+        "identifier": "123",
+        "name": "Switch-01 - 10.10.254.121 (SSH)",
+        "protocol": "ssh",
+        "hostname": "10.10.254.121"
+    }
+}
+\`\`\`
 
 ---
 
@@ -433,29 +442,29 @@ appState = {
 
 | Type | Icon | Description |
 |------|------|-------------|
-| `server` | 🖥️ | Server/host |
-| `switch` | 🔀 | Network switch |
-| `router` | 🌐 | Router |
-| `router_wifi` | 📶 | WiFi router |
-| `firewall` | 🔥 | Firewall |
-| `access_point` | 📶 | Wireless AP |
-| `wifi` | 📶 | WiFi device |
-| `patch_panel` | ▦ | Patch panel |
-| `walljack` | ⬜ | Wall jack |
-| `workstation` | 💻 | Desktop PC |
-| `laptop` | 💻 | Laptop |
-| `phone` | 📞 | IP Phone |
-| `ip_phone` | 📞 | IP Phone |
-| `printer` | 🖨️ | Printer |
-| `camera` | 📷 | IP Camera |
-| `storage` | 💾 | Storage |
-| `nas` | 📦 | NAS |
-| `ups` | 🔋 | UPS |
-| `pdu` | ⚡ | PDU |
-| `isp` | 🌍 | ISP connection |
-| `modem` | 📡 | Modem |
-| `sensor` | 📊 | Sensor |
-| `other` | ❓ | Other |
+| server | Server | Server/host |
+| switch | Switch | Network switch |
+| router | Router | Router |
+| router_wifi | WiFi Router | WiFi router |
+| firewall | Firewall | Firewall |
+| access_point | AP | Wireless AP |
+| wifi | WiFi | WiFi device |
+| patch_panel | Panel | Patch panel |
+| walljack | Jack | Wall jack |
+| workstation | PC | Desktop PC |
+| laptop | Laptop | Laptop |
+| phone | Phone | IP Phone |
+| ip_phone | Phone | IP Phone |
+| printer | Printer | Printer |
+| camera | Camera | IP Camera |
+| storage | Storage | Storage |
+| nas | NAS | NAS |
+| ups | UPS | UPS |
+| pdu | PDU | PDU |
+| isp | ISP | ISP connection |
+| modem | Modem | Modem |
+| sensor | Sensor | Sensor |
+| other | Other | Other |
 
 ---
 
@@ -463,73 +472,143 @@ appState = {
 
 | Type | Color | Description |
 |------|-------|-------------|
-| `lan` | Blue | Standard LAN |
-| `wan` | Red | WAN link |
-| `trunk` | Green | Trunk/uplink |
-| `dmz` | Orange | DMZ segment |
-| `management` | Purple | Management VLAN |
-| `fiber` | Cyan | Fiber optic |
-| `backup` | Gray | Backup link |
-| `walljack` | Brown | Wall port |
-| `external` | Pink | External link |
+| lan | Blue | Standard LAN |
+| wan | Red | WAN link |
+| trunk | Green | Trunk/uplink |
+| dmz | Orange | DMZ segment |
+| management | Purple | Management VLAN |
+| fiber | Cyan | Fiber optic |
+| backup | Gray | Backup link |
+| walljack | Brown | Wall port |
+| external | Pink | External link |
 
 ---
 
-## 8. EXPORT FORMATS
+## 8. GUACAMOLE INTEGRATION
 
-### 8.1 JSON Export
-- Complete data backup with checksum
+### 8.1 Overview
+Apache Guacamole provides browser-based remote access to devices via:
+- **SSH** (port 22) - Terminal access
+- **Telnet** (port 23) - Legacy terminal
+- **RDP** (port 3389) - Windows Remote Desktop
+- **VNC** (port 5900) - VNC viewer
+
+### 8.2 Architecture
+\`\`\`
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Matrix Web    │────▶│ guacamole.php   │────▶│   Guacamole     │
+│   (Browser)     │     │   (API Proxy)   │     │   (Docker)      │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                                        │
+                                                        ▼
+                                                ┌─────────────────┐
+                                                │  guacd daemon   │
+                                                │  SSH/RDP/VNC    │
+                                                └─────────────────┘
+\`\`\`
+
+### 8.3 Configuration (config/guacamole.json)
+\`\`\`json
+{
+    "enabled": true,
+    "server": {
+        "baseUrl": "http://10.10.225.103:8080/guacamole"
+    },
+    "credentials": {
+        "username": "tiesse",
+        "password": "tiesseadm"
+    },
+    "defaults": {
+        "ssh": {
+            "port": 22,
+            "colorScheme": "green-black",
+            "fontSize": 14,
+            "terminalWidth": 100,
+            "terminalHeight": 30
+        },
+        "rdp": {
+            "port": 3389,
+            "security": "any",
+            "ignoreCert": true,
+            "width": 1920,
+            "height": 1080
+        }
+    }
+}
+\`\`\`
+
+### 8.4 Window Sizes
+
+| Protocol | Window Size | Terminal |
+|----------|-------------|----------|
+| SSH | 850 x 550 | 100 x 30 chars |
+| Telnet | 850 x 550 | 100 x 30 chars |
+| RDP | 1024 x 768 | N/A |
+| VNC | 1024 x 768 | N/A |
+
+---
+
+## 9. EXPORT FORMATS
+
+### 9.1 JSON Export
+- Complete data backup with SHA-256 checksum
 - Includes: devices, connections, rooms, sites, locations
-- SHA-256 integrity verification
+- Version and timestamp included
 
-### 8.2 Excel Export
+### 9.2 Excel Export
 - 4 worksheets: Devices, Connections, Matrix, Rooms
 - Filterable columns
 - Color-coded status
 
-### 8.3 PNG Export
+### 9.3 PNG Export
 - High-resolution topology image
 - SVG-to-canvas conversion
-- Download as file
 
-### 8.4 Draw.io Export
+### 9.4 Draw.io Export
 - XML format compatible with Draw.io
 - Preserves device positions
 - Connection routing
 
 ---
 
-## 9. SECURITY
+## 10. SECURITY
 
-### 9.1 Authentication
-- Session-based login
-- Password hashed with bcrypt
+### 10.1 Authentication
+- Session-based login with PHP sessions
+- Password hashed with bcrypt (PHP/bcryptjs)
 - Rate limiting (5 attempts/minute)
 - Session timeout (30 minutes)
 
-### 9.2 Multi-User Locking
-- Only one editor at a time
+### 10.2 Multi-User Locking
+- Single editor at a time
 - Lock timeout: 5 minutes
 - Heartbeat: 60 seconds
 - Auto-release on logout
 
-### 9.3 Data Protection
+### 10.3 Data Protection
 - XSS prevention (escapeHtml)
 - Path traversal protection
 - Backup before destructive operations
+- JSON validation on import
+
+### 10.4 Guacamole Security
+- Admin user for API operations
+- Token-based auto-login
+- All remote access proxied through guacd
 
 ---
 
-## 10. DEPLOYMENT
+## 11. DEPLOYMENT
 
-### 10.1 Requirements
-- Apache 2.4+ with PHP 8.1+
-- OR Node.js 16+
-- Write permissions on `data/` directory
-- Modern browser (Chrome, Firefox, Edge, Safari)
+### 11.1 Requirements
+- **Apache 2.4+** with PHP 8.1+
+- OR **Node.js 16+** (development only)
+- Write permissions on data/ directory
+- Modern browser (Chrome 90+, Firefox 88+, Edge 90+, Safari 14+)
+- **Optional:** Docker for Guacamole
 
-### 10.2 Installation
-```bash
+### 11.2 Installation
+\`\`\`bash
 # Clone or copy files to web root
 cp -r Matrix/ /var/www/html/matrix/
 
@@ -537,59 +616,69 @@ cp -r Matrix/ /var/www/html/matrix/
 chmod 755 /var/www/html/matrix/
 chmod 777 /var/www/html/matrix/data/
 
-# Configure .env
-cp .env.example .env
-nano .env  # Set AUTH_USER and AUTH_PASSWORD
+# Configure credentials
+# Edit config/config.php for auth
+# Edit config/guacamole.json for remote access
 
 # (Optional) Setup cron for backups
 crontab -e
-# Add: 0 2 * * 0 /var/www/html/matrix/backup/backup.sh weekly
-# Add: 0 3 1 * * /var/www/html/matrix/backup/backup.sh monthly
-```
+# 0 2 * * 0 /var/www/html/matrix/backup/backup.sh weekly
+# 0 3 1 * * /var/www/html/matrix/backup/backup.sh monthly
+\`\`\`
 
-### 10.3 Node.js Mode
-```bash
-cd Matrix/
-node server.js
-# Access: http://localhost:3000
-```
-
----
-
-## 11. BROWSER SUPPORT
-
-| Browser | Version | Status |
-|---------|---------|--------|
-| Chrome | 90+ | ✅ Full |
-| Firefox | 88+ | ✅ Full |
-| Edge | 90+ | ✅ Full |
-| Safari | 14+ | ✅ Full |
-| IE | Any | ❌ Not supported |
+### 11.3 Guacamole Setup
+See doc/GUACAMOLE_SETUP.md for detailed Docker installation.
 
 ---
 
 ## 12. KNOWN LIMITATIONS
 
-1. **Single JSON file** - All data in one file, not suitable for very large networks (1000+ devices)
-2. **No real-time sync** - Changes require manual save, no WebSocket push
+1. **Single JSON file** - Not suitable for very large networks (1000+ devices)
+2. **No real-time sync** - Changes require manual save
 3. **Manual data entry** - No auto-discovery of network devices
 4. **Single editor** - Only one user can edit at a time
-5. **No audit trail** - Activity log is in-memory only
+5. **Guacamole admin access** - Users can access Guacamole admin panel via Home button
 
 ---
 
-## 13. FUTURE ROADMAP
+## 13. CODE METRICS
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| app.js | 4,816 | Core application |
+| features.js | 4,678 | Topology, export |
+| ui-updates.js | 2,806 | UI rendering |
+| floorplan.js | 1,187 | Floor plan |
+| device-detail.js | 826 | Device modal |
+| dashboard.js | 553 | Charts |
+| server.js | 891 | Node.js server |
+| **Total JS** | **~16,000** | |
+| guacamole.php | 242 | API proxy |
+| data.php | 292 | Data API |
+| auth.php | 95 | Auth API |
+| editlock.php | 164 | Lock API |
+| **Total PHP** | **~800** | |
+| **Grand Total** | **~19,000** | Lines of code |
+
+---
+
+## 14. FUTURE ROADMAP
 
 - [ ] WebSocket real-time sync
 - [ ] SQLite backend option
 - [ ] SNMP device import
 - [ ] Network diagram auto-layout
-- [ ] Multi-language support
+- [ ] Multi-language support (i18n)
 - [ ] Dark mode theme
 - [ ] PDF report generation
-- [ ] VLAN visualization
+- [ ] VLAN visualization improvements
+- [x] ~~Guacamole integration~~ (v3.6.023)
+- [x] ~~Device detail modal~~ (v3.6.003)
+- [x] ~~Dashboard charts~~ (v3.6.003)
+- [x] ~~JSON validation~~ (v3.6.005)
 
 ---
 
-**Document Version:** 3.5.013  
-**Last Updated:** February 2, 2026
+**Document Version:** 3.6.023  
+**Last Updated:** February 6, 2026  
+**Total Project Lines:** ~19,000
