@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Dashboard Module
- * Version: 3.6.000
+ * Version: 3.6.003
  * 
  * Features:
  * - Donut charts for device statistics
@@ -147,9 +147,9 @@ var Dashboard = (function() {
         var data = sorted.map(function(e) { return e[1]; });
         var colors = labels.map(function(l) { return COLORS.types[l] || '#9ca3af'; });
         
-        // Labels with counts: "Switch (25)"
+        // Labels with counts: "Switch (25)" - properly formatted
         var labelsWithCounts = labels.map(function(l, i) {
-            return capitalizeFirst(l) + ' (' + data[i] + ')';
+            return formatLabel(l) + ' (' + data[i] + ')';
         });
         
         if (charts.byType) {
@@ -210,9 +210,9 @@ var Dashboard = (function() {
         var data = sorted.map(function(e) { return e[1]; });
         var colors = labels.map(function(l) { return COLORS.status[l] || '#9ca3af'; });
         
-        // Labels with counts: "Active (97)"
+        // Labels with counts: "Active (97)" - properly formatted
         var labelsWithCounts = labels.map(function(l, i) {
-            return capitalizeFirst(l) + ' (' + data[i] + ')';
+            return formatLabel(l) + ' (' + data[i] + ')';
         });
         
         if (charts.byStatus) {
@@ -260,6 +260,8 @@ var Dashboard = (function() {
         if (!ctx) return;
         
         var devices = appState.devices || [];
+        var rooms = appState.rooms || [];
+        var locations = appState.locations || [];
         var roomCounts = {};
         
         devices.forEach(function(d) {
@@ -273,9 +275,40 @@ var Dashboard = (function() {
         var data = sorted.map(function(e) { return e[1]; });
         var colors = labels.map(function(_, i) { return COLORS.rooms[i % COLORS.rooms.length]; });
         
-        // Labels with counts: "Sala A (15)"
+        // Labels with room number prefix and counts: "00 - Sala Server (15)"
         var labelsWithCounts = labels.map(function(l, i) {
-            return l + ' (' + data[i] + ')';
+            // Find the room that matches this location name
+            var roomNum = '';
+            var locLower = l.toLowerCase().replace(/\s+/g, '');
+            
+            // First, search in rooms array
+            for (var j = 0; j < rooms.length; j++) {
+                var r = rooms[j];
+                var nick = (r.nickname || '').toLowerCase().replace(/\s+/g, '');
+                var rname = (r.name || '').toLowerCase().replace(/\s+/g, '');
+                var rid = String(r.id !== undefined ? r.id : '').toLowerCase();
+                
+                if (l === r.nickname || l === r.name || l === String(r.id) ||
+                    locLower === nick || locLower === rname || locLower === rid) {
+                    roomNum = String(r.id).padStart(2, '0') + ' - ';
+                    break;
+                }
+            }
+            
+            // If not found in rooms, search in locations (custom locations)
+            if (!roomNum) {
+                for (var k = 0; k < locations.length; k++) {
+                    var loc = locations[k];
+                    var locName = (loc.name || '').toLowerCase().replace(/\s+/g, '');
+                    
+                    if (l === loc.name || locLower === locName) {
+                        roomNum = String(loc.code || loc.id || '').padStart(2, '0') + ' - ';
+                        break;
+                    }
+                }
+            }
+            
+            return roomNum + l + ' (' + data[i] + ')';
         });
         
         if (charts.byRoom) {
@@ -679,7 +712,17 @@ var Dashboard = (function() {
             deviceIP = device.ip || device.ip1 || '';
         }
         
-        var html = '<div class="bg-white border-l-4 border-l-blue-500 border border-slate-200 rounded-r p-3 hover:bg-blue-50 transition-all cursor-pointer flex items-center gap-3" onclick="Dashboard.goToDevice(\'' + device.id + '\')">';
+        // Format position with leading zero
+        var positionText = String(device.order || device.id || 0).padStart(2, '0');
+        
+        // Format location with room number
+        var locationText = '';
+        if (device.location) {
+            var roomNum = findRoomNumber(device.location);
+            locationText = roomNum ? roomNum + ' - ' + device.location : device.location;
+        }
+        
+        var html = '<div class="bg-white border-l-4 border-l-blue-500 border border-slate-200 rounded-r p-3 hover:bg-blue-50 transition-all cursor-pointer flex items-center gap-3" onclick="DeviceDetail.open(' + device.id + ')">';
         
         // Category badge
         html += '<span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">📱 DEVICE</span>';
@@ -689,14 +732,21 @@ var Dashboard = (function() {
         
         // Main info
         html += '<div class="flex-1 min-w-0">';
-        html += '<div class="font-semibold text-slate-800 text-base truncate">' + highlightMatch(device.name || 'Unnamed', query);
-        if (device.id) html += ' <span class="text-slate-500 font-normal">ID/Position #' + device.id + '</span>';
+        
+        // Line 1: NAME • Group • ID/Position #00
+        html += '<div class="font-semibold text-slate-800 text-base truncate">';
+        html += highlightMatch(device.name || 'Unnamed', query);
+        if (device.rackId) html += ' <span class="text-slate-500 font-normal">• ' + device.rackId.toUpperCase() + '</span>';
+        html += ' <span class="text-blue-600 font-medium">• #' + positionText + '</span>';
         html += '</div>';
+        
+        // Line 2: Type • Location (purple) • IP
         html += '<div class="text-sm text-slate-600">';
-        html += '<span class="uppercase font-medium">' + (device.type || '') + '</span>';
-        if (device.location) html += ' • ' + device.location;
+        html += '<span class="uppercase font-medium">' + formatLabel(device.type || '') + '</span>';
+        if (locationText) html += ' • <span class="text-purple-600 font-semibold">📍 ' + locationText + '</span>';
         if (deviceIP) html += ' • <span class="font-mono bg-slate-100 px-1 rounded">' + deviceIP + '</span>';
         html += '</div>';
+        
         html += '</div>';
         
         // Status
@@ -704,6 +754,44 @@ var Dashboard = (function() {
         
         html += '</div>';
         return html;
+    }
+    
+    /**
+     * Find room number for a location name
+     */
+    function findRoomNumber(locationName) {
+        if (!locationName) return '';
+        var locLower = locationName.toLowerCase().replace(/\s+/g, '');
+        
+        // Search in rooms
+        if (appState.rooms && appState.rooms.length > 0) {
+            for (var i = 0; i < appState.rooms.length; i++) {
+                var r = appState.rooms[i];
+                var nick = (r.nickname || '').toLowerCase().replace(/\s+/g, '');
+                var rname = (r.name || '').toLowerCase().replace(/\s+/g, '');
+                var rid = String(r.id !== undefined ? r.id : '').toLowerCase();
+                
+                if (locationName === r.nickname || locationName === r.name || locationName === String(r.id) ||
+                    locLower === nick || locLower === rname || locLower === rid) {
+                    return String(r.id).padStart(2, '0');
+                }
+            }
+        }
+        
+        // Search in custom locations
+        if (appState.locations && appState.locations.length > 0) {
+            for (var j = 0; j < appState.locations.length; j++) {
+                var loc = appState.locations[j];
+                var locName = (loc.name || '').toLowerCase().replace(/\s+/g, '');
+                
+                if (locationName === loc.name || locLower === locName) {
+                    var code = String(loc.code || loc.id || '').replace(/^loc-/, '');
+                    return code.padStart(2, '0');
+                }
+            }
+        }
+        
+        return '';
     }
     
     /**
@@ -1042,6 +1130,33 @@ var Dashboard = (function() {
     
     function capitalizeFirst(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    /**
+     * Format label for display: replace underscores with spaces and capitalize properly
+     * Special handling for common abbreviations (IP, WiFi, NAS, ISP, etc.)
+     */
+    function formatLabel(str) {
+        if (!str) return '';
+        // Replace underscores with spaces
+        var formatted = str.replace(/_/g, ' ');
+        // Capitalize each word
+        formatted = formatted.replace(/\b\w+/g, function(word) {
+            var lower = word.toLowerCase();
+            // Special abbreviations that should be uppercase
+            var upperAbbreviations = ['ip', 'nas', 'isp', 'vpn', 'lan', 'wan', 'dmz', 'iot', 'ups', 'pdu', 'kvm', 'usb', 'hdmi', 'vga', 'cpu', 'ram', 'ssd', 'hdd'];
+            // Special words with custom capitalization
+            var specialWords = { 'wifi': 'WiFi', 'voip': 'VoIP', 'sfp': 'SFP', 'poe': 'PoE', 'qos': 'QoS' };
+            
+            if (upperAbbreviations.indexOf(lower) !== -1) {
+                return lower.toUpperCase();
+            }
+            if (specialWords[lower]) {
+                return specialWords[lower];
+            }
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        });
+        return formatted;
     }
     
     function setElementText(id, text) {

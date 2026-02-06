@@ -214,6 +214,16 @@ thead th.sticky-col {
     display: block;
 }
 
+/* Dashboard specific: full height with footer at bottom */
+#content-dashboard {
+    flex-direction: column;
+    min-height: calc(100vh - 280px);
+}
+
+#content-dashboard.active {
+    display: flex;
+}
+
 /* --- Buttons --- */
 .btn {
     font-weight: 600;
@@ -600,5 +610,70 @@ thead th.sticky-col {
     @page { 
         size: landscape; 
         margin: 6mm; 
+    }
+}
+/* =============================================================================
+   7. DEVICE DETAIL MODAL
+   ============================================================================= */
+
+#deviceDetailModal {
+    backdrop-filter: blur(4px);
+}
+
+#deviceDetailModal .port-box {
+    display: inline-block;
+}
+
+#deviceDetailModal .port-box:hover {
+    z-index: 10;
+}
+
+/* Port color indicators */
+.port-vlan-100 { background-color: #3b82f6; }
+.port-vlan-151 { background-color: #22c55e; }
+.port-vlan-200 { background-color: #eab308; }
+.port-vlan-300 { background-color: #a855f7; }
+.port-vlan-999 { background-color: #ef4444; }
+.port-native { background-color: #94a3b8; }
+.port-free { background-color: #d1d5db; }
+.port-disabled { background-color: #1f2937; }
+
+/* Device icon in header */
+#deviceDetailHeader svg {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Scrollbar styling for connections list */
+#deviceDetailContent .max-h-40::-webkit-scrollbar {
+    width: 4px;
+}
+
+#deviceDetailContent .max-h-40::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+#deviceDetailContent .max-h-40::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+#deviceDetailContent .max-h-40::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Animation for modal entrance */
+#deviceDetailModal > div {
+    animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }

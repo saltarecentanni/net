@@ -1,0 +1,544 @@
+# Apache Guacamole Installation Guide
+## TIESSE Matrix Network Integration
+
+**Version:** 3.6.003-fixed  
+**Date:** February 6, 2026  
+**Author:** TIESSE S.P.A.
+
+---
+
+## Quick Start
+
+```bash
+# 1. Copy the script to your server
+scp install-guacamole.sh user@server:~/
+
+# 2. Make it executable
+chmod +x install-guacamole.sh
+
+# 3. Run the installer
+./install-guacamole.sh
+
+# 4. Access Guacamole
+# URL: http://<SERVER_IP>:8080/guacamole
+# Login: guacadmin / guacadmin
+```
+
+---
+
+## Credentials
+
+| Service | Username | Password | Notes |
+|---------|----------|----------|-------|
+| **Web Login** | guacadmin | guacadmin | Change on first login! |
+| **Database** | tiesse | tiesseadm | For Matrix integration |
+
+---
+
+## ⚠️ IMPORTANT: How to Change IP or Credentials in the Future
+
+### To Change Server IP (e.g., from 10.10.225.103 to new IP)
+
+**Edit ONLY 1 file:** `Matrix/config/guacamole.json`
+
+```json
+{
+    "server": {
+        "baseUrl": "http://NEW_IP_HERE:8080/guacamole",
+        "apiPath": "/api"
+    }
+}
+```
+
+That's it! No need to reinstall anything.
+
+### To Change API Credentials
+
+**Step 1:** Create new user in Guacamole web interface
+- Login to http://YOUR_IP:8080/guacamole
+- Go to **Settings** → **Users**
+- Click **New User**
+- Set username and password
+- Check **Administer system** permission
+- Click **Save**
+
+**Step 2:** Edit `Matrix/config/guacamole.json`
+
+```json
+{
+    "credentials": {
+        "username": "NEW_USERNAME",
+        "password": "NEW_PASSWORD"
+    }
+}
+```
+
+**Step 3:** Restart Matrix server (if using Node.js)
+
+### Configuration File Locations Summary
+
+| What to Change | File to Edit |
+|----------------|--------------|
+| **Matrix ↔ Guacamole IP/URL** | `Matrix/config/guacamole.json` |
+| **Matrix ↔ Guacamole credentials** | `Matrix/config/guacamole.json` |
+| **Guacamole web login password** | Guacamole web interface (Settings → Preferences) |
+| **Guacamole database password** | `~/guacamole/docker-compose.yml` AND `~/guacamole/guacamole-home/guacamole.properties` |
+
+---
+
+## Password Files Location
+
+### WHERE ARE THE PASSWORDS STORED?
+
+There are **2 files** that contain passwords:
+
+### File 1: docker-compose.yml
+**Location:** `~/guacamole/docker-compose.yml`
+
+This file contains the DATABASE password. Look for these lines:
+```yaml
+POSTGRES_PASSWORD: tiesseadm
+```
+This appears **2 times** in the file (once for postgres service, once for guacamole service).
+
+### File 2: guacamole.properties
+**Location:** `~/guacamole/guacamole-home/guacamole.properties`
+
+This file contains the password Guacamole uses to connect to the database:
+```properties
+postgresql-password=tiesseadm
+```
+
+### HOW TO CHANGE DATABASE PASSWORD
+
+If you want to change the database password from `tiesseadm` to something else:
+
+```bash
+cd ~/guacamole
+
+# 1. Stop containers
+sudo docker-compose down
+
+# 2. Edit docker-compose.yml - change BOTH occurrences of the password
+nano docker-compose.yml
+# Find: POSTGRES_PASSWORD: tiesseadm
+# Replace with your new password (in BOTH places)
+
+# 3. Edit guacamole.properties
+nano guacamole-home/guacamole.properties
+# Find: postgresql-password=tiesseadm
+# Replace with your new password
+
+# 4. Remove old database (password is stored in it)
+sudo rm -rf postgres-data
+
+# 5. Restart containers
+sudo docker-compose up -d
+
+# 6. Wait 90 seconds for database to initialize
+sleep 90
+```
+
+⚠️ **IMPORTANT:** The password must be IDENTICAL in both files!
+
+---
+
+## Changing Web Login Password
+
+The web login password (guacadmin) is stored in the DATABASE, not in files.
+To change it:
+
+1. Open browser: `http://<SERVER_IP>:8080/guacamole`
+2. Login with `guacadmin` / `guacadmin`
+3. Click your username in the top-right corner
+4. Select **"Settings"**
+5. Go to **"Preferences"** tab
+6. In **"Change Password"** section:
+   - Current password: `guacadmin`
+   - New password: (your new password)
+   - Confirm password: (your new password)
+7. Click **"Update Password"**
+
+---
+
+## Prerequisites
+
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| **OS** | Ubuntu 22.04 LTS | Ubuntu 24.04 LTS |
+| **RAM** | 2 GB | 4 GB |
+| **Disk** | 10 GB | 20 GB |
+| **Docker** | 20.10+ | Latest |
+| **Ports** | 8080 open | 8080 open |
+
+---
+
+## What the Script Does
+
+1. **Opens firewall port 8080** (UFW)
+2. **Installs Docker** if not present
+3. **Adds user to docker group**
+4. **Creates ~/guacamole directory**
+5. **Creates docker-compose.yml** with 3 services:
+   - `guacd` - Guacamole connection daemon
+   - `postgres` - PostgreSQL database
+   - `guacamole` - Web application
+6. **Generates database schema** using `--postgresql` flag
+7. **Creates guacamole.properties** configuration
+8. **Starts all containers**
+9. **Saves credentials** to ~/guacamole/credentials.txt
+
+---
+
+## Directory Structure After Installation
+
+```
+~/guacamole/
+├── docker-compose.yml          # Container configuration (has DB password)
+├── credentials.txt             # Installation summary
+├── initdb/
+│   └── 01-schema.sql          # Database initialization script
+├── postgres-data/              # PostgreSQL data (persistent)
+├── guacamole-home/
+│   └── guacamole.properties   # Guacamole config (has DB password)
+├── drive/                      # File transfer storage
+└── record/                     # Session recordings
+```
+
+---
+
+## Common Commands
+
+### Start Guacamole
+```bash
+cd ~/guacamole && sudo docker-compose up -d
+```
+
+### Stop Guacamole
+```bash
+cd ~/guacamole && sudo docker-compose down
+```
+
+### Restart Guacamole
+```bash
+cd ~/guacamole && sudo docker-compose restart
+```
+
+### View Logs
+```bash
+cd ~/guacamole && sudo docker-compose logs -f
+```
+
+### View Specific Container Logs
+```bash
+sudo docker logs guacamole
+sudo docker logs guacd
+sudo docker logs guacamole-db
+```
+
+### Check Container Status
+```bash
+sudo docker ps
+```
+
+---
+
+## Troubleshooting
+
+### Problem: Cannot access http://server:8080/guacamole
+
+**Check 1:** Are containers running?
+```bash
+sudo docker ps
+# Should show 3 containers: guacamole, guacd, guacamole-db
+```
+
+**Check 2:** Is port 8080 open in firewall?
+```bash
+sudo ufw status
+# Should show: 8080/tcp ALLOW
+```
+
+**Check 3:** Is something else using port 8080?
+```bash
+ss -tlnp | grep 8080
+```
+
+### Problem: Login with guacadmin/guacadmin doesn't work
+
+This usually means the database didn't initialize correctly.
+
+**Solution:** Reset the database:
+```bash
+cd ~/guacamole
+sudo docker-compose down -v
+sudo rm -rf postgres-data
+sudo docker-compose up -d
+sleep 90  # Wait 90 seconds!
+# Now try guacadmin/guacadmin
+```
+
+### Problem: "Permission denied" when running docker commands
+
+**Solution:** Use sudo or logout/login:
+```bash
+# Option 1: Use sudo (immediate)
+sudo docker-compose up -d
+
+# Option 2: Logout and login (permanent fix)
+# Your user was added to docker group, but it requires logout/login
+```
+
+### Problem: Error "Property postgresql-port must be an integer"
+
+This means the guacamole.properties file has wrong format.
+
+**Solution:** Check the file uses `=` not `:`:
+```bash
+cat ~/guacamole/guacamole-home/guacamole.properties
+# CORRECT:   postgresql-port=5432
+# WRONG:     postgresql-port: 5432
+```
+
+---
+
+## Complete Reset
+
+If everything is broken, start fresh:
+
+```bash
+cd ~/guacamole
+sudo docker-compose down -v
+cd ~
+sudo rm -rf ~/guacamole
+# Now run install-guacamole.sh again
+```
+
+---
+
+## Matrix Integration
+
+After Guacamole is working, Matrix can be configured to:
+
+1. **Create connections automatically** when devices are added
+2. **Update connections** when device IP/credentials change
+3. **Delete connections** when devices are removed
+4. **Open Guacamole sessions** directly from device cards
+
+### Matrix-Guacamole Configuration File
+
+**Location:** `/var/www/html/Matrix/config/guacamole.json`
+(or wherever your Matrix installation is)
+
+```json
+{
+    "enabled": true,
+    
+    "server": {
+        "baseUrl": "http://10.10.225.103:8080/guacamole",
+        "apiPath": "/api"
+    },
+    
+    "credentials": {
+        "username": "tiesse",
+        "password": "tiesseadm"
+    },
+    
+    "defaults": {
+        "ssh": { "port": 22 },
+        "rdp": { "port": 3389 },
+        "vnc": { "port": 5900 },
+        "telnet": { "port": 23 }
+    },
+    
+    "ui": {
+        "openInNewTab": true,
+        "showProtocolButtons": ["ssh", "rdp", "vnc", "telnet"]
+    }
+}
+```
+
+### How to Change Matrix-Guacamole Settings
+
+#### Change Server IP/URL
+
+If your server IP changes from `10.10.225.103` to a new IP:
+
+1. Edit `/var/www/html/Matrix/config/guacamole.json`
+2. Change the `baseUrl`:
+   ```json
+   "server": {
+       "baseUrl": "http://NEW_IP:8080/guacamole",
+       "apiPath": "/api"
+   }
+   ```
+3. Restart Matrix server (if using Node.js):
+   ```bash
+   pm2 restart matrix
+   # or
+   systemctl restart matrix
+   ```
+
+#### Change API Credentials
+
+To change the username/password used by Matrix to connect to Guacamole:
+
+1. **Create a new user in Guacamole:**
+   - Login to Guacamole web interface
+   - Go to Settings → Users
+   - Click "New User"
+   - Username: `matrix-api` (or any name)
+   - Password: (generate a strong password)
+   - Permissions: Check "Administer system"
+   - Click Save
+
+2. **Update Matrix configuration:**
+   Edit `/var/www/html/Matrix/config/guacamole.json`:
+   ```json
+   "credentials": {
+       "username": "matrix-api",
+       "password": "YOUR_NEW_PASSWORD"
+   }
+   ```
+
+3. Restart Matrix server
+
+#### Disable Integration
+
+To temporarily disable Guacamole integration:
+
+1. Edit `/var/www/html/Matrix/config/guacamole.json`
+2. Set `"enabled": false`
+3. Restart Matrix server
+
+### Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         USER BROWSER                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────┐        ┌─────────────────────────────┐ │
+│  │   Matrix Network    │        │    Apache Guacamole         │ │
+│  │   Device Detail     │───────▶│    Web Interface            │ │
+│  │   (Click SSH/RDP)   │        │    (Session opens)          │ │
+│  └─────────────────────┘        └─────────────────────────────┘ │
+│           │                                │                     │
+└───────────┼────────────────────────────────┼─────────────────────┘
+            │                                │
+            ▼                                ▼
+┌─────────────────────┐        ┌─────────────────────────────────┐
+│   Matrix Server     │        │    Guacamole Server             │
+│   (Node.js:3000)    │───────▶│    (Docker:8080)                │
+│                     │  API   │                                 │
+│   config/           │        │    guacd (4822)                 │
+│   guacamole.json    │        │    postgres (5432)              │
+└─────────────────────┘        └─────────────────────────────────┘
+                                           │
+                                           ▼
+                               ┌─────────────────────────────────┐
+                               │    Network Devices              │
+                               │    SSH (22), RDP (3389),        │
+                               │    VNC (5900), Telnet (23)      │
+                               └─────────────────────────────────┘
+```
+
+### API Endpoints
+
+Matrix exposes these Guacamole-related API endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/guacamole?action=status` | GET | Check if integration is enabled |
+| `/api/guacamole?action=config` | GET | Get configuration for frontend |
+| `/api/guacamole` | POST | Create/get connection (requires auth) |
+
+### POST Request Body Examples
+
+**Connect to device:**
+```json
+{
+    "action": "connect",
+    "device": {
+        "id": 123,
+        "name": "Server-01",
+        "ip": "10.10.1.50",
+        "type": "server"
+    },
+    "protocol": "ssh"
+}
+```
+
+**Delete connection:**
+```json
+{
+    "action": "delete",
+    "connectionId": "42"
+}
+```
+
+### Troubleshooting Integration
+
+**Problem:** Buttons appear but connections don't open
+
+1. Check Matrix server console for errors
+2. Verify `/config/guacamole.json` has correct settings
+3. Test API: `curl http://localhost:3000/api/guacamole?action=status`
+
+**Problem:** "Guacamole integration is disabled" message
+
+1. Check that `"enabled": true` in guacamole.json
+2. Verify the API user exists in Guacamole and has admin permissions
+
+**Problem:** Authentication errors
+
+1. Login to Guacamole web interface with the API credentials
+2. If login fails, the password is wrong - reset it in Guacamole
+
+Database connection for direct integration:
+- Host: `localhost` (or server IP)
+- Port: `5432`
+- Database: `guacamole_db`
+- Username: `tiesse`
+- Password: `tiesseadm`
+
+---
+
+## Supported Protocols
+
+| Protocol | Default Port | Use Case |
+|----------|--------------|----------|
+| **SSH** | 22 | Linux servers, routers, switches |
+| **RDP** | 3389 | Windows servers and desktops |
+| **VNC** | 5900 | Linux/Mac desktops, KVM |
+| **Telnet** | 23 | Legacy network equipment |
+
+---
+
+## Backup Database
+
+```bash
+# Create backup
+sudo docker exec guacamole-db pg_dump -U tiesse guacamole_db > backup_$(date +%Y%m%d).sql
+
+# Restore backup
+cat backup_YYYYMMDD.sql | sudo docker exec -i guacamole-db psql -U tiesse guacamole_db
+```
+
+---
+
+## Security Recommendations
+
+1. **Change default password** (guacadmin) immediately after installation
+2. **Use HTTPS** in production (configure Apache/Nginx reverse proxy)
+3. **Restrict access** to trusted networks only
+4. **Regular backups** of the database
+5. **Keep Docker images updated** with `sudo docker-compose pull && sudo docker-compose up -d`
+
+---
+
+## Support
+
+- Apache Guacamole Documentation: https://guacamole.apache.org/doc/
+- Docker Documentation: https://docs.docker.com/
+- Matrix Network Issues: Contact TIESSE S.P.A.

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.6.000
+ * Version: 3.6.003
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -1399,10 +1399,11 @@ var SVGTopology = (function() {
     }
     
     // Get large icon for modal
-    function getLargeIcon(type) {
+    function getLargeIcon(type, size) {
+        size = size || 80;
         var iconFn = deviceIcons[type] || deviceIcons.others;
         var iconSvg = iconFn(typeColors[type] || typeColors.others);
-        return '<svg width="60" height="42" viewBox="0 0 100 70">' + iconSvg + '</svg>';
+        return '<svg width="' + size + '" height="' + Math.round(size * 0.7) + '" viewBox="0 0 100 70">' + iconSvg + '</svg>';
     }
     
     // Get all available device types (for legend modal)

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.6.000
+ * Version: 3.6.003
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -37,6 +37,120 @@ var escapeHtml = window.escapeHtml || function(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 };
+
+/**
+ * Format label for display: replace underscores with spaces and capitalize properly
+ * Special handling for common abbreviations (IP, WiFi, NAS, ISP, etc.)
+ */
+function formatLabel(str) {
+    if (!str) return '';
+    // Replace underscores with spaces
+    var formatted = str.replace(/_/g, ' ');
+    // Capitalize each word
+    formatted = formatted.replace(/\b\w+/g, function(word) {
+        var lower = word.toLowerCase();
+        // Special abbreviations that should be uppercase
+        var upperAbbreviations = ['ip', 'nas', 'isp', 'vpn', 'lan', 'wan', 'dmz', 'iot', 'ups', 'pdu', 'kvm', 'usb', 'hdmi', 'vga', 'cpu', 'ram', 'ssd', 'hdd'];
+        // Special words with custom capitalization
+        var specialWords = { 'wifi': 'WiFi', 'voip': 'VoIP', 'sfp': 'SFP', 'poe': 'PoE', 'qos': 'QoS' };
+        
+        if (upperAbbreviations.indexOf(lower) !== -1) {
+            return lower.toUpperCase();
+        }
+        if (specialWords[lower]) {
+            return specialWords[lower];
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+    return formatted;
+}
+
+/**
+ * Find the room that matches a device's location
+ * Returns the room object or null if not found
+ */
+function findRoomForDevice(device) {
+    if (!device || !device.location) return null;
+    if (typeof appState === 'undefined' || !appState.rooms || appState.rooms.length === 0) {
+        return null;
+    }
+    
+    var loc = device.location;
+    var locNorm = loc.toLowerCase().replace(/\s+/g, '');
+    
+    for (var i = 0; i < appState.rooms.length; i++) {
+        var room = appState.rooms[i];
+        var nick = room.nickname || '';
+        var rid = String(room.id !== undefined ? room.id : '');
+        var rname = room.name || '';
+        
+        // Direct match against nickname (most common case)
+        if (loc === nick) return room;
+        
+        // Direct match against id or name
+        if (loc === rid || loc === rname) return room;
+        
+        // Normalized match (case-insensitive, no spaces)
+        var nickNorm = nick.toLowerCase().replace(/\s+/g, '');
+        var idNorm = rid.toLowerCase().replace(/\s+/g, '');
+        var nameNorm = rname.toLowerCase().replace(/\s+/g, '');
+        
+        if (locNorm === nickNorm || locNorm === idNorm || locNorm === nameNorm) {
+            return room;
+        }
+    }
+    return null;
+}
+
+/**
+ * Format location label with room number prefix (e.g., "00 - Sala Server")
+ */
+function formatLocationLabel(device) {
+    if (!device || !device.location) return '';
+    
+    var label = escapeHtml(device.location);
+    var loc = device.location;
+    var locLower = loc.toLowerCase().replace(/\s+/g, '');
+    
+    // Try to find matching room first
+    if (typeof appState !== 'undefined' && appState.rooms && appState.rooms.length > 0) {
+        for (var i = 0; i < appState.rooms.length; i++) {
+            var r = appState.rooms[i];
+            var nick = r.nickname || '';
+            var rname = r.name || '';
+            var rid = (r.id !== undefined && r.id !== null) ? String(r.id) : '';
+            
+            // Match by nickname, name, or id (case-insensitive)
+            if (loc === nick || loc === rname || loc === rid ||
+                locLower === nick.toLowerCase().replace(/\s+/g, '') ||
+                locLower === rname.toLowerCase().replace(/\s+/g, '') ||
+                locLower === rid.toLowerCase()) {
+                // Found match - prepend room number
+                var roomNum = String(r.id).padStart(2, '0');
+                return roomNum + ' - ' + label;
+            }
+        }
+    }
+    
+    // If not found in rooms, search in custom locations (Via Asti 8, Roma, Torino, etc.)
+    if (typeof appState !== 'undefined' && appState.locations && appState.locations.length > 0) {
+        for (var j = 0; j < appState.locations.length; j++) {
+            var locObj = appState.locations[j];
+            var locName = locObj.name || '';
+            
+            // Match by name (case-insensitive)
+            if (loc === locName || locLower === locName.toLowerCase().replace(/\s+/g, '')) {
+                // Found match - prepend location code
+                var locCode = String(locObj.code || locObj.id || '').replace(/^loc-/, '');
+                if (locCode) {
+                    return locCode.padStart(2, '0') + ' - ' + label;
+                }
+            }
+        }
+    }
+    
+    return label;
+}
 
 // ============================================================================
 // DEVICES LIST UPDATE (Cards and Table Views)
@@ -187,7 +301,7 @@ function updateDeviceFilterBar() {
     html += '<option value="">All Types</option>';
     for (var t = 0; t < types.length; t++) {
         var selectedT = appState.deviceFilters.type === types[t] ? ' selected' : '';
-        html += '<option value="' + types[t] + '"' + selectedT + '>' + types[t].charAt(0).toUpperCase() + types[t].slice(1) + '</option>';
+        html += '<option value="' + types[t] + '"' + selectedT + '>' + formatLabel(types[t]) + '</option>';
     }
     html += '</select>';
     
@@ -307,7 +421,8 @@ function updateDevicesListCards(cont) {
         
         var locationText = '';
         if (d.location) {
-            locationText = '<div class="text-xs mt-1 text-purple-600">📍 ' + escapeHtml(d.location) + '</div>';
+            var locationLabel = formatLocationLabel(d);
+            locationText = '<div class="text-xs mt-1 text-purple-600">📍 ' + locationLabel + '</div>';
         }
         
         var zoneText = '';
@@ -330,7 +445,7 @@ function updateDevicesListCards(cont) {
 
         html += '<div class="border rounded-lg p-2 hover:shadow-md transition-shadow ' + opacityClass + ' ' + noConnectionsClass + '">' +
             '<div class="flex justify-between items-start">' +
-            '<div class="flex-1 min-w-0">' +
+            '<div class="flex-1 min-w-0 cursor-pointer" onclick="DeviceDetail.open(' + d.id + ')">' +
             '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
             '<span class="text-xs font-semibold px-1.5 py-0.5 rounded uppercase" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + (d.rackId || '').toUpperCase() + '</span>' +
             '<span class="text-xs text-slate-500">Pos.</span>' +
@@ -338,20 +453,23 @@ function updateDevicesListCards(cont) {
             ((d.isRear || d.rear) ? '<span class="text-[11px] font-bold text-amber-600" title="Rear/Back position">↩</span>' : '') + '</span>' +
             '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
             '</div>' +
-            '<div class="font-bold text-base text-slate-800 truncate">' + (disabled ? '<span class="text-red-500" title="Disabled">✗</span> ' : '') + d.name + '</div>' +
+            '<div class="font-bold text-base text-slate-800 truncate hover:text-blue-600">' + (disabled ? '<span class="text-red-500" title="Disabled">✗</span> ' : '') + d.name + '</div>' +
             brandModelText +
-            '<div class="text-xs text-slate-400 uppercase">' + d.type + '</div>' +
+            '<div class="text-xs text-slate-400">' + formatLabel(d.type) + '</div>' +
             locationText +
             zoneText +
             addressText +
             '<div class="text-xs mt-1 text-slate-500">' + d.ports.length + ' ports (' + usedPorts + ' used) | ' + totalConnections + ' conn.</div>' +
             noConnectionsWarning +
             '</div>' +
-            '<div class="flex flex-col gap-1 ml-2 edit-mode-only">' +
+            '<div class="flex flex-col gap-1 ml-2">' +
+            '<button onclick="DeviceDetail.open(' + d.id + ')" class="text-slate-400 hover:text-blue-600 text-sm p-1" title="View Details">🔍</button>' +
+            '<span class="edit-mode-only flex flex-col gap-1">' +
             '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-500 hover:text-green-700 text-sm p-1" title="Add Connection">➕</button>' +
             '<button onclick="copyDevice(' + d.id + ')" class="text-purple-500 hover:text-purple-700 text-sm p-1" title="Duplicate Device">📋</button>' +
             '<button onclick="editDevice(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-sm p-1" title="Edit Device">✎</button>' +
             '<button onclick="removeDevice(' + d.id + ')" class="text-red-500 hover:text-red-700 text-sm p-1" title="Delete Device">✕</button>' +
+            '</span>' +
             '</div>' +
             '</div>' +
             '</div>';
@@ -395,7 +513,7 @@ function updateDevicesListTable(cont) {
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600 whitespace-nowrap uppercase" onclick="toggleDeviceSort(\'ports\')">Ports ' + sortIcon('ports') + '</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600 whitespace-nowrap uppercase" onclick="toggleDeviceSort(\'connections\')">Conn ' + sortIcon('connections') + '</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600 whitespace-nowrap uppercase" onclick="toggleDeviceSort(\'links\')">Links ' + sortIcon('links') + '</th>';
-    html += '<th class="p-2 text-center edit-mode-only whitespace-nowrap uppercase">Actions</th>';
+    html += '<th class="p-2 text-center whitespace-nowrap uppercase">Actions</th>';
     html += '</tr></thead><tbody>';
 
     for (var i = 0; i < sorted.length; i++) {
@@ -444,16 +562,20 @@ function updateDevicesListTable(cont) {
         var safeName = escapeHtml(d.name || '');
         var safeBrandModel = escapeHtml(d.brandModel || '');
         var safeType = escapeHtml(d.type || '');
+        var formattedType = formatLabel(d.type || '');
         var safeAddressText = escapeHtml(addressText || '');
         var safeService = escapeHtml(d.service || '');
 
+        // Get formatted location label with room number prefix
+        var locationLabelTable = formatLocationLabel(d) || '-';
+
         html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200 transition-all duration-300" data-device-id="' + d.id + '">';
-        html += '<td class="p-2 text-purple-700 font-semibold max-w-xs truncate" title="' + safeLocation + '">📍 ' + (safeLocation || '-') + '</td>';
+        html += '<td class="p-2 text-purple-700 font-semibold max-w-xs truncate" title="' + locationLabelTable + '">📍 ' + locationLabelTable + '</td>';
         html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + safeRackId.toUpperCase() + '</span></td>';
         html += '<td class="p-2 text-center"><span class="inline-flex items-center justify-center gap-0.5" style="min-width:42px"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + ((d.isRear || d.rear) ? '<span class="text-[10px] text-amber-600 font-bold" title="Rear/Back position">↩</span>' : '<span class="text-[10px] opacity-0">↩</span>') + '</span></td>';
         html += '<td class="p-2 font-semibold text-slate-800">' + (disabled ? '<span class="text-red-500" title="Disabled">✗</span> ' : '') + safeName + '</td>';
         html += '<td class="p-2 text-slate-600">' + (safeBrandModel || '-') + '</td>';
-        html += '<td class="p-2 text-slate-500 uppercase">' + safeType + '</td>';
+        html += '<td class="p-2 text-slate-500">' + formattedType + '</td>';
         html += '<td class="p-2 text-center">' + statusBadge + '</td>';
         html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeAddressText + '">' + (safeAddressText || '-') + '</td>';
         html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeService + '">' + (safeService || '-') + '</td>';
@@ -462,11 +584,14 @@ function updateDevicesListTable(cont) {
         // Links column - shows label if defined, otherwise URL
         var linksHtml = (typeof DeviceLinks !== 'undefined' && d.links && d.links.length) ? DeviceLinks.renderLinks(d.links) : '-';
         html += '<td class="p-2 text-center">' + linksHtml + '</td>';
-        html += '<td class="p-2 text-center whitespace-nowrap edit-mode-only">';
+        html += '<td class="p-2 text-center whitespace-nowrap">';
+        html += '<button onclick="DeviceDetail.open(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-xs mr-1" title="View Details">🔍</button>';
+        html += '<span class="edit-mode-only">';
         html += '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-600 hover:text-green-900 text-xs mr-1" title="Add Connection">+Conn</button>';
         html += '<button onclick="copyDevice(' + d.id + ')" class="text-purple-600 hover:text-purple-900 text-xs mr-1" title="Duplicate Device">Copy</button>';
         html += '<button onclick="editDevice(' + d.id + ')" class="text-blue-600 hover:text-blue-900 text-xs mr-1">Edit</button>';
         html += '<button onclick="removeDevice(' + d.id + ')" class="text-red-600 hover:text-red-900 text-xs">Del</button>';
+        html += '</span>';
         html += '</td>';
         html += '</tr>';
     }

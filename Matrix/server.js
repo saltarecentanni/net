@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.6.000
+ * Version: 3.6.003
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  * 
@@ -690,6 +690,114 @@ function handleEditLockRequest(req, res) {
     }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// Guacamole Integration Handler
+// ═══════════════════════════════════════════════════════════════════
+let guacamoleAPI = null;
+try {
+    guacamoleAPI = require('./api/guacamole');
+} catch (e) {
+    console.warn('[Guacamole] Module not loaded:', e.message);
+}
+
+function handleGuacamoleRequest(req, res, query) {
+    // Handle OPTIONS for CORS preflight
+    if (req.method === 'OPTIONS') {
+        const origin = getCORSOrigin(req);
+        res.writeHead(200, {
+            'Access-Control-Allow-Origin': origin,
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, X-CSRF-Token',
+            'Access-Control-Allow-Credentials': 'true'
+        });
+        return res.end();
+    }
+    
+    // GET: Get status or connection info
+    if (req.method === 'GET') {
+        const action = query.action;
+        
+        // Status check - no auth required
+        if (action === 'status') {
+            if (!guacamoleAPI) {
+                return sendJSON(res, 200, { enabled: false, error: 'Module not loaded' }, req);
+            }
+            return sendJSON(res, 200, guacamoleAPI.getStatus(), req);
+        }
+        
+        // Config - minimal info for frontend
+        if (action === 'config') {
+            if (!guacamoleAPI) {
+                return sendJSON(res, 200, { enabled: false }, req);
+            }
+            const status = guacamoleAPI.getStatus();
+            return sendJSON(res, 200, {
+                enabled: status.enabled,
+                baseUrl: status.baseUrl,
+                protocols: status.protocols,
+                openInNewTab: status.openInNewTab
+            }, req);
+        }
+        
+        return sendJSON(res, 400, { error: 'Invalid action. Use: status, config' }, req);
+    }
+    
+    // POST: Create connection - requires auth
+    if (req.method === 'POST') {
+        const session = getSessionFromCookie(req);
+        if (!session) {
+            return sendJSON(res, 401, { error: 'Authentication required' }, req);
+        }
+        
+        if (!guacamoleAPI || !guacamoleAPI.isEnabled()) {
+            return sendJSON(res, 503, { error: 'Guacamole integration is disabled' }, req);
+        }
+        
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                const action = data.action;
+                
+                if (action === 'connect') {
+                    // Get or create connection and return URL
+                    const { device, protocol } = data;
+                    
+                    if (!device || !device.ip) {
+                        return sendJSON(res, 400, { error: 'Device with IP required' }, req);
+                    }
+                    if (!protocol || !['ssh', 'rdp', 'vnc', 'telnet'].includes(protocol)) {
+                        return sendJSON(res, 400, { error: 'Valid protocol required: ssh, rdp, vnc, telnet' }, req);
+                    }
+                    
+                    const result = await guacamoleAPI.getConnectionInfo(device, protocol);
+                    return sendJSON(res, 200, result, req);
+                    
+                } else if (action === 'delete') {
+                    // Delete connection
+                    const { connectionId } = data;
+                    if (!connectionId) {
+                        return sendJSON(res, 400, { error: 'Connection ID required' }, req);
+                    }
+                    
+                    const success = await guacamoleAPI.deleteConnection(connectionId);
+                    return sendJSON(res, 200, { success }, req);
+                    
+                } else {
+                    return sendJSON(res, 400, { error: 'Invalid action. Use: connect, delete' }, req);
+                }
+            } catch (e) {
+                if (DEBUG_MODE) console.error('Guacamole API error:', e);
+                sendJSON(res, 500, { error: e.message || 'Guacamole API error' }, req);
+            }
+        });
+        return;
+    }
+    
+    sendJSON(res, 405, { error: 'Method not allowed' }, req);
+}
+
 function serveStaticFile(req, res, filePath) {
     fs.readFile(filePath, (err, content) => {
         if (err) {
@@ -742,6 +850,11 @@ function requestHandler(req, res) {
     // Edit Lock API
     if (url === '/api/editlock.php') {
         return handleEditLockRequest(req, res);
+    }
+    
+    // Guacamole API
+    if (url === '/api/guacamole' || url === '/api/guacamole.php') {
+        return handleGuacamoleRequest(req, res, query);
     }
     
     // Data API - support multiple endpoint variations

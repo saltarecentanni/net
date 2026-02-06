@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.6.000  
+**Version:** 3.6.003  
 **Date:** February 5, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3
@@ -29,15 +29,34 @@ A web-based network infrastructure documentation system for enterprise environme
 
 ## 2. VERSION HISTORY
 
-### v3.6.000 (Current) - February 5, 2026
+### v3.6.003 (Current) - February 6, 2026
 
-#### 🎉 Major Version Release - v3.6.000
+#### 🔍 Device Detail Modal
 | Feature | Description |
 |---------|-------------|
-| **Version Milestone** | Major version bump to 3.6.000 |
-| **Codebase Consolidation** | All files synchronized to unified version |
-| **Backup Structure** | Organized backup system with v3.5.xxx archives |
-| **Consistent Versioning** | All files synchronized to 3.6.000 |
+| **Device Detail Modal** | New modal showing complete device information with port visualization |
+| **Port Map by VLAN** | Colored port visualization grouped by VLAN with click-to-detail |
+| **VLAN Summary** | Lists all VLANs with port assignments and color coding |
+| **Connections List** | Shows all device connections with clickable navigation |
+| **Quick Access Links** | Web, SSH, FloorPlan, Edit buttons in modal header |
+| **SVG Device Icons** | Large device type icons from SVGTopology |
+| **device-detail.js** | New JS module for device detail functionality |
+| **🔍 View Button** | Added to device cards and table for easy access |
+
+### v3.6.002 (Previous) - February 6, 2026
+
+#### 🎨 UI Enhancements & Location Numbering
+| Feature | Description |
+|---------|-------------|
+| **Footer Branding** | Changed "TIESSE" to "Tiesse" in footer text |
+| **Room Numbers in Cards** | Device cards now show "00 - Sala Server" format like Floor Plan |
+| **Room Numbers in Charts** | Location charts display room numbers prefix |
+| **formatLabel()** | New function converts "router_wifi" to "Router WiFi" with special handling |
+| **formatLocationLabel()** | Returns formatted location with room number prefix |
+| **findRoomNumber()** | Helper function searches rooms and custom locations for numbers |
+| **Search Results** | Enhanced format: "NAME • Group • #Position" with purple location color |
+| **Tab Navigation Fix** | Fixed conflict between inline styles and CSS classes |
+| **Dashboard Layout** | Added min-height styling to keep footer at bottom |
 
 ### v3.5.050 (Previous) - February 5, 2026
 
