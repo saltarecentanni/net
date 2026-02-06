@@ -82,6 +82,11 @@ function guacRequest($url, $method = 'GET', $data = null, $token = null) {
                 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
             }
         }
+    } elseif ($method === 'PUT') {
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        if ($data && is_array($data)) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        }
     }
     
     $response = curl_exec($ch);
@@ -171,46 +176,80 @@ function findConnection($apiUrl, $token, $dataSource, $hostname, $protocol, $nam
 }
 
 /**
- * Create new connection
+ * Get connection parameters based on protocol and config
  */
-function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostname, $config, &$errorDetail = null) {
+function getConnectionParams($protocol, $hostname, $config) {
     $defaults = $config['defaults'][$protocol] ?? [];
     $port = $defaults['port'] ?? ($protocol === 'rdp' ? 3389 : ($protocol === 'vnc' ? 5900 : 22));
+    
+    $params = [
+        'hostname' => $hostname,
+        'port' => (string)$port
+    ];
+    
+    if ($protocol === 'ssh' || $protocol === 'telnet') {
+        $params['color-scheme'] = $defaults['colorScheme'] ?? 'green-black';
+        $params['font-size'] = (string)($defaults['fontSize'] ?? 14);
+        $params['terminal-width'] = (string)($defaults['terminalWidth'] ?? 100);
+        $params['terminal-height'] = (string)($defaults['terminalHeight'] ?? 30);
+    } elseif ($protocol === 'rdp') {
+        $params['security'] = $defaults['security'] ?? 'any';
+        $params['ignore-cert'] = ($defaults['ignoreCert'] ?? false) ? 'true' : 'false';
+        $params['width'] = (string)($defaults['width'] ?? 1920);
+        $params['height'] = (string)($defaults['height'] ?? 1080);
+    } elseif ($protocol === 'vnc') {
+        $params['color-depth'] = (string)($defaults['colorDepth'] ?? 24);
+    }
+    
+    return $params;
+}
+
+/**
+ * Update existing connection parameters
+ */
+function updateConnection($apiUrl, $token, $dataSource, $identifier, $name, $protocol, $hostname, $config) {
+    $params = getConnectionParams($protocol, $hostname, $config);
     
     $connectionData = [
         'parentIdentifier' => 'ROOT',
         'name' => $name,
+        'identifier' => $identifier,
         'protocol' => $protocol,
-        'parameters' => [
-            'hostname' => $hostname,
-            'port' => (string)$port
-        ],
+        'parameters' => $params,
         'attributes' => [
             'max-connections' => '',
             'max-connections-per-user' => ''
         ]
     ];
     
-    // Add protocol-specific parameters
-    if ($protocol === 'ssh') {
-        $connectionData['parameters']['color-scheme'] = $defaults['colorScheme'] ?? 'green-black';
-        $connectionData['parameters']['font-size'] = (string)($defaults['fontSize'] ?? 14);
-        // Terminal size (80x24 = standard PuTTY/CMD size)
-        $connectionData['parameters']['terminal-width'] = (string)($defaults['terminalWidth'] ?? 100);
-        $connectionData['parameters']['terminal-height'] = (string)($defaults['terminalHeight'] ?? 30);
-    } elseif ($protocol === 'telnet') {
-        $connectionData['parameters']['color-scheme'] = $defaults['colorScheme'] ?? 'green-black';
-        $connectionData['parameters']['font-size'] = (string)($defaults['fontSize'] ?? 14);
-        $connectionData['parameters']['terminal-width'] = (string)($defaults['terminalWidth'] ?? 100);
-        $connectionData['parameters']['terminal-height'] = (string)($defaults['terminalHeight'] ?? 30);
-    } elseif ($protocol === 'rdp') {
-        $connectionData['parameters']['security'] = $defaults['security'] ?? 'any';
-        $connectionData['parameters']['ignore-cert'] = ($defaults['ignoreCert'] ?? false) ? 'true' : 'false';
-        $connectionData['parameters']['width'] = (string)($defaults['width'] ?? 1920);
-        $connectionData['parameters']['height'] = (string)($defaults['height'] ?? 1080);
-    } elseif ($protocol === 'vnc') {
-        $connectionData['parameters']['color-depth'] = (string)($defaults['colorDepth'] ?? 24);
-    }
+    $result = guacRequest(
+        $apiUrl . '/session/data/' . $dataSource . '/connections/' . $identifier,
+        'PUT',
+        $connectionData,
+        $token
+    );
+    
+    error_log("Guacamole updateConnection: HTTP " . $result['code']);
+    
+    return ($result['code'] === 200 || $result['code'] === 204);
+}
+
+/**
+ * Create new connection
+ */
+function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostname, $config, &$errorDetail = null) {
+    $params = getConnectionParams($protocol, $hostname, $config);
+    
+    $connectionData = [
+        'parentIdentifier' => 'ROOT',
+        'name' => $name,
+        'protocol' => $protocol,
+        'parameters' => $params,
+        'attributes' => [
+            'max-connections' => '',
+            'max-connections-per-user' => ''
+        ]
+    ];
     
     $result = guacRequest(
         $apiUrl . '/session/data/' . $dataSource . '/connections',
@@ -310,7 +349,14 @@ try {
             $connection = findConnection($apiUrl, $token, $dataSource, $ip, $protocol, $oldConnName);
         }
         
-        // 3. Create if not exists
+        // 3. If exists, update parameters to ensure they're current
+        if ($connection) {
+            error_log("Connection exists, updating parameters: " . $connection['identifier']);
+            updateConnection($apiUrl, $token, $dataSource, $connection['identifier'], 
+                           $connection['name'], $protocol, $ip, $config);
+        }
+        
+        // 4. Create if not exists
         if (!$connection) {
             $createError = null;
             $connection = createConnection($apiUrl, $token, $dataSource, $connName, $protocol, $ip, $config, $createError);
