@@ -19,7 +19,7 @@
 // ============================================
 // CONSTANTS
 // ============================================
-define('GUAC_VERSION', '3.6.020');
+define('GUAC_VERSION', '3.6.021');
 define('GUAC_MAX_RETRIES', 3);
 define('GUAC_RETRY_DELAY_MS', 300);
 define('GUAC_DEFAULT_TIMEOUT', 30);
@@ -185,18 +185,18 @@ function checkRateLimit() {
 }
 
 /**
- * Get cached token if still valid
+ * Get cached token if still valid (separate cache per user type)
  */
-function getCachedToken() {
+function getCachedToken($userType = 'admin') {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();
     }
     
-    $cacheKey = GUAC_TOKEN_CACHE_KEY;
+    $cacheKey = GUAC_TOKEN_CACHE_KEY . '_' . $userType;
     if (isset($_SESSION[$cacheKey]) && is_array($_SESSION[$cacheKey])) {
         $cached = $_SESSION[$cacheKey];
         if (isset($cached['expires']) && time() < $cached['expires']) {
-            guacLog('DEBUG', 'Using cached authentication token');
+            guacLog('DEBUG', 'Using cached token', ['type' => $userType]);
             return $cached;
         }
     }
@@ -204,31 +204,33 @@ function getCachedToken() {
 }
 
 /**
- * Cache authentication token
+ * Cache authentication token (separate cache per user type)
  */
-function cacheToken($token, $dataSource, $username) {
+function cacheToken($token, $dataSource, $username, $userType = 'admin') {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();
     }
     
-    $_SESSION[GUAC_TOKEN_CACHE_KEY] = [
+    $cacheKey = GUAC_TOKEN_CACHE_KEY . '_' . $userType;
+    $_SESSION[$cacheKey] = [
         'token' => $token,
         'dataSource' => $dataSource,
         'username' => $username,
         'expires' => time() + GUAC_TOKEN_EXPIRY
     ];
     
-    guacLog('DEBUG', 'Cached new authentication token', ['expires_in' => GUAC_TOKEN_EXPIRY]);
+    guacLog('DEBUG', 'Cached token', ['type' => $userType, 'expires_in' => GUAC_TOKEN_EXPIRY]);
 }
 
 /**
  * Clear cached token
  */
-function clearCachedToken() {
+function clearCachedToken($userType = 'admin') {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         @session_start();
     }
-    unset($_SESSION[GUAC_TOKEN_CACHE_KEY]);
+    $cacheKey = GUAC_TOKEN_CACHE_KEY . '_' . $userType;
+    unset($_SESSION[$cacheKey]);
 }
 
 // ============================================
@@ -414,18 +416,18 @@ function guacRequest($url, $method = 'GET', $data = null, $token = null, $retrie
 // ============================================
 
 /**
- * Authenticate with Guacamole (with caching)
+ * Authenticate with Guacamole (with caching, separate cache per user type)
  */
-function authenticate($apiUrl, $username, $password, $useCache = true) {
-    // Try cached token first
+function authenticate($apiUrl, $username, $password, $useCache = true, $userType = 'admin') {
+    // Try cached token first (separate cache for admin vs viewer)
     if ($useCache) {
-        $cached = getCachedToken();
+        $cached = getCachedToken($userType);
         if ($cached) {
             return $cached;
         }
     }
     
-    guacLog('INFO', 'Authenticating with Guacamole', ['user' => $username]);
+    guacLog('INFO', 'Authenticating with Guacamole', ['user' => $username, 'type' => $userType]);
     
     $authData = 'username=' . urlencode($username) . '&password=' . urlencode($password);
     $result = guacRequest($apiUrl . '/tokens', 'POST', $authData, null, 2);
@@ -437,17 +439,17 @@ function authenticate($apiUrl, $username, $password, $useCache = true) {
             'username' => $result['data']['username'] ?? $username
         ];
         
-        // Cache the token
-        cacheToken($auth['token'], $auth['dataSource'], $auth['username']);
+        // Cache the token (separate cache for this user type)
+        cacheToken($auth['token'], $auth['dataSource'], $auth['username'], $userType);
         
-        guacLog('INFO', 'Authentication successful', ['dataSource' => $auth['dataSource']]);
+        guacLog('INFO', 'Authentication successful', ['dataSource' => $auth['dataSource'], 'type' => $userType]);
         return $auth;
     }
     
-    guacLog('ERROR', 'Authentication failed', ['code' => $result['code'], 'body' => substr($result['body'] ?? '', 0, 200)]);
+    guacLog('ERROR', 'Authentication failed', ['code' => $result['code'], 'user' => $username, 'body' => substr($result['body'] ?? '', 0, 200)]);
     
-    // Clear any stale cached token
-    clearCachedToken();
+    // Clear any stale cached token for this user type
+    clearCachedToken($userType);
     
     return null;
 }
@@ -706,7 +708,7 @@ try {
     
     // Action: status - check Guacamole connectivity
     if ($action === 'status') {
-        $auth = authenticate($apiUrl, $username, $password, true);
+        $auth = authenticate($apiUrl, $username, $password, true, 'admin');
         
         if ($auth) {
             sendSuccess([
@@ -736,7 +738,7 @@ try {
             'baseUrl' => $baseUrl
         ];
         
-        $auth = authenticate($apiUrl, $username, $password, false);
+        $auth = authenticate($apiUrl, $username, $password, false, 'admin');
         $results['auth'] = $auth ? 'success' : 'failed';
         
         if ($auth) {
@@ -762,11 +764,11 @@ try {
             sendError(GuacError::INVALID_PROTOCOL, "Valid protocols: ssh, rdp, vnc, telnet", ['protocol' => $protocol]);
         }
         
-        // 1. Authenticate
-        $auth = authenticate($apiUrl, $username, $password, true);
+        // 1. Authenticate with ADMIN credentials (for creating/managing connections)
+        $auth = authenticate($apiUrl, $username, $password, true, 'admin');
         if (!$auth) {
             // Try again without cache
-            $auth = authenticate($apiUrl, $username, $password, false);
+            $auth = authenticate($apiUrl, $username, $password, false, 'admin');
         }
         
         if (!$auth) {
@@ -832,9 +834,12 @@ try {
             }
         }
         
-        // 5. Get viewer token for the URL (limited permissions, no admin access)
+        // 5. Get VIEWER token for the URL (limited permissions, no admin access)
         // This ensures users can't access admin panel even if they click "Home"
-        $viewerAuth = authenticate($apiUrl, $viewerUsername, $viewerPassword, false);
+        $viewerAuth = authenticate($apiUrl, $viewerUsername, $viewerPassword, true, 'viewer');
+        if (!$viewerAuth) {
+            $viewerAuth = authenticate($apiUrl, $viewerUsername, $viewerPassword, false, 'viewer');
+        }
         $viewerToken = $viewerAuth ? $viewerAuth['token'] : $token; // Fallback to admin if viewer fails
         
         if (!$viewerAuth) {
