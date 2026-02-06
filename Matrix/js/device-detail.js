@@ -1,6 +1,6 @@
 /**
  * Device Detail Modal - TIESSE Matrix Network
- * Version: 3.6.006
+ * Version: 3.6.007
  * Shows complete device information with port visualization and VLAN colors
  */
 
@@ -670,22 +670,67 @@ var DeviceDetail = (function() {
     }
 
     /**
-     * Copy text to clipboard
+     * Copy text to clipboard (with fallback for HTTP)
      */
     function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
+        // Try modern API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(function() {
+                    showCopySuccess(text);
+                })
+                .catch(function() {
+                    // Fallback for HTTP or permission denied
+                    fallbackCopy(text);
+                });
+        } else {
+            // Fallback for older browsers
+            fallbackCopy(text);
+        }
+    }
+    
+    /**
+     * Fallback copy using execCommand
+     */
+    function fallbackCopy(text) {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showCopySuccess(text);
+        } catch (err) {
+            console.error('Copy failed:', err);
             if (window.Swal) {
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Copied!',
+                    icon: 'info',
+                    title: 'Copy manually',
                     text: text,
-                    timer: 1500,
-                    showConfirmButton: false
+                    confirmButtonText: 'OK'
                 });
             } else {
-                alert('Copied: ' + text);
+                prompt('Copy this:', text);
             }
-        });
+        }
+        document.body.removeChild(textarea);
+    }
+    
+    /**
+     * Show copy success notification
+     */
+    function showCopySuccess(text) {
+        if (window.Swal) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Copied!',
+                text: text,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
     }
 
     /**
@@ -733,26 +778,41 @@ var DeviceDetail = (function() {
             return Promise.resolve(guacamoleConfig);
         }
         
-        // Try to load config file directly (works with Apache)
-        return fetch('/config/guacamole.json')
-            .then(function(response) {
-                if (!response.ok) throw new Error('Config not found');
-                return response.json();
-            })
-            .then(function(config) {
-                guacamoleConfig = {
-                    enabled: config.enabled !== false,
-                    baseUrl: config.server ? config.server.baseUrl : null,
-                    protocols: config.ui ? config.ui.showProtocolButtons : ['ssh', 'rdp', 'vnc', 'telnet'],
-                    openInNewTab: config.ui ? config.ui.openInNewTab : true
-                };
-                return guacamoleConfig;
-            })
-            .catch(function(error) {
-                console.warn('[Guacamole] Failed to load config:', error);
+        // Try multiple paths to find config (works with both Node.js and Apache)
+        var paths = [
+            'config/guacamole.json',           // Relative path (works in most cases)
+            '/config/guacamole.json',          // Absolute for Node.js
+            '/matrix/config/guacamole.json'    // Apache with /matrix/ prefix
+        ];
+        
+        function tryFetch(pathIndex) {
+            if (pathIndex >= paths.length) {
+                console.warn('[Guacamole] Config not found in any location');
                 guacamoleConfig = { enabled: false };
-                return guacamoleConfig;
-            });
+                return Promise.resolve(guacamoleConfig);
+            }
+            
+            return fetch(paths[pathIndex])
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Not found');
+                    return response.json();
+                })
+                .then(function(config) {
+                    console.log('[Guacamole] Config loaded from:', paths[pathIndex]);
+                    guacamoleConfig = {
+                        enabled: config.enabled !== false,
+                        baseUrl: config.server ? config.server.baseUrl : null,
+                        protocols: config.ui ? config.ui.showProtocolButtons : ['ssh', 'rdp', 'vnc', 'telnet'],
+                        openInNewTab: config.ui ? config.ui.openInNewTab : true
+                    };
+                    return guacamoleConfig;
+                })
+                .catch(function() {
+                    return tryFetch(pathIndex + 1);
+                });
+        }
+        
+        return tryFetch(0);
     }
 
     /**

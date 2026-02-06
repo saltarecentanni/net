@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - JSON Validator (Frontend)
- * Version: 3.6.006
+ * Version: 3.6.007
  * 
  * Client-side validation for import/export operations
  * Prevents user from corrupting data
