@@ -444,20 +444,31 @@ var DeviceDetail = (function() {
 
     /**
      * Render quick action links
+     * Only shows buttons for protocols that are configured in device.links
      */
     function renderLinks(device) {
         var links = device.links || [];
         var addresses = device.addresses || [];
         var html = '';
-
-        // Always show buttons bar
-        html += '<div class="flex flex-wrap gap-2">';
-        
-        // Web access
-        var webLink = links.find(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
         var ip = addresses.length > 0 ? (addresses[0].ip || addresses[0].network || '').split('/')[0] : '';
+
+        // Check which protocols are configured
+        var hasWeb = links.some(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
+        var hasSsh = links.some(function(l) { return l.type === 'ssh'; });
+        var hasRdp = links.some(function(l) { return l.type === 'rdp'; });
+        var hasVnc = links.some(function(l) { return l.type === 'vnc'; });
+        var hasTelnet = links.some(function(l) { return l.type === 'telnet'; });
+
+        // No buttons if no links configured
+        if (!hasWeb && !hasSsh && !hasRdp && !hasVnc && !hasTelnet && !device.location) {
+            return '';
+        }
+
+        html += '<div class="flex flex-wrap gap-2 mt-3">';
         
-        if (webLink || ip) {
+        // Web access - show if configured OR if device has IP (common default)
+        if (hasWeb || ip) {
+            var webLink = links.find(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
             var url = webLink ? webLink.url : 'http://' + ip;
             if (!url.startsWith('http')) url = 'http://' + url;
             html += '<a href="' + url + '" target="_blank" ' +
@@ -465,50 +476,44 @@ var DeviceDetail = (function() {
                     '🌐 Web</a>';
         }
 
-        // Guacamole Remote Access buttons (SSH, RDP, VNC, Telnet)
-        if (ip) {
-            // SSH via Guacamole
+        // SSH - only if configured in links
+        if (hasSsh && ip) {
             html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'ssh\')" ' +
                     'class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-700 text-white rounded-lg text-sm hover:bg-slate-800 transition-colors" ' +
-                    'title="Open SSH session via Guacamole">' +
+                    'title="Open SSH session">' +
                     '🔐 SSH</button>';
-            
-            // RDP for Windows devices
-            if (device.type === 'server' || device.type === 'pc' || device.osType === 'windows') {
-                html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'rdp\')" ' +
-                        'class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors" ' +
-                        'title="Open RDP session via Guacamole">' +
-                        '🖥️ RDP</button>';
-            }
-            
-            // VNC for specific types
-            if (device.type === 'server' || device.type === 'pc' || device.type === 'nas') {
-                html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'vnc\')" ' +
-                        'class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors" ' +
-                        'title="Open VNC session via Guacamole">' +
-                        '🖼️ VNC</button>';
-            }
-            
-            // Telnet for network equipment
-            if (device.type === 'switch' || device.type === 'router' || device.type === 'firewall') {
-                html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'telnet\')" ' +
-                        'class="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors" ' +
-                        'title="Open Telnet session via Guacamole">' +
-                        '📟 Telnet</button>';
-            }
+        }
+        
+        // RDP - only if configured in links
+        if (hasRdp && ip) {
+            html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'rdp\')" ' +
+                    'class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors" ' +
+                    'title="Open RDP session">' +
+                    '🖥️ RDP</button>';
+        }
+        
+        // VNC - only if configured in links
+        if (hasVnc && ip) {
+            html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'vnc\')" ' +
+                    'class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors" ' +
+                    'title="Open VNC session">' +
+                    '🖼️ VNC</button>';
+        }
+        
+        // Telnet - only if configured in links
+        if (hasTelnet && ip) {
+            html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'telnet\')" ' +
+                    'class="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors" ' +
+                    'title="Open Telnet session">' +
+                    '📟 Telnet</button>';
         }
 
         // FloorPlan link
         if (device.location) {
             html += '<button onclick="DeviceDetail.goToFloorPlan(' + device.id + ')" ' +
                     'class="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-sm hover:bg-purple-600 transition-colors">' +
-                    '📍 Floor Plan</button>';
+                    '📍 Floor</button>';
         }
-
-        // Edit button
-        html += '<button onclick="DeviceDetail.editDevice(' + device.id + ')" ' +
-                'class="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600 transition-colors">' +
-                '✏️ Edit</button>';
 
         html += '</div>';
         return html;
