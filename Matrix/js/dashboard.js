@@ -722,7 +722,7 @@ var Dashboard = (function() {
             locationText = roomNum ? roomNum + ' - ' + device.location : device.location;
         }
         
-        var html = '<div class="bg-white border-l-4 border-l-blue-500 border border-slate-200 rounded-r p-3 hover:bg-blue-50 transition-all cursor-pointer flex items-center gap-3" onclick="DeviceDetail.open(' + device.id + ')">';
+        var html = '<div class="bg-white border-l-4 border-l-blue-500 border border-slate-200 rounded-r p-3 hover:bg-blue-50 transition-all cursor-pointer flex items-center gap-3" onclick="Dashboard.goToDevice(' + device.id + ')">';
         
         // Category badge
         html += '<span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">📱 DEVICE</span>';
