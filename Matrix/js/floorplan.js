@@ -93,7 +93,7 @@ var FloorPlan = (function() {
         svg.setAttribute('viewBox', '0 0 2782 1292');
         svg.setAttribute('width', '100%');
         svg.setAttribute('height', '100%');
-        svg.style.background = 'var(--color-bg-alt)';
+        svg.style.background = '#F8FAFC';
         
         const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
         image.setAttribute('href', 'assets/planta.png');
@@ -530,7 +530,7 @@ var FloorPlan = (function() {
         // Active
         html += '<div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
         html += '<div style="font-size:22px;font-weight:700;color:#059669;">' + activeCount + '</div>';
-        html += '<div style="font-size:10px;color:#f87171;font-weight:600;">ACTIVE</div>';
+        html += '<div style="font-size:10px;color:#059669;font-weight:600;">ACTIVE</div>';
         html += '</div>';
         
         // Disabled
@@ -614,8 +614,9 @@ var FloorPlan = (function() {
                     }
                     
                     if (deviceLinks.length > 0) {
-                        html += '<div style="display:flex;gap:3px;flex-shrink:0;">';
-                        var linkColors = { 'SSH': '#f87171', 'RDP': '#3b82f6', 'VNC': '#8b5cf6', 'HTTP': '#a78bfa', 'HTTPS': '#a78bfa', 'SMB': '#6366f1', 'TELNET': '#64748b', 'default': '#64748b' };
+                        html += '<div style="display:flex;gap:4px;flex-shrink:0;">';
+                        // Cores muito claras (pastéis) para melhor visibilidade do ícone
+                        var linkColors = { 'SSH': '#fee2e2', 'RDP': '#dbeafe', 'VNC': '#f3e8ff', 'HTTP': '#faf5ff', 'HTTPS': '#faf5ff', 'SMB': '#e0e7ff', 'TELNET': '#f1f5f9', 'default': '#f1f5f9' };
                         deviceLinks.forEach(function(linkObj, idx) {
                             var url = linkObj.url || linkObj;
                             var label = linkObj.label || linkObj.type || 'Link';
@@ -630,14 +631,15 @@ var FloorPlan = (function() {
                                 if (!href.match(/^[a-z]+:\/\//i) && !href.startsWith('//')) {
                                     href = 'http://' + href;
                                 }
-                                html += '<a href="' + escapeHtml(href) + '" target="_blank" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;" title="' + escapeHtml(label + ': ' + url) + '">' + icon + '</a>';
+                                html += '<a href="' + escapeHtml(href) + '" target="_blank" style="background:' + bgColor + ';color:#1e293b;padding:5px 8px;border-radius:6px;font-size:12px;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.1);" title="' + escapeHtml(label + ': ' + url) + '">' + icon + '</a>';
                             } else {
-                                // SSH/RDP/VNC/Telnet/SMB - use openProtocolLink system
+                                // SSH/RDP/VNC/Telnet/SMB - Try Guacamole first, fallback to protocol handler
                                 var protocolUrl = url;
                                 if (!url.match(/^[a-z]+:\/\//i)) {
                                     protocolUrl = (type.toLowerCase() || 'ssh') + '://' + url;
                                 }
-                                html += '<a href="javascript:void(0)" data-protocol-url="' + escapeHtml(protocolUrl) + '" data-copy-url="' + escapeHtml(url) + '" onclick="openProtocolLink(this)" style="background:' + bgColor + ';color:white;padding:3px 6px;border-radius:4px;font-size:9px;text-decoration:none;cursor:pointer;" title="🔗 Click to open: ' + escapeHtml(url) + '">' + icon + '</a>';
+                                // Use data attributes for Guacamole integration
+                                html += '<a href="javascript:void(0)" data-protocol-url="' + escapeHtml(protocolUrl) + '" data-copy-url="' + escapeHtml(url) + '" data-device-id="' + device.id + '" data-protocol="' + (type.toLowerCase() || 'ssh') + '" onclick="FloorPlan.openRemoteLink(this)" style="background:' + bgColor + ';color:#1e293b;padding:5px 8px;border-radius:6px;font-size:12px;text-decoration:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.1);" title="🔗 ' + type + ': ' + escapeHtml(url) + '">' + icon + '</a>';
                             }
                         });
                         html += '</div>';
@@ -1127,7 +1129,9 @@ var FloorPlan = (function() {
         
         var html = '';
         sortedRooms.forEach(function(room) {
-            var label = room.nickname ? room.id + ' - ' + room.nickname : room.id;
+            // Format ID with leading zero for 0-9
+            var displayId = parseInt(room.id) >= 0 && parseInt(room.id) <= 9 ? '0' + room.id : room.id;
+            var label = room.nickname ? displayId + ' - ' + room.nickname : displayId;
             var textColor = room.nickname ? 'color: var(--color-accent);' : 'color: var(--color-text-light);';
             var fontWeight = room.nickname ? 'font-weight: 600;' : 'font-weight: 400;';
             html += '<div style="font-size: 11px; padding: 2px 0; ' + textColor + fontWeight + ' white-space: nowrap;" title="Click room on map">' + label + '</div>';
@@ -1165,6 +1169,33 @@ var FloorPlan = (function() {
         }
     }
     
+    /**
+     * Open remote link - tries Guacamole first, then falls back to protocol handler
+     */
+    function openRemoteLink(element) {
+        var deviceId = element.getAttribute('data-device-id');
+        var protocol = element.getAttribute('data-protocol');
+        var protocolUrl = element.getAttribute('data-protocol-url');
+        var copyUrl = element.getAttribute('data-copy-url');
+        
+        // Try Guacamole first if DeviceDetail is available
+        if (typeof DeviceDetail !== 'undefined' && DeviceDetail.openGuacamole) {
+            DeviceDetail.openGuacamole(deviceId, protocol);
+        } else if (typeof openProtocolLink === 'function') {
+            // Fallback to standard protocol handler
+            openProtocolLink(element);
+        } else {
+            // Last resort: copy to clipboard
+            if (copyUrl) {
+                navigator.clipboard.writeText(copyUrl).then(function() {
+                    showToast('📋 Copied: ' + copyUrl, 'success');
+                }).catch(function() {
+                    prompt('Copy this address:', copyUrl);
+                });
+            }
+        }
+    }
+    
     // ============================================================================
     // PUBLIC API
     // ============================================================================
@@ -1182,6 +1213,7 @@ var FloorPlan = (function() {
         exportPNG: exportPNG,
         updateStats: updateStats,
         setRooms: setRooms,
-        getRooms: function() { return rooms; }
+        getRooms: function() { return rooms; },
+        openRemoteLink: openRemoteLink
     };
 })();

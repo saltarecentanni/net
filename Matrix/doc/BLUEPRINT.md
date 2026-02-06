@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.6.023  
+**Version:** 3.6.024  
 **Date:** February 6, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Apache 2.4.58 + PHP 8.3
@@ -31,7 +31,35 @@ A comprehensive web-based network infrastructure documentation system for enterp
 
 ## 2. VERSION HISTORY
 
-### v3.6.023 (Current) - February 6, 2026
+### v3.6.024 (Current) - February 6, 2026
+
+#### 🏢 Room Structure & FloorPlan
+| Feature | Description |
+|---------|-------------|
+| **21 Rooms** | Expanded from 20 to 21 rooms (IDs 0-20) |
+| **Room 8 Split** | Original BIGONE split into Room 8 (L.Corfiati/R.Belletti) and Room 20 (BigOne) |
+| **Room 19 Added** | New room mapped for additional space |
+| **Polygon Update** | All 21 rooms with updated polygon coordinates |
+| **Background #F8FAFC** | Uniform background color for FloorPlan and Topology |
+| **Legend IDs 00-09** | Room IDs 0-9 now display with leading zero |
+
+#### 🎨 UI/UX Improvements
+| Feature | Description |
+|---------|-------------|
+| **ACTIVE Label Fixed** | Changed from red (#f87171) to green (#059669) |
+| **Link Icons Larger** | Increased from 9px to 12px, padding 5px/8px |
+| **Pastel Link Colors** | Very light backgrounds for better icon visibility |
+| **Shadow on Links** | Subtle box-shadow for depth |
+
+#### 🔗 Remote Links Integration
+| Feature | Description |
+|---------|-------------|
+| **Guacamole First** | Links try Guacamole before protocol handlers |
+| **FloorPlan.openRemoteLink** | New function for remote connection handling |
+| **Device ID Tracking** | Links store device-id for Guacamole lookup |
+| **Protocol Detection** | SSH/RDP/VNC/TELNET auto-detected |
+
+### v3.6.023 - February 6, 2026
 
 #### 🖥️ Apache Guacamole Integration
 | Feature | Description |
@@ -273,7 +301,7 @@ appState = {
     }],
     
     // Metadata
-    version: "3.6.023",
+    version: "3.6.024",
     lastModified: "2026-02-06T14:00:00Z",
     checksum: "sha256..."         // Data integrity
 }
@@ -672,13 +700,13 @@ See doc/GUACAMOLE_SETUP.md for detailed Docker installation.
 - [ ] Dark mode theme
 - [ ] PDF report generation
 - [ ] VLAN visualization improvements
-- [x] ~~Guacamole integration~~ (v3.6.023)
+- [x] ~~Guacamole integration~~ (v3.6.024)
 - [x] ~~Device detail modal~~ (v3.6.003)
 - [x] ~~Dashboard charts~~ (v3.6.003)
 - [x] ~~JSON validation~~ (v3.6.005)
 
 ---
 
-**Document Version:** 3.6.023  
+**Document Version:** 3.6.024  
 **Last Updated:** February 6, 2026  
 **Total Project Lines:** ~19,000

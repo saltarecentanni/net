@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Mapeador de Salas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/vendor/tailwind.min.js"></script>
     <style>
         #canvas { border: 2px solid #3b82f6; background: white; overflow: hidden; cursor: crosshair; }
         #canvas.panning { cursor: grab !important; }
@@ -92,6 +92,14 @@
                     </div>
                     
                     <div class="space-y-2 border-t border-slate-700 pt-2">
+                        <button onclick="loadFromServer()" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 rounded text-sm font-semibold">
+                            📥 Carregar do Servidor
+                        </button>
+                        <button onclick="saveToServer()" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-sm font-semibold">
+                            💾 Salvar no Servidor
+                        </button>
+                    </div>
+                    <div class="space-y-2 border-t border-slate-700 pt-2">
                         <button onclick="finish()" id="finishBtn" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-sm font-semibold hidden">
                             ✓ Finalizar Polígono
                         </button>
@@ -104,8 +112,8 @@
                         <button onclick="check()" class="w-full px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-sm">
                             🔍 Verificar
                         </button>
-                        <button onclick="save()" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm font-semibold">
-                            💾 Exportar JSON
+                        <button onclick="save()" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm">
+                            📄 Exportar JSON Local
                         </button>
                     </div>
                 </div>
@@ -698,6 +706,111 @@
             URL.revokeObjectURL(url);
             alert('Exportado: ' + state.rooms.length + ' salas');
         }
+        
+        // ========== SERVIDOR ==========
+        function loadFromServer() {
+            fetch('/data.php')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data.rooms || data.rooms.length === 0) {
+                        alert('Nenhuma sala encontrada no servidor!');
+                        return;
+                    }
+                    
+                    // Limpar salas atuais
+                    state.rooms = [];
+                    document.getElementById('rooms').innerHTML = '';
+                    
+                    // Importar cada sala
+                    data.rooms.forEach(function(r) {
+                        if (!r.polygon || r.polygon.length < 3) return;
+                        
+                        var room = {
+                            id: r.id || String(state.rooms.length),
+                            name: r.id || r.name || String(state.rooms.length),
+                            nick: r.nickname || '',
+                            type: r.type || 'office',
+                            shape: 'poly',
+                            data: {
+                                pts: r.polygon.map(function(p) { return {x: p.x, y: p.y}; })
+                            }
+                        };
+                        state.rooms.push(room);
+                    });
+                    
+                    render();
+                    alert('Carregado: ' + state.rooms.length + ' salas do servidor!');
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    alert('Erro ao carregar: ' + err.message);
+                });
+        }
+        
+        function saveToServer() {
+            if (state.rooms.length === 0) {
+                alert('Nenhuma sala para salvar!');
+                return;
+            }
+            
+            // Primeiro carregar dados atuais
+            fetch('/data.php')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    // Atualizar apenas os rooms, preservando devices e connections
+                    var newRooms = state.rooms.map(function(room) {
+                        var poly = getPoly(room);
+                        var area = calcArea(poly);
+                        
+                        // Tentar encontrar sala existente para preservar dados
+                        var existing = data.rooms.find(function(r) { return r.id === room.id; });
+                        
+                        return {
+                            id: room.id,
+                            name: room.name,
+                            nickname: room.nick || (existing ? existing.nickname : ''),
+                            type: room.type,
+                            area: Math.round(area),
+                            capacity: existing ? existing.capacity : (room.type === 'office' ? 10 : 0),
+                            description: existing ? existing.description : (room.name + ' - Mapeado'),
+                            color: getColor(room.type),
+                            polygon: poly,
+                            devices: existing ? existing.devices : [],
+                            notes: existing ? existing.notes : '',
+                            floor: existing ? existing.floor : 0
+                        };
+                    });
+                    
+                    data.rooms = newRooms;
+                    
+                    // Salvar no servidor
+                    return fetch('/data.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Room-Mapper': 'true'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.success) {
+                        alert('✅ Salvo no servidor: ' + state.rooms.length + ' salas!');
+                    } else {
+                        alert('❌ Erro: ' + (result.error || 'Desconhecido'));
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    alert('Erro ao salvar: ' + err.message);
+                });
+        }
+        
+        // Carregar automaticamente ao abrir
+        window.addEventListener('load', function() {
+            setTimeout(loadFromServer, 500);
+        });
         
         function calcArea(poly) {
             if (poly.length < 3) return 0;

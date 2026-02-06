@@ -2022,7 +2022,7 @@ var SVGTopology = (function() {
         });
         
         var html = '<svg id="svgTopology" width="100%" height="100%" viewBox="' + vb + '" ' +
-            'style="background: linear-gradient(135deg, var(--color-bg-alt) 0%, var(--color-border) 100%); cursor: grab;">' +
+            'style="background: #F8FAFC; cursor: grab;">' +
             '<defs>' +
             '<filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">' +
             '<feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.2"/>' +
