@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.6.008
+ * Version: PHP endpoint for Guacamole config (Apache compatibility)
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  * 

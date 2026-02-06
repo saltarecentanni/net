@@ -780,9 +780,10 @@ var DeviceDetail = (function() {
         
         // Try multiple paths to find config (works with both Node.js and Apache)
         var paths = [
-            'config/guacamole.json',           // Relative path (works in most cases)
-            '/config/guacamole.json',          // Absolute for Node.js
-            '/matrix/config/guacamole.json'    // Apache with /matrix/ prefix
+            'api/guacamole-config.php',        // PHP endpoint (Apache - preferred)
+            '/matrix/api/guacamole-config.php', // Apache with /matrix/ prefix
+            'config/guacamole.json',           // Relative path (Node.js dev)
+            '/matrix/config/guacamole.json'    // Apache direct JSON access
         ];
         
         function tryFetch(pathIndex) {

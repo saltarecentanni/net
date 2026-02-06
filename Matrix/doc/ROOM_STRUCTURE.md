@@ -1,6 +1,6 @@
 # 🏢 Room & Location Data Structure
 
-**Version:** 3.6.008  
+**Version:** PHP endpoint for Guacamole config (Apache compatibility)  
 **Date:** February 5, 2026
 **Note:** Room & Location structures have been stable since v3.5.005. This documentation remains accurate for current implementation.
 

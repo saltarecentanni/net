@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - JSON Validator (Backend)
- * Version: 3.6.008
+ * Version: PHP endpoint for Guacamole config (Apache compatibility)
  * 
  * Smart validation system for data integrity
  * Prevents corruption during import/export/backup operations
