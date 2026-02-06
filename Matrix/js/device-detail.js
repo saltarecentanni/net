@@ -918,9 +918,17 @@ var DeviceDetail = (function() {
                         });
                     }
                     
-                    // Open in new tab
+                    // Open in popup window with fixed size (similar to PuTTY)
                     setTimeout(function() {
-                        window.open(data.url, '_blank');
+                        var width = protocol === 'rdp' ? 1024 : 850;
+                        var height = protocol === 'rdp' ? 768 : 550;
+                        var left = (screen.width - width) / 2;
+                        var top = (screen.height - height) / 2;
+                        var windowName = 'guac_' + device.id + '_' + protocol;
+                        var features = 'width=' + width + ',height=' + height + 
+                                      ',left=' + left + ',top=' + top +
+                                      ',menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=no';
+                        window.open(data.url, windowName, features);
                     }, 500);
                 } else {
                     throw new Error('URL not returned');

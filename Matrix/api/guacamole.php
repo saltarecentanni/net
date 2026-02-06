@@ -194,7 +194,15 @@ function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostn
     // Add protocol-specific parameters
     if ($protocol === 'ssh') {
         $connectionData['parameters']['color-scheme'] = $defaults['colorScheme'] ?? 'green-black';
-        $connectionData['parameters']['font-size'] = (string)($defaults['fontSize'] ?? 12);
+        $connectionData['parameters']['font-size'] = (string)($defaults['fontSize'] ?? 14);
+        // Terminal size (80x24 = standard PuTTY/CMD size)
+        $connectionData['parameters']['terminal-width'] = (string)($defaults['terminalWidth'] ?? 100);
+        $connectionData['parameters']['terminal-height'] = (string)($defaults['terminalHeight'] ?? 30);
+    } elseif ($protocol === 'telnet') {
+        $connectionData['parameters']['color-scheme'] = $defaults['colorScheme'] ?? 'green-black';
+        $connectionData['parameters']['font-size'] = (string)($defaults['fontSize'] ?? 14);
+        $connectionData['parameters']['terminal-width'] = (string)($defaults['terminalWidth'] ?? 100);
+        $connectionData['parameters']['terminal-height'] = (string)($defaults['terminalHeight'] ?? 30);
     } elseif ($protocol === 'rdp') {
         $connectionData['parameters']['security'] = $defaults['security'] ?? 'any';
         $connectionData['parameters']['ignore-cert'] = ($defaults['ignoreCert'] ?? false) ? 'true' : 'false';

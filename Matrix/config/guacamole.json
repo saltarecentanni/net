@@ -21,7 +21,9 @@
         "ssh": {
             "port": 22,
             "colorScheme": "green-black",
-            "fontSize": 12
+            "fontSize": 14,
+            "terminalWidth": 100,
+            "terminalHeight": 30
         },
         "rdp": {
             "port": 3389,
@@ -36,7 +38,10 @@
         },
         "telnet": {
             "port": 23,
-            "colorScheme": "green-black"
+            "colorScheme": "green-black",
+            "fontSize": 14,
+            "terminalWidth": 100,
+            "terminalHeight": 30
         }
     },
     
