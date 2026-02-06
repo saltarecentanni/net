@@ -121,7 +121,68 @@ if ($httpCode === 200 && isset($data['authToken'])) {
         echo "FAILED\n";
     }
     
-    echo "\n=== ALL TESTS PASSED ===\n";
+    // 6. Test creating a connection
+    echo "\n6. Test CREATE permission: ";
+    
+    $testConn = [
+        'parentIdentifier' => 'ROOT',
+        'name' => 'Matrix-Test-' . time(),
+        'protocol' => 'ssh',
+        'parameters' => [
+            'hostname' => '127.0.0.1',
+            'port' => '22'
+        ],
+        'attributes' => [
+            'max-connections' => '',
+            'max-connections-per-user' => ''
+        ]
+    ];
+    
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $apiUrl . '/session/data/' . $dataSource . '/connections?token=' . urlencode($token),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($testConn),
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_SSL_VERIFYPEER => false
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    $result = json_decode($response, true);
+    
+    if ($httpCode === 200 || $httpCode === 201) {
+        echo "OK (HTTP $httpCode)\n";
+        echo "   User can create connections!\n";
+        
+        // Delete the test connection
+        if (isset($result['identifier'])) {
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $apiUrl . '/session/data/' . $dataSource . '/connections/' . $result['identifier'] . '?token=' . urlencode($token),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST => 'DELETE',
+                CURLOPT_SSL_VERIFYPEER => false
+            ]);
+            curl_exec($ch);
+            curl_close($ch);
+            echo "   (test connection deleted)\n";
+        }
+    } else {
+        echo "FAILED (HTTP $httpCode)\n";
+        echo "   Response: $response\n";
+        echo "\n   *** USER DOES NOT HAVE PERMISSION TO CREATE CONNECTIONS! ***\n";
+        echo "\n   Fix in Guacamole:\n";
+        echo "   1. Login as guacadmin at $baseUrl\n";
+        echo "   2. Settings > Users > $username\n";
+        echo "   3. Enable: 'Create new connections'\n";
+        echo "   4. Enable: 'Administer system' (or specific permissions)\n";
+    }
+    
+    echo "\n=== DIAGNOSTIC COMPLETE ===\n";
     
 } else {
     echo "FAILED (HTTP $httpCode)\n";

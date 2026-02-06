@@ -146,7 +146,7 @@ function findConnection($apiUrl, $token, $dataSource, $hostname, $protocol) {
 /**
  * Create new connection
  */
-function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostname, $config) {
+function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostname, $config, &$errorDetail = null) {
     $defaults = $config['defaults'][$protocol] ?? [];
     $port = $defaults['port'] ?? ($protocol === 'rdp' ? 3389 : ($protocol === 'vnc' ? 5900 : 22));
     
@@ -170,7 +170,7 @@ function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostn
         $connectionData['parameters']['font-size'] = (string)($defaults['fontSize'] ?? 12);
     } elseif ($protocol === 'rdp') {
         $connectionData['parameters']['security'] = $defaults['security'] ?? 'any';
-        $connectionData['parameters']['ignore-cert'] = $defaults['ignoreCert'] ? 'true' : 'false';
+        $connectionData['parameters']['ignore-cert'] = ($defaults['ignoreCert'] ?? false) ? 'true' : 'false';
         $connectionData['parameters']['width'] = (string)($defaults['width'] ?? 1920);
         $connectionData['parameters']['height'] = (string)($defaults['height'] ?? 1080);
     } elseif ($protocol === 'vnc') {
@@ -184,12 +184,27 @@ function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostn
         $token
     );
     
-    if ($result['code'] === 200 && isset($result['data']['identifier'])) {
+    // Log result for debugging
+    error_log("Guacamole createConnection: HTTP " . $result['code'] . " - " . $result['body']);
+    
+    // Success can be 200 or 201 (Created)
+    if (($result['code'] === 200 || $result['code'] === 201) && isset($result['data']['identifier'])) {
         return [
             'identifier' => $result['data']['identifier'],
             'name' => $result['data']['name'] ?? $name,
             'protocol' => $protocol
         ];
+    }
+    
+    // Capture error detail
+    $errorDetail = "HTTP " . $result['code'];
+    if (isset($result['data']['message'])) {
+        $errorDetail .= ": " . $result['data']['message'];
+    } elseif ($result['body']) {
+        $errorDetail .= ": " . substr($result['body'], 0, 200);
+    }
+    if ($result['error']) {
+        $errorDetail .= " (cURL: " . $result['error'] . ")";
     }
     
     return null;
@@ -254,13 +269,14 @@ try {
         // 3. Create if not exists
         if (!$connection) {
             $connName = $deviceName . ' (' . strtoupper($protocol) . ')';
-            $connection = createConnection($apiUrl, $token, $dataSource, $connName, $protocol, $ip, $config);
+            $createError = null;
+            $connection = createConnection($apiUrl, $token, $dataSource, $connName, $protocol, $ip, $config, $createError);
             
             if (!$connection) {
                 http_response_code(500);
                 echo json_encode([
                     'error' => 'Failed to create connection',
-                    'detail' => 'Could not create connection in Guacamole',
+                    'detail' => $createError ?? 'Unknown error from Guacamole API',
                     'ip' => $ip,
                     'protocol' => $protocol
                 ]);
