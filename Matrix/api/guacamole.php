@@ -19,7 +19,7 @@
 // ============================================
 // CONSTANTS
 // ============================================
-define('GUAC_VERSION', '3.6.019');
+define('GUAC_VERSION', '3.6.020');
 define('GUAC_MAX_RETRIES', 3);
 define('GUAC_RETRY_DELAY_MS', 300);
 define('GUAC_DEFAULT_TIMEOUT', 30);
@@ -263,8 +263,16 @@ $baseUrl = rtrim(
     '/'
 );
 $apiUrl = $baseUrl . '/api';
+
+// Admin credentials - for creating/managing connections
 $username = $config['credentials']['username'] ?? $config['username'] ?? 'guacadmin';
 $password = $config['credentials']['password'] ?? $config['password'] ?? 'guacadmin';
+
+// Viewer credentials - for opening connections (no admin access)
+// Falls back to admin credentials if not configured
+$viewerUsername = $config['viewerCredentials']['username'] ?? $username;
+$viewerPassword = $config['viewerCredentials']['password'] ?? $password;
+
 $timeout = $config['timeout'] ?? GUAC_DEFAULT_TIMEOUT;
 
 // ============================================
@@ -824,8 +832,17 @@ try {
             }
         }
         
-        // 5. Build client URL with embedded token for auto-login
-        $clientUrl = buildClientUrl($baseUrl, $connection['identifier'], $dataSource, $protocol, $token);
+        // 5. Get viewer token for the URL (limited permissions, no admin access)
+        // This ensures users can't access admin panel even if they click "Home"
+        $viewerAuth = authenticate($apiUrl, $viewerUsername, $viewerPassword, false);
+        $viewerToken = $viewerAuth ? $viewerAuth['token'] : $token; // Fallback to admin if viewer fails
+        
+        if (!$viewerAuth) {
+            guacLog('WARN', 'Viewer auth failed, using admin token (security risk!)', ['viewer' => $viewerUsername]);
+        }
+        
+        // 6. Build client URL with VIEWER token for auto-login (limited access)
+        $clientUrl = buildClientUrl($baseUrl, $connection['identifier'], $dataSource, $protocol, $viewerToken);
         
         guacLog('INFO', 'Connection ready', [
             'id' => $connection['identifier'],

@@ -11,9 +11,16 @@
     },
     
     "credentials": {
-        "_comment": "API user credentials (create dedicated user in Guacamole Settings > Users)",
+        "_comment": "Admin user - used to CREATE connections (needs admin permissions)",
         "username": "tiesse",
         "password": "tiesseadm"
+    },
+    
+    "viewerCredentials": {
+        "_comment": "Viewer user - used to OPEN connections (limited permissions, no admin access)",
+        "_instructions": "Create this user in Guacamole with READ-only permissions on connections",
+        "username": "matrix-user",
+        "password": "MatrixSSH2026"
     },
     
     "defaults": {
