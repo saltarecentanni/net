@@ -835,12 +835,12 @@ var DeviceDetail = (function() {
             if (window.Swal) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Sem IP',
-                    text: 'Este dispositivo não tem endereço IP configurado.',
+                    title: 'No IP Address',
+                    text: 'This device has no IP address configured.',
                     confirmButtonText: 'OK'
                 });
             } else {
-                alert('Este dispositivo não tem endereço IP configurado.');
+                alert('This device has no IP address configured.');
             }
             return;
         }
@@ -848,7 +848,7 @@ var DeviceDetail = (function() {
         // Show loading
         if (window.Swal) {
             Swal.fire({
-                title: 'Conectando...',
+                title: 'Connecting...',
                 html: '<div class="text-sm">' + device.name + '<br>' + protocol.toUpperCase() + ' → ' + ip + '</div>',
                 allowOutsideClick: false,
                 didOpen: function() {
@@ -868,8 +868,8 @@ var DeviceDetail = (function() {
                 if (window.Swal) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Erro',
-                        text: 'Não foi possível conectar ao Guacamole. Verifique se está configurado.',
+                        title: 'Connection Error',
+                        text: 'Unable to connect to Guacamole. Please check configuration.',
                         confirmButtonText: 'OK'
                     });
                 }
@@ -908,7 +908,7 @@ var DeviceDetail = (function() {
                                   '<div><b>' + device.name + '</b></div>' +
                                   '<div class="text-blue-600">' + ip + '</div>' +
                                   '</div>' +
-                                  '<p class="text-sm text-slate-600 mt-2">Abrindo Guacamole...</p>' +
+                                  '<p class="text-sm text-slate-600 mt-2">Opening Guacamole...</p>' +
                                   '</div>',
                             timer: 1500,
                             timerProgressBar: true,
@@ -921,7 +921,7 @@ var DeviceDetail = (function() {
                         window.open(data.url, '_blank');
                     }, 500);
                 } else {
-                    throw new Error('URL não retornada');
+                    throw new Error('URL not returned');
                 }
             })
             .catch(function(err) {

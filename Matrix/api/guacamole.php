@@ -188,10 +188,10 @@ function createConnection($apiUrl, $token, $dataSource, $name, $protocol, $hostn
 }
 
 /**
- * Build client URL for connection
+ * Build client URL for connection (with token for auto-login)
  */
-function buildClientUrl($baseUrl, $identifier, $dataSource, $protocol) {
-    // Guacamole client URL format: /#/client/{encoded}
+function buildClientUrl($baseUrl, $identifier, $dataSource, $protocol, $token) {
+    // Guacamole client URL format: /#/client/{encoded}?token={token}
     // Where encoded = base64(identifier + \0 + c + \0 + dataSource)
     $clientId = $identifier . "\0" . "c" . "\0" . $dataSource;
     $encoded = base64_encode($clientId);
@@ -199,7 +199,8 @@ function buildClientUrl($baseUrl, $identifier, $dataSource, $protocol) {
     $encoded = str_replace(['+', '/'], ['-', '_'], $encoded);
     $encoded = rtrim($encoded, '=');
     
-    return $baseUrl . '/#/client/' . $encoded;
+    // Include token for automatic authentication
+    return $baseUrl . '/#/client/' . $encoded . '?token=' . urlencode($token);
 }
 
 // Main logic
@@ -249,8 +250,8 @@ try {
             }
         }
         
-        // 4. Build client URL
-        $clientUrl = buildClientUrl($baseUrl, $connection['identifier'], $dataSource, $protocol);
+        // 4. Build client URL with token for auto-login
+        $clientUrl = buildClientUrl($baseUrl, $connection['identifier'], $dataSource, $protocol, $token);
         
         echo json_encode([
             'success' => true,
