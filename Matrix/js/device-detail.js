@@ -817,8 +817,8 @@ var DeviceDetail = (function() {
     }
 
     /**
-     * Open remote connection - Simple and Direct
-     * Uses native protocol handlers (ssh://, rdp://, etc)
+     * Open Guacamole connection via API
+     * Creates connection automatically if it doesn't exist
      */
     function openGuacamole(deviceId, protocol) {
         var device = findDevice(deviceId);
@@ -845,56 +845,93 @@ var DeviceDetail = (function() {
             return;
         }
 
-        // Determine port and build connection info
-        var port = protocol === 'rdp' ? 3389 : (protocol === 'vnc' ? 5900 : (protocol === 'telnet' ? 23 : 22));
-        var nativeUrl = '';
-        var copyText = '';
-        
-        switch(protocol) {
-            case 'ssh':
-                nativeUrl = 'ssh://admin@' + ip;
-                copyText = 'ssh admin@' + ip;
-                break;
-            case 'rdp':
-                nativeUrl = 'rdp://' + ip;
-                copyText = ip;
-                break;
-            case 'vnc':
-                nativeUrl = 'vnc://' + ip;
-                copyText = ip + ':5900';
-                break;
-            case 'telnet':
-                nativeUrl = 'telnet://' + ip;
-                copyText = 'telnet ' + ip;
-                break;
-        }
-        
-        // Copy command to clipboard
-        copyToClipboard(copyText);
-        
-        // Try to open native protocol handler
-        window.open(nativeUrl, '_self');
-        
-        // Show confirmation with fallback instructions
+        // Show loading
         if (window.Swal) {
-            setTimeout(function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: '📋 ' + protocol.toUpperCase(),
-                    html: '<div class="text-left">' +
-                          '<div class="bg-slate-100 rounded p-3 mb-3 font-mono text-sm">' +
-                          '<div><b>' + device.name + '</b></div>' +
-                          '<div class="text-blue-600">' + copyText + '</div>' +
-                          '</div>' +
-                          '<p class="text-sm text-slate-600">Comando copiado!</p>' +
-                          '<p class="text-xs text-slate-400 mt-2">Se não abriu automaticamente, cole no terminal.</p>' +
-                          '</div>',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
-            }, 100);
+            Swal.fire({
+                title: 'Conectando...',
+                html: '<div class="text-sm">' + device.name + '<br>' + protocol.toUpperCase() + ' → ' + ip + '</div>',
+                allowOutsideClick: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
         }
+
+        // Call API to create/get connection
+        var apiPaths = [
+            'api/guacamole.php',
+            '/matrix/api/guacamole.php'
+        ];
+        
+        function tryApi(pathIndex) {
+            if (pathIndex >= apiPaths.length) {
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: 'Não foi possível conectar ao Guacamole. Verifique se está configurado.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+                return;
+            }
+            
+            fetch(apiPaths[pathIndex], {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'connect',
+                    ip: ip,
+                    protocol: protocol,
+                    deviceName: device.name
+                })
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                if (data.url) {
+                    // Success - open Guacamole
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '🖥️ ' + protocol.toUpperCase(),
+                            html: '<div class="text-left">' +
+                                  '<div class="bg-slate-100 rounded p-3 font-mono text-sm">' +
+                                  '<div><b>' + device.name + '</b></div>' +
+                                  '<div class="text-blue-600">' + ip + '</div>' +
+                                  '</div>' +
+                                  '<p class="text-sm text-slate-600 mt-2">Abrindo Guacamole...</p>' +
+                                  '</div>',
+                            timer: 1500,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        });
+                    }
+                    
+                    // Open in new tab
+                    setTimeout(function() {
+                        window.open(data.url, '_blank');
+                    }, 500);
+                } else {
+                    throw new Error('URL não retornada');
+                }
+            })
+            .catch(function(err) {
+                console.warn('Guacamole API error at', apiPaths[pathIndex], ':', err.message);
+                // Try next path
+                tryApi(pathIndex + 1);
+            });
+        }
+        
+        tryApi(0);
     }
 
     // Public API
