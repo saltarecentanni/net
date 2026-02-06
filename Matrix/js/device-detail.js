@@ -1,6 +1,6 @@
 /**
  * Device Detail Modal - TIESSE Matrix Network
- * Version: 3.6.003
+ * Version: 3.6.005
  * Shows complete device information with port visualization and VLAN colors
  */
 
@@ -282,8 +282,9 @@ var DeviceDetail = (function() {
             }
         });
 
-        var html = '<div class="space-y-2">';
-        html += '<h4 class="font-semibold text-slate-700 flex items-center gap-2">📊 VLANs</h4>';
+        var html = '<div class="bg-slate-50 rounded-lg p-3">';
+        html += '<h4 class="font-semibold text-slate-700 text-sm mb-3 flex items-center gap-2">📊 VLANs</h4>';
+        html += '<div class="space-y-2">';
 
         // Render VLAN groups
         Object.keys(vlanGroups).sort(function(a, b) {
@@ -296,36 +297,41 @@ var DeviceDetail = (function() {
                 { color: '#94a3b8', label: 'Native/Access' } : 
                 (vlanColorMap[vlanId] || { color: '#94a3b8', label: 'VLAN ' + vlanId });
             
-            html += '<div class="flex items-start gap-2 text-sm">';
-            html += '<span class="w-3 h-3 rounded-full mt-1 flex-shrink-0" style="background-color: ' + vlanInfo.color + ';"></span>';
-            html += '<div><span class="font-medium">' + (vlanId === 'native' ? 'Native' : 'VLAN ' + vlanId);
-            if (vlanInfo.label && vlanId !== 'native') {
-                html += ' - ' + vlanInfo.label;
+            html += '<div class="flex items-center justify-between bg-white rounded px-2 py-1.5 border border-slate-200">';
+            html += '<div class="flex items-center gap-2">';
+            html += '<span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ' + vlanInfo.color + ';"></span>';
+            html += '<span class="text-sm font-medium text-slate-700">' + (vlanId === 'native' ? 'Native' : 'VLAN ' + vlanId) + '</span>';
+            if (vlanInfo.label && vlanId !== 'native' && vlanInfo.label !== 'VLAN ' + vlanId) {
+                html += '<span class="text-xs text-slate-400">(' + vlanInfo.label + ')</span>';
             }
-            html += '</span> <span class="text-slate-500">(' + vlanPorts.length + ')</span>';
-            html += '<div class="text-slate-400 text-xs">' + formatPortList(vlanPorts) + '</div>';
-            html += '</div></div>';
+            html += '</div>';
+            html += '<span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-mono">' + vlanPorts.length + ' ports</span>';
+            html += '</div>';
         });
 
         // Free ports
         if (freePorts.length > 0) {
-            html += '<div class="flex items-start gap-2 text-sm">';
-            html += '<span class="w-3 h-3 rounded-full mt-1 flex-shrink-0 border-2 border-slate-300 bg-white"></span>';
-            html += '<div><span class="font-medium">Free</span> <span class="text-slate-500">(' + freePorts.length + ')</span>';
-            html += '<div class="text-slate-400 text-xs">' + formatPortList(freePorts) + '</div>';
-            html += '</div></div>';
+            html += '<div class="flex items-center justify-between bg-white rounded px-2 py-1.5 border border-green-200">';
+            html += '<div class="flex items-center gap-2">';
+            html += '<span class="w-3 h-3 rounded-full flex-shrink-0 border-2 border-green-400 bg-green-50"></span>';
+            html += '<span class="text-sm font-medium text-green-700">Free</span>';
+            html += '</div>';
+            html += '<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-mono">' + freePorts.length + ' ports</span>';
+            html += '</div>';
         }
 
         // Disabled ports
         if (disabledPorts.length > 0) {
-            html += '<div class="flex items-start gap-2 text-sm">';
-            html += '<span class="w-3 h-3 rounded-full mt-1 flex-shrink-0 bg-slate-800"></span>';
-            html += '<div><span class="font-medium">Disabled</span> <span class="text-slate-500">(' + disabledPorts.length + ')</span>';
-            html += '<div class="text-slate-400 text-xs">' + formatPortList(disabledPorts) + '</div>';
-            html += '</div></div>';
+            html += '<div class="flex items-center justify-between bg-white rounded px-2 py-1.5 border border-slate-300">';
+            html += '<div class="flex items-center gap-2">';
+            html += '<span class="w-3 h-3 rounded-full flex-shrink-0 bg-slate-800"></span>';
+            html += '<span class="text-sm font-medium text-slate-500">Disabled</span>';
+            html += '</div>';
+            html += '<span class="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-mono">' + disabledPorts.length + ' ports</span>';
+            html += '</div>';
         }
 
-        html += '</div>';
+        html += '</div></div>';
         return html;
     }
 
@@ -364,19 +370,21 @@ var DeviceDetail = (function() {
      * Render connections list
      */
     function renderConnections(device, connections) {
-        var html = '<div class="space-y-2">';
-        html += '<h4 class="font-semibold text-slate-700 flex items-center gap-2">🔗 Connections <span class="text-slate-400 font-normal">(' + connections.length + ')</span></h4>';
+        var html = '<div class="bg-slate-50 rounded-lg p-3">';
+        html += '<h4 class="font-semibold text-slate-700 text-sm mb-3 flex items-center gap-2">';
+        html += '🔗 Connections <span class="ml-auto text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">' + connections.length + '</span></h4>';
 
         if (connections.length === 0) {
-            html += '<div class="text-slate-400 text-sm">No connections</div>';
+            html += '<div class="text-slate-400 text-sm text-center py-2">No connections configured</div>';
         } else {
-            html += '<div class="space-y-1 max-h-40 overflow-y-auto">';
+            html += '<div class="space-y-1.5 max-h-48 overflow-y-auto">';
             connections.forEach(function(conn) {
                 var isOutgoing = conn.from === device.id;
                 var otherDeviceId = isOutgoing ? conn.to : conn.from;
                 var myPort = isOutgoing ? conn.fromPort : conn.toPort;
                 var otherPort = isOutgoing ? conn.toPort : conn.fromPort;
                 var arrow = isOutgoing ? '→' : '←';
+                var arrowColor = isOutgoing ? 'text-blue-500' : 'text-green-500';
                 
                 var otherDeviceName = 'External';
                 if (otherDeviceId) {
@@ -386,16 +394,28 @@ var DeviceDetail = (function() {
                     otherDeviceName = conn.externalDest;
                 }
 
-                html += '<div class="text-sm flex items-center gap-1 hover:bg-slate-50 px-1 rounded cursor-pointer" ' +
+                html += '<div class="flex items-center gap-2 bg-white rounded px-2 py-1.5 border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer" ' +
                         'onclick="' + (otherDeviceId ? 'DeviceDetail.open(' + otherDeviceId + ')' : '') + '">';
-                html += '<span class="text-slate-500 font-mono text-xs w-16">' + (myPort || '-') + '</span>';
-                html += '<span class="text-slate-400">' + arrow + '</span>';
-                html += '<span class="text-slate-700 truncate">' + otherDeviceName + '</span>';
+                
+                // My port
+                html += '<span class="font-mono text-xs bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium min-w-[50px] text-center">' + (myPort || '-') + '</span>';
+                
+                // Arrow
+                html += '<span class="' + arrowColor + ' font-bold text-sm">' + arrow + '</span>';
+                
+                // Other device and port
+                html += '<div class="flex-1 min-w-0">';
+                html += '<span class="text-sm text-slate-700 truncate block">' + otherDeviceName + '</span>';
+                html += '</div>';
+                
+                // Other port
                 if (otherPort) {
-                    html += '<span class="text-slate-400 text-xs">:' + otherPort + '</span>';
+                    html += '<span class="font-mono text-xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">:' + otherPort + '</span>';
                 }
+                
+                // Cable marker
                 if (conn.cableMarker) {
-                    html += '<span class="text-xs bg-slate-100 px-1 rounded ml-auto">' + conn.cableMarker + '</span>';
+                    html += '<span class="text-xs bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200">' + conn.cableMarker + '</span>';
                 }
                 html += '</div>';
             });
@@ -411,30 +431,38 @@ var DeviceDetail = (function() {
      */
     function renderNetworkInfo(device) {
         var addresses = device.addresses || [];
-        var html = '<div class="space-y-2">';
-        html += '<h4 class="font-semibold text-slate-700 flex items-center gap-2">🌐 Network</h4>';
+        var html = '<div class="bg-slate-50 rounded-lg p-3">';
+        html += '<h4 class="font-semibold text-slate-700 text-sm mb-3 flex items-center gap-2">🌐 Network</h4>';
 
         if (addresses.length === 0) {
-            html += '<div class="text-slate-400 text-sm">No IP configured</div>';
+            html += '<div class="text-slate-400 text-sm text-center py-2">No IP configured</div>';
         } else {
+            html += '<div class="space-y-1.5">';
             addresses.forEach(function(addr) {
                 var ip = addr.ip || addr.network || 'N/A';
-                html += '<div class="text-sm">';
-                html += '<span class="font-mono text-slate-700">' + ip + '</span>';
+                var ipOnly = ip.split('/')[0];
+                html += '<div class="flex items-center justify-between bg-white rounded px-2 py-1.5 border border-slate-200">';
+                html += '<div class="flex items-center gap-2">';
+                html += '<span class="font-mono text-sm text-slate-800 font-medium">' + ip + '</span>';
                 if (addr.vlan) {
-                    html += ' <span class="text-xs bg-blue-100 text-blue-700 px-1 rounded">VLAN ' + addr.vlan + '</span>';
+                    html += '<span class="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">VLAN ' + addr.vlan + '</span>';
                 }
                 html += '</div>';
+                html += '<button onclick="DeviceDetail.copyToClipboard(\'' + ipOnly + '\'); event.stopPropagation();" ' +
+                        'class="text-slate-400 hover:text-blue-600 text-xs px-1" title="Copy IP">📋</button>';
+                html += '</div>';
             });
-        }
+            html += '</div>';
 
-        // Gateway - try to derive from first IP
-        if (addresses.length > 0 && addresses[0].network) {
-            var ip = addresses[0].network.split('/')[0];
-            var parts = ip.split('.');
-            if (parts.length === 4) {
-                parts[3] = '1';
-                html += '<div class="text-sm text-slate-500">Gateway: ' + parts.join('.') + '</div>';
+            // Gateway - try to derive from first IP
+            if (addresses[0].network) {
+                var ip = addresses[0].network.split('/')[0];
+                var parts = ip.split('.');
+                if (parts.length === 4) {
+                    parts[3] = '1';
+                    html += '<div class="mt-2 pt-2 border-t border-slate-200 text-xs text-slate-500">';
+                    html += '<span class="font-medium">Gateway:</span> ' + parts.join('.') + '</div>';
+                }
             }
         }
 
@@ -506,13 +534,6 @@ var DeviceDetail = (function() {
                     'class="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors" ' +
                     'title="Open Telnet session">' +
                     '📟 Telnet</button>';
-        }
-
-        // FloorPlan link
-        if (device.location) {
-            html += '<button onclick="DeviceDetail.goToFloorPlan(' + device.id + ')" ' +
-                    'class="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded-lg text-sm hover:bg-purple-600 transition-colors">' +
-                    '📍 Floor</button>';
         }
 
         html += '</div>';
@@ -766,39 +787,71 @@ var DeviceDetail = (function() {
         // Load config and open Guacamole
         loadGuacamoleConfig().then(function(config) {
             if (!config.enabled || !config.baseUrl) {
-                // Guacamole not configured - copy SSH command
-                if (protocol === 'ssh') {
-                    copyToClipboard('ssh admin@' + ip);
-                } else {
-                    if (window.Swal) {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Guacamole Not Configured',
-                            html: 'Guacamole integration is not enabled.<br><br>' +
-                                  'Configure <code>config/guacamole.json</code>',
-                            confirmButtonText: 'OK'
-                        });
-                    } else {
-                        alert('Guacamole integration is not enabled.');
-                    }
+                // Guacamole not configured - show helpful message
+                var copyText = '';
+                var helpHtml = '';
+                
+                switch(protocol) {
+                    case 'ssh':
+                        copyText = 'ssh admin@' + ip;
+                        helpHtml = 'Command copied: <code>' + copyText + '</code>';
+                        break;
+                    case 'rdp':
+                        copyText = ip;
+                        helpHtml = 'IP copied. Use Remote Desktop to connect to: <code>' + ip + '</code>';
+                        break;
+                    case 'vnc':
+                        copyText = ip + ':5900';
+                        helpHtml = 'VNC address copied: <code>' + copyText + '</code>';
+                        break;
+                    case 'telnet':
+                        copyText = 'telnet ' + ip;
+                        helpHtml = 'Command copied: <code>' + copyText + '</code>';
+                        break;
+                }
+                
+                copyToClipboard(copyText);
+                
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '📋 Copied!',
+                        html: helpHtml + '<br><br><small class="text-slate-500">Configure Guacamole for direct access</small>',
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    });
                 }
                 return;
             }
 
-            // Open Guacamole directly - user will login there
-            // The connection will be created when they authenticate in Guacamole
+            // Open Guacamole with quick-connect parameters via URL fragment
+            // Format: #/client/CONNECTION_STRING where CONNECTION_STRING is base64 encoded
+            var port = protocol === 'rdp' ? 3389 : (protocol === 'vnc' ? 5900 : (protocol === 'telnet' ? 23 : 22));
+            
+            // Note: Guacamole's quick-connect format varies by version
+            // Most compatible: open home and let user select/create connection
             var guacUrl = config.baseUrl + '/#/';
             window.open(guacUrl, '_blank');
+            
+            // Copy connection info to clipboard for easy setup
+            var connInfo = protocol.toUpperCase() + '://' + ip + ':' + port;
+            copyToClipboard(connInfo);
             
             // Show hint about the device
             if (window.Swal) {
                 Swal.fire({
-                    icon: 'info',
-                    title: protocol.toUpperCase() + ' Connection',
-                    html: 'Guacamole opened in new tab.<br><br>' +
-                          '<b>Device:</b> ' + device.name + '<br>' +
-                          '<b>IP:</b> ' + ip + '<br>' +
-                          '<b>Protocol:</b> ' + protocol.toUpperCase(),
+                    icon: 'success',
+                    title: '🚀 ' + protocol.toUpperCase(),
+                    html: '<div class="text-left">' +
+                          '<p class="mb-2">Guacamole opened in new tab</p>' +
+                          '<div class="bg-slate-100 rounded p-2 text-sm font-mono">' +
+                          '<div><b>Device:</b> ' + device.name + '</div>' +
+                          '<div><b>IP:</b> ' + ip + '</div>' +
+                          '<div><b>Port:</b> ' + port + '</div>' +
+                          '</div>' +
+                          '<p class="mt-2 text-xs text-slate-500">Connection info copied to clipboard</p>' +
+                          '</div>',
                     timer: 4000,
                     timerProgressBar: true,
                     showConfirmButton: false
