@@ -700,17 +700,27 @@ var DeviceDetail = (function() {
 
     /**
      * Load Guacamole configuration
+     * Works with both Apache (static file) and Node.js (API)
      */
     function loadGuacamoleConfig() {
         if (guacamoleConfig !== null) {
             return Promise.resolve(guacamoleConfig);
         }
         
-        return fetch('/api/guacamole?action=config')
-            .then(function(response) { return response.json(); })
+        // Try to load config file directly (works with Apache)
+        return fetch('/config/guacamole.json')
+            .then(function(response) {
+                if (!response.ok) throw new Error('Config not found');
+                return response.json();
+            })
             .then(function(config) {
-                guacamoleConfig = config;
-                return config;
+                guacamoleConfig = {
+                    enabled: config.enabled !== false,
+                    baseUrl: config.server ? config.server.baseUrl : null,
+                    protocols: config.ui ? config.ui.showProtocolButtons : ['ssh', 'rdp', 'vnc', 'telnet'],
+                    openInNewTab: config.ui ? config.ui.openInNewTab : true
+                };
+                return guacamoleConfig;
             })
             .catch(function(error) {
                 console.warn('[Guacamole] Failed to load config:', error);
