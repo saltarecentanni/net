@@ -10,6 +10,14 @@
 header('Content-Type: application/json');
 header('Cache-Control: no-cache');
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Debug mode
+$debug = isset($_GET['debug']) || (isset($input['debug']) && $input['debug']);
+
 // Load configuration
 $configFile = __DIR__ . '/../config/guacamole.json';
 if (!file_exists($configFile)) {
@@ -228,7 +236,12 @@ try {
         $auth = authenticate($apiUrl, $username, $password);
         if (!$auth) {
             http_response_code(401);
-            echo json_encode(['error' => 'Guacamole authentication failed']);
+            echo json_encode([
+                'error' => 'Guacamole authentication failed',
+                'detail' => 'Could not authenticate with Guacamole API',
+                'apiUrl' => $apiUrl,
+                'ip' => $ip
+            ]);
             exit;
         }
         
@@ -245,7 +258,12 @@ try {
             
             if (!$connection) {
                 http_response_code(500);
-                echo json_encode(['error' => 'Failed to create connection']);
+                echo json_encode([
+                    'error' => 'Failed to create connection',
+                    'detail' => 'Could not create connection in Guacamole',
+                    'ip' => $ip,
+                    'protocol' => $protocol
+                ]);
                 exit;
             }
         }

@@ -862,6 +862,7 @@ var DeviceDetail = (function() {
             'api/guacamole.php',
             '/matrix/api/guacamole.php'
         ];
+        var lastError = '';
         
         function tryApi(pathIndex) {
             if (pathIndex >= apiPaths.length) {
@@ -869,7 +870,8 @@ var DeviceDetail = (function() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Connection Error',
-                        text: 'Unable to connect to Guacamole. Please check configuration.',
+                        html: '<p>Unable to connect to Guacamole.</p>' +
+                              '<p class="text-sm text-red-600 mt-2">' + (lastError || 'Unknown error') + '</p>',
                         confirmButtonText: 'OK'
                     });
                 }
@@ -887,16 +889,16 @@ var DeviceDetail = (function() {
                 })
             })
             .then(function(response) {
-                if (!response.ok) {
-                    throw new Error('HTTP ' + response.status);
-                }
-                return response.json();
+                return response.json().then(function(data) {
+                    if (!response.ok || data.error) {
+                        var errMsg = data.error || ('HTTP ' + response.status);
+                        if (data.detail) errMsg += ': ' + data.detail;
+                        throw new Error(errMsg);
+                    }
+                    return data;
+                });
             })
             .then(function(data) {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
                 if (data.url) {
                     // Success - open Guacamole
                     if (window.Swal) {
@@ -926,6 +928,7 @@ var DeviceDetail = (function() {
             })
             .catch(function(err) {
                 console.warn('Guacamole API error at', apiPaths[pathIndex], ':', err.message);
+                lastError = err.message;
                 // Try next path
                 tryApi(pathIndex + 1);
             });
