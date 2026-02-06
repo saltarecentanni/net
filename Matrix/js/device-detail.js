@@ -721,6 +721,7 @@ var DeviceDetail = (function() {
 
     /**
      * Open Guacamole remote connection
+     * Works without Matrix login - opens Guacamole directly
      */
     function openGuacamole(deviceId, protocol) {
         var device = findDevice(deviceId);
@@ -747,22 +748,10 @@ var DeviceDetail = (function() {
             return;
         }
 
-        // Show loading
-        if (window.Swal) {
-            Swal.fire({
-                title: 'Connecting...',
-                text: 'Opening ' + protocol.toUpperCase() + ' session to ' + ip,
-                allowOutsideClick: false,
-                didOpen: function() { Swal.showLoading(); }
-            });
-        }
-
-        // Load config and open connection
+        // Load config and open Guacamole
         loadGuacamoleConfig().then(function(config) {
-            if (!config.enabled) {
-                // Guacamole not configured - show direct SSH command instead
-                if (window.Swal) Swal.close();
-                
+            if (!config.enabled || !config.baseUrl) {
+                // Guacamole not configured - copy SSH command
                 if (protocol === 'ssh') {
                     copyToClipboard('ssh admin@' + ip);
                 } else {
@@ -771,7 +760,7 @@ var DeviceDetail = (function() {
                             icon: 'info',
                             title: 'Guacamole Not Configured',
                             html: 'Guacamole integration is not enabled.<br><br>' +
-                                  'To enable, configure <code>/config/guacamole.json</code>',
+                                  'Configure <code>config/guacamole.json</code>',
                             confirmButtonText: 'OK'
                         });
                     } else {
@@ -781,63 +770,25 @@ var DeviceDetail = (function() {
                 return;
             }
 
-            // Build device object for API
-            var deviceData = {
-                id: device.id,
-                name: device.name,
-                ip: ip,
-                type: device.type,
-                // Add any stored credentials
-                sshUsername: device.sshUsername || device.username,
-                sshPassword: device.sshPassword,
-                rdpUsername: device.rdpUsername || device.username,
-                rdpPassword: device.rdpPassword,
-                rdpDomain: device.rdpDomain,
-                vncPassword: device.vncPassword,
-                telnetUsername: device.telnetUsername || device.username,
-                telnetPassword: device.telnetPassword
-            };
-
-            // Call API to get connection URL
-            return fetch('/api/guacamole', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    action: 'connect',
-                    device: deviceData,
-                    protocol: protocol
-                })
-            })
-            .then(function(response) { return response.json(); })
-            .then(function(result) {
-                if (window.Swal) Swal.close();
-                
-                if (result.error) {
-                    // Fallback: open Guacamole home page
-                    console.warn('[Guacamole] API error:', result.error);
-                    window.open(config.baseUrl + '/#/', '_blank');
-                    return;
-                }
-
-                // Open the connection URL
-                var url = result.url || config.baseUrl + '/#/';
-                if (config.openInNewTab !== false) {
-                    window.open(url, '_blank');
-                } else {
-                    window.location.href = url;
-                }
-            });
-        }).catch(function(error) {
-            if (window.Swal) Swal.close();
-            console.error('[Guacamole] Connection error:', error);
+            // Open Guacamole directly - user will login there
+            // The connection will be created when they authenticate in Guacamole
+            var guacUrl = config.baseUrl + '/#/';
+            window.open(guacUrl, '_blank');
             
-            // Fallback: try to open Guacamole directly
-            loadGuacamoleConfig().then(function(config) {
-                if (config.baseUrl) {
-                    window.open(config.baseUrl + '/#/', '_blank');
-                }
-            });
+            // Show hint about the device
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'info',
+                    title: protocol.toUpperCase() + ' Connection',
+                    html: 'Guacamole opened in new tab.<br><br>' +
+                          '<b>Device:</b> ' + device.name + '<br>' +
+                          '<b>IP:</b> ' + ip + '<br>' +
+                          '<b>Protocol:</b> ' + protocol.toUpperCase(),
+                    timer: 4000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            }
         });
     }
 
