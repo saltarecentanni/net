@@ -116,9 +116,9 @@ function authenticate($apiUrl, $username, $password) {
 }
 
 /**
- * Find existing connection by hostname and protocol
+ * Find existing connection by hostname/protocol OR by name
  */
-function findConnection($apiUrl, $token, $dataSource, $hostname, $protocol) {
+function findConnection($apiUrl, $token, $dataSource, $hostname, $protocol, $name = null) {
     $result = guacRequest(
         $apiUrl . '/session/data/' . $dataSource . '/connections',
         'GET',
@@ -127,15 +127,42 @@ function findConnection($apiUrl, $token, $dataSource, $hostname, $protocol) {
     );
     
     if ($result['code'] === 200 && is_array($result['data'])) {
+        $nameUpper = $name ? strtoupper($name) : null;
+        $hostParts = explode('.', $hostname);
+        
         foreach ($result['data'] as $id => $conn) {
-            $params = $conn['parameters'] ?? [];
-            if (($params['hostname'] ?? '') === $hostname && 
-                ($conn['protocol'] ?? '') === $protocol) {
+            $connName = $conn['name'] ?? '';
+            $connNameUpper = strtoupper($connName);
+            
+            // Check by exact name match
+            if ($nameUpper && $connNameUpper === $nameUpper) {
                 return [
                     'identifier' => $conn['identifier'] ?? $id,
-                    'name' => $conn['name'] ?? '',
+                    'name' => $connName,
                     'protocol' => $conn['protocol'] ?? ''
                 ];
+            }
+            
+            // Check if name contains hostname and protocol matches
+            if (($conn['protocol'] ?? '') === $protocol) {
+                // Check if connection name contains the IP
+                if (strpos($connName, $hostname) !== false) {
+                    return [
+                        'identifier' => $conn['identifier'] ?? $id,
+                        'name' => $connName,
+                        'protocol' => $conn['protocol'] ?? ''
+                    ];
+                }
+                
+                // Check by hostname in parameters
+                $params = $conn['parameters'] ?? [];
+                if (($params['hostname'] ?? '') === $hostname) {
+                    return [
+                        'identifier' => $conn['identifier'] ?? $id,
+                        'name' => $connName,
+                        'protocol' => $conn['protocol'] ?? ''
+                    ];
+                }
             }
         }
     }
@@ -263,14 +290,42 @@ try {
         $token = $auth['token'];
         $dataSource = $auth['dataSource'];
         
-        // 2. Check if connection exists
-        $connection = findConnection($apiUrl, $token, $dataSource, $ip, $protocol);
+        // Connection name includes IP to avoid duplicates
+        $connName = $deviceName . ' - ' . $ip . ' (' . strtoupper($protocol) . ')';
+        $oldConnName = $deviceName . ' (' . strtoupper($protocol) . ')'; // Legacy format
+        
+        // 2. Check if connection exists (by hostname/protocol OR by name)
+        $connection = findConnection($apiUrl, $token, $dataSource, $ip, $protocol, $connName);
+        
+        // Also check old format name
+        if (!$connection) {
+            $connection = findConnection($apiUrl, $token, $dataSource, $ip, $protocol, $oldConnName);
+        }
         
         // 3. Create if not exists
         if (!$connection) {
-            $connName = $deviceName . ' (' . strtoupper($protocol) . ')';
             $createError = null;
             $connection = createConnection($apiUrl, $token, $dataSource, $connName, $protocol, $ip, $config, $createError);
+            
+            // If creation failed with "already exists", search again
+            if (!$connection && strpos($createError, 'already exists') !== false) {
+                error_log("Connection already exists, searching again...");
+                
+                // Try to extract name from error message
+                if (preg_match('/"([^"]+)" already exists/', $createError, $matches)) {
+                    $existingName = $matches[1];
+                    error_log("Found existing connection name in error: $existingName");
+                    $connection = findConnection($apiUrl, $token, $dataSource, $ip, $protocol, $existingName);
+                }
+                
+                // If still not found, search more broadly
+                if (!$connection) {
+                    $connection = findConnection($apiUrl, $token, $dataSource, $ip, $protocol, $connName);
+                }
+                if (!$connection) {
+                    $connection = findConnection($apiUrl, $token, $dataSource, $ip, $protocol, $oldConnName);
+                }
+            }
             
             if (!$connection) {
                 http_response_code(500);
