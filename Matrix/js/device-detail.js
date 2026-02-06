@@ -886,37 +886,96 @@ var DeviceDetail = (function() {
                 return;
             }
 
-            // Open Guacamole with quick-connect parameters via URL fragment
-            // Format: #/client/CONNECTION_STRING where CONNECTION_STRING is base64 encoded
+            // Determine port
             var port = protocol === 'rdp' ? 3389 : (protocol === 'vnc' ? 5900 : (protocol === 'telnet' ? 23 : 22));
             
-            // Note: Guacamole's quick-connect format varies by version
-            // Most compatible: open home and let user select/create connection
-            var guacUrl = config.baseUrl + '/#/';
-            window.open(guacUrl, '_blank');
-            
-            // Copy connection info to clipboard for easy setup
-            var connInfo = protocol.toUpperCase() + '://' + ip + ':' + port;
-            copyToClipboard(connInfo);
-            
-            // Show hint about the device
+            // Show connection options dialog
             if (window.Swal) {
                 Swal.fire({
-                    icon: 'success',
-                    title: '🚀 ' + protocol.toUpperCase(),
+                    title: '🔗 ' + protocol.toUpperCase() + ' Connection',
                     html: '<div class="text-left">' +
-                          '<p class="mb-2">Guacamole opened in new tab</p>' +
-                          '<div class="bg-slate-100 rounded p-2 text-sm font-mono">' +
+                          '<div class="bg-slate-100 rounded p-3 mb-4 font-mono text-sm">' +
                           '<div><b>Device:</b> ' + device.name + '</div>' +
                           '<div><b>IP:</b> ' + ip + '</div>' +
                           '<div><b>Port:</b> ' + port + '</div>' +
                           '</div>' +
-                          '<p class="mt-2 text-xs text-slate-500">Connection info copied to clipboard</p>' +
+                          '<p class="text-sm text-slate-600 mb-2">Choose connection method:</p>' +
                           '</div>',
-                    timer: 4000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: '🌐 Guacamole',
+                    denyButtonText: '💻 Native ' + protocol.toUpperCase(),
+                    cancelButtonText: '📋 Copy Only',
+                    confirmButtonColor: '#3085d6',
+                    denyButtonColor: '#10b981',
+                    reverseButtons: false
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        // Open Guacamole Quick Connect
+                        // Format: ?quickConnect=protocol://hostname:port (Guacamole 1.4+)
+                        var quickConnectUri = protocol + '://' + ip + ':' + port;
+                        var guacUrl = config.baseUrl + '/#/?quickConnect=' + encodeURIComponent(quickConnectUri);
+                        window.open(guacUrl, '_blank');
+                        
+                        // Also copy for manual setup if quick-connect not available
+                        copyToClipboard(ip);
+                        
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Guacamole',
+                            html: '<p>If Quick Connect is not enabled, create a new connection:</p>' +
+                                  '<ol class="text-left text-sm mt-2 ml-4">' +
+                                  '<li>1. Login to Guacamole</li>' +
+                                  '<li>2. Settings → Connections → New</li>' +
+                                  '<li>3. Protocol: <b>' + protocol.toUpperCase() + '</b></li>' +
+                                  '<li>4. Hostname: <b>' + ip + '</b></li>' +
+                                  '<li>5. Port: <b>' + port + '</b></li>' +
+                                  '</ol>' +
+                                  '<p class="mt-2 text-xs text-slate-500">IP copied to clipboard</p>',
+                            confirmButtonText: 'OK'
+                        });
+                    } else if (result.isDenied) {
+                        // Open native protocol handler
+                        var nativeUrl = '';
+                        switch(protocol) {
+                            case 'ssh':
+                                nativeUrl = 'ssh://admin@' + ip + ':' + port;
+                                break;
+                            case 'rdp':
+                                nativeUrl = 'rdp://' + ip + ':' + port;
+                                break;
+                            case 'vnc':
+                                nativeUrl = 'vnc://' + ip + ':' + (port === 5900 ? '' : port);
+                                break;
+                            case 'telnet':
+                                nativeUrl = 'telnet://' + ip + ':' + port;
+                                break;
+                        }
+                        window.open(nativeUrl, '_self');
+                        
+                        // Fallback: copy command
+                        var cmd = protocol === 'ssh' ? 'ssh admin@' + ip : 
+                                  protocol === 'telnet' ? 'telnet ' + ip : ip;
+                        copyToClipboard(cmd);
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        // Just copy
+                        var copyText = protocol === 'ssh' ? 'ssh admin@' + ip : 
+                                       protocol === 'telnet' ? 'telnet ' + ip : ip + ':' + port;
+                        copyToClipboard(copyText);
+                        Swal.fire({
+                            icon: 'success',
+                            title: '📋 Copied!',
+                            text: copyText,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
                 });
+            } else {
+                // No SweetAlert - direct open
+                var quickConnectUri = protocol + '://' + ip + ':' + port;
+                var guacUrl = config.baseUrl + '/#/?quickConnect=' + encodeURIComponent(quickConnectUri);
+                window.open(guacUrl, '_blank');
             }
         });
     }
