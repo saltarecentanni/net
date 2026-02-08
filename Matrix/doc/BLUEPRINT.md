@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.6.029  
+**Version:** 3.6.028  
 **Date:** February 8, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
@@ -31,7 +31,7 @@ A comprehensive web-based network infrastructure documentation system for enterp
 
 ## 2. VERSION TIMELINE
 
-### v3.6.029 (Current) - February 8, 2026 - Data Integrity & Validation Release
+### v3.6.028 (Current) - February 8, 2026 - Data Integrity & Validation Release
 
 #### 🔧 Data Normalization (v3.6.027-028)
 - NEW: `normalizePortName()` function - pads port names (eth1→eth01)
@@ -194,7 +194,7 @@ appState = {
         type: "site|mapped|custom"
     }],
     
-    version: "3.6.029",
+    version: "3.6.028",
     lastModified: "2026-02-08T14:00:00Z",
     checksum: "sha256..."            // Data integrity
 }
@@ -477,7 +477,7 @@ Server validates + saves
     "rooms": [...],
     "sites": [...],
     "locations": [...],
-    "version": "3.6.029",
+    "version": "3.6.028",
     "lastModified": "2026-02-08T14:00:00Z",
     "checksum": "sha256hash"
 }
@@ -646,7 +646,7 @@ node server.js
 
 ---
 
-**Document Version:** 3.6.029  
+**Document Version:** 3.6.028  
 **Last Updated:** February 9, 2026  
 **Status:** Production Ready
 

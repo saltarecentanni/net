@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.6.029
+ * Version: 3.6.028
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
