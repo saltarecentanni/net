@@ -301,11 +301,20 @@ connection.color     → connection.cableColor
 - ⚠️ `ip` (if status is "active")
 
 ### Connections Must Have:
-- ✅ `id` (UUID)
-- ✅ `from` (valid device ID)
-- ✅ `to` (valid device ID)
+- ✅ `id` (UUID format: c-xxxxxxxxxxxx)
+- ✅ `from` (valid device ID - number)
+- ✅ `to` (valid device ID or `null` for wallport/external types)
 - ✅ `type` (from connection types list)
 - ⚠️ `fromPort` & `toPort` (recommended)
+
+### Optional Connection Fields:
+- `roomId` (number|string|null) - maps wallport to room on floor plan
+- `isWallJack` (boolean) - marks wall outlet connections
+- `flagged` (boolean) - marks incomplete connections for review
+- `flagReason` (string) - description of why flagged
+- `externalDest` (string) - destination for external connections
+- `cableMarker` (string) - physical cable label
+- `cableColor` (string) - hex color code
 
 ### Forbidden Issues:
 - ❌ Duplicate device IDs

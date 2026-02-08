@@ -32,14 +32,23 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ## 🆕 What's New in v3.6.028
 
-### 🎯 v3.6.028 - Data Integrity & Normalization
-- **Port Normalization**: NEW `normalizePortName()` pads eth1→eth01, preserves GbE/SFP/WAN prefixes
+### 🎯 v3.6.028 - Data Integrity & Validation (Latest)
+- **Import/Export Validation**: Full round-trip verified - 15 connection fields preserved
+- **roomId Field**: Confirmed functional (maps wallport/walljack to floor plan rooms)
+- **Flagged Connections**: 6 incomplete connections marked with `flagged: true` for review
+- **Validator Enhanced**: `json-validator.js` now recognizes `roomId`, `flagged`, `flagReason`, `isWallJack`
+- **Port Normalization**: `normalizePortName()` pads eth1→eth01, preserves GbE/SFP/WAN prefixes
 - **Bug Fix**: `saveDevice()` now correctly saves `ports` and `links` fields
 - **Bug Fix**: `saveConnection()` normalizes port names on save
-- **Bug Fix**: `importData()` now calls `normalizeDataCase()` after import
 - **Data Cleanup**: 79 ports + 3 connection ports fixed, UUIDs on all 93 connections
 - **Doc Consolidation**: Merged duplicate docs, updated all line counts (17,742 total JS)
 - **Verification**: 12-point audit + SHA-256 roundtrip = ZERO ERRORS
+
+**Current Data Metrics:**
+- 101 devices (43 routers, 19 servers, 13 switches)
+- 93 connections (72 LAN, 14 wallport, 4 trunk, 2 WAN, 1 other)
+- 21 rooms mapped with floor plan polygons
+- 25 locations across 1 site
 
 ### 📦 v3.6.026 - Cleanup & Consolidation (Previous)
 - **UI Stability**: Fixed critical Promise errors in data loading

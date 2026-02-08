@@ -1,7 +1,7 @@
 # TIESSE Matrix Network - Technical Blueprint
 
 **Version:** 3.6.028  
-**Date:** February 9, 2026  
+**Date:** February 8, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
 
@@ -31,7 +31,7 @@ A comprehensive web-based network infrastructure documentation system for enterp
 
 ## 2. VERSION TIMELINE
 
-### v3.6.028 (Current) - February 9, 2026 - Data Integrity & Normalization Release
+### v3.6.028 (Current) - February 8, 2026 - Data Integrity & Validation Release
 
 #### 🔧 Data Normalization (v3.6.027-028)
 - NEW: `normalizePortName()` function - pads port names (eth1→eth01)
@@ -40,6 +40,12 @@ A comprehensive web-based network infrastructure documentation system for enterp
 - Added UUID (`c-xxxxxxxxxxxx`) to all 93 connections
 - Removed deprecated `_isExternal` from 101 devices
 - Migrated `color` → `cableColor` in connections
+
+#### 🔄 Import/Export Validation
+- Full round-trip verified: 15 connection fields preserved (100%)
+- `roomId` field confirmed functional (maps wallport/walljack to floor plan)
+- Validator enhanced to recognize: `roomId`, `flagged`, `flagReason`, `isWallJack`
+- 6 connections flagged as incomplete for later correction
 
 #### 🐛 Bug Fixes
 - CRITICAL: `saveDevice()` now includes `ports` and `links` in deviceData (was silently dropping them)
@@ -56,6 +62,7 @@ A comprehensive web-based network infrastructure documentation system for enterp
 - 12-point reverse verification: ZERO ERRORS
 - SHA-256 roundtrip test: byte-identical after export→import cycle
 - All 14 device fields validated through save pipeline
+- All 15 connection fields validated through import/export cycle
 - Port normalization standard: lowercase `eth`+2-digit pad, uppercase acronyms (GbE, SFP, WAN)
 
 ### v3.6.026 - February 8, 2026 - Professional Cleanup Release
@@ -153,14 +160,21 @@ appState = {
     }],
     
     connections: [{
-        id: "uuid",
-        from: "device-uuid-1",
-        fromPort: "24",
-        to: "device-uuid-2",
-        toPort: "1",
+        id: "c-xxxxxxxxxxxx",        // UUID format
+        from: 1,                       // device ID (number)
+        fromPort: "eth24",
+        to: 2,                         // device ID or null for special types
+        toPort: "eth01",
         type: "trunk",               // see section 6
         status: "active",
-        cableColor: "#3b82f6"
+        cableColor: "#3b82f6",
+        cableMarker: "A1",           // physical cable label
+        notes: "",
+        externalDest: "",            // for external connections
+        isWallJack: false,            // true for wall outlet connections
+        roomId: null,                 // room ID for floor plan mapping (wallport/walljack)
+        flagged: false,               // optional: marks incomplete connections
+        flagReason: ""               // optional: reason for flagging
     }],
     
     rooms: [{
@@ -416,15 +430,22 @@ Server validates + saves
 | other | ❓ | Other |
 
 ### 6.2 Connection Types
-| Type | Color | Use Case |
-|------|-------|----------|
-| lan | 🔵 Blue | Standard LAN |
-| wan | 🔴 Red | Internet/WAN |
-| trunk | 🟢 Green | Switch trunks |
-| dmz | 🟠 Orange | DMZ segment |
-| management | 🟣 Purple | Management VLAN |
-| walljack | ⚫ Gray | Wall outlets |
-| other | ⚪ White | Custom |
+| Type | Color | Count | Use Case |
+|------|-------|-------|----------|
+| lan | 🔵 Blue | 72 | Standard LAN connections |
+| wallport | ⚫ Gray | 14 | Wall port/outlet connections (to=null, roomId maps to floor plan) |
+| trunk | 🟢 Green | 4 | Switch trunks |
+| wan | 🔴 Red | 2 | Internet/WAN (flagged as incomplete if to=null) |
+| other | ⚪ White | 1 | Custom connections |
+| dmz | 🟠 Orange | 0 | DMZ segment |
+| management | 🟣 Purple | 0 | Management VLAN |
+| walljack | ⚫ Gray | - | Legacy: now use wallport |
+
+**Special Fields:**
+- `isWallJack`: 14 connections marked as wall connections
+- `roomId`: 20 connections mapped to rooms on floor plan
+- `flagged`: 6 connections marked as incomplete (need correction)
+- `externalDest`: 20 connections with external destination info
 
 ### 6.3 Network Zones
 | Zone | Color | Typical CIDR |
