@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.6.022
+ * Version: 3.6.028
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -29,13 +29,20 @@
  * │ location        │ As entered  │ Sala Server, ICT, Q.A.         │
  * │ device.type     │ lowercase   │ switch, router_wifi, patch     │
  * │ device.status   │ lowercase   │ active, disabled               │
+ * │ port.name       │ prefix+pad2 │ eth01, GbE02, SFP01, WAN01    │
+ * │ conn.fromPort   │ prefix+pad2 │ eth01 (matches port.name)      │
+ * │ conn.toPort     │ prefix+pad2 │ eth24 (matches port.name)      │
  * │ conn.type       │ lowercase   │ lan, wan, trunk, wallport      │
  * │ conn.status     │ lowercase   │ active, disabled               │
+ * │ conn.cableMarker│ UPPERCASE   │ AB-01, L3-DMZ                  │
+ * │ cableColor      │ #RRGGBB     │ #3b82f6                        │
  * └─────────────────────────────────────────────────────────────────┘
  * 
  * This normalization is enforced in:
- * - saveDevice() - client-side normalization
- * - saveConnection() - client-side normalization
+ * - normalizePortName() - port name padding (eth1→eth01)
+ * - normalizeDataCase() - all fields on load
+ * - saveDevice() - client-side normalization on save
+ * - saveConnection() - client-side normalization on save
  * - data.php - server-side normalization (double protection)
  */
 
@@ -94,8 +101,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.6.022';
+var SUPPORTED_VERSIONS = ['3.6.028', '3.6.026', '3.6.024', '3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.6.028';
 
 /**
  * Valid enum values for schema validation
@@ -1291,10 +1298,30 @@ function saveNow() {
 }
 
 /**
+ * Normalize port name to standard format:
+ * - eth ports: lowercase prefix + 2-digit zero-padded number (eth01, eth02...)
+ * - Acronym prefixes (GbE, SFP, WAN, MGMT, TTY, RJ11, USB, QSFP, PoE, ISDN):
+ *   keep original case + 2-digit zero-padded number
+ * - Special ports (wan, console, usb without number): keep as-is
+ * @param {string} name - Port name to normalize
+ * @returns {string} Normalized port name
+ */
+function normalizePortName(name) {
+    if (!name) return name;
+    var m = name.match(/^(eth)(\d+)$/);
+    if (m) {
+        return m[1] + String(parseInt(m[2], 10)).padStart(2, '0');
+    }
+    return name;
+}
+
+/**
  * Normalize data case to prevent case-sensitivity issues
  * - rackId: UPPERCASE
  * - type: lowercase
  * - status: lowercase
+ * - port names: padded (eth01 not eth1)
+ * - connection fromPort/toPort: padded to match device ports
  */
 function normalizeDataCase() {
     var normalized = false;
@@ -1321,6 +1348,35 @@ function normalizeDataCase() {
         if (d.status && d.status !== d.status.toLowerCase()) {
             d.status = d.status.toLowerCase();
             normalized = true;
+        }
+        // Normalize port names (eth1 → eth01)
+        if (d.ports && d.ports.length > 0) {
+            for (var j = 0; j < d.ports.length; j++) {
+                var newName = normalizePortName(d.ports[j].name);
+                if (newName !== d.ports[j].name) {
+                    d.ports[j].name = newName;
+                    normalized = true;
+                }
+            }
+        }
+    }
+    
+    // Normalize connection port references
+    for (var k = 0; k < appState.connections.length; k++) {
+        var c = appState.connections[k];
+        if (c.fromPort) {
+            var normFrom = normalizePortName(c.fromPort);
+            if (normFrom !== c.fromPort) {
+                c.fromPort = normFrom;
+                normalized = true;
+            }
+        }
+        if (c.toPort) {
+            var normTo = normalizePortName(c.toPort);
+            if (normTo !== c.toPort) {
+                c.toPort = normTo;
+                normalized = true;
+            }
         }
     }
     
@@ -1749,6 +1805,8 @@ function saveDevice() {
             status: status,
             location: location,
             addresses: addresses, // Dynamic IP array with zones
+            ports: ports,         // Generated from port-type form rows
+            links: links,         // External reference links
             service: service,
             notes: notes
         };
@@ -2003,7 +2061,7 @@ function removeDevice(id) {
     }).then(function(result) {
         if (result.isConfirmed) {
             appState.devices = appState.devices.filter(function(d) { return d.id !== id; });
-            appState.connections = appState.connections.filter(function(c) { return c.from !== id && c.to !== id && c.fromDevice !== id && c.toDevice !== id; });
+            appState.connections = appState.connections.filter(function(c) { return c.from !== id && c.to !== id; });
             
             if (typeof ActivityLog !== 'undefined') {
                 ActivityLog.add('delete', 'device', deviceName + ' (' + deviceType + ')');
@@ -2319,12 +2377,24 @@ function saveConnection() {
 
         // ================================================================
         // DATA NORMALIZATION - Professional Standard
-        // type/status: lowercase
+        // type/status: lowercase | ports: padded | cableMarker: UPPERCASE
         // ================================================================
         type = type.toLowerCase();
         status = status.toLowerCase();
+        fromPort = normalizePortName(fromPort);
+        toPort = normalizePortName(toPort);
+
+        // Generate unique ID: preserve existing on edit, create new on add
+        var connId;
+        if (editIndex !== '') {
+            var existing = appState.connections[parseInt(editIndex, 10)];
+            connId = (existing && existing.id) ? existing.id : 'c-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+        } else {
+            connId = 'c-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+        }
 
         var connData = {
+            id: connId,
             from: from,
             fromPort: fromPort || '',
             to: to,
@@ -2333,7 +2403,6 @@ function saveConnection() {
             isWallJack: isWallJack,
             roomId: roomId,
             type: isWallJack ? 'wallport' : type,
-            color: config.connColors[isWallJack ? 'wallport' : type],
             status: status,
             cableMarker: cableMarker,
             cableColor: cableColor,
@@ -2570,8 +2639,8 @@ function removeConnection(idx) {
     var conn = appState.connections[idx];
     var logDetails = '';
     if (conn) {
-        var fromDevice = appState.devices.find(function(d) { return d.id === conn.from || d.id === conn.fromDevice; });
-        var toDevice = appState.devices.find(function(d) { return d.id === conn.to || d.id === conn.toDevice; });
+        var fromDevice = appState.devices.find(function(d) { return d.id === conn.from; });
+        var toDevice = appState.devices.find(function(d) { return d.id === conn.to; });
         logDetails = (fromDevice ? fromDevice.name : 'Unknown') + ' → ' + (toDevice ? toDevice.name : conn.externalDest || 'Unknown');
     }
     
@@ -4218,6 +4287,9 @@ function importData(e) {
                 // Run migration to ensure locations are properly set up
                 migrateToNewLocationSystem();
                 
+                // Normalize imported data (rackId UPPER, type/status lower, port padding)
+                normalizeDataCase();
+                
                 // Sync rooms with FloorPlan module if available
                 if (typeof FloorPlan !== 'undefined' && FloorPlan.setRooms) {
                     FloorPlan.setRooms(appState.rooms);
@@ -4497,11 +4569,11 @@ function printConnections() {
             return;
         }
         
-        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Active Connections - Tiesse Network</title>';
+        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Connections - Tiesse Network</title>';
         html += getPrintStyles();
         html += '<style>.print-hide-id { display: none !important; }</style>';
         html += '</head><body>';
-        html += '<h2>⚡ Active Connections - ' + new Date().toLocaleDateString() + '</h2>';
+        html += '<h2>⚡ Connections - ' + new Date().toLocaleDateString() + '</h2>';
         html += '<p style="font-size:10px;color:#64748b;margin-bottom:10px;">Total connections: ' + appState.connections.length + '</p>';
         html += printArea.innerHTML;
         html += '</body></html>';

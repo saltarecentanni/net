@@ -1,7 +1,7 @@
 # 🏢 Room & Location Data Structure
 
-**Version:** 3.6.026  
-**Date:** February 8, 2026
+**Version:** 3.6.028  
+**Date:** February 9, 2026
 **Note:** Room & Location structures have been stable since v3.6.026. This documentation remains accurate for current implementation.
 
 ---
@@ -270,7 +270,7 @@ Le stanze sono salvate in `network_manager.json`:
   "devices": [...],
   "connections": [...],
   "rooms": [...],
-  "nextDeviceId": 117
+  "nextDeviceId": 140
 }
 ```
 
@@ -315,7 +315,7 @@ Le stanze sono incluse nell'export JSON:
   "devices": [...],
   "connections": [...],
   "rooms": [...],
-  "nextDeviceId": 117,
+  "nextDeviceId": 140,
   "exportedAt": "2026-02-01T12:00:00.000Z",
   "version": "3.3.2"
 }

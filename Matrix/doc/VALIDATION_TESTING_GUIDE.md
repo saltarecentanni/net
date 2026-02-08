@@ -1,4 +1,4 @@
-# TIESSE Matrix Network - Validation System Testing Guide (v3.6.026)
+# TIESSE Matrix Network - Validation System Testing Guide (v3.6.028)
 
 ## Quick Test Checklist
 
@@ -15,7 +15,7 @@
 2. Select valid backup: `Archives/temp-files/Tiesse-Matrix-Network_FIXED_2026-02-04.json`
 3. **Expected:**
    - ✅ Console shows: `[Validation] ✅ Data passed validation, safe to import`
-   - ✅ Toast success: "Imported: 101 devices, 94 connections"
+   - ✅ Toast success: "Imported: 101 devices, 93 connections"
    - ✅ Data loads correctly (verify device count in sidebar)
 
 ### Test 2: Corrupted Import Rejection ❌
@@ -97,7 +97,7 @@
    - ✅ Console shows: `[Validation] Checking data before save...`
    - ✅ Console shows: `[Validation] ✅ Data is valid for saving`
    - ✅ JSON file downloads with correct filename
-   - ✅ Downloaded file should have 101 devices, 94 connections
+   - ✅ Downloaded file should have 101 devices, 93 connections
 
 ### Test 6: Excel Export Validation ✅
 **Goal:** Verify validator checks before Excel export
@@ -157,7 +157,7 @@ console.log('Report:', report);
 ### Good Import
 ```
 [Validation] Checking imported data...
-[Validation] ✅ Valid! 101 devices, 94 connections
+[Validation] ✅ Valid! 101 devices, 93 connections
 [Validation] ✅ Data passed validation, safe to import
 ```
 
@@ -218,14 +218,13 @@ After validation system integration:
 
 ---
 
-**Version:** 3.5.046  
+**Version:** 3.6.028  
 **Validation System:** Frontend + Backend Ready  
 **Test Coverage:** 9 core scenarios  
 **Expected Success Rate:** 100%
 
-**Next Steps After Validation Tests:**
-1. Run all 9 tests ✅
+**Validation Checklist:**
+1. Run all 9 tests
 2. Check console for any errors
-3. Verify 101 devices + 94 connections data integrity
-4. Move to backend integration (server.js api/json-validator.js)
-5. Create release notes for v3.5.046
+3. Verify 101 devices + 93 connections data integrity
+4. Verify port normalization (eth01, GbE02 format)

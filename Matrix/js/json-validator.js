@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - JSON Validator (Frontend)
- * Version: 3.6.022
+ * Version: 3.6.028
  * 
  * Client-side validation for import/export operations
  * Prevents user from corrupting data
@@ -138,12 +138,8 @@ var JSONValidatorFrontend = {
                 }
 
                 // Check deprecated fields
-                if (conn.color && conn.color !== conn.cableColor) {
-                    report.deprecated.push(`Connection[${idx}]: has 'color' field different from 'cableColor'`);
-                }
-
-                if (conn.roomId !== undefined && conn.roomId !== null) {
-                    report.deprecated.push(`Connection[${idx}]: has deprecated 'roomId' field`);
+                if (conn.color) {
+                    report.deprecated.push(`Connection[${idx}]: has obsolete 'color' field (use config.connColors[type] instead)`);
                 }
             });
 

@@ -1,6 +1,6 @@
 /**
  * Matrix Icons - SVG Icon System
- * Version: 1.0.0
+ * Version: 3.6.028
  * Replaces emoji icons with consistent, scalable, accessible SVG inline icons
  * Inspired by Lucide Icons design language (MIT)
  */

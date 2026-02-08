@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.6.022
+ * Version: 3.6.028
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -2022,7 +2022,7 @@ var SVGTopology = (function() {
         });
         
         var html = '<svg id="svgTopology" width="100%" height="100%" viewBox="' + vb + '" ' +
-            'style="background: #F8FAFC; cursor: grab;">' +
+            'style="background: #e2e8f0; cursor: grab;">' +
             '<defs>' +
             '<filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">' +
             '<feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.2"/>' +
@@ -2128,10 +2128,44 @@ var SVGTopology = (function() {
             return '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
         }
         
+        // Detect light/bright cable colors that need a dark outline for visibility
+        function isLightCableColor(hexColor) {
+            if (!hexColor) return false;
+            var hex = hexColor.replace('#', '');
+            if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            var r = parseInt(hex.substring(0, 2), 16);
+            var g = parseInt(hex.substring(2, 4), 16);
+            var b = parseInt(hex.substring(4, 6), 16);
+            return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.75;
+        }
+        
         // ═══════════════════════════════════════════════════════════════════
         // CONNECTION RENDERING - SIMPLE SYSTEM
         // Each connection gets a unique "connection dot" on each device
         // ═══════════════════════════════════════════════════════════════════
+        
+        // Helper: draw a cable path with dark outline for light colors
+        function drawCablePath(pathData, cableColor, isDashed) {
+            var out = '';
+            var dashAttr = isDashed ? ' stroke-dasharray="6,3"' : '';
+            if (isLightCableColor(cableColor)) {
+                out += '<path d="' + pathData + '" fill="none" stroke="#475569" stroke-width="3.5" ' +
+                    'stroke-linecap="round"' + dashAttr + ' opacity="0.5"/>';
+            }
+            out += '<path d="' + pathData + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
+                'stroke-linecap="round"' + dashAttr + '/>';
+            return out;
+        }
+        
+        // Helper: draw connection dot with dark outline for light colors
+        function drawCableDot(cx, cy, cableColor) {
+            var out = '';
+            if (isLightCableColor(cableColor)) {
+                out += '<circle cx="' + cx + '" cy="' + cy + '" r="4" fill="#475569" opacity="0.5"/>';
+            }
+            out += '<circle cx="' + cx + '" cy="' + cy + '" r="3" fill="' + cableColor + '"/>';
+            return out;
+        }
         
         // Step 1: Count ALL connections per device (source + destination)
         var deviceConnectionCount = {};
@@ -2192,7 +2226,7 @@ var SVGTopology = (function() {
             var from = devicePositions[c.from];
             var to = devicePositions[c.to];
             
-            var cableColor = c.cableColor || config.connColors[c.type] || '#64748b';
+            var cableColor = c.flagged ? '#dc2626' : (c.cableColor || config.connColors[c.type] || '#64748b');
             var isDashed = c.status === 'disabled';
             var fromPort = c.fromPort || '';
             var toPort = c.toPort || '';
@@ -2213,12 +2247,9 @@ var SVGTopology = (function() {
             // Simple straight line connection
             var path = 'M' + fromDot.x + ',' + fromDot.y + ' L' + toDot.x + ',' + toDot.y;
             
-            html += '<path d="' + path + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-            
-            // Connection dots
-            html += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-            html += '<circle cx="' + toDot.x + '" cy="' + toDot.y + '" r="3" fill="' + cableColor + '"/>';
+            html += drawCablePath(path, cableColor, isDashed);
+            html += drawCableDot(fromDot.x, fromDot.y, cableColor);
+            html += drawCableDot(toDot.x, toDot.y, cableColor);
             
             // Labels
             if (fromPort) {
@@ -2243,7 +2274,7 @@ var SVGTopology = (function() {
             if (c.to || !c.externalDest || !c.from || !devicePositions[c.from]) return;
             
             var from = devicePositions[c.from];
-            var cableColor = c.cableColor || config.connColors[c.type] || '#64748b';
+            var cableColor = c.flagged ? '#dc2626' : (c.cableColor || config.connColors[c.type] || '#64748b');
             var isDashed = c.status === 'disabled';
             var isWallJack = c.isWallJack === true;
             var fromPort = c.fromPort || '';
@@ -2269,12 +2300,9 @@ var SVGTopology = (function() {
                     // Simple line to Wall Jack
                     var path = 'M' + fromDot.x + ',' + fromDot.y + ' L' + wjCX + ',' + wjCY;
                     
-                    html += '<path d="' + path + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                        'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-                    
-                    // Connection dots
-                    html += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-                    html += '<circle cx="' + wjCX + '" cy="' + wjCY + '" r="3" fill="' + cableColor + '"/>';
+                    html += drawCablePath(path, cableColor, isDashed);
+                    html += drawCableDot(fromDot.x, fromDot.y, cableColor);
+                    html += drawCableDot(wjCX, wjCY, cableColor);
                     
                     // Labels
                     if (fromPort) {
@@ -2303,12 +2331,10 @@ var SVGTopology = (function() {
                 var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, realCX, realCY);
                 
                 // Line to real device
-                html += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + realCX + ',' + realCY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                    'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-                
-                // Connection dots
-                html += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-                html += '<circle cx="' + realCX + '" cy="' + realCY + '" r="3" fill="' + cableColor + '"/>';
+                var realPath = 'M' + fromDot.x + ',' + fromDot.y + ' L' + realCX + ',' + realCY;
+                html += drawCablePath(realPath, cableColor, isDashed);
+                html += drawCableDot(fromDot.x, fromDot.y, cableColor);
+                html += drawCableDot(realCX, realCY, cableColor);
                 
                 // Labels
                 if (fromPort) {
@@ -2337,12 +2363,10 @@ var SVGTopology = (function() {
                     var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, extCX, extCY);
                     
                     // Line to external node
-                    html += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + extCX + ',' + extCY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                        'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-                    
-                    // Connection dots
-                    html += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-                    html += '<circle cx="' + extCX + '" cy="' + extCY + '" r="3" fill="' + cableColor + '"/>';
+                    var extPath = 'M' + fromDot.x + ',' + fromDot.y + ' L' + extCX + ',' + extCY;
+                    html += drawCablePath(extPath, cableColor, isDashed);
+                    html += drawCableDot(fromDot.x, fromDot.y, cableColor);
+                    html += drawCableDot(extCX, extCY, cableColor);
                     
                     // Labels
                     if (fromPort) {
@@ -2845,6 +2869,21 @@ var SVGTopology = (function() {
         var newX = svgX - dragging.offsetX;
         var newY = svgY - dragging.offsetY;
         
+        // ⚠️ FIX: Add boundary constraints to prevent items from leaving the SVG container
+        // Device size: approximately 80x100px
+        var DEVICE_WIDTH = 80;
+        var DEVICE_HEIGHT = 100;
+        var MARGIN = 20; // Margin from edges
+        
+        // Clamp coordinates to stay within viewBox bounds
+        var minX = viewBox.x - DEVICE_WIDTH / 2 + MARGIN;
+        var maxX = viewBox.x + viewBox.width - DEVICE_WIDTH / 2 - MARGIN;
+        var minY = viewBox.y - DEVICE_HEIGHT / 2 + MARGIN;
+        var maxY = viewBox.y + viewBox.height - DEVICE_HEIGHT / 2 - MARGIN;
+        
+        newX = Math.max(minX, Math.min(maxX, newX));
+        newY = Math.max(minY, Math.min(maxY, newY));
+        
         // Update node position
         dragging.node.setAttribute('transform', 'translate(' + newX + ',' + newY + ')');
         
@@ -2935,6 +2974,35 @@ var SVGTopology = (function() {
             var g = Math.max(0, parseInt(hex.substring(2, 4), 16) - amount);
             var b = Math.max(0, parseInt(hex.substring(4, 6), 16) - amount);
             return '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
+        }
+        
+        function isLightCableColor(hexColor) {
+            if (!hexColor) return false;
+            var hex = hexColor.replace('#', '');
+            if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            var r = parseInt(hex.substring(0, 2), 16);
+            var g = parseInt(hex.substring(2, 4), 16);
+            var b = parseInt(hex.substring(4, 6), 16);
+            return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.75;
+        }
+        
+        function drawCablePath(pathData, cableColor, isDashed) {
+            var out = '';
+            var dashAttr = isDashed ? ' stroke-dasharray="6,3"' : '';
+            if (isLightCableColor(cableColor)) {
+                out += '<path d="' + pathData + '" fill="none" stroke="#475569" stroke-width="3.5" stroke-linecap="round"' + dashAttr + ' opacity="0.5"/>';
+            }
+            out += '<path d="' + pathData + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" stroke-linecap="round"' + dashAttr + '/>';
+            return out;
+        }
+        
+        function drawCableDot(cx, cy, cableColor) {
+            var out = '';
+            if (isLightCableColor(cableColor)) {
+                out += '<circle cx="' + cx + '" cy="' + cy + '" r="4" fill="#475569" opacity="0.5"/>';
+            }
+            out += '<circle cx="' + cx + '" cy="' + cy + '" r="3" fill="' + cableColor + '"/>';
+            return out;
         }
         
         function makeLabel(baseX, baseY, text, bgColor, isSmall) {
@@ -3045,7 +3113,7 @@ var SVGTopology = (function() {
             
             var from = devicePositions[c.from];
             var to = devicePositions[c.to];
-            var cableColor = c.cableColor || config.connColors[c.type] || '#64748b';
+            var cableColor = c.flagged ? '#dc2626' : (c.cableColor || config.connColors[c.type] || '#64748b');
             var isDashed = c.status === 'disabled';
             var fromPort = c.fromPort || '';
             var toPort = c.toPort || '';
@@ -3061,10 +3129,10 @@ var SVGTopology = (function() {
             var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, to.x + 40, to.y + 35);
             var toDot = getConnectionDot(c.to, toIdx, toTotal, to.x, to.y, from.x + 40, from.y + 35);
             
-            connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + toDot.x + ',' + toDot.y + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-            connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-            connHtml += '<circle cx="' + toDot.x + '" cy="' + toDot.y + '" r="3" fill="' + cableColor + '"/>';
+            var pathData = 'M' + fromDot.x + ',' + fromDot.y + ' L' + toDot.x + ',' + toDot.y;
+            connHtml += drawCablePath(pathData, cableColor, isDashed);
+            connHtml += drawCableDot(fromDot.x, fromDot.y, cableColor);
+            connHtml += drawCableDot(toDot.x, toDot.y, cableColor);
             
             if (fromPort) {
                 var l1x = fromDot.x + (toDot.x - fromDot.x) * 0.15;
@@ -3086,7 +3154,7 @@ var SVGTopology = (function() {
             if (c.to || !c.externalDest || !c.from || !devicePositions[c.from]) return;
             
             var from = devicePositions[c.from];
-            var cableColor = c.cableColor || config.connColors[c.type] || '#64748b';
+            var cableColor = c.flagged ? '#dc2626' : (c.cableColor || config.connColors[c.type] || '#64748b');
             var isDashed = c.status === 'disabled';
             var isWallJack = c.isWallJack === true;
             var fromPort = c.fromPort || '';
@@ -3106,10 +3174,10 @@ var SVGTopology = (function() {
                     
                     var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, wjCX, wjCY);
                     
-                    connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + wjCX + ',' + wjCY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                        'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-                    connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-                    connHtml += '<circle cx="' + wjCX + '" cy="' + wjCY + '" r="3" fill="' + cableColor + '"/>';
+                    var wjPath = 'M' + fromDot.x + ',' + fromDot.y + ' L' + wjCX + ',' + wjCY;
+                    connHtml += drawCablePath(wjPath, cableColor, isDashed);
+                    connHtml += drawCableDot(fromDot.x, fromDot.y, cableColor);
+                    connHtml += drawCableDot(wjCX, wjCY, cableColor);
                     
                     if (fromPort) {
                         var l1x = fromDot.x + (wjCX - fromDot.x) * 0.15;
@@ -3133,10 +3201,10 @@ var SVGTopology = (function() {
                 
                 var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, realCX, realCY);
                 
-                connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + realCX + ',' + realCY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                    'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-                connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-                connHtml += '<circle cx="' + realCX + '" cy="' + realCY + '" r="3" fill="' + cableColor + '"/>';
+                var realPath = 'M' + fromDot.x + ',' + fromDot.y + ' L' + realCX + ',' + realCY;
+                connHtml += drawCablePath(realPath, cableColor, isDashed);
+                connHtml += drawCableDot(fromDot.x, fromDot.y, cableColor);
+                connHtml += drawCableDot(realCX, realCY, cableColor);
                 
                 if (fromPort) {
                     var l1x = fromDot.x + (realCX - fromDot.x) * 0.15;
@@ -3158,10 +3226,10 @@ var SVGTopology = (function() {
                 
                 var fromDot = getConnectionDot(c.from, fromIdx, fromTotal, from.x, from.y, extCX, extCY);
                 
-                connHtml += '<path d="M' + fromDot.x + ',' + fromDot.y + ' L' + extCX + ',' + extCY + '" fill="none" stroke="' + cableColor + '" stroke-width="1.5" ' +
-                    'stroke-linecap="round"' + (isDashed ? ' stroke-dasharray="6,3"' : '') + '/>';
-                connHtml += '<circle cx="' + fromDot.x + '" cy="' + fromDot.y + '" r="3" fill="' + cableColor + '"/>';
-                connHtml += '<circle cx="' + extCX + '" cy="' + extCY + '" r="3" fill="' + cableColor + '"/>';
+                var extPath = 'M' + fromDot.x + ',' + fromDot.y + ' L' + extCX + ',' + extCY;
+                connHtml += drawCablePath(extPath, cableColor, isDashed);
+                connHtml += drawCableDot(fromDot.x, fromDot.y, cableColor);
+                connHtml += drawCableDot(extCX, extCY, cableColor);
                 
                 if (fromPort) {
                     var l1x = fromDot.x + (extCX - fromDot.x) * 0.15;

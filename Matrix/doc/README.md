@@ -2,8 +2,8 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.6.026  
-**Date:** February 8, 2026  
+**Version:** 3.6.028  
+**Date:** February 9, 2026  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
 
 ---
@@ -30,22 +30,24 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.6.026
+## 🆕 What's New in v3.6.028
 
-### 🎯 v3.6.026 - Cleanup & Consolidation
-- **Documentation Consolidated**: Removed 19 redundant docs, kept 6 core references
-- **File Organization**: Moved 14 diagnostic/temporary files to Archives
-- **Version Alignment**: All files (code, HTML, CSS, docs) synchronized to v3.6.026
-- **Data Validation Enhanced**: Improved JSON/Excel import-export consistency checks
-- **Professional Audit**: Verified data integrity and UI consistency
+### 🎯 v3.6.028 - Data Integrity & Normalization
+- **Port Normalization**: NEW `normalizePortName()` pads eth1→eth01, preserves GbE/SFP/WAN prefixes
+- **Bug Fix**: `saveDevice()` now correctly saves `ports` and `links` fields
+- **Bug Fix**: `saveConnection()` normalizes port names on save
+- **Bug Fix**: `importData()` now calls `normalizeDataCase()` after import
+- **Data Cleanup**: 79 ports + 3 connection ports fixed, UUIDs on all 93 connections
+- **Doc Consolidation**: Merged duplicate docs, updated all line counts (17,742 total JS)
+- **Verification**: 12-point audit + SHA-256 roundtrip = ZERO ERRORS
 
-### 📦 v3.6.024-025 - Foundation (Previous)
+### 📦 v3.6.026 - Cleanup & Consolidation (Previous)
 - **UI Stability**: Fixed critical Promise errors in data loading
 - **Room Structure**: Complete 21-room mapping with FloorPlan improvements
 - **Endpoint Optimization**: Absolute path routing for Node.js/Apache compatibility
 - **Error Handling**: Enhanced try-catch blocks for data migrations
 - **Device Management**: Smart device matching (29 hidden devices fully validated)
-- **JSON Validation System**: 798 lines of validation protecting data integrity
+- **JSON Validation System**: 273 lines of validation protecting data integrity
 - **Data Consolidation**: Deprecated field detection + automatic field merging
 
 ---
@@ -85,14 +87,14 @@ Matrix/
 ├── package.json                # Dependencies (bcrypt, path, fs)
 │
 ├── js/                         # Application logic
-│   ├── app.js                  # Core (4815 lines) - app state, data load, device search
+│   ├── app.js                  # Core (4887 lines) - app state, data load, device search
 │   ├── auth.js                 # Authentication & session management
 │   ├── ui-updates.js           # UI rendering engine
 │   ├── features.js             # Topology, export, protocol links
 │   ├── floorplan.js            # Floor plan module (rooms, polygons)
 │   ├── dashboard.js            # Statistics & charts
 │   ├── device-detail.js        # Device modal UI
-│   ├── json-validator.js       # Import/export validation (798 lines)
+│   ├── json-validator.js       # Import/export validation (273 lines)
 │   ├── editlock.js             # Multi-user edit lock (5 min timeout)
 │   └── icons.js                # Cisco-style SVG icon generation
 │
@@ -105,7 +107,7 @@ Matrix/
 │   └── vendor/                 # Libraries (Tailwind, SweetAlert2, Chart.js, XLSX)
 │
 ├── data/
-│   ├── network_manager.json    # Main data storage (193 KB)
+│   ├── network_manager.json    # Main data storage (~197 KB)
 │   └── online_users.json       # Active users tracker
 │
 ├── api/                        # PHP endpoints (optional)
@@ -363,7 +365,7 @@ CORS_ORIGINS=http://localhost:3000
 2. **Manual save** - No auto-save, must click "Save Now"
 3. **No auto-discovery** - Manual data entry only
 4. **Single editor** - Edit lock allows only one user at a time
-5. **Hidden devices** - 29 devices without IPs (by design), 9 filtered from list
+5. **Devices without IPs** - 32 devices without addresses (by design)
 6. **Protocol handlers** - Depend on system configuration
 
 ---
@@ -410,23 +412,23 @@ CORS_ORIGINS=http://localhost:3000
 ## 📊 System Statistics (Current Data)
 
 ```
-Devices:         139 total
-├─ Active:       130
-├─ Disabled:       9
-└─ Hidden:        29 (no IPs, by design)
+Devices:         101 total
+├─ Active:        97
+└─ Disabled:       4
 
-Connections:     200+ documented
-├─ LAN:           ~140
-├─ WAN:             8
-├─ Trunk:           6
-├─ Management:      4
-└─ Other:          35+
+Connections:      93 documented
+├─ LAN:            72
+├─ Wallport:       14
+├─ Trunk:           4
+├─ WAN:             2
+└─ Other:           1
 
-Locations:        24
-├─ Rooms:         21 (mapped)
-└─ Custom:         3
+Locations:        25
+├─ Rooms:          21 (mapped)
+└─ Custom:          4
 
-Zones:           Various (geography-based grouping)
+Rooms:            21 (with floor plan polygons)
+Sites:             1
 ```
 
 ---
@@ -442,7 +444,7 @@ For issues or feature requests:
 
 ---
 
-**Version:** 3.6.026  
+**Version:** 3.6.028  
 **Last Updated:** February 8, 2026  
 **Status:** ✅ Production Ready  
 **© Tiesse S.P.A.**

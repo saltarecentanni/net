@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.6.022
+ * Version: 3.6.028
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -1205,7 +1205,7 @@ var SVGMatrix = (function() {
                     
                     if (connIdx >= 0) {
                         var conn = appState.connections[connIdx];
-                        var connColor = conn.color || (config.connColors ? config.connColors[conn.type] : null) || 'var(--color-info)';
+                        var connColor = (config.connColors ? config.connColors[conn.type] : null) || 'var(--color-info)';
                         var isConnDisabled = conn.status === 'disabled';
                         var portFrom = conn.from === row.id ? conn.fromPort : conn.toPort;
                         var portTo = conn.from === row.id ? conn.toPort : conn.fromPort;
@@ -1975,7 +1975,7 @@ function showMatrixTooltip(event, connIdx) {
     }
     
     var typeName = config.connLabels[conn.type] || conn.type;
-    var connColor = conn.color || config.connColors[conn.type] || 'var(--color-secondary)';
+    var connColor = (config.connColors ? config.connColors[conn.type] : null) || 'var(--color-secondary)';
     
     // Build horizontal tooltip with two columns - LARGER SIZE
     var html = '<div class="flex gap-6">';
@@ -2484,7 +2484,7 @@ function renderConnectionsTable(cont) {
         var statusText = disabled ? 'Off' : 'On';
 
         // Connection color with fallback
-        var connColor = c.color || config.connColors[c.type] || 'var(--color-secondary)';
+        var connColor = (config.connColors ? config.connColors[c.type] : null) || 'var(--color-secondary)';
 
         var fromRackColor = getRackColor(fromDevice ? fromDevice.rackId : '');
         
@@ -2526,9 +2526,12 @@ function renderConnectionsTable(cont) {
             toIPs = [toDevice.ip1, toDevice.ip2, toDevice.ip3, toDevice.ip4].filter(Boolean).join('<br>');
         }
 
-        // Row styling: mirrored rows have red background
-        var rowBg;
-        if (isMirrored) {
+        // Row styling: mirrored rows have red background, flagged rows have RED (NEEDS REVIEW)
+        var rowBg, rowTitle = '';
+        if (c.flagged) {
+            rowBg = 'bg-red-200';
+            rowTitle = ' title="⚠️ INCOMPLETE: ' + escapeHtml(c.flagReason || 'Needs review') + '"';
+        } else if (isMirrored) {
             rowBg = 'bg-red-100';
         } else {
             rowBg = (i % 2 === 0) ? 'bg-white' : 'bg-slate-50';
@@ -2578,7 +2581,7 @@ function renderConnectionsTable(cont) {
         var fromDeviceNameEscaped = fromDevice ? escapeHtml(fromDevice.name).replace(/'/g, "\\'") : '';
         var toDeviceNameEscaped = toDevice ? escapeHtml(toDevice.name).replace(/'/g, "\\'") : '';
 
-        html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 ' + borderClass + '">' +
+        html += '<tr class="' + rowBg + ' ' + opacityClass + ' hover:bg-blue-50 ' + borderClass + '"' + rowTitle + '>' +
             '<td class="px-3 py-2 align-top print-hide-id">' + idHtml + '</td>' +
             '<td class="px-3 py-2 align-top font-bold" style="color:' + fromRackColor + '">' + escapeHtml(fromDevice ? fromDevice.rackId : 'N/A') + '</td>' +
             '<td class="px-3 py-2 align-top"><span class="inline-flex items-center justify-center gap-0.5" style="min-width:42px"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + (fromDevice ? String(fromDevice.order).padStart(2, '0') : 'N/A') + '</span>' + fromRearIndicator + '</span></td>' +

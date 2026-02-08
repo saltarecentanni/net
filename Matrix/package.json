@@ -1,6 +1,6 @@
 {
   "name": "matrix",
-  "version": "3.6.026",
+  "version": "3.6.028",
   "description": "TIESSE Matrix Network - Data Management System v3.6.026",
   "main": "server.js",
   "directories": {
@@ -16,6 +16,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "bcrypt": "^6.0.0"
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3"
   }
 }
