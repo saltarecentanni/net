@@ -1,10 +1,10 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: PHP endpoint for Guacamole config (Apache compatibility)
+ * Version: 3.6.026 - Professional Cleanup Release
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  * 
- * Security Features (v3.5.044):
+ * Features (v3.6.026):
  * - bcrypt password hashing (compatible with PHP)
  * - CORS whitelist (configurable)
  * - CSRF token validation

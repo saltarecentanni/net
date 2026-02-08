@@ -2,9 +2,9 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.5.047  
-**Date:** February 5, 2026  
-**Environment:** Ubuntu 24.04 LTS + Apache 2.4 + PHP 8.3 (or Node.js 16+)
+**Version:** 3.6.026  
+**Date:** February 8, 2026  
+**Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
 
 ---
 
@@ -30,86 +30,23 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.5.047
+## 🆕 What's New in v3.6.026
 
-### �️ Script Organization & Deployment Enhanced (v3.5.047)
-- **Duplicate Cleanup**: Removed duplicate `update-version.sh` from root directory
-- **Deploy Script Enhancement**: Added automatic version extraction from package.json
-- **Version Tracking**: Deploy script now displays deployed version in logs
-- **Deployment Records**: Creates `.deployment` file with timestamp and version info
-- **Documentation Synchronization**: All documentation aligned to current version
-- **Consistent Versioning**: All files (package.json, app.js, index.html, docs) now at v3.5.047
+### 🎯 v3.6.026 - Cleanup & Consolidation
+- **Documentation Consolidated**: Removed 19 redundant docs, kept 6 core references
+- **File Organization**: Moved 14 diagnostic/temporary files to Archives
+- **Version Alignment**: All files (code, HTML, CSS, docs) synchronized to v3.6.026
+- **Data Validation Enhanced**: Improved JSON/Excel import-export consistency checks
+- **Professional Audit**: Verified data integrity and UI consistency
 
-### 📦 JSON Validation System (v3.5.045)
-- **Intelligent Validation**: 798 lines of validation code protecting your data
-- **4 Integration Points**: Validates on import, export JSON, export Excel, and data updates
-- **Prevents Data Corruption**: Blocks corrupted imports, validates exports before download
-- **Protected Data**: 101 devices + 94 connections fully safeguarded
-- **Deprecated Field Detection**: Warns about old field names (zone, zoneIP, _isExternal, roomId)
-- **Automatic Consolidation**: Intelligently merges conflicting fields (color→cableColor, rack→rackId, rear→isRear)
-
-### 🔍 Data Integrity Investigation (v3.5.044)
-- Found 29 devices without IP addresses (intended design for infrastructure elements)
-- 5 active devices + 4 disabled devices = 9 hidden from default list view
-- Verified JSON integrity - all 101 devices fully present and valid
-- Added debug logging to detect filter status on page load
-- **Smart Device Matching**: Implemented 3-level matching algorithm to prevent duplicate boxes
-  - Exact match (case-insensitive)
-  - Partial match (substring matching)
-  - Word-based match (significant words only)
-- **Connection Color Scheme**: Softer, less intrusive colors
-  - WAN: #ef4444 → #fca5a5 (soft pink)
-  - DMZ: #f97316 → #fdba74 (soft peach)
-  - Management: #8b5cf6 → #d8b4fe (soft lavender)
-  - Wallport: #a78bfa → #e9d5ff (very soft lilac)
-- **Data Integrity**: SHA-256 checksum validation for imports
-
----
-
-## 📚 Previous Updates
-
-### 🔧 Location Order Bug Fix (v3.5.037-038)
-- **Critical Fix**: Location code "00" now correctly appears before "01" in all dropdowns
-- **Root Cause**: Fixed JavaScript falsy issue where `parseInt('00') || 999` returned 999
-- **Solution**: Changed to `isNaN(parsedCode) ? 999 : parsedCode` pattern
-
-### 🗺️ Zone Visualization Overhaul (v3.5.037-038)
-- **Star Topology Lines**: Zones now rendered as thick lines connecting devices to centroid
-- **Better Visual**: 5px stroke width with 35% opacity instead of filled rectangles
-- **Single Device Zones**: Shows zone badge below device instead of surrounding area
-- **Division by Zero Protection**: Added safety check for empty zones
-
-### 🎨 UI Styling (v3.5.037)
-- **Location Selects**: Changed from orange to neutral slate/gray styling
-- **Consistent Theme**: `border-slate-400 bg-slate-50 text-slate-800`
-
----
-
-## 🆕 Previous Updates
-
-### 🔲 Network Zones (v3.5.030)
-- **New Device Property**: Assign devices to network zones (DMZ, Backbone, LAN, WAN, etc.)
-- **Zone IP Range**: Optional CIDR notation (e.g., 172.24.254.0/24)
-- **Visual Grouping**: Devices in same zone grouped with colored boundaries in Topology
-- **Pre-defined Colors**: DMZ=Red, Backbone=Amber, LAN=Blue, WAN=Green, Cloud=Indigo
-- **Custom Zones**: Create your own zones as needed
-
-### 📺 TV/Display Device Type (v3.5.029)
-- New device type with SVG icon for screens and displays
-
-### 🎨 UI/UX Improvements (v3.5.029)
-- Export filenames standardized: `Tiesse-Matrix-Network_*.json`
-- Location filters show consistent "00 - Name" format
-- External topology nodes (WAN, ISP) now draggable
-- Logo clickable as home/refresh link
-
-### 🔗 Protocol Link Handlers (v3.5.024-028)
-- **SSH links**: Click to open SSH client + address copied to clipboard
-- **RDP links**: Downloads `.rdp` file (works on any browser)
-- **VNC links**: Click to open VNC viewer + address copied
-- **Telnet links**: Click to open Telnet + address copied
-- Copy fallback for browsers without protocol handlers
-- Toast notifications with usage instructions
+### 📦 v3.6.024-025 - Foundation (Previous)
+- **UI Stability**: Fixed critical Promise errors in data loading
+- **Room Structure**: Complete 21-room mapping with FloorPlan improvements
+- **Endpoint Optimization**: Absolute path routing for Node.js/Apache compatibility
+- **Error Handling**: Enhanced try-catch blocks for data migrations
+- **Device Management**: Smart device matching (29 hidden devices fully validated)
+- **JSON Validation System**: 798 lines of validation protecting data integrity
+- **Data Consolidation**: Deprecated field detection + automatic field merging
 
 ---
 
@@ -118,6 +55,7 @@ This is a **documentation tool**, NOT a monitoring system:
 ### Option 1: Node.js Server (Development)
 ```bash
 cd Matrix/
+npm install  # If needed: npm install bcrypt
 node server.js
 # Open: http://localhost:3000
 ```
@@ -132,7 +70,7 @@ sudo chown -R www-data:www-data /var/www/html/matrix/
 sudo chmod 755 /var/www/html/matrix/data/
 sudo chmod 644 /var/www/html/matrix/data/*.json
 
-# Access via browser: http://your-server/matrix/
+# Access: http://your-server/matrix/
 ```
 
 ---
@@ -141,37 +79,62 @@ sudo chmod 644 /var/www/html/matrix/data/*.json
 
 ```
 Matrix/
-├── index.html              # Main application (single-page app)
-├── server.js               # Node.js development server
-├── data.php                # PHP API for Apache
-├── js/
-│   ├── app.js              # Core application logic (4300+ lines)
-│   ├── auth.js             # Authentication system
-│   ├── features.js         # Topology, export, protocol links
-│   ├── ui-updates.js       # UI rendering engine
-│   ├── floorplan.js        # Floor plan module
-│   └── editlock.js         # Multi-user edit lock
+├── index.html                  # Single-page application
+├── server.js                   # Node.js development server
+├── data.php                    # PHP API endpoint
+├── package.json                # Dependencies (bcrypt, path, fs)
+│
+├── js/                         # Application logic
+│   ├── app.js                  # Core (4815 lines) - app state, data load, device search
+│   ├── auth.js                 # Authentication & session management
+│   ├── ui-updates.js           # UI rendering engine
+│   ├── features.js             # Topology, export, protocol links
+│   ├── floorplan.js            # Floor plan module (rooms, polygons)
+│   ├── dashboard.js            # Statistics & charts
+│   ├── device-detail.js        # Device modal UI
+│   ├── json-validator.js       # Import/export validation (798 lines)
+│   ├── editlock.js             # Multi-user edit lock (5 min timeout)
+│   └── icons.js                # Cisco-style SVG icon generation
+│
 ├── css/
-│   └── styles.css          # Custom styles (mostly Tailwind)
+│   └── styles.css              # Tailwind + custom styles (43.1 KB)
+│
 ├── assets/
-│   ├── planta.png          # Floor plan background image
-│   ├── logoTiesse.png      # Company logo
-│   └── vendor/             # Libraries (SweetAlert2, Tailwind, XLSX)
-├── api/
-│   ├── auth.php            # Authentication API
-│   └── editlock.php        # Edit lock API
+│   ├── planta.png              # Floor plan background image
+│   ├── logoTiesse.png          # Company logo
+│   └── vendor/                 # Libraries (Tailwind, SweetAlert2, Chart.js, XLSX)
+│
 ├── data/
-│   ├── network_manager.json     # Main data storage
-│   └── online_users.json        # Active users tracker
-├── backup/
-│   ├── backup.sh           # Backup script
-│   └── crontab.txt         # Cron schedule example
+│   ├── network_manager.json    # Main data storage (193 KB)
+│   └── online_users.json       # Active users tracker
+│
+├── api/                        # PHP endpoints (optional)
+│   ├── auth.php                # Authentication
+│   └── editlock.php            # Multi-user locks
+│
 ├── config/
-│   └── config.php          # Server configuration
-└── doc/
-    ├── README.md           # This file
-    ├── BLUEPRINT.md        # Technical specification
-    └── ROOM_STRUCTURE.md   # Data structure details
+│   ├── config.php              # Server configuration
+│   └── guacamole.json          # Guacamole proxy settings
+│
+├── backup/
+│   ├── backup.sh               # Automated backup script
+│   └── crontab.txt             # Cron schedule example
+│
+├── scripts/
+│   ├── update-version.sh       # Version updater
+│   └── deploy.sh               # Deployment automation
+│
+├── doc/
+│   ├── README.md               # This file (complete guide)
+│   ├── BLUEPRINT.md            # Technical specification
+│   ├── QUICK_REFERENCE.md      # Quick command reference
+│   ├── GUACAMOLE_SETUP.md      # Guacamole proxy configuration
+│   ├── VALIDATION_TESTING_GUIDE.md  # Testing data integrity
+│   └── ROOM_STRUCTURE.md       # JSON data schema
+│
+└── tests/
+    ├── e2e-tests.js            # End-to-end tests
+    └── frontend-tests.js       # UI tests
 ```
 
 ---
@@ -179,7 +142,6 @@ Matrix/
 ## 🔐 Authentication & Permissions
 
 ### 👁️ View Mode (No Login Required)
-Anyone can:
 - View all devices and connections
 - Navigate topology, matrix, floor plan
 - Export to Excel, JSON, PNG
@@ -187,278 +149,300 @@ Anyone can:
 - Use search and filters
 
 ### ✏️ Edit Mode (Login Required)
-After logging in, you can:
-- Add, edit, delete devices
-- Add, edit, delete connections
-- Manage locations
-- Edit floor plan rooms
+- Add, edit, delete devices and connections
+- Manage locations and rooms
+- Edit floor plan
 - Import JSON data
 - Clear all data
 
 ### 🔒 Multi-User Edit Lock
-- **Only ONE user can edit at a time**
-- Lock expires after **5 minutes** of inactivity
-- If someone else is editing, you'll see who and wait time
-- **Always logout when done!** (releases the lock)
-
-### 🔑 Default Credentials
-```
-Username: admin
-Password: (configured in config.php)
-```
+- **Only ONE user can edit** at a time (5-minute timeout)
+- If locked, see who's editing and wait time
+- Lock releases automatically on logout
 
 ---
 
 ## 📱 Device Types
 
-| Icon | Type | Description |
+| Type | Icon | Description |
 |------|------|-------------|
-| 🖥️ | `server` | Server / Host machine |
-| 🔀 | `switch` | Network Switch (L2/L3) |
-| 🌐 | `router` | Router / Gateway |
-| 📶 | `router_wifi` | WiFi Router |
-| 🛡️ | `firewall` | Firewall / UTM |
-| 📡 | `access_point` | Wireless Access Point |
-| 🔲 | `patch` | Patch Panel |
-| 🔌 | `walljack` | Wall Jack / Network outlet |
-| 💻 | `workstation` | Desktop PC |
-| 💼 | `laptop` | Laptop / Notebook |
-| 🖨️ | `printer` | Printer / MFP |
-| 📷 | `camera` | IP Camera / CCTV |
-| � | `tv` | TV / Display / Monitor |
-| 🔋 | `ups` | UPS / Battery backup |
-| 📞 | `ip_phone` | IP Phone / VoIP |
-| 🌍 | `isp` | ISP Router / Modem |
-| ❓ | `other` | Other device type |
+| `server` | 🖥️ | Server / Host machine |
+| `switch` | 🔀 | Network Switch (L2/L3) |
+| `router` | 🌐 | Router / Gateway |
+| `router_wifi` | 📶 | WiFi Router |
+| `firewall` | 🛡️ | Firewall / UTM |
+| `access_point` | 📡 | Wireless Access Point |
+| `patch` | 🔲 | Patch Panel |
+| `walljack` | 🔌 | Wall Jack / Network outlet |
+| `workstation` | 💻 | Desktop PC |
+| `laptop` | 💼 | Laptop / Notebook |
+| `printer` | 🖨️ | Printer / MFP |
+| `camera` | 📷 | IP Camera / CCTV |
+| `tv` | 📺 | TV / Display / Monitor |
+| `ups` | 🔋 | UPS / Battery backup |
+| `ip_phone` | 📞 | IP Phone / VoIP |
+| `isp` | 🌍 | ISP Router / Modem |
+| `other` | ❓ | Other device type |
 
 ---
 
 ## 🔲 Network Zones
 
-Devices can be assigned to network zones for visual grouping in the Topology view.
+Devices can be grouped visually in the Topology view:
 
-### Pre-defined Zones
+| Zone | Color | CIDR Example |
+|------|-------|--------------|
+| DMZ | 🔴 Red | 172.24.254.0/24 |
+| Backbone | 🟠 Amber | 10.10.0.0/16 |
+| LAN | 🔵 Blue | 10.10.100.0/24 |
+| WAN | 🟢 Green | external |
+| Cloud | 🟣 Indigo | cloud.example.com |
+| Management | 💜 Purple | 10.10.254.0/24 |
 
-| Zone | Color | Icon | Description |
-|------|-------|------|-------------|
-| DMZ | 🔴 Red | 🛡️ | Demilitarized zone |
-| Backbone | 🟠 Amber | 🔗 | Core backbone network |
-| LAN | 🔵 Blue | 🔲 | Local area network |
-| WAN | 🟢 Green | 🔲 | Wide area network |
-| Cloud | 🟣 Indigo | 🔲 | Cloud services |
-| Management | 💜 Purple | 🔲 | Management network |
-
-### Custom Zones
-
-You can create custom zones by typing any name in the Zone field. Custom zones appear in gray.
-
-### Zone IP
-
-Each zone can have an optional IP range in CIDR notation (e.g., `172.24.254.0/24`). This is displayed in the zone label on the Topology.
+Custom zones can be created with any name.
 
 ---
 
 ## ⚡ Connection Types
 
-| Type | Color | Description |
-|------|-------|-------------|
-| `lan` | 🔵 Blue | Standard LAN connection |
-| `wan` | 🔴 Red | WAN / Internet link |
-| `trunk` | 🟢 Green | Trunk / Uplink between switches |
+| Type | Color | Best For |
+|------|-------|----------|
+| `lan` | 🔵 Blue | Standard LAN connections |
+| `wan` | 🔴 Red | Internet / WAN links |
+| `trunk` | 🟢 Green | Switch-to-switch trunks |
 | `dmz` | 🟠 Orange | DMZ segment |
-| `management` | 🟣 Purple | Management VLAN |
-| `fiber` | 🔷 Cyan | Fiber optic link |
-| `walljack` | 🟤 Brown | Wall outlet connection |
-| `voip` | 🟡 Yellow | Voice over IP |
-| `serial` | ⚫ Gray | Serial / Console connection |
-| `wifi` | 💜 Violet | Wireless connection |
+| `management` | 🟣 Purple | VLAN management |
+| `walljack` | ⚫ Gray | Wall outlets |
+| `other` | ⚪ White | Custom connections |
 
 ---
 
 ## 🔗 Quick Access Links
 
-Each device can have links for quick access:
+Devices can have direct access links:
 
-| Type | Action | What Happens |
-|------|--------|--------------|
-| **SSH** | Click link | Opens SSH client + copies address |
-| **RDP** | Click link | Downloads `.rdp` file |
-| **VNC** | Click link | Opens VNC viewer + copies address |
-| **Telnet** | Click link | Opens Telnet + copies address |
-| **HTTP/HTTPS** | Click link | Opens in new browser tab |
-| **SMB/NFS** | Click link | Copies path to clipboard |
-
-💡 **Tip:** If protocol doesn't open, the address is already in your clipboard - just paste it!
+| Protocol | Behavior |
+|----------|----------|
+| SSH | Opens SSH client + copies address |
+| RDP | Downloads `.rdp` file |
+| VNC | Opens VNC viewer + copies address |
+| Telnet | Opens Telnet + copies address |
+| HTTP/HTTPS | Opens in browser tab |
+| SMB/NFS | Copies path to clipboard |
 
 ---
 
-## 💾 Export Options
+## 💾 Export & Import
 
-| Format | Button | Description |
-|--------|--------|-------------|
-| **Excel** | 📊 Export | 4 sheets: Devices, Connections, Matrix, Rooms |
-| **JSON** | 💾 Backup | Complete backup with SHA-256 checksum |
-| **PNG** | In Topology | High-resolution network diagram image |
-| **Draw.io** | In Topology | XML file for editing in draw.io |
-| **Print** | 🖨️ Print | Filtered device/connection list |
+### Export Formats
+
+| Format | Contents | Use Case |
+|--------|----------|----------|
+| **Excel** | Devices, Connections, Matrix, Rooms | Reporting, offline analysis |
+| **JSON** | Complete data + SHA-256 checksum | Backup, data transfer |
+| **PNG** | Network topology diagram | Documentation, presentations |
+| **Draw.io** | Editable network diagram | Further customization |
+
+### Import Formats
+
+| Format | Validation | Merge Strategy |
+|--------|-----------|-----------------|
+| **JSON** | Full schema validation | Smart duplicate detection |
+| **Excel** | 4-sheet structure check | Column mapping verification |
+
+**Data Integrity Checks:**
+- SHA-256 checksum verification
+- Schema validation (devices, connections, rooms, locations)
+- Deprecated field detection (zone, zoneIP, roomId)
+- Automatic field consolidation (color→cableColor, rack→rackId)
+- Connection orphan detection
 
 ---
 
 ## 🏢 Floor Plan
 
-The Floor Plan feature lets you visualize devices on a building map:
+Visualize devices on a building map:
 
 ### How to Use:
-1. Click the **🏢 Floor Plan** tab
+1. Click **🏢 Floor Plan** tab
 2. Click **+ Room** to add a room
-3. Click on the map to draw corners of the room polygon
-4. Double-click to finish the polygon
-5. Give the room a **Nickname** (e.g., "Server Room")
-6. Set device's **Location** field to match the room's nickname
+3. Click map corners to draw room polygon (double-click to finish)
+4. Set device's **Location** = room's **Nickname**
+5. Devices appear automatically in their rooms
 
-### Room-Device Association
-Devices appear in rooms automatically when:
+### Current Structure:
 ```
-Device Location = Room Nickname
-```
+21 Rooms mapped:
+└─ Room 0: Sala Server
+└─ Room 1-19: Various departments
+└─ Room 20: BigOne (Testing Lab)
 
-Example:
-- Room nickname: `Server Room`
-- Device location: `Server Room`
-- ✅ Device appears in that room on the floor plan!
+Rooms with polygons fully implemented and validated
+```
 
 ---
 
 ## 🗺️ Topology View
 
-Interactive network diagram showing all devices and connections:
+Interactive network diagram with multiple viewing options:
 
 ### Features:
-- **Drag & drop** devices to reposition
+- **Drag & drop** to reposition devices
 - **Zoom** with mouse wheel
 - **Pan** by dragging background
-- **Layout options**: Circle, Grid, Hierarchical, Force
-- **Filter** by Group or Location
-- **Click device** to see details
-- **Export** to PNG or Draw.io
+- **Layout algorithms**: Circle, Grid, Hierarchical, Force
+- **Filters**: By location, device type, status
+- **Export**: PNG (high-resolution), Draw.io XML
 
-### Icons:
-Devices display Cisco-style network icons based on their type.
+### Network Zones:
+Zones appear as connecting lines from devices to zone centroid, with color coding by type.
 
 ---
 
 ## 📊 Matrix View
 
-Grid showing all connections between devices:
+Grid showing connections between all devices:
 
 - **Rows**: Source devices (FROM)
 - **Columns**: Destination devices (TO)
-- **Cells**: Connection type indicator
-- **Click cell** to see connection details
+- **Cells**: Color-coded by connection type
+- **Filterable**: By location, status, connection type
+- **Clickable**: View connection details
 
 ---
 
 ## ⚙️ Server Configuration
 
-### Apache + PHP Setup
+### Node.js Development
 
-1. **Enable PHP** (if not already):
 ```bash
-sudo apt install php libapache2-mod-php
-sudo a2enmod php
+npm install bcrypt
+node server.js
+# Listens on port 3000
+```
+
+### Apache + PHP Production
+
+```bash
+# Enable mod_rewrite for clean URLs
+sudo a2enmod rewrite
 sudo systemctl restart apache2
-```
 
-2. **Configure permissions**:
-```bash
-sudo chown -R www-data:www-data /var/www/html/matrix/
-sudo chmod 755 /var/www/html/matrix/data/
-```
-
-3. **Edit config.php**:
-```php
-<?php
+# Configure in config/config.php:
 define('AUTH_USER', 'admin');
-define('AUTH_PASSWORD', 'your_secure_password');
+define('AUTH_PASSWORD', 'secure_password');
 ```
 
-### Backup Schedule (crontab)
+### Environment Variables (.env)
 
-Add to crontab (`crontab -e`):
-```bash
-# Weekly backup (Sundays 2:00 AM)
-0 2 * * 0 /var/www/html/matrix/backup/backup.sh weekly
-
-# Monthly backup (1st of month 3:00 AM)
-0 3 1 * * /var/www/html/matrix/backup/backup.sh monthly
+```
+PORT=3000
+DATA_FILE=data/network_manager.json
+DEBUG_MODE=false
+CORS_ORIGINS=http://localhost:3000
 ```
 
 ---
 
 ## 🌐 Browser Support
 
-| Browser | Minimum Version | Status |
-|---------|----------------|--------|
-| Chrome | 90+ | ✅ Full support |
-| Firefox | 88+ | ✅ Full support |
-| Edge | 90+ | ✅ Full support |
-| Safari | 14+ | ✅ Full support |
-| Opera | 76+ | ✅ Full support |
+| Browser | Minimum | Status |
+|---------|---------|--------|
+| Chrome | 90+ | ✅ Full |
+| Firefox | 88+ | ✅ Full |
+| Edge | 90+ | ✅ Full |
+| Safari | 14+ | ✅ Full |
+| Opera | 76+ | ✅ Full |
 | IE | Any | ❌ Not supported |
 
 ---
 
-## ⚠️ Known Limitations
+## ⚠️ Known Limitations & Notes
 
-1. **Single JSON file** - Performance may degrade with 500+ devices
-2. **Manual save** - No auto-save, always click "Save Now"
-3. **Manual data entry** - No network auto-discovery (SNMP, etc.)
-4. **Single editor** - Only one user can edit at a time
-5. **Session-only logs** - Activity log cleared on page refresh
-6. **Protocol handlers** - Depend on user's system configuration
+1. **JSON file size** - Single file; 500+ devices may impact performance
+2. **Manual save** - No auto-save, must click "Save Now"
+3. **No auto-discovery** - Manual data entry only
+4. **Single editor** - Edit lock allows only one user at a time
+5. **Hidden devices** - 29 devices without IPs (by design), 9 filtered from list
+6. **Protocol handlers** - Depend on system configuration
 
 ---
 
 ## 🆘 Troubleshooting
 
-### "Save failed" error
-- Check PHP permissions: `sudo chmod 755 data/`
+### Application won't load
+- Hard refresh browser: `Ctrl+Shift+R` (Windows/Linux) or `Cmd+Shift+R` (Mac)
+- Check Node.js is running: `curl http://localhost:3000`
+- Check server logs: `node server.js` output
+
+### Save fails
+- Check file permissions: `sudo chmod 755 data/`
 - Check file ownership: `sudo chown www-data:www-data data/`
-- Verify PHP is enabled: `php -v`
+- Verify disk space: `df -h`
 
 ### SSH/RDP links don't open
-- Protocol handlers depend on your system
+- Protocol handlers are OS-dependent
 - Address is copied to clipboard - paste manually
-- For RDP: the `.rdp` file is downloaded, open it
+- For RDP: downloaded `.rdp` file must be opened with RDP client
 
-### Login doesn't work
-- Check `config/config.php` credentials
-- Clear browser cache and cookies
-- Check PHP error log: `/var/log/apache2/error.log`
+### Floor plan devices missing
+- Verify device **Location** matches room **Nickname** exactly (case-insensitive)
+- Check room is correctly drawn on map
+- Save and reload page
 
-### Floor plan doesn't show devices
-- Ensure device's **Location** matches room's **Nickname** exactly
-- Location matching is case-insensitive
+### Import fails
+- Validate JSON format with Python: `python3 -m json.tool file.json`
+- Check for deprecated fields: zone, zoneIP, roomId
+- Ensure Excel has 4 sheets: Devices, Connections, Matrix, Rooms
 
 ---
 
 ## 📚 Additional Documentation
 
-- [BLUEPRINT.md](BLUEPRINT.md) - Full technical specification
-- [ROOM_STRUCTURE.md](ROOM_STRUCTURE.md) - Data structure details
-- [UPDATE_NOTES.txt](../UPDATE_NOTES.txt) - Version changelog
+- [BLUEPRINT.md](BLUEPRINT.md) - Complete technical specification & architecture
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Command & endpoint reference
+- [GUACAMOLE_SETUP.md](GUACAMOLE_SETUP.md) - Remote access proxy configuration
+- [VALIDATION_TESTING_GUIDE.md](VALIDATION_TESTING_GUIDE.md) - Data integrity testing procedures
+- [ROOM_STRUCTURE.md](ROOM_STRUCTURE.md) - Detailed JSON schema documentation
 
 ---
 
-## 📞 Support
+## 📊 System Statistics (Current Data)
 
-For issues or questions:
-1. Check the **Help** tab in the application
-2. Review this README and BLUEPRINT.md
-3. Check UPDATE_NOTES.txt for recent changes
+```
+Devices:         139 total
+├─ Active:       130
+├─ Disabled:       9
+└─ Hidden:        29 (no IPs, by design)
+
+Connections:     200+ documented
+├─ LAN:           ~140
+├─ WAN:             8
+├─ Trunk:           6
+├─ Management:      4
+└─ Other:          35+
+
+Locations:        24
+├─ Rooms:         21 (mapped)
+└─ Custom:         3
+
+Zones:           Various (geography-based grouping)
+```
 
 ---
 
-**Version:** 3.5.047  
-**Last Updated:** February 5, 2026  
+## 📞 Support & Feedback
+
+For issues or feature requests:
+
+1. Review this README and related docs
+2. Check **Help** tab in application
+3. Consult detailed documentation in `/doc/`
+4. Enable DEBUG_MODE in server configuration for detailed logs
+
+---
+
+**Version:** 3.6.026  
+**Last Updated:** February 8, 2026  
+**Status:** ✅ Production Ready  
 **© Tiesse S.P.A.**

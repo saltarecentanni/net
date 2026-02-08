@@ -1,0 +1,2121 @@
+/**
+ * Device Detail Modal - TIESSE Matrix Network
+ * Version: 3.6.008
+ * Shows complete device information with port visualization and VLAN colors
+ */
+
+// Color system for device-detail.js
+var DeviceDetailColors = (function() {
+    return {
+        green: '#22c55e',          // 25x - success, active ports
+        gray: '#c0c0c0',           // 20x - neutral, inactive
+        slate600: '#475569',       // 10x - secondary text
+        slate300: '#94a3b8',       // 9x - light text
+        blue: '#3b82f6',           // 8x & vlan - primary color
+        slate500: '#64748b',       // 7x - medium text
+        black: '#1a1a1a',          // 6x - dark backgrounds
+        darkBlack: '#0a0a0a',      // 6x - very dark backgrounds
+        lightGray: '#e2e8f0',      // 5x - light backgrounds
+        red: '#ef4444',            // 4x & vlan - danger color
+        darkRed: '#dc2626',        // 4x - darker red
+        lightGray2: '#b0b0b0',     // 4x - neutral gray
+        bgDark: '#334155',         // 4x - dark bg
+        cyan: '#0ea5e9',           // 4x - info color
+        brown: '#b45309',          // 3x - warm accent
+        slate800: '#1e293b',       // 3x - dark text
+        green2: '#166534',         // 3x - dark green
+        darkCyan: '#0369a1',       // 3x - dark cyan
+        orange: '#f97316',         // 2x - warning
+        pink: '#ec4899',           // 2x - accent
+        purple: '#a855f7',         // VLAN 300
+        yellow: '#eab308',         // VLAN 200
+        teal: '#14b8a6',
+        violet: '#8b5cf6',
+        lightCyan: '#06b6d4',
+        white: '#ffffff'
+    };
+})();
+
+var DeviceDetail = (function() {
+    'use strict';
+
+    // VLAN color palette
+    var vlanColors = {
+        100: { color: DeviceDetailColors.blue, label: 'Management', bg: 'bg-blue-500' },
+        151: { color: DeviceDetailColors.green, label: 'Users', bg: 'bg-green-500' },
+        200: { color: DeviceDetailColors.yellow, label: 'VoIP', bg: 'bg-yellow-500' },
+        300: { color: DeviceDetailColors.purple, label: 'Servers', bg: 'bg-purple-500' },
+        999: { color: DeviceDetailColors.red, label: 'Trunk', bg: 'bg-red-500' },
+        1: { color: DeviceDetailColors.slate300, label: 'Native', bg: 'bg-slate-400' }
+    };
+
+    // Default colors for unknown VLANs
+    var defaultVlanColors = [
+        { color: DeviceDetailColors.orange, bg: 'bg-orange-500' },
+        { color: DeviceDetailColors.teal, bg: 'bg-teal-500' },
+        { color: DeviceDetailColors.pink, bg: 'bg-pink-500' },
+        { color: DeviceDetailColors.violet, bg: 'bg-violet-500' },
+        { color: DeviceDetailColors.lightCyan, bg: 'bg-cyan-500' }
+    ];
+
+    var currentDevice = null;
+    var currentConnections = [];
+
+    /**
+     * Open the device detail modal
+     * @param {number|object} deviceOrId - Device object or device ID
+     */
+    function open(deviceOrId) {
+        var device = typeof deviceOrId === 'object' ? deviceOrId : findDevice(deviceOrId);
+        if (!device) {
+            console.error('Device not found:', deviceOrId);
+            return;
+        }
+
+        currentDevice = device;
+        currentConnections = getDeviceConnections(device.id);
+
+        renderModal(device);
+        document.getElementById('deviceDetailModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Close the device detail modal
+     * @param {Event} event - Click event
+     */
+    function close(event) {
+        if (event && event.target !== event.currentTarget) return;
+        document.getElementById('deviceDetailModal').classList.add('hidden');
+        document.body.style.overflow = '';
+        currentDevice = null;
+        currentConnections = [];
+    }
+
+    /**
+     * Find device by ID
+     */
+    function findDevice(id) {
+        if (!window.appState || !window.appState.devices) return null;
+        return window.appState.devices.find(function(d) { return d.id === id; });
+    }
+
+    /**
+     * Get all connections for a device
+     */
+    function getDeviceConnections(deviceId) {
+        if (!window.appState || !window.appState.connections) return [];
+        return window.appState.connections.filter(function(c) {
+            return c.from === deviceId || c.to === deviceId;
+        });
+    }
+
+    /**
+     * Get room number for location
+     */
+    function getRoomNumber(locationName) {
+        if (!locationName || !window.appState) return '';
+        
+        // Search in rooms
+        if (window.appState.rooms) {
+            var room = window.appState.rooms.find(function(r) {
+                return r.nickname === locationName || r.name === locationName;
+            });
+            if (room && room.id !== undefined) {
+                return String(room.id).padStart(2, '0');
+            }
+        }
+        
+        // Search in locations
+        if (window.appState.locations) {
+            var loc = window.appState.locations.find(function(l) {
+                return l.name === locationName;
+            });
+            if (loc && loc.code !== undefined) {
+                return String(loc.code).padStart(2, '0');
+            }
+        }
+        
+        return '';
+    }
+
+    /**
+     * Format location with room number
+     */
+    function formatLocation(location) {
+        if (!location) return 'N/A';
+        var roomNum = getRoomNumber(location);
+        return roomNum ? roomNum + ' - ' + location : location;
+    }
+
+    /**
+     * Get device icon SVG (large version)
+     */
+    function getDeviceIcon(type) {
+        if (window.SVGTopology && window.SVGTopology.getLargeIcon) {
+            return window.SVGTopology.getLargeIcon(type);
+        }
+        // Fallback: use MI centralized icon system
+        return MI.device(type, {size: 48, sw: 1.5});
+    }
+
+    /**
+     * Get status badge HTML
+     */
+    function getStatusBadge(status) {
+        var colors = {
+            active: 'bg-green-100 text-green-800',
+            inactive: 'bg-red-100 text-red-800',
+            maintenance: 'bg-yellow-100 text-yellow-800'
+        };
+        var statusIcons = { active: 'check', inactive: 'x', maintenance: 'alert-triangle' };
+        var statusColors = { active: '#166534', inactive: '#dc2626', maintenance: '#b45309' };
+        var statusClass = colors[status] || colors.inactive;
+        var iconName = statusIcons[status] || 'circle';
+        var iconColor = statusColors[status] || '#dc2626';
+        return '<span class="px-2 py-1 rounded-full text-xs font-medium ' + statusClass + '">' + 
+               MI.i(iconName, {size:10, color: iconColor}) + ' ' + (status || 'unknown').charAt(0).toUpperCase() + (status || 'unknown').slice(1) + '</span>';
+    }
+
+    /**
+     * Get status badge - FloorPlan style with CSS classes
+     */
+    function getStatusBadgeStyled(status) {
+        var styles = {
+            active: { cls: 'stat-card--green', icon: 'check', color: '#166534' },
+            inactive: { cls: 'stat-card--red', icon: 'x', color: '#dc2626' },
+            disabled: { cls: 'stat-card--red', icon: 'x', color: '#dc2626' },
+            maintenance: { cls: 'stat-card--amber', icon: 'alert-triangle', color: '#b45309' }
+        };
+        var style = styles[status] || styles.inactive;
+        var label = (status || 'unknown').charAt(0).toUpperCase() + (status || 'unknown').slice(1);
+        return '<span class="badge badge-' + (status === 'active' ? 'success' : status === 'maintenance' ? 'warning' : 'danger') + '" ' +
+               'style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">' + 
+               MI.i(style.icon, {size:10, color: style.color}) + ' ' + label + '</span>';
+    }
+
+    /**
+     * Render access buttons - FloorPlan style
+     */
+    function renderLinksStyled(device) {
+        var links = device.links || [];
+        var addresses = device.addresses || [];
+        var ip = addresses.length > 0 ? (addresses[0].ip || addresses[0].network || '').split('/')[0] : '';
+        
+        if (!links.length) return '';
+        
+        // Button styles using MI icons
+        var btnStyles = {
+            'http': { bg: 'linear-gradient(135deg,#3b82f6,#2563eb)', icon: MI.i('globe', {size:13, color:'#fff'}), label: 'Web' },
+            'https': { bg: 'linear-gradient(135deg,#3b82f6,#2563eb)', icon: MI.i('globe', {size:13, color:'#fff'}), label: 'Web' },
+            'ssh': { bg: 'linear-gradient(135deg,#334155,#1e293b)', icon: MI.i('terminal', {size:13, color:'#fff'}), label: 'SSH' },
+            'rdp': { bg: 'linear-gradient(135deg,#4f46e5,#4338ca)', icon: MI.i('monitor', {size:13, color:'#fff'}), label: 'RDP' },
+            'vnc': { bg: 'linear-gradient(135deg,#059669,#047857)', icon: MI.i('image', {size:13, color:'#fff'}), label: 'VNC' },
+            'telnet': { bg: 'linear-gradient(135deg,#ea580c,#c2410c)', icon: MI.i('send', {size:13, color:'#fff'}), label: 'Telnet' },
+            'smb': { bg: 'linear-gradient(135deg,#d97706,#b45309)', icon: MI.i('folder', {size:13, color:'#fff'}), label: 'SMB' },
+            'ftp': { bg: 'linear-gradient(135deg,#0891b2,#0e7490)', icon: MI.i('upload', {size:13, color:'#fff'}), label: 'FTP' }
+        };
+        
+        var html = '';
+        links.forEach(function(link) {
+            var style = btnStyles[link.type] || { bg: 'linear-gradient(135deg,#64748b,#475569)', icon: MI.i('link', {size:13, color:'#fff'}), label: link.type };
+            var protocolClass = 'dd-access-btn dd-access-btn--' + ({http:'web',https:'web',ssh:'ssh',rdp:'rdp',vnc:'vnc',telnet:'tel'}[link.type] || 'web');
+            
+            if (link.type === 'http' || link.type === 'https') {
+                var href = link.url;
+                if (!href.match(/^https?:\/\//i)) href = 'http://' + href;
+                html += '<a href="' + escapeHtml(href) + '" target="_blank" ' +
+                    'class="' + protocolClass + '" ' +
+                    'title="Open web interface">' + style.icon + ' ' + style.label + '</a>';
+            } else if (['ssh', 'rdp', 'vnc', 'telnet'].indexOf(link.type) !== -1 && ip) {
+                html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'' + link.type + '\')" ' +
+                    'class="' + protocolClass + '" ' +
+                    'title="' + style.label + ' via Guacamole">' + style.icon + ' ' + style.label + '</button>';
+            } else {
+                html += '<button onclick="DeviceLinks.copyAndNotify(\'' + escapeHtml(link.url) + '\', \'' + link.type.toUpperCase() + '\')" ' +
+                    'class="' + protocolClass + '" ' +
+                    'title="Copy ' + style.label + ' address">' + style.icon + ' ' + style.label + '</button>';
+            }
+        });
+        
+        return html;
+    }
+
+    /**
+     * Format device type label
+     */
+    function formatTypeLabel(type) {
+        if (!type) return 'Unknown';
+        var labels = {
+            router: 'Router', switch: 'Switch', server: 'Server', firewall: 'Firewall',
+            ap: 'Access Point', router_wifi: 'Router WiFi', ip_phone: 'IP Phone',
+            printer: 'Printer', pc: 'PC', nas: 'NAS', camera: 'Camera', tv: 'TV/Display',
+            isp: 'ISP', wallbox: 'Wallbox', others: 'Other'
+        };
+        return labels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+    }
+
+    /**
+     * Build VLAN color map for device ports
+     */
+    function buildVlanColorMap(ports) {
+        var vlansFound = {};
+        var colorIndex = 0;
+
+        ports.forEach(function(port) {
+            if (port.vlan && !vlansFound[port.vlan] && !vlanColors[port.vlan]) {
+                vlansFound[port.vlan] = defaultVlanColors[colorIndex % defaultVlanColors.length];
+                colorIndex++;
+            }
+        });
+
+        return Object.assign({}, vlanColors, vlansFound);
+    }
+    
+    /**
+     * Generate VLAN color based on VLAN ID
+     */
+    function getVlanColor(vlanId) {
+        // Predefined colors for common VLANs
+        var presets = {
+            1: '#94a3b8',   // Native - gray
+            10: '#22c55e',  // Green
+            20: '#3b82f6',  // Blue
+            30: '#f97316',  // Orange
+            40: '#a855f7',  // Purple
+            50: '#ec4899',  // Pink
+            100: '#14b8a6', // Teal
+            151: '#eab308', // Yellow
+            200: '#ef4444', // Red
+            300: '#6366f1'  // Indigo
+        };
+        
+        if (presets[vlanId]) return presets[vlanId];
+        
+        // Generate deterministic color from VLAN ID
+        var hue = (vlanId * 137.508) % 360; // Golden angle for good distribution
+        return 'hsl(' + hue + ', 70%, 45%)';
+    }
+
+    /**
+     * Get port color based on VLAN and status
+     */
+    function getPortColor(port, vlanColorMap, connections) {
+        if (port.status === 'inactive' || port.status === 'disabled') {
+            return { color: '#1f2937', symbol: '⬛', label: 'Disabled' };
+        }
+
+        // Check if port has connection
+        var hasConnection = connections.some(function(c) {
+            return c.fromPort === port.name || c.toPort === port.name;
+        });
+
+        if (!hasConnection && !port.vlan) {
+            return { color: '#1e293b', symbol: '○', label: 'Free' };
+        }
+
+        if (port.vlan && vlanColorMap[port.vlan]) {
+            return { 
+                color: vlanColorMap[port.vlan].color, 
+                symbol: '●', 
+                label: 'VLAN ' + port.vlan 
+            };
+        }
+
+        // Connected but no VLAN
+        return { color: '#94a3b8', symbol: '●', label: 'Native' };
+    }
+
+    /**
+     * Render device visualization based on device type
+     */
+    function renderPortMap(device, connections) {
+        var type = (device.type || '').toLowerCase();
+        var ports = device.ports || [];
+        
+        // Route to appropriate renderer based on device type
+        // Switches
+        if (type === 'switch' || type === 'switch_l3' || type === 'switch_l2' || type === 'switch_poe') {
+            return renderSwitchVisualization(device, connections);
+        }
+        // Routers and Firewalls (including ISP gateways)
+        if (type === 'router' || type === 'router_wifi' || type === 'firewall' || type === 'isp' || type === 'gateway') {
+            return renderRouterVisualization(device, connections);
+        }
+        // Servers
+        if (type === 'server' || type === 'server_rack' || type === 'server_blade' || type === 'vm_host') {
+            return renderServerVisualization(device, connections);
+        }
+        // Storage
+        if (type === 'nas' || type === 'storage' || type === 'san') {
+            return renderNASVisualization(device, connections);
+        }
+        // Endpoints
+        if (type === 'printer' || type === 'ip_phone' || type === 'camera' || type === 'access_point' || type === 'ap' || type === 'wireless') {
+            return renderEndpointVisualization(device, connections);
+        }
+        // Workstations
+        if (type === 'workstation' || type === 'desktop' || type === 'laptop' || type === 'pc') {
+            return renderWorkstationVisualization(device, connections);
+        }
+        // Generic device with ports
+        if (ports.length > 0) {
+            return renderGenericPortVisualization(device, connections);
+        }
+        // No ports visualization needed
+        return renderConnectionSummary(device, connections);
+    }
+
+    /**
+     * Render Switch visualization - realistic front panel
+     */
+    function renderSwitchVisualization(device, connections) {
+        var ports = device.ports || [];
+        if (ports.length === 0) {
+            return '<div style="text-align:center;color:#94a3b8;padding:20px 0;font-size:14px;">No ports configured</div>';
+        }
+
+        var vlanColorMap = buildVlanColorMap(ports);
+        var brand = extractBrand(device.brandModel || device.name || 'Switch');
+        var model = device.brandModel || device.name;
+        
+        // Collect unique VLANs for legend
+        var uniqueVlans = collectUniqueVlans(ports, vlanColorMap);
+        
+        var html = '<div class="dd-chassis">';
+        
+        // VLAN Legend
+        html += renderVlanLegend(uniqueVlans);
+        
+        // Switch chassis - realistic look
+        html += '<div class="dd-chassis-switch">';
+        
+        // Brand/Model label on left
+        html += '<div class="dd-brand-vertical">';
+        html += '<span class="dd-brand-label">' + escapeHtml(brand).toUpperCase() + '</span>';
+        html += '</div>';
+        
+        // Main port area
+        html += '<div class="dd-port-area">';
+        
+        // Sort ports by type - RJ45-like vs optical/other
+        var rj45Ports = [];
+        var sfpPorts = [];
+        var otherPorts = [];
+        
+        ports.forEach(function(port) {
+            var portType = (port.type || '').toLowerCase();
+            var name = (port.name || '').toLowerCase();
+            
+            // Check type first, then fallback to name pattern
+            if (portType.indexOf('sfp') !== -1 || portType.indexOf('qsfp') !== -1 || portType.indexOf('gbic') !== -1) {
+                sfpPorts.push(port);
+            } else if (portType === 'usb' || portType === 'tty' || portType === 'serial' || portType === 'rj11') {
+                otherPorts.push(port);
+            } else if (name.includes('sfp') || name.includes('qsfp')) {
+                sfpPorts.push(port);
+            } else {
+                // Default: eth, wan, gbe, mgmt, etc. = RJ45
+                rj45Ports.push(port);
+            }
+        });
+        
+        // Determine layout - 24/48 port switches have 2 rows
+        var useDoubleRow = rj45Ports.length > 16;
+        
+        if (useDoubleRow) {
+            // Split into top/bottom rows (odd/even or first/second half)
+            var topRow = [];
+            var bottomRow = [];
+            for (var i = 0; i < rj45Ports.length; i++) {
+                if (i % 2 === 0) {
+                    topRow.push(rj45Ports[i]);
+                } else {
+                    bottomRow.push(rj45Ports[i]);
+                }
+            }
+            
+            html += '<div style="display:flex;flex-direction:column;gap:3px;padding:8px 0;">';
+            html += renderRJ45Row(topRow, connections, vlanColorMap, 12);
+            html += renderRJ45Row(bottomRow, connections, vlanColorMap, 12);
+            html += '</div>';
+        } else {
+            html += '<div style="padding:8px 0;">';
+            html += renderRJ45Row(rj45Ports, connections, vlanColorMap, 12);
+            html += '</div>';
+        }
+        
+        html += '</div>'; // End main port area
+        
+        // SFP/QSFP ports on right side - rendered by type
+        if (sfpPorts.length > 0) {
+            html += '<div class="dd-sfp-area">';
+            sfpPorts.forEach(function(port) {
+                var portColor = getPortColor(port, vlanColorMap, connections);
+                var hasConnection = connections.some(function(c) {
+                    return c.fromPort === port.name || c.toPort === port.name;
+                });
+                html += renderPortByType(port, portColor.color, hasConnection, 'medium');
+            });
+            html += '</div>';
+        }
+        
+        // Other ports (USB, TTY, etc.) at top
+        if (otherPorts.length > 0) {
+            html += '<div class="dd-other-ports">';
+            otherPorts.forEach(function(port) {
+                var portColor = getPortColor(port, vlanColorMap, connections);
+                var hasConnection = connections.some(function(c) {
+                    return c.fromPort === port.name || c.toPort === port.name;
+                });
+                html += renderPortByType(port, portColor.color, hasConnection, 'medium');
+            });
+            html += '</div>';
+        }
+        
+        // Status LEDs
+        html += '<div class="dd-status-leds">';
+        html += '<div class="dd-led dd-led--green"></div>';
+        html += '<div class="dd-led dd-led--green"></div>';
+        html += '</div>';
+        
+        html += '</div>'; // End chassis
+        html += '</div>'; // End container
+        
+        return html;
+    }
+
+    /**
+     * Render a row of RJ45 ports - using SVG inline
+     */
+    function renderRJ45Row(ports, connections, vlanColorMap, groupSize) {
+        var html = '<div class="dd-port-row">';
+        
+        ports.forEach(function(port, index) {
+            // Add separator between groups
+            if (index > 0 && index % groupSize === 0) {
+                html += '<div class="dd-port-sep"></div>';
+            }
+            
+            var portColor = getPortColor(port, vlanColorMap, connections);
+            var hasConnection = connections.some(function(c) {
+                return c.fromPort === port.name || c.toPort === port.name;
+            });
+            
+            html += renderSingleRJ45Port(port, portColor.color, hasConnection, null, 'small');
+        });
+        
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Render a single RJ45 port in staircase/trapezoid style
+     * @param {Object} port - Port object with name, vlan, status
+     * @param {string} color - Background color for the port
+     * @param {boolean} hasConnection - Whether port has active connection
+     * @param {string} label - Optional label override
+     * @param {string} size - 'small', 'medium', 'large' (default: medium)
+     */
+    function renderSingleRJ45Port(port, color, hasConnection, label, size) {
+        size = size || 'medium';
+        var portName = port ? port.name : (label || 'ETH');
+        var portLabel = label || (port ? port.name : 'ETH');
+        var vlanInfo = port && port.vlan ? ' - VLAN ' + port.vlan : '';
+        var typeInfo = port && port.type ? ' (' + port.type + ')' : '';
+        
+        // SVG size configurations
+        var sizes = {
+            small: { w: 32, h: 30, svgW: 20, svgH: 22, fontSize: 7 },
+            medium: { w: 36, h: 34, svgW: 24, svgH: 26, fontSize: 8 },
+            large: { w: 40, h: 38, svgW: 28, svgH: 30, fontSize: 9 }
+        };
+        var s = sizes[size] || sizes.medium;
+        var ledColor = hasConnection ? '#22c55e' : 'none';
+        var ledGlow = hasConnection ? 'drop-shadow(0 0 3px #22c55e)' : 'none';
+        
+        var dimStyle = !hasConnection ? 'opacity:0.3;' : '';
+        return '<div onclick="DeviceDetail.showPortDetail(\'' + portName + '\')" ' +
+            'style="cursor:pointer;width:' + s.w + 'px;text-align:center;' + dimStyle + '" ' +
+            'class="port-hover" title="' + portName + vlanInfo + typeInfo + (hasConnection ? '' : ' (free)') + '">' +
+            '<div style="font-size:' + s.fontSize + 'px;color:#9ca3af;font-weight:500;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + portLabel + '</div>' +
+            '<svg viewBox="0 0 24 26" width="' + s.svgW + '" height="' + s.svgH + '" style="display:block;margin:0 auto;">' +
+            // RJ45 trapezoid shape
+            '<path d="M7 0 L17 0 L17 4 L19 4 L19 10 L21 10 L21 24 L3 24 L3 10 L5 10 L5 4 L7 4 Z" fill="' + color + '" stroke="#333" stroke-width="0.8"/>' +
+            // Clip/tab detail
+            '<rect x="9" y="1" width="6" height="3" fill="' + adjustColor(color, -30) + '" rx="0.5"/>' +
+            // Inner dark area
+            '<rect x="5" y="11" width="14" height="11" fill="#1a1a1a" rx="1"/>' +
+            // 8 pin contacts
+            '<rect x="6" y="12" width="1.2" height="6" fill="#c0c0c0" rx="0.3"/>' +
+            '<rect x="7.8" y="12" width="1.2" height="6" fill="#c0c0c0" rx="0.3"/>' +
+            '<rect x="9.6" y="12" width="1.2" height="6" fill="#c0c0c0" rx="0.3"/>' +
+            '<rect x="11.4" y="12" width="1.2" height="6" fill="#c0c0c0" rx="0.3"/>' +
+            '<rect x="13.2" y="12" width="1.2" height="6" fill="#c0c0c0" rx="0.3"/>' +
+            '<rect x="15" y="12" width="1.2" height="6" fill="#c0c0c0" rx="0.3"/>' +
+            '<rect x="16.8" y="12" width="1.2" height="6" fill="#c0c0c0" rx="0.3"/>' +
+            // Activity LED
+            '<rect x="10" y="20" width="4" height="2" fill="' + ledColor + '" rx="0.5" style="filter:' + ledGlow + '"/>' +
+            '</svg></div>';
+    }
+
+    /**
+     * Render SFP/SFP+ port (optical transceiver module) - SVG inline
+     */
+    function renderSFPPort(port, color, hasConnection, label, size) {
+        size = size || 'medium';
+        var portName = port ? port.name : (label || 'SFP');
+        var portLabel = label || (port ? port.name : 'SFP');
+        
+        var sizes = {
+            small: { w: 28, h: 24, svgW: 22, svgH: 14, fontSize: 6 },
+            medium: { w: 32, h: 28, svgW: 26, svgH: 16, fontSize: 7 },
+            large: { w: 38, h: 32, svgW: 32, svgH: 18, fontSize: 8 }
+        };
+        var s = sizes[size] || sizes.medium;
+        var ledColor = hasConnection ? '#22c55e' : 'none';
+        var ledGlow = hasConnection ? 'drop-shadow(0 0 3px #22c55e)' : 'none';
+        var darkerColor = adjustColor(color, -25);
+        
+        var dimStyle = !hasConnection ? 'opacity:0.3;' : '';
+        return '<div onclick="DeviceDetail.showPortDetail(\'' + portName + '\')" ' +
+            'style="cursor:pointer;width:' + s.w + 'px;text-align:center;' + dimStyle + '" ' +
+            'class="port-hover" title="' + portName + ' (SFP+)' + (hasConnection ? '' : ' - free') + '">' +
+            '<div style="font-size:' + s.fontSize + 'px;color:#888;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + portLabel + '</div>' +
+            '<svg viewBox="0 0 30 16" width="' + s.svgW + '" height="' + s.svgH + '" style="display:block;margin:0 auto;">' +
+            // Module body with gradient
+            '<defs><linearGradient id="sfpGrad-' + portName + '" x1="0%" y1="0%" x2="0%" y2="100%">' +
+            '<stop offset="0%" style="stop-color:' + color + '"/>' +
+            '<stop offset="100%" style="stop-color:' + darkerColor + '"/>' +
+            '</linearGradient></defs>' +
+            '<rect x="1" y="1" width="28" height="14" rx="2" fill="url(#sfpGrad-' + portName + ')" stroke="#333" stroke-width="0.8"/>' +
+            // Slot opening (dark inner area)
+            '<rect x="3" y="4" width="18" height="8" fill="#1a1a1a" rx="1"/>' +
+            // Fiber channels (2 for duplex)
+            '<circle cx="8" cy="8" r="2.5" fill="#0a0a0a" stroke="#444" stroke-width="0.5"/>' +
+            '<circle cx="16" cy="8" r="2.5" fill="#0a0a0a" stroke="#444" stroke-width="0.5"/>' +
+            // Handle/pull tab
+            '<rect x="23" y="3" width="4" height="10" rx="1" fill="' + adjustColor(color, 15) + '" stroke="#555" stroke-width="0.3"/>' +
+            '<line x1="25" y1="5" x2="25" y2="11" stroke="#888" stroke-width="0.5"/>' +
+            // Activity LED
+            '<rect x="3" y="12" width="4" height="2" fill="' + ledColor + '" rx="0.5" style="filter:' + ledGlow + '"/>' +
+            '</svg></div>';
+    }
+
+    /**
+     * Render QSFP/QSFP+ port (high-density optical transceiver) - SVG inline
+     */
+    function renderQSFPPort(port, color, hasConnection, label, size) {
+        size = size || 'medium';
+        var portName = port ? port.name : (label || 'QSFP');
+        var portLabel = label || (port ? port.name : 'QSFP');
+        
+        var sizes = {
+            small: { w: 34, h: 28, svgW: 28, svgH: 18, fontSize: 6 },
+            medium: { w: 40, h: 32, svgW: 34, svgH: 20, fontSize: 7 },
+            large: { w: 48, h: 36, svgW: 40, svgH: 22, fontSize: 8 }
+        };
+        var s = sizes[size] || sizes.medium;
+        var ledColor = hasConnection ? '#22c55e' : 'none';
+        var ledGlow = hasConnection ? 'drop-shadow(0 0 3px #22c55e)' : 'none';
+        var darkerColor = adjustColor(color, -25);
+        
+        var dimStyle = !hasConnection ? 'opacity:0.3;' : '';
+        return '<div onclick="DeviceDetail.showPortDetail(\'' + portName + '\')" ' +
+            'style="cursor:pointer;width:' + s.w + 'px;text-align:center;' + dimStyle + '" ' +
+            'class="port-hover" title="' + portName + ' (QSFP+)' + (hasConnection ? '' : ' - free') + '">' +
+            '<div style="font-size:' + s.fontSize + 'px;color:#888;font-weight:600;margin-bottom:1px;">' + portLabel + '</div>' +
+            '<svg viewBox="0 0 38 20" width="' + s.svgW + '" height="' + s.svgH + '" style="display:block;margin:0 auto;">' +
+            // Module body with gradient
+            '<defs><linearGradient id="qsfpGrad-' + portName + '" x1="0%" y1="0%" x2="0%" y2="100%">' +
+            '<stop offset="0%" style="stop-color:' + color + '"/>' +
+            '<stop offset="100%" style="stop-color:' + darkerColor + '"/>' +
+            '</linearGradient></defs>' +
+            '<rect x="1" y="1" width="36" height="18" rx="2" fill="url(#qsfpGrad-' + portName + ')" stroke="#333" stroke-width="0.8"/>' +
+            // Slot opening (dark inner area with 4 channels)
+            '<rect x="3" y="4" width="26" height="12" fill="#1a1a1a" rx="1"/>' +
+            // 4 fiber channel slots
+            '<rect x="5" y="6" width="5" height="8" fill="#0a0a0a" stroke="#444" stroke-width="0.3" rx="0.5"/>' +
+            '<rect x="11" y="6" width="5" height="8" fill="#0a0a0a" stroke="#444" stroke-width="0.3" rx="0.5"/>' +
+            '<rect x="17" y="6" width="5" height="8" fill="#0a0a0a" stroke="#444" stroke-width="0.3" rx="0.5"/>' +
+            '<rect x="23" y="6" width="5" height="8" fill="#0a0a0a" stroke="#444" stroke-width="0.3" rx="0.5"/>' +
+            // Handle/pull tab
+            '<rect x="31" y="3" width="5" height="14" rx="1" fill="' + adjustColor(color, 15) + '" stroke="#555" stroke-width="0.3"/>' +
+            '<line x1="33.5" y1="5" x2="33.5" y2="15" stroke="#888" stroke-width="0.5"/>' +
+            // Activity LED
+            '<rect x="3" y="16" width="5" height="2" fill="' + ledColor + '" rx="0.5" style="filter:' + ledGlow + '"/>' +
+            '</svg></div>';
+    }
+
+    /**
+     * Render USB port - SVG inline
+     */
+    function renderUSBPort(port, color, hasConnection, label, size) {
+        size = size || 'medium';
+        var portName = port ? port.name : (label || 'USB');
+        var portLabel = label || (port ? port.name : 'USB');
+        
+        var sizes = {
+            small: { w: 20, h: 24, svgW: 14, svgH: 12, fontSize: 6 },
+            medium: { w: 24, h: 28, svgW: 16, svgH: 14, fontSize: 7 },
+            large: { w: 28, h: 32, svgW: 18, svgH: 16, fontSize: 8 }
+        };
+        var s = sizes[size] || sizes.medium;
+        var innerColor = hasConnection ? '#3b82f6' : '#ffffff';
+        
+        var dimStyle = !hasConnection ? 'opacity:0.3;' : '';
+        return '<div onclick="DeviceDetail.showPortDetail(\'' + portName + '\')" ' +
+            'style="cursor:pointer;width:' + s.w + 'px;text-align:center;' + dimStyle + '" ' +
+            'class="port-hover" title="' + portName + ' (USB)' + (hasConnection ? '' : ' - free') + '">' +
+            '<div style="font-size:' + s.fontSize + 'px;color:#888;font-weight:600;margin-bottom:1px;">' + portLabel + '</div>' +
+            '<svg viewBox="0 0 18 16" width="' + s.svgW + '" height="' + s.svgH + '" style="display:block;margin:0 auto;">' +
+            // USB Type-A frame (metal housing)
+            '<rect x="1" y="1" width="16" height="14" rx="1" fill="#e5e7eb" stroke="#888" stroke-width="0.8"/>' +
+            // Inner shadow
+            '<rect x="2" y="2" width="14" height="12" fill="#d1d5db" rx="0.5"/>' +
+            // White/blue plastic insert
+            '<rect x="3" y="4" width="12" height="8" fill="' + innerColor + '" rx="0.5" stroke="#aaa" stroke-width="0.3"/>' +
+            // Metal contacts (4 pins)
+            '<rect x="4" y="2" width="2" height="3" fill="#b0b0b0" rx="0.2"/>' +
+            '<rect x="7" y="2" width="2" height="3" fill="#b0b0b0" rx="0.2"/>' +
+            '<rect x="10" y="2" width="2" height="3" fill="#b0b0b0" rx="0.2"/>' +
+            '<rect x="13" y="2" width="2" height="3" fill="#b0b0b0" rx="0.2"/>' +
+            '</svg></div>';
+    }
+
+    /**
+     * Render RJ11 port (telephone) - SVG inline
+     */
+    function renderRJ11Port(port, color, hasConnection, label, size) {
+        size = size || 'medium';
+        var portName = port ? port.name : (label || 'RJ11');
+        var portLabel = label || (port ? port.name : 'TEL');
+        
+        var sizes = {
+            small: { w: 22, h: 24, svgW: 14, svgH: 16, fontSize: 6 },
+            medium: { w: 26, h: 28, svgW: 16, svgH: 18, fontSize: 7 },
+            large: { w: 30, h: 32, svgW: 18, svgH: 20, fontSize: 8 }
+        };
+        var s = sizes[size] || sizes.medium;
+        var ledColor = hasConnection ? '#22c55e' : 'none';
+        var ledGlow = hasConnection ? 'drop-shadow(0 0 3px #22c55e)' : 'none';
+        
+        var dimStyle = !hasConnection ? 'opacity:0.3;' : '';
+        return '<div onclick="DeviceDetail.showPortDetail(\'' + portName + '\')" ' +
+            'style="cursor:pointer;width:' + s.w + 'px;text-align:center;' + dimStyle + '" ' +
+            'class="port-hover" title="' + portName + ' (RJ11)' + (hasConnection ? '' : ' - free') + '">' +
+            '<div style="font-size:' + s.fontSize + 'px;color:#888;font-weight:600;margin-bottom:1px;">' + portLabel + '</div>' +
+            '<svg viewBox="0 0 16 20" width="' + s.svgW + '" height="' + s.svgH + '" style="display:block;margin:0 auto;">' +
+            // RJ11 body (narrower than RJ45)
+            '<rect x="2" y="3" width="12" height="15" rx="1.5" fill="' + color + '" stroke="#333" stroke-width="0.8"/>' +
+            // Clip/tab at top
+            '<rect x="5" y="0" width="6" height="4" rx="1" fill="' + color + '" stroke="#333" stroke-width="0.5"/>' +
+            '<rect x="6" y="1" width="4" height="2" fill="' + adjustColor(color, -30) + '" rx="0.5"/>' +
+            // Inner dark area
+            '<rect x="4" y="6" width="8" height="10" fill="#1a1a1a" rx="1"/>' +
+            // 4 pin contacts (RJ11 has 4 pins vs RJ45 8 pins)
+            '<rect x="5" y="7" width="1.2" height="5" fill="#c0c0c0" rx="0.2"/>' +
+            '<rect x="7" y="7" width="1.2" height="5" fill="#c0c0c0" rx="0.2"/>' +
+            '<rect x="9" y="7" width="1.2" height="5" fill="#c0c0c0" rx="0.2"/>' +
+            '<rect x="11" y="7" width="1.2" height="5" fill="#c0c0c0" rx="0.2"/>' +
+            // Activity LED
+            '<circle cx="12" cy="5" r="1.5" fill="' + ledColor + '" style="filter:' + ledGlow + '"/>' +
+            '</svg></div>';
+    }
+
+    /**
+     * Render TTY/Serial/Console port (DB9 style) - SVG inline
+     */
+    function renderTTYPort(port, color, hasConnection, label, size) {
+        size = size || 'medium';
+        var portName = port ? port.name : (label || 'TTY');
+        var portLabel = label || (port ? port.name : 'CON');
+        
+        var sizes = {
+            small: { w: 28, h: 24, svgW: 22, svgH: 14, fontSize: 6 },
+            medium: { w: 32, h: 28, svgW: 26, svgH: 16, fontSize: 7 },
+            large: { w: 38, h: 32, svgW: 30, svgH: 18, fontSize: 8 }
+        };
+        var s = sizes[size] || sizes.medium;
+        var ledColor = hasConnection ? '#22c55e' : 'none';
+        var ledGlow = hasConnection ? 'drop-shadow(0 0 3px #22c55e)' : 'none';
+        
+        var dimStyle = !hasConnection ? 'opacity:0.3;' : '';
+        return '<div onclick="DeviceDetail.showPortDetail(\'' + portName + '\')" ' +
+            'style="cursor:pointer;width:' + s.w + 'px;text-align:center;' + dimStyle + '" ' +
+            'class="port-hover" title="' + portName + ' (Console/Serial)' + (hasConnection ? '' : ' - free') + '">' +
+            '<div style="font-size:' + s.fontSize + 'px;color:#888;font-weight:600;margin-bottom:1px;">' + portLabel + '</div>' +
+            '<svg viewBox="0 0 28 16" width="' + s.svgW + '" height="' + s.svgH + '" style="display:block;margin:0 auto;">' +
+            // DB9 D-shaped connector body
+            '<defs><linearGradient id="ttyGrad-' + portName + '" x1="0%" y1="0%" x2="0%" y2="100%">' +
+            '<stop offset="0%" style="stop-color:#0ea5e9"/>' +
+            '<stop offset="100%" style="stop-color:#0284c7"/>' +
+            '</linearGradient></defs>' +
+            '<path d="M3 2 L25 2 L27 4 L27 14 L1 14 L1 4 Z" fill="url(#ttyGrad-' + portName + ')" stroke="#333" stroke-width="0.8"/>' +
+            // Inner recessed area
+            '<path d="M5 4 L23 4 L24 5 L24 12 L4 12 L4 5 Z" fill="#1a1a1a"/>' +
+            // 9 pins in 2 rows (DB9)
+            '<circle cx="7" cy="7" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="10" cy="7" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="13" cy="7" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="16" cy="7" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="19" cy="7" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="8.5" cy="10" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="11.5" cy="10" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="14.5" cy="10" r="1" fill="#c0c0c0"/>' +
+            '<circle cx="17.5" cy="10" r="1" fill="#c0c0c0"/>' +
+            // Mounting holes
+            '<circle cx="3" cy="8" r="1.5" fill="none" stroke="#555" stroke-width="0.5"/>' +
+            '<circle cx="25" cy="8" r="1.5" fill="none" stroke="#555" stroke-width="0.5"/>' +
+            // Activity LED
+            '<circle cx="21" cy="7" r="1.2" fill="' + ledColor + '" style="filter:' + ledGlow + '"/>' +
+            '</svg></div>';
+    }
+
+    /**
+     * Render generic/other port type - SVG inline
+     */
+    function renderGenericPort(port, color, hasConnection, label, size) {
+        size = size || 'medium';
+        var portName = port ? port.name : (label || 'PORT');
+        var portLabel = label || (port ? port.name : 'P');
+        
+        var sizes = {
+            small: { w: 22, h: 24, svgW: 16, svgH: 14, fontSize: 6 },
+            medium: { w: 26, h: 28, svgW: 18, svgH: 16, fontSize: 7 },
+            large: { w: 30, h: 32, svgW: 20, svgH: 18, fontSize: 8 }
+        };
+        var s = sizes[size] || sizes.medium;
+        var ledColor = hasConnection ? '#22c55e' : 'none';
+        var ledGlow = hasConnection ? 'drop-shadow(0 0 3px #22c55e)' : 'none';
+        
+        var dimStyle = !hasConnection ? 'opacity:0.3;' : '';
+        return '<div onclick="DeviceDetail.showPortDetail(\'' + portName + '\')" ' +
+            'style="cursor:pointer;width:' + s.w + 'px;text-align:center;' + dimStyle + '" ' +
+            'class="port-hover" title="' + portName + (hasConnection ? '' : ' (free)') + '">' +
+            '<div style="font-size:' + s.fontSize + 'px;color:#888;font-weight:600;margin-bottom:1px;max-width:' + s.w + 'px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + portLabel + '</div>' +
+            '<svg viewBox="0 0 20 18" width="' + s.svgW + '" height="' + s.svgH + '" style="display:block;margin:0 auto;">' +
+            // Simple rectangular port with rounded corners
+            '<rect x="1" y="1" width="18" height="16" rx="2" fill="' + color + '" stroke="#333" stroke-width="0.8"/>' +
+            // Inner recessed area
+            '<rect x="3" y="3" width="14" height="12" rx="1" fill="#1a1a1a"/>' +
+            // Center indicator
+            '<rect x="6" y="6" width="8" height="6" rx="1" fill="' + adjustColor(color, -40) + '"/>' +
+            // Activity LED
+            '<circle cx="16" cy="4" r="1.5" fill="' + ledColor + '" style="filter:' + ledGlow + '"/>' +
+            '</svg></div>';
+    }
+
+    /**
+     * Helper to adjust color brightness
+     */
+    function adjustColor(color, amount) {
+        if (color.startsWith('#')) {
+            var hex = color.slice(1);
+            var r = Math.max(0, Math.min(255, parseInt(hex.substr(0, 2), 16) + amount));
+            var g = Math.max(0, Math.min(255, parseInt(hex.substr(2, 2), 16) + amount));
+            var b = Math.max(0, Math.min(255, parseInt(hex.substr(4, 2), 16) + amount));
+            return '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
+        }
+        return color;
+    }
+
+    /**
+     * Master function to render port by its type
+     * @param {Object} port - Port object with name, type, vlan, status
+     * @param {string} color - Color for the port
+     * @param {boolean} hasConnection - Whether port has active connection
+     * @param {string} size - 'small', 'medium', 'large'
+     */
+    function renderPortByType(port, color, hasConnection, size) {
+        var portType = (port && port.type) ? port.type.toLowerCase() : 'eth';
+        var label = port ? port.name : null;
+        
+        // Map port types to render functions
+        if (portType.indexOf('sfp') !== -1 && portType.indexOf('qsfp') === -1) {
+            return renderSFPPort(port, color, hasConnection, label, size);
+        } else if (portType.indexOf('qsfp') !== -1) {
+            return renderQSFPPort(port, color, hasConnection, label, size);
+        } else if (portType === 'usb') {
+            return renderUSBPort(port, color, hasConnection, label, size);
+        } else if (portType === 'rj11') {
+            return renderRJ11Port(port, color, hasConnection, label, size);
+        } else if (portType === 'tty' || portType === 'serial' || portType === 'console') {
+            return renderTTYPort(port, color, hasConnection, label, size);
+        } else if (portType === 'others' || portType === 'other') {
+            return renderGenericPort(port, color, hasConnection, label, size);
+        } else {
+            // Default to RJ45 for eth, wan, gbe, mgmt, etc.
+            return renderSingleRJ45Port(port, color, hasConnection, null, size);
+        }
+    }
+
+    /**
+     * Render Router/Firewall visualization
+     */
+    function renderRouterVisualization(device, connections) {
+        var ports = device.ports || [];
+        var brand = extractBrand(device.brandModel || device.name || 'Router');
+        var model = device.brandModel || device.name;
+        var showModel = model && model.toLowerCase() !== brand.toLowerCase() && !model.toLowerCase().startsWith(brand.toLowerCase() + ' ');
+        var vlanColorMap = buildVlanColorMap(ports);
+        
+        var html = '<div class="dd-chassis">';
+        
+        // Router chassis - compact design
+        html += '<div class="dd-chassis-router">';
+        
+        // Header
+        html += '<div class="dd-chassis-head">';
+        html += '<div>';
+        html += '<span class="dd-chassis-head-brand">' + escapeHtml(brand).toUpperCase() + '</span>';
+        if (showModel) {
+            html += '<span class="dd-chassis-head-model">' + escapeHtml(model) + '</span>';
+        }
+        html += '</div>';
+        html += '<div class="dd-chassis-head-leds">';
+        html += '<div class="dd-led-6 dd-led-6--green"></div>';
+        html += '<div class="dd-led-6 dd-led-6--blue"></div>';
+        html += '</div></div>';
+        
+        // Interfaces/Ports - rendered by type
+        if (ports.length > 0) {
+            html += '<div class="dd-port-inner">';
+            ports.forEach(function(port, index) {
+                var portColor = getPortColor(port, vlanColorMap, connections);
+                var hasConnection = connections.some(function(c) {
+                    return c.fromPort === port.name || c.toPort === port.name;
+                });
+                html += renderPortByType(port, portColor.color, hasConnection, 'medium');
+            });
+            html += '</div>';
+        } else {
+            html += renderConnectionSummary(device, connections);
+        }
+        
+        html += '</div></div>';
+        return html;
+    }
+
+    /**
+     * Render Server visualization
+     */
+    function renderServerVisualization(device, connections) {
+        var ports = device.ports || [];
+        var brand = extractBrand(device.brandModel || device.name || 'Server');
+        var vlanColorMap = buildVlanColorMap(ports);
+        
+        var html = '<div class="dd-chassis">';
+        
+        // Server chassis - rack unit style
+        html += '<div class="dd-chassis-server">';
+        
+        // Front panel
+        html += '<div class="dd-server-panel">';
+        
+        // Left: Brand + Status LEDs
+        html += '<div class="dd-server-left">';
+        html += '<span class="dd-server-brand">' + escapeHtml(brand).toUpperCase() + '</span>';
+        html += '<div class="dd-chassis-head-leds">';
+        html += '<div class="dd-led-6 dd-led-6--green" title="Power"></div>';
+        html += '<div class="dd-led-6 dd-led-6--blue" title="Network"></div>';
+        html += '<div class="dd-led-6 dd-led-6--gray" title="HDD"></div>';
+        html += '</div></div>';
+        
+        // Right: Network ports - rendered by type
+        html += '<div class="dd-server-ports">';
+        
+        if (ports.length > 0) {
+            ports.forEach(function(port, i) {
+                var portColor = getPortColor(port, vlanColorMap, connections);
+                var hasConnection = connections.some(function(c) {
+                    return c.fromPort === port.name || c.toPort === port.name;
+                });
+                html += renderPortByType(port, portColor.color, hasConnection, 'medium');
+            });
+        } else {
+            // Show based on connections count
+            var connCount = connections.filter(function(c) { return c.from === device.id || c.to === device.id; }).length;
+            for (var i = 0; i < Math.max(1, Math.min(connCount, 4)); i++) {
+                html += renderSingleRJ45Port(null, '#22c55e', true, (i+1).toString(), 'medium');
+            }
+        }
+        
+        html += '</div></div>';
+        html += '</div></div>';
+        
+        return html;
+    }
+
+    /**
+     * Render NAS/Storage visualization
+     */
+    function renderNASVisualization(device, connections) {
+        var ports = device.ports || [];
+        var brand = extractBrand(device.brandModel || device.name || 'NAS');
+        var vlanColorMap = buildVlanColorMap(ports);
+        
+        var html = '<div class="dd-chassis">';
+        
+        // NAS chassis
+        html += '<div class="dd-chassis-nas">';
+        
+        // Header
+        html += '<div class="dd-chassis-head">';
+        html += '<span class="dd-server-brand">' + escapeHtml(brand).toUpperCase() + '</span>';
+        html += '<div class="dd-chassis-head-leds">';
+        html += '<div class="dd-led-6 dd-led-6--green" title="Power"></div>';
+        html += '<div class="dd-led-6 dd-led-6--blue" title="Network"></div>';
+        html += '</div></div>';
+        
+        // Drive bays visualization
+        html += '<div style="display:flex;gap:4px;margin-bottom:12px;">';
+        var numDrives = 4; // Default assumption
+        for (var d = 0; d < numDrives; d++) {
+            html += '<div class="dd-drive-bay">';
+            html += '<div class="dd-drive-slot"></div>';
+            html += '<div class="dd-led dd-led--green"></div>';
+            html += '</div>';
+        }
+        html += '</div>';
+        
+        // Network ports - rendered by type
+        html += '<div class="dd-port-inner">';
+        var connCount = connections.filter(function(c) { return c.from === device.id || c.to === device.id; }).length;
+        var portCount = ports.length > 0 ? ports.length : Math.max(1, Math.min(connCount, 2));
+        
+        for (var p = 0; p < portCount; p++) {
+            var port = ports[p];
+            var portName = port ? port.name : 'LAN' + (p+1);
+            var portColor = port ? getPortColor(port, vlanColorMap, connections) : { color: '#22c55e' };
+            var hasConnection = port ? connections.some(function(c) {
+                return c.fromPort === port.name || c.toPort === port.name;
+            }) : true;
+            html += port ? renderPortByType(port, portColor.color, hasConnection, 'medium') : renderSingleRJ45Port(null, portColor.color, hasConnection, (p+1).toString(), 'medium');
+        }
+        html += '</div>';
+        
+        html += '</div></div>';
+        return html;
+    }
+
+    /**
+     * Render Endpoint device (printer, phone, camera, AP)
+     */
+    function renderEndpointVisualization(device, connections) {
+        var type = (device.type || '').toLowerCase();
+        var ports = device.ports || [];
+        var vlanColorMap = buildVlanColorMap(ports);
+        var connCount = connections.filter(function(c) { return c.from === device.id || c.to === device.id; }).length;
+        
+        // Get icon and color based on type
+        var config = {
+            printer: { icon: MI.i('printer',{size:28}), color: '#6366f1', label: 'Printer' },
+            ip_phone: { icon: MI.i('phone',{size:28}), color: '#0ea5e9', label: 'IP Phone' },
+            camera: { icon: MI.i('video',{size:28}), color: '#ef4444', label: 'Camera' },
+            access_point: { icon: MI.i('wifi',{size:28,color:'#22c55e'}), color: '#22c55e', label: 'Access Point' },
+            ap: { icon: MI.i('wifi',{size:28,color:'#22c55e'}), color: '#22c55e', label: 'Access Point' }
+        };
+        var cfg = config[type] || { icon: MI.i('plug',{size:28}), color: '#64748b', label: 'Device' };
+        
+        var html = '<div class="dd-chassis">';
+        html += '<div class="dd-chassis-endpoint">';
+        
+        // Icon
+        html += '<div class="dd-device-icon-box" style="background:linear-gradient(135deg,' + cfg.color + '20,' + cfg.color + '10);">' + cfg.icon + '</div>';
+        
+        // Info
+        html += '<div class="dd-device-info">';
+        html += '<div class="dd-device-type-label" style="color:#334155;">' + cfg.label + '</div>';
+        html += '<div class="dd-device-model">' + escapeHtml(device.brandModel || device.name) + '</div>';
+        html += '</div>';
+        
+        // Network port - rendered by type
+        html += '<div class="dd-endpoint-ports" style="background:#e2e8f0;">';
+        if (ports.length > 0) {
+            ports.forEach(function(port) {
+                var portColor = getPortColor(port, vlanColorMap, connections);
+                var hasConnection = connections.some(function(c) {
+                    return c.fromPort === port.name || c.toPort === port.name;
+                });
+                html += renderPortByType(port, portColor.color, hasConnection, 'medium');
+            });
+        } else {
+            html += renderSingleRJ45Port(null, connCount > 0 ? '#22c55e' : '#94a3b8', connCount > 0, '1', 'medium');
+        }
+        html += '</div>';
+        
+        html += '</div></div>';
+        return html;
+    }
+
+    /**
+     * Render Workstation/Desktop/Laptop visualization
+     */
+    function renderWorkstationVisualization(device, connections) {
+        var type = (device.type || '').toLowerCase();
+        var ports = device.ports || [];
+        var vlanColorMap = buildVlanColorMap(ports);
+        var connCount = connections.filter(function(c) { return c.from === device.id || c.to === device.id; }).length;
+        
+        var icon = type === 'laptop' ? MI.i('laptop',{size:28,color:'#0369a1'}) : MI.i('monitor',{size:28,color:'#0369a1'});
+        var label = type === 'laptop' ? 'Laptop' : 'Workstation';
+        
+        var html = '<div class="dd-chassis">';
+        html += '<div class="dd-chassis-workstation">';
+        
+        // Icon
+        html += '<div class="dd-device-icon-box" style="background:linear-gradient(135deg,#0ea5e920,#0ea5e910);">' + icon + '</div>';
+        
+        // Info
+        html += '<div class="dd-device-info">';
+        html += '<div class="dd-device-type-label" style="color:#0369a1;">' + label + '</div>';
+        html += '<div class="dd-device-model">' + escapeHtml(device.brandModel || device.name) + '</div>';
+        html += '</div>';
+        
+        // Network port - rendered by type
+        html += '<div class="dd-endpoint-ports" style="background:#e0f2fe;">';
+        if (ports.length > 0) {
+            ports.forEach(function(port) {
+                var portColor = getPortColor(port, vlanColorMap, connections);
+                var hasConnection = connections.some(function(c) {
+                    return c.fromPort === port.name || c.toPort === port.name;
+                });
+                html += renderPortByType(port, portColor.color, hasConnection, 'medium');
+            });
+        } else {
+            html += renderSingleRJ45Port(null, connCount > 0 ? '#22c55e' : '#94a3b8', connCount > 0, 'ETH', 'medium');
+        }
+        html += '</div>';
+        
+        html += '</div></div>';
+        return html;
+    }
+
+    /**
+     * Render generic device with ports
+     */
+    function renderGenericPortVisualization(device, connections) {
+        var ports = device.ports || [];
+        var vlanColorMap = buildVlanColorMap(ports);
+        
+        var html = '<div class="dd-chassis">';
+        html += '<div class="dd-chassis-generic">';
+        
+        html += '<div class="dd-summary-title">' + MI.i('cable',{size:14,color:'#475569'}) + ' Network Ports (' + ports.length + ')</div>';
+        
+        // Port grid - rendered by type
+        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+        ports.forEach(function(port) {
+            var portColor = getPortColor(port, vlanColorMap, connections);
+            var hasConnection = connections.some(function(c) {
+                return c.fromPort === port.name || c.toPort === port.name;
+            });
+            
+            html += '<div style="cursor:pointer;background:white;border-radius:8px;padding:8px;border:1px solid #e2e8f0;display:flex;flex-direction:column;align-items:center;gap:4px;" title="' + port.name + (port.vlan ? ' - VLAN ' + port.vlan : '') + '">';
+            
+            // Port rendered by type
+            html += renderPortByType(port, portColor.color, hasConnection, 'medium');
+            html += '</div>';
+        });
+        html += '</div>';
+        
+        html += '</div></div>';
+        return html;
+    }
+
+    /**
+     * Render connection summary for devices without port visualization
+     */
+    function renderConnectionSummary(device, connections) {
+        var deviceConns = connections.filter(function(c) { 
+            return c.from === device.id || c.to === device.id; 
+        });
+        
+        if (deviceConns.length === 0) {
+            return '<div class="dd-empty" style="background:#f8fafc;border-radius:8px;">No network connections</div>';
+        }
+        
+        var html = '<div class="dd-conn-summary">';
+        html += '<div class="dd-conn-summary-inner">';
+        html += '<div class="dd-conn-icon-box">';
+        html += MI.i('link',{size:20,color:'#fff'});
+        html += '</div>';
+        html += '<div>';
+        html += '<div class="dd-conn-count">' + deviceConns.length + '</div>';
+        html += '<div class="dd-conn-label">Active Connection' + (deviceConns.length !== 1 ? 's' : '') + '</div>';
+        html += '</div></div>';
+        html += '</div>';
+        
+        return html;
+    }
+
+    /**
+     * Collect unique VLANs from ports
+     */
+    function collectUniqueVlans(ports, vlanColorMap) {
+        var uniqueVlans = {};
+        ports.forEach(function(port) {
+            if (port.vlan) {
+                var vlans = String(port.vlan).split(',');
+                vlans.forEach(function(v) {
+                    v = v.trim();
+                    if (v && !uniqueVlans[v]) {
+                        uniqueVlans[v] = vlanColorMap[v] || { color: getVlanColor(parseInt(v)), label: 'VLAN ' + v };
+                    }
+                });
+            }
+            if (port.mode === 'trunk' || (port.vlan && String(port.vlan).includes(','))) {
+                uniqueVlans['trunk'] = { color: '#3b82f6', label: 'Trunk' };
+            }
+        });
+        return uniqueVlans;
+    }
+
+    /**
+     * Render VLAN legend
+     */
+    function renderVlanLegend(uniqueVlans) {
+        var vlanKeys = Object.keys(uniqueVlans).filter(function(k) { return k !== 'trunk'; }).sort(function(a, b) { return parseInt(a) - parseInt(b); });
+        if (uniqueVlans['trunk']) vlanKeys.push('trunk');
+        
+        if (vlanKeys.length === 0) return '';
+        
+        var html = '<div class="dd-vlan-legend">';
+        vlanKeys.forEach(function(vlanId) {
+            var info = uniqueVlans[vlanId];
+            var label = vlanId === 'trunk' ? 'Trunk' : 'VLAN ' + vlanId;
+            html += '<div class="dd-vlan-item">';
+            html += '<div class="dd-vlan-swatch" style="background:' + info.color + ';"></div>';
+            html += '<span class="dd-vlan-label">' + label + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+        return html;
+    }
+    
+    /**
+     * Extract brand from model string
+     */
+    function extractBrand(modelStr) {
+        var brands = ['Cisco', 'D-Link', 'HP', 'Juniper', 'Aruba', 'Ubiquiti', 'MikroTik', 'TP-Link', 'Netgear', 'Dell', 'Huawei', 'Fortinet', 'Synology', 'QNAP'];
+        var lower = (modelStr || '').toLowerCase();
+        for (var i = 0; i < brands.length; i++) {
+            if (lower.includes(brands[i].toLowerCase())) {
+                return brands[i];
+            }
+        }
+        return modelStr ? modelStr.split(' ')[0] : 'Device';
+    }
+
+    /**
+     * Render VLAN summary
+     */
+    function renderVlanSummary(device, connections) {
+        var ports = device.ports || [];
+        var vlanColorMap = buildVlanColorMap(ports);
+        var vlanGroups = {};
+        var freePorts = [];
+        var disabledPorts = [];
+
+        ports.forEach(function(port) {
+            var hasConnection = connections.some(function(c) {
+                return c.fromPort === port.name || c.toPort === port.name;
+            });
+
+            if (port.status === 'inactive' || port.status === 'disabled') {
+                disabledPorts.push(port.name);
+            } else if (port.vlan) {
+                if (!vlanGroups[port.vlan]) {
+                    vlanGroups[port.vlan] = [];
+                }
+                vlanGroups[port.vlan].push(port.name);
+            } else if (!hasConnection) {
+                freePorts.push(port.name);
+            } else {
+                // Connected but no VLAN - Native
+                if (!vlanGroups['native']) {
+                    vlanGroups['native'] = [];
+                }
+                vlanGroups['native'].push(port.name);
+            }
+        });
+
+        // VLAN section - FloorPlan style
+        var html = '<div class="dd-summary-card">';
+        html += '<h4 class="dd-summary-title">' + MI.i('bar-chart',{size:16,color:'#334155'}) + ' VLANs</h4>';
+        html += '<div style="display:flex;flex-direction:column;gap:8px;">';
+
+        // Render VLAN groups
+        Object.keys(vlanGroups).sort(function(a, b) {
+            if (a === 'native') return 1;
+            if (b === 'native') return -1;
+            return parseInt(a) - parseInt(b);
+        }).forEach(function(vlanId) {
+            var vlanPorts = vlanGroups[vlanId];
+            var vlanInfo = vlanId === 'native' ? 
+                { color: '#94a3b8', label: 'Native/Access' } : 
+                (vlanColorMap[vlanId] || { color: '#94a3b8', label: 'VLAN ' + vlanId });
+            
+            html += '<div class="dd-summary-row">';
+            html += '<div style="display:flex;align-items:center;gap:8px;">';
+            html += '<span class="dd-summary-dot" style="background-color:' + vlanInfo.color + ';"></span>';
+            html += '<span class="dd-summary-name">' + (vlanId === 'native' ? 'Native' : 'VLAN ' + vlanId) + '</span>';
+            if (vlanInfo.label && vlanId !== 'native' && vlanInfo.label !== 'VLAN ' + vlanId) {
+                html += '<span style="font-size:11px;color:#94a3b8;">(' + escapeHtml(vlanInfo.label) + ')</span>';
+            }
+            html += '</div>';
+            html += '<span class="dd-summary-count">' + vlanPorts.length + ' ports</span>';
+            html += '</div>';
+        });
+
+        // Free ports
+        if (freePorts.length > 0) {
+            html += '<div class="dd-summary-row dd-summary-row--free">';
+            html += '<div style="display:flex;align-items:center;gap:8px;">';
+            html += '<span class="dd-summary-dot dd-summary-dot--free"></span>';
+            html += '<span class="dd-summary-name" style="color:#166534;">Free</span>';
+            html += '</div>';
+            html += '<span class="dd-summary-count dd-summary-count--free">' + freePorts.length + ' ports</span>';
+            html += '</div>';
+        }
+
+        // Disabled ports
+        if (disabledPorts.length > 0) {
+            html += '<div class="dd-summary-row dd-summary-row--disabled">';
+            html += '<div style="display:flex;align-items:center;gap:8px;">';
+            html += '<span class="dd-summary-dot dd-summary-dot--disabled"></span>';
+            html += '<span class="dd-summary-name" style="color:#991b1b;">Disabled</span>';
+            html += '</div>';
+            html += '<span class="dd-summary-count dd-summary-count--disabled">' + disabledPorts.length + ' ports</span>';
+            html += '</div>';
+        }
+
+        html += '</div></div>';
+        return html;
+    }
+
+    /**
+     * Format port list (compress ranges)
+     */
+    function formatPortList(ports) {
+        if (ports.length === 0) return '';
+        if (ports.length <= 4) return ports.join(', ');
+        
+        // Try to compress sequential numbers
+        var nums = ports.map(function(p) { return parseInt(p.replace(/\D/g, '') || 0); }).sort(function(a,b) { return a-b; });
+        var result = [];
+        var start = nums[0], prev = nums[0];
+        
+        for (var i = 1; i <= nums.length; i++) {
+            if (i === nums.length || nums[i] !== prev + 1) {
+                if (start === prev) {
+                    result.push(String(start));
+                } else {
+                    result.push(start + '-' + prev);
+                }
+                if (i < nums.length) {
+                    start = nums[i];
+                    prev = nums[i];
+                }
+            } else {
+                prev = nums[i];
+            }
+        }
+        
+        return result.join(', ');
+    }
+
+    /**
+     * Render connections list
+     */
+    /**
+     * Render connections - FloorPlan style
+     */
+    function renderConnections(device, connections) {
+        var html = '<div class="dd-summary-card">';
+        html += '<h4 class="dd-summary-title">';
+        html += MI.i('link',{size:16,color:'#475569'}) + ' Connections <span class="dd-summary-count" style="margin-left:auto;">' + connections.length + '</span></h4>';
+
+        if (connections.length === 0) {
+            html += '<div class="dd-empty" style="background:transparent;">No connections configured</div>';
+        } else {
+            html += '<div style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;">';
+            connections.forEach(function(conn) {
+                var isOutgoing = conn.from === device.id;
+                var otherDeviceId = isOutgoing ? conn.to : conn.from;
+                var myPort = isOutgoing ? conn.fromPort : conn.toPort;
+                var otherPort = isOutgoing ? conn.toPort : conn.fromPort;
+                var arrow = isOutgoing ? MI.i('arrow-right',{size:14,color:'#3b82f6'}) : MI.i('arrow-left',{size:14,color:'#22c55e'});
+                var arrowColor = isOutgoing ? '#3b82f6' : '#22c55e';
+                
+                var otherDeviceName = 'External';
+                if (otherDeviceId) {
+                    var otherDevice = findDevice(otherDeviceId);
+                    otherDeviceName = otherDevice ? otherDevice.name : 'Device #' + otherDeviceId;
+                } else if (conn.externalDest) {
+                    otherDeviceName = conn.externalDest;
+                }
+
+                html += '<div class="dd-summary-row" style="cursor:pointer;transition:border-color 0.2s;" ' +
+                        'onmouseover="this.style.borderColor=\'#93c5fd\'" onmouseout="this.style.borderColor=\'#e2e8f0\'" ' +
+                        'onclick="' + (otherDeviceId ? 'DeviceDetail.open(' + otherDeviceId + ')' : '') + '">';
+                
+                // My port
+                html += '<span class="dd-conn-local">' + (myPort || '-') + '</span>';
+                
+                // Arrow
+                html += '<span class="dd-conn-arrow">' + arrow + '</span>';
+                
+                // Other device and port
+                html += '<div style="flex:1;min-width:0;">';
+                html += '<span style="font-size:14px;color:#334155;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + otherDeviceName + '</span>';
+                html += '</div>';
+                
+                // Other port
+                if (otherPort) {
+                    html += '<span class="dd-conn-port">:' + otherPort + '</span>';
+                }
+                
+                // Cable marker
+                if (conn.cableMarker) {
+                    html += '<span class="dd-cell-cable">' + conn.cableMarker + '</span>';
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Render network info - FloorPlan style
+     */
+    function renderNetworkInfo(device) {
+        var addresses = device.addresses || [];
+        var html = '<div class="dd-summary-card">';
+        html += '<h4 class="dd-summary-title">' + MI.i('globe',{size:16,color:'#475569'}) + ' Network</h4>';
+
+        if (addresses.length === 0) {
+            html += '<div class="dd-empty" style="background:transparent;">No IP configured</div>';
+        } else {
+            html += '<div style="display:flex;flex-direction:column;gap:8px;">';
+            addresses.forEach(function(addr) {
+                var ip = addr.ip || addr.network || 'N/A';
+                var ipOnly = ip.split('/')[0];
+                html += '<div class="dd-summary-row">';
+                html += '<div style="display:flex;align-items:center;gap:10px;">';
+                html += '<span style="font-family:monospace;font-size:14px;color:#1e293b;font-weight:500;">' + ip + '</span>';
+                if (addr.vlan) {
+                    html += '<span class="dd-conn-port">VLAN ' + addr.vlan + '</span>';
+                }
+                html += '</div>';
+                html += '<button onclick="DeviceDetail.copyToClipboard(\'' + ipOnly + '\'); event.stopPropagation();" ' +
+                        'class="dd-close-btn" style="font-size:14px;padding:4px;" title="Copy IP">' + MI.i('copy',{size:14}) + '</button>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            // Gateway - try to derive from first IP
+            if (addresses[0].network) {
+                var ip = addresses[0].network.split('/')[0];
+                var parts = ip.split('.');
+                if (parts.length === 4) {
+                    parts[3] = '1';
+                    html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;">';
+                    html += '<span style="font-weight:500;">Gateway:</span> ' + parts.join('.') + '</div>';
+                }
+            }
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Render quick action links
+     * Only shows buttons for protocols that are configured in device.links
+     * FloorPlan style
+     */
+    function renderLinks(device) {
+        var links = device.links || [];
+        var addresses = device.addresses || [];
+        var html = '';
+        var ip = addresses.length > 0 ? (addresses[0].ip || addresses[0].network || '').split('/')[0] : '';
+
+        // Check which protocols are configured
+        var hasWeb = links.some(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
+        var hasSsh = links.some(function(l) { return l.type === 'ssh'; });
+        var hasRdp = links.some(function(l) { return l.type === 'rdp'; });
+        var hasVnc = links.some(function(l) { return l.type === 'vnc'; });
+        var hasTelnet = links.some(function(l) { return l.type === 'telnet'; });
+
+        // No buttons if no links configured
+        if (!hasWeb && !hasSsh && !hasRdp && !hasVnc && !hasTelnet) {
+            return '';
+        }
+
+        html += '<div class="dd-access-row" style="margin-top:16px;">';
+        
+        // Web access - only if web link is configured
+        if (hasWeb) {
+            var webLink = links.find(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
+            var url = webLink ? webLink.url : 'http://' + ip;
+            if (!url.startsWith('http')) url = 'http://' + url;
+            html += '<a href="' + url + '" target="_blank" class="dd-access-btn dd-access-btn--web">' +
+                    MI.i('globe',{size:14,color:'#fff'}) + ' Web</a>';
+        }
+
+        // SSH - only if configured in links
+        if (hasSsh && ip) {
+            html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'ssh\')" ' +
+                    'class="dd-access-btn dd-access-btn--ssh" title="Open SSH session">' +
+                    MI.i('terminal',{size:14,color:'#fff'}) + ' SSH</button>';
+        }
+        
+        // RDP - only if configured in links
+        if (hasRdp && ip) {
+            html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'rdp\')" ' +
+                    'class="dd-access-btn dd-access-btn--rdp" title="Open RDP session">' +
+                    MI.i('monitor',{size:14,color:'#fff'}) + ' RDP</button>';
+        }
+        
+        // VNC - only if configured in links
+        if (hasVnc && ip) {
+            html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'vnc\')" ' +
+                    'class="dd-access-btn dd-access-btn--vnc" title="Open VNC session">' +
+                    MI.i('image',{size:14,color:'#fff'}) + ' VNC</button>';
+        }
+        
+        // Telnet - only if configured in links
+        if (hasTelnet && ip) {
+            html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'telnet\')" ' +
+                    'class="dd-access-btn dd-access-btn--tel" title="Open Telnet session">' +
+                    MI.i('send',{size:14,color:'#fff'}) + ' Telnet</button>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Render notes section - FloorPlan style
+     */
+    function renderNotes(device) {
+        var notes = device.notes || device.service || '';
+        if (!notes) return '';
+        
+        return '<div style="margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0;">' +
+               '<h4 class="dd-summary-title">' + MI.i('file-text',{size:16,color:'#475569'}) + ' Notes</h4>' +
+               '<div style="font-size:14px;color:#64748b;line-height:1.5;">' + notes + '</div>' +
+               '</div>';
+    }
+
+    /**
+     * Render complete modal - Cisco-style compact layout
+     */
+    function renderModal(device) {
+        var totalPorts = (device.ports || []).length;
+        var connectedPorts = currentConnections.length;
+        var addresses = device.addresses || [];
+        var links = device.links || [];
+        var ip = addresses.length > 0 ? (addresses[0].ip || addresses[0].network || '').split('/')[0] : '';
+        
+        // === HEADER: Compact single line ===
+        var headerHtml = '<div class="dd-header">';
+        
+        // Left: Icon + Name + Type
+        headerHtml += '<div class="dd-header-left">';
+        headerHtml += '<div class="dd-header-icon">' + getDeviceIcon(device.type) + '</div>';
+        headerHtml += '<div>';
+        headerHtml += '<div class="dd-header-name">' + escapeHtml(device.name) + '</div>';
+        headerHtml += '<div class="dd-header-meta">' + formatTypeLabel(device.type) + ' • ' + formatLocation(device.location) + '</div>';
+        headerHtml += '</div>';
+        headerHtml += '</div>';
+        
+        // Center: Stats (compact)
+        headerHtml += '<div class="dd-header-stats">';
+        headerHtml += '<div style="text-align:center;"><span class="dd-stat-value dd-stat-value--blue">' + totalPorts + '</span> <span class="dd-stat-label">ports</span></div>';
+        headerHtml += '<div style="text-align:center;"><span class="dd-stat-value dd-stat-value--green">' + connectedPorts + '</span> <span class="dd-stat-label">conn</span></div>';
+        if (ip) headerHtml += '<div class="dd-ip-badge">' + ip + '</div>';
+        headerHtml += '</div>';
+        
+        // Right: Status + Close
+        headerHtml += '<div class="dd-header-right">';
+        var statusLedClass = device.status === 'active' ? 'dd-status-led--on' : 'dd-status-led--off';
+        headerHtml += '<div class="dd-status-led ' + statusLedClass + '"></div>';
+        headerHtml += '<button onclick="DeviceDetail.close()" class="dd-close-btn" title="Close">&times;</button>';
+        headerHtml += '</div>';
+        
+        headerHtml += '</div>';
+        
+        // === ACCESS BUTTONS: Compact row ===
+        if (links.length > 0) {
+            headerHtml += '<div class="dd-access-row">';
+            headerHtml += renderAccessButtonsCompact(device);
+            headerHtml += '</div>';
+        }
+
+        document.getElementById('deviceDetailHeader').innerHTML = headerHtml;
+
+        // === CONTENT ===
+        var contentHtml = '';
+        
+        // Port visualization (device-specific)
+        contentHtml += renderPortMap(device, currentConnections);
+        
+        // Port details table (inline info - no click needed)
+        contentHtml += renderPortDetailsTable(device, currentConnections);
+        
+        // Connections table (compact)
+        contentHtml += renderConnectionsCompact(device, currentConnections);
+
+        document.getElementById('deviceDetailContent').innerHTML = contentHtml;
+        // Hide the old footer bar - info is now inline
+        document.getElementById('deviceDetailPortBar').style.display = 'none';
+    }
+    
+    /**
+     * Render port details table - All info visible inline, no click needed
+     */
+    function renderPortDetailsTable(device, connections) {
+        var ports = device.ports || [];
+        if (ports.length === 0) return '';
+        
+        // Filter only connected ports
+        var connectedPorts = ports.filter(function(port) {
+            return connections.some(function(c) {
+                return c.fromPort === port.name || c.toPort === port.name;
+            });
+        });
+        
+        if (connectedPorts.length === 0) return '';
+        
+        var vlanColorMap = buildVlanColorMap(ports);
+        
+        var html = '<div style="margin-top:16px;">';
+        html += '<div class="dd-section-title">Connected Ports (' + connectedPorts.length + '/' + ports.length + ')</div>';
+        
+        html += '<div class="dd-table">';
+        
+        // Table header
+        html += '<div class="dd-table-head dd-table-head--ports">';
+        html += '<div>Port</div><div>Type</div><div>VLAN</div><div>Status</div><div>Connected To</div><div>Cable</div>';
+        html += '</div>';
+        
+        // Port rows (only connected ports)
+        connectedPorts.forEach(function(port, idx) {
+            // Find connection for this port
+            var conn = connections.find(function(c) {
+                return c.fromPort === port.name || c.toPort === port.name;
+            });
+            
+            var isOutgoing = conn ? conn.from === device.id : false;
+            var remoteDeviceName = '';
+            var remotePort = '';
+            var cableInfo = '';
+            var connType = '';
+            
+            if (conn) {
+                var remoteDeviceId = isOutgoing ? conn.to : conn.from;
+                remotePort = isOutgoing ? conn.toPort : conn.fromPort;
+                
+                if (remoteDeviceId) {
+                    var remoteDevice = findDevice(remoteDeviceId);
+                    remoteDeviceName = remoteDevice ? remoteDevice.name : '?';
+                } else if (conn.externalDest) {
+                    remoteDeviceName = conn.externalDest;
+                }
+                cableInfo = conn.cableMarker || '';
+                connType = conn.type || '';
+            }
+            
+            // Port color indicator
+            var portColor = getPortColor(port, vlanColorMap, connections);
+            var hasConnection = !!conn;
+            
+            // Status
+            var statusLabel = port.status || (hasConnection ? 'active' : 'free');
+            var statusColors = {
+                active: { color: '#22c55e', icon: '●' },
+                inactive: { color: '#ef4444', icon: '●' },
+                disabled: { color: '#64748b', icon: '●' },
+                free: { color: '#475569', icon: '○' }
+            };
+            var statusStyle = statusColors[statusLabel] || statusColors.free;
+            
+            var rowClass = 'dd-table-row dd-table-row--ports' + (idx % 2 !== 0 ? ' dd-table-row--alt' : '');
+            html += '<div data-port-name="' + escapeHtml(port.name) + '" class="' + rowClass + '">';
+            
+            // Port name with color indicator
+            html += '<div class="dd-cell-port">';
+            html += '<div class="dd-port-dot" style="background:' + portColor.color + ';"></div>';
+            html += '<span class="dd-port-name">' + escapeHtml(port.name) + '</span>';
+            html += '</div>';
+            
+            // Type badge
+            html += '<div>';
+            if (port.type) {
+                var pt = port.type.toLowerCase();
+                var badgeClass = 'dd-type-badge dd-type-badge--eth';
+                if (pt.indexOf('sfp') !== -1 && pt.indexOf('qsfp') === -1) badgeClass = 'dd-type-badge dd-type-badge--sfp';
+                else if (pt.indexOf('qsfp') !== -1) badgeClass = 'dd-type-badge dd-type-badge--qsfp';
+                else if (pt === 'usb') badgeClass = 'dd-type-badge dd-type-badge--usb';
+                else if (pt === 'rj11') badgeClass = 'dd-type-badge dd-type-badge--rj11';
+                else if (pt === 'tty' || pt === 'serial') badgeClass = 'dd-type-badge dd-type-badge--tty';
+                html += '<span class="' + badgeClass + '">' + port.type.toUpperCase() + '</span>';
+            } else {
+                html += '<span class="dd-cell-dim">—</span>';
+            }
+            html += '</div>';
+            
+            // VLAN
+            html += '<div>';
+            if (port.vlan) {
+                var vlanColor = vlanColorMap[port.vlan] ? vlanColorMap[port.vlan].color || vlanColorMap[port.vlan] : getVlanColor(port.vlan);
+                html += '<span style="color:' + vlanColor + ';font-weight:600;font-size:11px;">' + port.vlan + '</span>';
+            } else {
+                html += '<span class="dd-cell-dim">—</span>';
+            }
+            html += '</div>';
+            
+            // Status
+            html += '<div class="dd-cell-status" style="color:' + statusStyle.color + ';">' + statusStyle.icon + ' ' + statusLabel + '</div>';
+            
+            // Connected to
+            html += '<div>';
+            if (remoteDeviceName) {
+                var arrow = isOutgoing ? MI.i('arrow-right',{size:10,color:'#475569'}) : MI.i('arrow-left',{size:10,color:'#475569'});
+                html += '<span class="dd-cell-connected">' + arrow + '</span> ';
+                html += '<span class="dd-cell-remote">' + escapeHtml(remoteDeviceName) + '</span>';
+                if (remotePort) html += '<span class="dd-cell-remote-port">:' + remotePort + '</span>';
+            } else {
+                html += '<span class="dd-cell-dim">— not connected</span>';
+            }
+            html += '</div>';
+            
+            // Cable/Type
+            html += '<div class="dd-cell-cable">';
+            if (cableInfo) html += cableInfo;
+            if (connType) html += ' <span class="dd-cell-cable-type">' + connType.toUpperCase() + '</span>';
+            if (!cableInfo && !connType) html += '—';
+            html += '</div>';
+            
+            html += '</div>';
+        });
+        
+        html += '</div></div>';
+        return html;
+    }
+
+    /**
+     * Render compact access buttons
+     */
+    function renderAccessButtonsCompact(device) {
+        var links = device.links || [];
+        var addresses = device.addresses || [];
+        var ip = addresses.length > 0 ? (addresses[0].ip || addresses[0].network || '').split('/')[0] : '';
+        
+        var btnConfigs = {
+            'http':   { cls: 'dd-access-btn--web', icon: MI.i('globe',{size:12,color:'#fff'}),    label: 'WEB' },
+            'https':  { cls: 'dd-access-btn--web', icon: MI.i('globe',{size:12,color:'#fff'}),    label: 'WEB' },
+            'ssh':    { cls: 'dd-access-btn--ssh', icon: MI.i('terminal',{size:12,color:'#fff'}), label: 'SSH' },
+            'rdp':    { cls: 'dd-access-btn--rdp', icon: MI.i('monitor',{size:12,color:'#fff'}),  label: 'RDP' },
+            'vnc':    { cls: 'dd-access-btn--vnc', icon: MI.i('image',{size:12,color:'#fff'}),    label: 'VNC' },
+            'telnet': { cls: 'dd-access-btn--tel', icon: MI.i('terminal',{size:12,color:'#fff'}), label: 'TEL' }
+        };
+        
+        var html = '';
+        var seen = {};
+        
+        links.forEach(function(link) {
+            if (seen[link.type]) return;
+            seen[link.type] = true;
+            
+            var cfg = btnConfigs[link.type];
+            if (!cfg) return;
+            
+            if (link.type === 'http' || link.type === 'https') {
+                var href = link.url;
+                if (!href.match(/^https?:\/\//i)) href = 'http://' + href;
+                html += '<a href="' + escapeHtml(href) + '" target="_blank" class="dd-access-btn ' + cfg.cls + '">' + cfg.icon + ' ' + cfg.label + '</a>';
+            } else if (ip) {
+                html += '<button onclick="DeviceDetail.openGuacamole(' + device.id + ', \'' + link.type + '\')" class="dd-access-btn ' + cfg.cls + '">' + cfg.icon + ' ' + cfg.label + '</button>';
+            }
+        });
+        
+        return html;
+    }
+    
+    /**
+     * Render compact connections table
+     */
+    function renderConnectionsCompact(device, connections) {
+        var deviceConns = connections.filter(function(c) { 
+            return c.from === device.id || c.to === device.id; 
+        });
+        
+        if (deviceConns.length === 0) {
+            return '<div class="dd-empty dd-empty--dark">No active connections</div>';
+        }
+        
+        var html = '<div style="margin-top:16px;">';
+        html += '<div class="dd-section-title">Connections (' + deviceConns.length + ')</div>';
+        
+        html += '<div class="dd-table">';
+        
+        // Table header
+        html += '<div class="dd-table-head dd-table-head--conn">';
+        html += '<div>Local</div><div>' + MI.i('arrow-right',{size:10,color:'#64748b'}) + ' Remote Device</div><div>Port</div><div>Cable/Type</div><div></div>';
+        html += '</div>';
+        
+        // Table rows
+        deviceConns.forEach(function(conn, idx) {
+            var isOutgoing = conn.from === device.id;
+            var localPort = isOutgoing ? conn.fromPort : conn.toPort;
+            var remotePort = isOutgoing ? conn.toPort : conn.fromPort;
+            var remoteDeviceId = isOutgoing ? conn.to : conn.from;
+            
+            var remoteDeviceName = 'External';
+            if (remoteDeviceId) {
+                var remoteDevice = findDevice(remoteDeviceId);
+                remoteDeviceName = remoteDevice ? remoteDevice.name : '?';
+            } else if (conn.externalDest) {
+                remoteDeviceName = conn.externalDest;
+            }
+            
+            var rowClass = 'dd-table-row dd-table-row--conn' + (idx % 2 !== 0 ? ' dd-table-row--alt' : '');
+            html += '<div onclick="DeviceDetail.showPortDetail(\'' + localPort + '\')" class="' + rowClass + '">';
+            
+            // Local port
+            html += '<div class="dd-conn-local">' + (localPort || '-') + '</div>';
+            
+            // Remote device
+            html += '<div class="dd-conn-remote" title="' + escapeHtml(remoteDeviceName) + '">' + escapeHtml(remoteDeviceName) + '</div>';
+            
+            // Remote port
+            html += '<div class="dd-conn-port">' + (remotePort || '-') + '</div>';
+            
+            // Cable/Type
+            html += '<div class="dd-cell-cable">';
+            if (conn.cableMarker) html += conn.cableMarker;
+            if (conn.type) html += ' <span class="dd-cell-cable-type">' + conn.type.toUpperCase() + '</span>';
+            html += '</div>';
+            
+            // Arrow
+            html += '<div class="dd-conn-arrow">' + (isOutgoing ? MI.i('arrow-right',{size:12,color:'#475569'}) : MI.i('arrow-left',{size:12,color:'#475569'})) + '</div>';
+            
+            html += '</div>';
+        });
+        
+        html += '</div></div>';
+        
+        return html;
+    }
+
+    /**
+     * Show port detail in bottom bar - Cisco style
+     */
+    /**
+     * Show port detail - scrolls to and highlights port row in the details table
+     */
+    function showPortDetail(portName) {
+        if (!currentDevice) return;
+        
+        // Find the port row in the details table
+        var rows = document.querySelectorAll('[data-port-name]');
+        rows.forEach(function(row) {
+            // Reset all highlights
+            row.style.background = '';
+        });
+        
+        var targetRow = document.querySelector('[data-port-name="' + portName + '"]');
+        if (targetRow) {
+            targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetRow.style.background = '#1e3a5f';
+            targetRow.style.transition = 'background 0.3s';
+            setTimeout(function() {
+                targetRow.style.background = '';
+            }, 2500);
+        }
+    }
+
+    /**
+     * Copy text to clipboard (with fallback for HTTP)
+     */
+    function copyToClipboard(text) {
+        // Try modern API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(function() {
+                    showCopySuccess(text);
+                })
+                .catch(function() {
+                    // Fallback for HTTP or permission denied
+                    fallbackCopy(text);
+                });
+        } else {
+            // Fallback for older browsers
+            fallbackCopy(text);
+        }
+    }
+    
+    /**
+     * Fallback copy using execCommand
+     */
+    function fallbackCopy(text) {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showCopySuccess(text);
+        } catch (err) {
+            console.error('Copy failed:', err);
+            if (window.Swal) {
+                MxSwal.info.fire({
+                    icon: 'info',
+                    title: 'Copy manually',
+                    text: text
+                });
+            } else {
+                prompt('Copy this:', text);
+            }
+        }
+        document.body.removeChild(textarea);
+    }
+    
+    /**
+     * Show copy success notification
+     */
+    function showCopySuccess(text) {
+        if (window.Swal) {
+            MxSwal.success.fire({
+                title: 'Copied!',
+                text: text
+            });
+        }
+    }
+
+    /**
+     * Navigate to floor plan
+     */
+    function goToFloorPlan(deviceId) {
+        close();
+        // Switch to floor plan tab and highlight device
+        if (window.switchTab) {
+            window.switchTab('floorplan');
+        }
+        // Try to highlight/select the device
+        setTimeout(function() {
+            if (window.FloorPlan && window.FloorPlan.selectDevice) {
+                window.FloorPlan.selectDevice(deviceId);
+            }
+        }, 300);
+    }
+
+    /**
+     * Open device edit form
+     */
+    function editDevice(deviceId) {
+        close();
+        // Switch to devices tab and open edit
+        if (window.switchTab) {
+            window.switchTab('devices');
+        }
+        setTimeout(function() {
+            if (window.editDevice) {
+                window.editDevice(deviceId);
+            }
+        }, 300);
+    }
+
+    // Guacamole configuration cache
+    var guacamoleConfig = null;
+
+    /**
+     * Load Guacamole configuration
+     * Works with both Apache (static file) and Node.js (API)
+     */
+    function loadGuacamoleConfig() {
+        if (guacamoleConfig !== null) {
+            return Promise.resolve(guacamoleConfig);
+        }
+        
+        // Try multiple paths to find config (works with both Node.js and Apache)
+        var paths = [
+            'api/guacamole-config.php',        // PHP endpoint (Apache - preferred)
+            '/matrix/api/guacamole-config.php', // Apache with /matrix/ prefix
+            'config/guacamole.json',           // Relative path (Node.js dev)
+            '/matrix/config/guacamole.json'    // Apache direct JSON access
+        ];
+        
+        function tryFetch(pathIndex) {
+            if (pathIndex >= paths.length) {
+                console.warn('[Guacamole] Config not found in any location');
+                guacamoleConfig = { enabled: false };
+                return Promise.resolve(guacamoleConfig);
+            }
+            
+            return fetch(paths[pathIndex])
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Not found');
+                    return response.json();
+                })
+                .then(function(config) {
+                    console.log('[Guacamole] Config loaded from:', paths[pathIndex]);
+                    guacamoleConfig = {
+                        enabled: config.enabled !== false,
+                        baseUrl: config.server ? config.server.baseUrl : null,
+                        protocols: config.ui ? config.ui.showProtocolButtons : ['ssh', 'rdp', 'vnc', 'telnet'],
+                        openInNewTab: config.ui ? config.ui.openInNewTab : true
+                    };
+                    return guacamoleConfig;
+                })
+                .catch(function() {
+                    return tryFetch(pathIndex + 1);
+                });
+        }
+        
+        return tryFetch(0);
+    }
+
+    /**
+     * Open Guacamole connection via API
+     * Creates connection automatically if it doesn't exist
+     */
+    function openGuacamole(deviceId, protocol) {
+        var device = findDevice(deviceId);
+        if (!device) {
+            console.error('Device not found:', deviceId);
+            return;
+        }
+
+        // Get IP address
+        var addresses = device.addresses || [];
+        var ip = addresses.length > 0 ? (addresses[0].ip || addresses[0].network || '').split('/')[0] : '';
+        
+        if (!ip) {
+            if (window.Swal) {
+                MxSwal.info.fire({
+                    icon: 'warning',
+                    title: 'No IP Address',
+                    text: 'This device has no IP address configured.'
+                });
+            } else {
+                alert('This device has no IP address configured.');
+            }
+            return;
+        }
+
+        // Show loading
+        if (window.Swal) {
+            MxSwal.loading.fire({
+                title: 'Connecting...',
+                html: '<div class="text-sm">' + device.name + '<br><span style="display:inline-flex;align-items:center;gap:4px;">' + protocol.toUpperCase() + ' ' + MI.i('arrow-right',{size:12,color:'#64748b'}) + ' ' + ip + '</span></div>'
+            });
+        }
+
+        // Call API to create/get connection
+        var apiPaths = [
+            'api/guacamole.php',
+            '/matrix/api/guacamole.php'
+        ];
+        var lastError = '';
+        
+        function tryApi(pathIndex) {
+            if (pathIndex >= apiPaths.length) {
+                if (window.Swal) {
+                    MxSwal.info.fire({
+                        icon: 'error',
+                        title: 'Connection Error',
+                        html: '<p>Unable to connect to Guacamole.</p>' +
+                              '<p class="text-sm text-red-600 mt-2">' + (lastError || 'Unknown error') + '</p>'
+                    });
+                }
+                return;
+            }
+            
+            fetch(apiPaths[pathIndex], {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'connect',
+                    ip: ip,
+                    protocol: protocol,
+                    deviceName: device.name
+                })
+            })
+            .then(function(response) {
+                return response.json().then(function(data) {
+                    if (!response.ok || data.error) {
+                        var errMsg = data.error || ('HTTP ' + response.status);
+                        if (data.detail) errMsg += ': ' + data.detail;
+                        throw new Error(errMsg);
+                    }
+                    return data;
+                });
+            })
+            .then(function(data) {
+                if (data.url) {
+                    // Success - open Guacamole
+                    if (window.Swal) {
+                        MxSwal.success.fire({
+                            title: MI.i('monitor',{size:20}) + ' ' + protocol.toUpperCase(),
+                            html: '<div class="text-left">' +
+                                  '<div class="bg-slate-100 rounded p-3 font-mono text-sm">' +
+                                  '<div><b>' + device.name + '</b></div>' +
+                                  '<div class="text-blue-600">' + ip + '</div>' +
+                                  '</div>' +
+                                  '<p class="text-sm text-slate-600 mt-2">Opening Guacamole...</p>' +
+                                  '</div>'
+                        });
+                    }
+                    
+                    // Open in popup window with fixed size (similar to PuTTY)
+                    setTimeout(function() {
+                        var width = protocol === 'rdp' ? 1024 : 850;
+                        var height = protocol === 'rdp' ? 768 : 550;
+                        var left = (screen.width - width) / 2;
+                        var top = (screen.height - height) / 2;
+                        var windowName = 'guac_' + device.id + '_' + protocol;
+                        var features = 'width=' + width + ',height=' + height + 
+                                      ',left=' + left + ',top=' + top +
+                                      ',menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=no';
+                        window.open(data.url, windowName, features);
+                    }, 500);
+                } else {
+                    throw new Error('URL not returned');
+                }
+            })
+            .catch(function(err) {
+                console.warn('Guacamole API error at', apiPaths[pathIndex], ':', err.message);
+                lastError = err.message;
+                // Try next path
+                tryApi(pathIndex + 1);
+            });
+        }
+        
+        tryApi(0);
+    }
+
+    // Public API
+    return {
+        open: open,
+        close: close,
+        showPortDetail: showPortDetail,
+        copyToClipboard: copyToClipboard,
+        goToFloorPlan: goToFloorPlan,
+        editDevice: editDevice,
+        openGuacamole: openGuacamole
+    };
+
+})();
+
+// Make DeviceDetail available globally
+window.DeviceDetail = DeviceDetail;

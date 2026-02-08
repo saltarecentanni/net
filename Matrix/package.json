@@ -1,7 +1,7 @@
 {
   "name": "matrix",
-  "version": "3.6.023",
-  "description": "TIESSE Matrix Network - Data Management System v3.6.023",
+  "version": "3.6.026",
+  "description": "TIESSE Matrix Network - Data Management System v3.6.026",
   "main": "server.js",
   "directories": {
     "doc": "doc",

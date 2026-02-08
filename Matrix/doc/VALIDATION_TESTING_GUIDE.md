@@ -1,10 +1,10 @@
-# TIESSE Matrix Network - Validation System Testing Guide (v3.5.046)
+# TIESSE Matrix Network - Validation System Testing Guide (v3.6.026)
 
 ## Quick Test Checklist
 
 ### Pre-Test Setup
-- [ ] Server running on port 8000
-- [ ] Browser open to `http://localhost:8000`
+- [ ] Server running on port 3000 (Node.js) or Apache
+- [ ] Browser open to `http://localhost:3000` or your server IP
 - [ ] Browser DevTools console open (F12)
 - [ ] Logged in with Edit Mode enabled
 

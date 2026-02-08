@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tab System - Simple Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #333;
+            background: #f0f0f0;
+        }
+
+        .tab-btn.active {
+            color: #0066cc;
+            border-bottom-color: #0066cc;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            min-height: 200px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content-box {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #0066cc;
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 15px;
+            background: #e8f4f8;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .status h3 {
+            margin-bottom: 10px;
+            color: #0066cc;
+        }
+
+        .status p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .pass {
+            color: #28a745;
+        }
+
+        .fail {
+            color: #dc3545;
+        }
+
+        .warn {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tab System - Simple Test</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-test1" onclick="switchTab('test1')">Tab 1</button>
+            <button class="tab-btn" id="tab-test2" onclick="switchTab('test2')">Tab 2</button>
+            <button class="tab-btn" id="tab-test3" onclick="switchTab('test3')">Tab 3</button>
+        </div>
+
+        <div id="content-test1" class="tab-content active">
+            <div class="content-box">
+                <h2>Tab 1 Content</h2>
+                <p>This is the content of Tab 1. If you can see this text, the first tab is working correctly.</p>
+                <p>Click on the other tabs to switch between them. The system uses CSS classes (.active) to manage visibility.</p>
+            </div>
+        </div>
+
+        <div id="content-test2" class="tab-content">
+            <div class="content-box">
+                <h2>Tab 2 Content</h2>
+                <p>This is the content of Tab 2. If you can see this text, the tab switching is working.</p>
+                <p>The switchTab() function removes the 'active' class from all tabs and contents, then adds it back to the selected tab.</p>
+            </div>
+        </div>
+
+        <div id="content-test3" class="tab-content">
+            <div class="content-box">
+                <h2>Tab 3 Content</h2>
+                <p>This is the content of Tab 3. If you can see this text, the tab system is fully functional.</p>
+                <p>The CSS display rule (.tab-content { display: none; }) hides all tabs by default.</p>
+            </div>
+        </div>
+
+        <div class="status">
+            <h3>Status Check:</h3>
+            <p id="check-function" class="fail">switchTab function: <span id="check-fn-status">NOT LOADED</span></p>
+            <p id="check-css" class="fail">CSS rules: <span id="check-css-status">NOT LOADED</span></p>
+            <p id="check-elements" class="fail">HTML elements: <span id="check-elem-status">NOT LOADED</span></p>
+            <p id="check-active" class="fail">Active classes: <span id="check-active-status">NOT LOADED</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Simple tab switching function
+        function switchTab(tabId) {
+            console.log('switchTab("' + tabId + '") called');
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+                console.log('  Removed active from button: ' + btn.id);
+            });
+            
+            // Remove active class from all content divs
+            document.querySelectorAll('.tab-content').forEach(function(content) {
+                content.classList.remove('active');
+                console.log('  Removed active from content: ' + content.id);
+            });
+            
+            // Add active class to selected button and content
+            var btn = document.getElementById('tab-' + tabId);
+            var content = document.getElementById('content-' + tabId);
+            
+            if (btn) {
+                btn.classList.add('active');
+                console.log('  Added active to button: ' + btn.id);
+            } else {
+                console.error('  ERROR: Button #tab-' + tabId + ' not found!');
+            }
+            
+            if (content) {
+                content.classList.add('active');
+                console.log('  Added active to content: ' + content.id);
+            } else {
+                console.error('  ERROR: Content #content-' + tabId + ' not found!');
+            }
+        }
+
+        // Check everything when page loads
+        function runStatusCheck() {
+            console.log('========== TAB SYSTEM STATUS CHECK ==========');
+            
+            // Check 1: Function
+            if (typeof switchTab === 'function') {
+                document.getElementById('check-fn-status').textContent = '✓ FOUND';
+                document.getElementById('check-fn-status').parentElement.className = 'pass';
+                console.log('✓ switchTab function is defined');
+            } else {
+                console.error('✗ switchTab function NOT found');
+            }
+            
+            // Check 2: CSS rules
+            var testDiv = document.createElement('div');
+            testDiv.className = 'tab-content';
+            document.body.appendChild(testDiv);
+            var display = window.getComputedStyle(testDiv).display;
+            document.body.removeChild(testDiv);
+            
+            if (display === 'none') {
+                document.getElementById('check-css-status').textContent = '✓ WORKING';
+                document.getElementById('check-css-status').parentElement.className = 'pass';
+                console.log('✓ CSS rule .tab-content { display: none; } is working');
+            } else {
+                document.getElementById('check-css-status').textContent = '✗ BROKEN (display=' + display + ')';
+                document.getElementById('check-css-status').parentElement.className = 'fail';
+                console.error('✗ CSS rule NOT working - expected display:none, got: ' + display);
+            }
+            
+            // Check 3: HTML elements
+            var btn1 = document.getElementById('tab-test1');
+            var content1 = document.getElementById('content-test1');
+            if (btn1 && content1) {
+                document.getElementById('check-elem-status').textContent = '✓ ALL PRESENT';
+                document.getElementById('check-elem-status').parentElement.className = 'pass';
+                console.log('✓ Tab buttons and content divs are present');
+            } else {
+                document.getElementById('check-elem-status').textContent = '✗ MISSING';
+                document.getElementById('check-elem-status').parentElement.className = 'fail';
+                console.error('✗ Some tab elements are missing');
+            }
+            
+            // Check 4: Active classes
+            if (btn1 && btn1.classList.contains('active') && content1 && content1.classList.contains('active')) {
+                document.getElementById('check-active-status').textContent = '✓ CORRECT';
+                document.getElementById('check-active-status').parentElement.className = 'pass';
+                console.log('✓ Initial active classes are set correctly');
+            } else {
+                document.getElementById('check-active-status').textContent = '✗ INCORRECT';
+                document.getElementById('check-active-status').parentElement.className = 'fail';
+                console.error('✗ Active classes not set correctly on load');
+            }
+            
+            console.log('========== CHECK COMPLETE ==========');
+        }
+
+        // Run check when page fully loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runStatusCheck);
+        } else {
+            runStatusCheck();
+        }
+
+        // Also run when you open the console
+        console.log('Tab system test loaded. Open browser DevTools (F12) and check Console for detailed diagnostics.');
+        console.log('Try clicking on the tabs above and watch the console output for what happens.');
+    </script>
+</body>
+</html>

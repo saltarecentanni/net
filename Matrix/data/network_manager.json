@@ -6498,7 +6498,7 @@
       "brandModel": "",
       "type": "router",
       "status": "active",
-      "location": "BIGONE / L.Corfiati/R.Belletti",
+      "location": "L.Corfiati/R.Belletti",
       "addresses": [
         {
           "network": "10.10.254.108",
@@ -6638,7 +6638,7 @@
       "brandModel": "",
       "type": "router",
       "status": "active",
-      "location": "BIGONE / L.Corfiati/R.Belletti",
+      "location": "L.Corfiati/R.Belletti",
       "addresses": [
         {
           "network": "10.10.254.107",
@@ -9301,7 +9301,7 @@
       "id": "loc-08",
       "siteId": "main",
       "code": "08",
-      "name": "BIGONE / L.Corfiati/R.Belletti",
+      "name": "L.Corfiati/R.Belletti",
       "type": "mapped",
       "roomRef": "8",
       "color": "#7c3aed"
@@ -9404,6 +9404,11 @@
       "type": "mapped",
       "roomRef": "19",
       "color": "#7c3aed"
+    },
+    {
+      "code": "20",
+      "name": "BigOne",
+      "type": "mapped"
     },
     {
       "id": "loc-21",

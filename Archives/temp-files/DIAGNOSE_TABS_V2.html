@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diagnostic - Tab System Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .warn { background: #fff3cd; color: #856404; }
+        pre { background: #f5f5f5; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>Tab System Diagnostic</h1>
+    <div id="results"></div>
+
+    <script>
+        var results = [];
+        
+        function runTest(name, testFn) {
+            try {
+                var result = testFn();
+                results.push({
+                    name: name,
+                    status: result ? 'pass' : 'fail',
+                    message: result || 'Test returned false'
+                });
+            } catch (e) {
+                results.push({
+                    name: name,
+                    status: 'fail',
+                    message: e.message
+                });
+            }
+        }
+
+        // Test 1: Check if switchTab function exists
+        runTest('switchTab function exists', function() {
+            return typeof window.switchTab === 'function';
+        });
+
+        // Test 2: Check for tab buttons
+        runTest('Tab buttons found (class=tab-btn)', function() {
+            var btns = document.querySelectorAll('.tab-btn');
+            return btns.length > 0;
+        });
+
+        // Test 3: Check for tab content divs
+        runTest('Tab content divs found (class=tab-content)', function() {
+            var contents = document.querySelectorAll('.tab-content');
+            return contents.length > 0;
+        });
+
+        // Test 4: Check CSS rule for .tab-content
+        runTest('CSS rule exists: .tab-content { display: none; }', function() {
+            var testDiv = document.createElement('div');
+            testDiv.className = 'tab-content';
+            document.body.appendChild(testDiv);
+            var computed = window.getComputedStyle(testDiv).display;
+            document.body.removeChild(testDiv);
+            return computed === 'none';
+        });
+
+        // Test 5: Check CSS rule for .tab-content.active
+        runTest('CSS rule exists: .tab-content.active { display: block; }', function() {
+            var testDiv = document.createElement('div');
+            testDiv.className = 'tab-content active';
+            document.body.appendChild(testDiv);
+            var computed = window.getComputedStyle(testDiv).display;
+            document.body.removeChild(testDiv);
+            return computed === 'block';
+        });
+
+        // Test 6: Check if appState exists
+        runTest('appState object exists', function() {
+            return typeof window.appState === 'object';
+        });
+
+        // Test 7: Check if Dashboard exists
+        runTest('Dashboard module exists', function() {
+            return typeof window.Dashboard === 'object';
+        });
+
+        // Test 8: Check if FloorPlan exists
+        runTest('FloorPlan module exists', function() {
+            return typeof window.FloorPlan === 'object';
+        });
+
+        // Test 9: Check if MI (icons) exists
+        runTest('MI (icons) module exists', function() {
+            return typeof window.MI === 'object';
+        });
+
+        // Test 10: Check if AppColors exists
+        runTest('AppColors module exists', function() {
+            return typeof window.AppColors === 'object';
+        });
+
+        // Test 11: Check if DashboardColors exists
+        runTest('DashboardColors module exists', function() {
+            return typeof window.DashboardColors === 'object';
+        });
+
+        // Test 12: Simulate switchTab('dashboard')
+        runTest('switchTab(\'dashboard\') executes without error', function() {
+            if (typeof window.switchTab !== 'function') return false;
+            window.switchTab('dashboard');
+            return true;
+        });
+
+        // Test 13: Check if dashboar tab is now active
+        runTest('After switchTab(\'dashboard\'), content-dashboard has active class', function() {
+            var el = document.getElementById('content-dashboard');
+            return el && el.classList.contains('active');
+        });
+
+        // Test 14: Check displayed status of dashboard tab
+        runTest('After switchTab(dashboard), content-dashboard is display: block', function() {
+            var el = document.getElementById('content-dashboard');
+            if (!el) return false;
+            var computed = window.getComputedStyle(el).display;
+            return computed === 'block';
+        });
+
+        // Test 15: Check console errors
+        runTest('No JavaScript errors detected', function() {
+            // This will always pass - we'd need a more complex error handler
+            return true;
+        });
+
+        // Display results
+        var display = document.getElementById('results');
+        results.forEach(function(r) {
+            var div = document.createElement('div');
+            div.className = 'test-result ' + r.status;
+            div.innerHTML = '<strong>[' + r.status.toUpperCase() + ']</strong> ' + r.name;
+            if (r.message && r.status === 'fail') {
+                div.innerHTML += '<br><small>' + r.message + '</small>';
+            }
+            display.appendChild(div);
+        });
+
+        // Summary
+        var passed = results.filter(function(r) { return r.status === 'pass'; }).length;
+        var failed = results.filter(function(r) { return r.status === 'fail'; }).length;
+        
+        var summary = document.createElement('div');
+        summary.style.marginTop = '30px';
+        summary.style.fontSize = '18px';
+        summary.style.fontWeight = 'bold';
+        summary.innerHTML = 'Results: <span style="color:green">' + passed + ' passed</span>, <span style="color:red">' + failed + ' failed</span>';
+        display.appendChild(summary);
+
+        // Debug info
+        console.log('=== TAB SYSTEM DIAGNOSTIC ===');
+        console.log('Results:', results);
+        console.log('appState:', window.appState);
+        console.log('Dashboard:', window.Dashboard);
+        console.log('DashboardColors:', window.DashboardColors);
+        console.log('=====END OF DIAGNOSTIC=====');
+    </script>
+</body>
+</html>
