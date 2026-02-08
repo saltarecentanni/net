@@ -7289,8 +7289,7 @@
       "cableMarker": "A96",
       "cableColor": "#6b7280",
       "notes": "PRESA LAN, SALA RIUNIONI - Z4",
-      "id": "c-67068ff12606",
-      "roomId": null
+      "id": "c-67068ff12606"
     },
     {
       "from": 6,
@@ -7374,8 +7373,7 @@
       "cableMarker": "A95",
       "cableColor": "#6b7280",
       "notes": "PRESA LAN, UFFICIO DI LUCIANO - Z2",
-      "id": "c-d263bec655b8",
-      "roomId": null
+      "id": "c-d263bec655b8"
     },
     {
       "from": 6,
@@ -7417,8 +7415,7 @@
       "cableMarker": "",
       "cableColor": "#ffffff",
       "notes": "PRESA LAN, SALA SERVER - Z3",
-      "id": "c-3115176b9637",
-      "roomId": null
+      "id": "c-3115176b9637"
     },
     {
       "from": 15,
@@ -7460,8 +7457,7 @@
       "cableMarker": "",
       "cableColor": "#ffffff",
       "notes": "PRESA LAN, SALA SERVER - Z15",
-      "id": "c-cb369b808f6e",
-      "roomId": null
+      "id": "c-cb369b808f6e"
     },
     {
       "from": 36,
@@ -7601,8 +7597,7 @@
       "cableMarker": "A94",
       "cableColor": "#3b82f6",
       "notes": "PRESA LAN, SALA SERVER - Z1",
-      "id": "c-5685f9a538d3",
-      "roomId": null
+      "id": "c-5685f9a538d3"
     },
     {
       "from": 50,
@@ -7756,8 +7751,7 @@
       "cableMarker": "A98",
       "cableColor": "#6b7280",
       "notes": "PRESA LAN, SALA SERVER - Z5",
-      "id": "c-7021d56b0124",
-      "roomId": null
+      "id": "c-7021d56b0124"
     },
     {
       "from": 61,
@@ -7771,8 +7765,7 @@
       "cableMarker": "A92",
       "cableColor": "#ffffff",
       "notes": "PRESA LAN, SALA SERVER - Z6",
-      "id": "c-5d01aad97214",
-      "roomId": null
+      "id": "c-5d01aad97214"
     },
     {
       "from": 51,
@@ -7800,8 +7793,7 @@
       "cableMarker": "A88",
       "cableColor": "#6b7280",
       "notes": "PRESA LAN, SALA SERVER - Z7",
-      "id": "c-df427dce1d4b",
-      "roomId": null
+      "id": "c-df427dce1d4b"
     },
     {
       "from": 76,
@@ -7815,8 +7807,7 @@
       "cableMarker": "A89",
       "cableColor": "#3b82f6",
       "notes": "PRESA LAN, SALA SERVER - Z8",
-      "id": "c-163a9dcface5",
-      "roomId": null
+      "id": "c-163a9dcface5"
     },
     {
       "from": 55,
@@ -7900,8 +7891,7 @@
       "cableMarker": "A91",
       "cableColor": "#eab308",
       "notes": "PRESA LAN, SALA SERVER - Z10",
-      "id": "c-a487a2b3a38f",
-      "roomId": null
+      "id": "c-a487a2b3a38f"
     },
     {
       "from": 84,
@@ -8013,8 +8003,7 @@
       "cableMarker": "A90",
       "cableColor": "#ef4444",
       "notes": "PRESA LAN, SALA SERVER - Z11",
-      "id": "c-f9a839974562",
-      "roomId": null
+      "id": "c-f9a839974562"
     },
     {
       "from": 82,
@@ -8042,8 +8031,7 @@
       "cableMarker": "A1",
       "cableColor": "#6b7280",
       "notes": "PRESA LAN, SALA SERVER - Z9",
-      "id": "c-534938475f1c",
-      "roomId": null
+      "id": "c-534938475f1c"
     },
     {
       "from": 64,
@@ -8211,8 +8199,7 @@
       "cableMarker": "A87",
       "cableColor": "#6b7280",
       "notes": "PRESA LAN, SALA SERVER - Z13",
-      "id": "c-43a9789923dd",
-      "roomId": null
+      "id": "c-43a9789923dd"
     },
     {
       "from": 35,
@@ -8226,8 +8213,7 @@
       "cableMarker": "A86",
       "cableColor": "#ef4444",
       "notes": "PRESA LAN, SALA SERVER - Z12",
-      "id": "c-ea189f16c388",
-      "roomId": null
+      "id": "c-ea189f16c388"
     },
     {
       "from": 41,
@@ -8424,7 +8410,6 @@
       "cableColor": "#dc2626",
       "notes": "Fiber TIM",
       "id": "c-9dea25f2ec1f",
-      "roomId": null,
       "flagged": true,
       "flagReason": "Incomplete: missing destination (to=None)"
     },
@@ -8441,7 +8426,6 @@
       "cableColor": "#ef4444",
       "notes": "POE WIND FWA",
       "id": "c-ffea2a59092e",
-      "roomId": 0,
       "flagged": true,
       "flagReason": "Incomplete: missing destination (to=None)"
     },
@@ -8458,7 +8442,6 @@
       "cableColor": "#3b82f6",
       "notes": "",
       "id": "c-07d7c8a0998c",
-      "roomId": null,
       "flagged": true,
       "flagReason": "Incomplete: missing destination (to=None)"
     },
@@ -8475,7 +8458,6 @@
       "cableColor": "#ffffff",
       "notes": "IXIA",
       "id": "c-0164266aa413",
-      "roomId": 8,
       "flagged": true,
       "flagReason": "Incomplete: missing destination (to=None)"
     },
@@ -8492,7 +8474,6 @@
       "cableColor": "#ffffff",
       "notes": "",
       "id": "c-8129a6d35713",
-      "roomId": 8,
       "flagged": true,
       "flagReason": "Incomplete: missing destination (to=None)"
     },
@@ -8509,7 +8490,6 @@
       "cableColor": "#ffffff",
       "notes": "",
       "id": "c-13e92871614d",
-      "roomId": null,
       "flagged": true,
       "flagReason": "Incomplete: missing destination (to=None)"
     }

@@ -4,6 +4,11 @@
  * 
  * Client-side validation for import/export operations
  * Prevents user from corrupting data
+ * 
+ * SUPPORTED OPTIONAL FIELDS:
+ * - Connection.flagged (boolean): marks incomplete connections for later correction
+ * - Connection.flagReason (string): human-readable reason for flagging
+ * - Connection.isWallJack (boolean): marks connections to wall outlets (no 'to' device)
  */
 
 var JSONValidatorFrontend = {
@@ -140,6 +145,21 @@ var JSONValidatorFrontend = {
                 // Check deprecated fields
                 if (conn.color) {
                     report.deprecated.push(`Connection[${idx}]: has obsolete 'color' field (use config.connColors[type] instead)`);
+                }
+
+                // Validate optional support fields that are allowed
+                // - flagged: marks incomplete/problematic connections for later correction
+                // - flagReason: human-readable description of why flagged
+                // - isWallJack: marks if connection is to wall outlet/jack (special type with no 'to' device)
+                // These fields are optional and do not trigger validation errors
+                if (conn.flagged !== undefined && typeof conn.flagged !== 'boolean') {
+                    report.warnings.push(`Connection[${idx}]: 'flagged' should be boolean`);
+                }
+                if (conn.flagReason !== undefined && typeof conn.flagReason !== 'string') {
+                    report.warnings.push(`Connection[${idx}]: 'flagReason' should be string`);
+                }
+                if (conn.isWallJack !== undefined && typeof conn.isWallJack !== 'boolean') {
+                    report.warnings.push(`Connection[${idx}]: 'isWallJack' should be boolean`);
                 }
             });
 
