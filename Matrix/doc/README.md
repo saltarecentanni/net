@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.6.028  
+**Version:** 3.6.029  
 **Date:** February 9, 2026  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
 
@@ -30,9 +30,9 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.6.028
+## 🆕 What's New in v3.6.029
 
-### 🎯 v3.6.028 - Data Integrity & Validation (Latest)
+### 🎯 v3.6.029 - Data Integrity & Validation (Latest)
 - **Import/Export Validation**: Full round-trip verified - 15 connection fields preserved
 - **roomId Field**: Confirmed functional (maps wallport/walljack to floor plan rooms)
 - **Flagged Connections**: 6 incomplete connections marked with `flagged: true` for review
@@ -454,7 +454,7 @@ For issues or feature requests:
 
 ---
 
-**Version:** 3.6.028  
+**Version:** 3.6.029  
 **Last Updated:** February 8, 2026  
 **Status:** ✅ Production Ready  
 **© Tiesse S.P.A.**
