@@ -255,7 +255,7 @@ Devices can have direct access links:
 **Data Integrity Checks:**
 - SHA-256 checksum verification
 - Schema validation (devices, connections, rooms, locations)
-- Deprecated field detection (zone, zoneIP, roomId)
+- Deprecated field detection (zone, zoneIP for devices)
 - Automatic field consolidation (color→cableColor, rack→rackId)
 - Connection orphan detection
 
@@ -394,7 +394,8 @@ CORS_ORIGINS=http://localhost:3000
 
 ### Import fails
 - Validate JSON format with Python: `python3 -m json.tool file.json`
-- Check for deprecated fields: zone, zoneIP, roomId
+- Check for deprecated fields: zone, zoneIP (devices), color (connections)
+- roomId in connections is valid (used for floor plan mapping)
 - Ensure Excel has 4 sheets: Devices, Connections, Matrix, Rooms
 
 ---

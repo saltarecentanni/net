@@ -9,6 +9,7 @@
  * - Connection.flagged (boolean): marks incomplete connections for later correction
  * - Connection.flagReason (string): human-readable reason for flagging
  * - Connection.isWallJack (boolean): marks connections to wall outlets (no 'to' device)
+ * - Connection.roomId (number|string|null): assigns WallJack/WallPort to room on floor plan
  */
 
 var JSONValidatorFrontend = {
@@ -151,12 +152,17 @@ var JSONValidatorFrontend = {
                 // - flagged: marks incomplete/problematic connections for later correction
                 // - flagReason: human-readable description of why flagged
                 // - isWallJack: marks if connection is to wall outlet/jack (special type with no 'to' device)
+                // - roomId: assigns WallJack/WallPort connections to specific rooms on floor plan
                 // These fields are optional and do not trigger validation errors
                 if (conn.flagged !== undefined && typeof conn.flagged !== 'boolean') {
                     report.warnings.push(`Connection[${idx}]: 'flagged' should be boolean`);
                 }
                 if (conn.flagReason !== undefined && typeof conn.flagReason !== 'string') {
                     report.warnings.push(`Connection[${idx}]: 'flagReason' should be string`);
+                }
+                if (conn.roomId !== undefined && conn.roomId !== null && 
+                    typeof conn.roomId !== 'number' && typeof conn.roomId !== 'string') {
+                    report.warnings.push(`Connection[${idx}]: 'roomId' should be number, string, or null`);
                 }
                 if (conn.isWallJack !== undefined && typeof conn.isWallJack !== 'boolean') {
                     report.warnings.push(`Connection[${idx}]: 'isWallJack' should be boolean`);

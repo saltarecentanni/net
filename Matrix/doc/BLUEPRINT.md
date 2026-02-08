@@ -284,8 +284,9 @@ appState = {
 **Validation Operations:**
 - Schema validation for devices, connections, rooms, sites
 - Field type checking and normalization
-- Deprecated field detection (zone, zoneIP, roomId)
+- Deprecated field detection (zone, zoneIP for devices, color for connections)
 - Automatic field consolidation (color→cableColor)
+- Support for roomId in connections (floor plan mapping)
 - Connection orphan detection
 - SHA-256 checksum verification on imports
 - Excel 4-sheet structure validation

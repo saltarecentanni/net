@@ -8,20 +8,22 @@ Verificacao de alinhamento entre estrutura JSON (`network_manager.json`) e codig
 
 ## Issues Encontrados & Resolvidos
 
-### 1. Campo `roomId` - DEPRECATED ❌
-**Status**: REMOVIDO
+### 1. Campo `roomId` - USED BY FLOOR PLAN ✅
+**Status**: RESTAURADO E VALIDADO
 
-**Problema**:
-- Encontrado em 20/93 conexões
-- Não é suportado pelo validador `json-validator.js`
-- Não faz parte da estrutura de export/import
-- Valores inconsistentes: `null` (17x), `0` (1x), IDs válidos (2x)
+**Propósito**:
+- Mapeia conexões WallJack/WallPort para salas específicas na planta
+- Usado por `floorplan.js` função `showRoomInfo()` (linha 419-430)
+- WallJacks com `roomId` aparecem na sala correspondente na visualização
 
-**Resolução**:
-- Removido todas as 20 instâncias de `roomId` do JSON
-- Campo não é mais necessário para operações de import/export
+**Dados**:
+- Presente em 20/93 conexões (14 WallPort + 6 flagged)
+- Valores: `null` (17x), `0` (1x), `8` (2x - Laboratorio di Prove)
 
-**Impacto**: Zero - campo obsoleto sem uso
+**Validação**:
+- Tipo aceito: `number`, `string`, ou `null`
+- Adicionado ao validador como campo suportado
+- Não é deprecated - é funcional!
 
 ---
 
@@ -108,6 +110,7 @@ Verificacao de alinhamento entre estrutura JSON (`network_manager.json`) e codig
   // SPECIAL TYPES
   "isWallJack": <boolean>,
   "externalDest": <string>,
+  "roomId": <number | string | null>,  // Floor plan room assignment
   
   // CABLE INFO
   "cableMarker": <string>,
@@ -193,7 +196,7 @@ payload = {
 | Connections | 93 ✅ (87 valid + 6 flagged) |
 | Rooms | 21 ✅ |
 | Locations | 12 ✅ |
-| Deprecated Fields | 0 ✅ (roomId removed) |
+| roomId Field | 20 ✅ (used by floor plan) |
 | Validation Errors | 0 ✅ |
 | Import-Ready | ✅ YES |
 | Export-Ready | ✅ YES |
@@ -203,14 +206,15 @@ payload = {
 ## Recommendations
 
 ### ✅ COMPLETED
-1. Removed deprecated `roomId` field from all 20 connections
-2. Updated validador to recognize `flagged`, `flagReason`, `isWallJack`
+1. Validated `roomId` field as functional (floor plan mapping)
+2. Updated validador to recognize `flagged`, `flagReason`, `isWallJack`, `roomId`
 3. Documented supported optional fields
 
 ### 📋 FUTURE
 1. Consider removing `flagged` markers once connections are corrected
 2. Document special types (WallPort, WallJack, External) more explicitly
 3. Add UI hints for flagged connections during import preview
+4. Assign `roomId` to WallJacks that currently have `null` value
 
 ---
 

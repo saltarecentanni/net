@@ -75,7 +75,8 @@
     }
   ],
   "connections": [
-    {"from": 1, "type": "fiber", "status": "active", "roomId": 5}  // Deprecated!
+    {"from": 1, "type": "fiber", "status": "active", "color": "#ff0000"}  // color is Deprecated (use cableColor)
+    // Note: roomId is VALID for wallport/walljack connections (floor plan mapping)
   ],
   "version": "3.5.045"
 }
