@@ -1257,6 +1257,7 @@ ipconfig</pre>
                         <li><a href="#filtri">Sistema di Filtri</a></li>
                         <li><a href="#ricerca">Ricerca Avanzata</a></li>
                         <li><a href="#visualizzazioni">Visualizzazioni Multiple</a></li>
+                        <li><a href="#device-detail">Device Detail Modal</a></li>
                         <li><a href="#export-import">Export/Import</a></li>
                     </ul>
                 </div>
@@ -1358,6 +1359,78 @@ ipconfig</pre>
                     <li>Tipo di connessione e stato</li>
                     <li>Cable marker e colore</li>
                 </ul>
+
+                <h3 id="device-detail">📋 Device Detail Modal</h3>
+                <p>Il Device Detail Modal è una finestra modale che mostra tutte le informazioni di un dispositivo in formato visuale avanzato.</p>
+
+                <h4>Come Aprirlo</h4>
+                <ul>
+                    <li>Click sul nome di un dispositivo nella tabella Devices</li>
+                    <li>Click su un nodo nella Topology</li>
+                    <li>Click su un dispositivo nel Floor Plan</li>
+                </ul>
+
+                <h4>Sezioni del Modal</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sezione</th>
+                            <th>Contenuto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Header</strong></td>
+                            <td>Nome dispositivo, tipo, stato, rack ID</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Info Card</strong></td>
+                            <td>Brand/Model, Location, Service, Notes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Addresses</strong></td>
+                            <td>Indirizzi IP con badge colorati per VLAN/Zone</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Quick Access</strong></td>
+                            <td>Pulsanti SSH, Telnet, RDP, VNC, HTTP (solo admin)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ports Panel</strong></td>
+                            <td>Visualizzazione porte stile RJ45 con LED indicatori</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Connections Table</strong></td>
+                            <td>Tabella connessioni con porte sorgente/destinazione</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Visualizzazione Porte (RJ45 Style)</h4>
+                <p>Le porte sono visualizzate come connettori RJ45 realistici:</p>
+                <ul>
+                    <li><span style="display:inline-block;width:12px;height:12px;background:#22c55e;border-radius:50%;"></span> <strong>Verde:</strong> Porta attiva/connessa</li>
+                    <li><span style="display:inline-block;width:12px;height:12px;background:#64748b;border-radius:50%;"></span> <strong>Grigio:</strong> Porta inattiva/disponibile</li>
+                    <li><span style="display:inline-block;width:12px;height:12px;background:#f59e0b;border-radius:50%;"></span> <strong>Giallo:</strong> Porta in warning</li>
+                    <li><span style="display:inline-block;width:12px;height:12px;background:#ef4444;border-radius:50%;"></span> <strong>Rosso:</strong> Porta in errore</li>
+                </ul>
+
+                <h4>Badge Zone/VLAN</h4>
+                <p>Gli indirizzi IP mostrano badge colorati in base alla zona di rete:</p>
+                <ul>
+                    <li><span style="display:inline-block;padding:2px 8px;background:#22c55e;color:#fff;border-radius:4px;font-size:11px;">LAN</span> Rete locale</li>
+                    <li><span style="display:inline-block;padding:2px 8px;background:#f59e0b;color:#fff;border-radius:4px;font-size:11px;">WAN</span> Internet/WAN</li>
+                    <li><span style="display:inline-block;padding:2px 8px;background:#ef4444;color:#fff;border-radius:4px;font-size:11px;">DMZ</span> Zona demilitarizzata</li>
+                    <li><span style="display:inline-block;padding:2px 8px;background:#3b82f6;color:#fff;border-radius:4px;font-size:11px;">VLAN 10</span> VLAN specifiche</li>
+                    <li><span style="display:inline-block;padding:2px 8px;background:#a855f7;color:#fff;border-radius:4px;font-size:11px;">IoT</span> Dispositivi IoT</li>
+                    <li><span style="display:inline-block;padding:2px 8px;background:#06b6d4;color:#fff;border-radius:4px;font-size:11px;">MGMT</span> Rete gestione</li>
+                </ul>
+
+                <h4>Quick Access Buttons</h4>
+                <p>I pulsanti di accesso rapido permettono di connettersi direttamente al dispositivo:</p>
+                <div class="info">
+                    <strong>Nota:</strong> I pulsanti SSH, Telnet, RDP e VNC utilizzano Apache Guacamole e aprono una finestra popup con la sessione già attiva. Vedi la sezione <a href="#guacamole">Integrazione Guacamole</a> per configurazione.
+                </div>
 
                 <h3 id="export-import">💾 Export/Import e Backup</h3>
 
@@ -2028,36 +2101,140 @@ ipconfig</pre>
                 </div>
 
                 <h3 id="guacamole">🖥️ Integrazione Apache Guacamole</h3>
-                <p>Matrix Network si integra con Apache Guacamole per accesso remoto ai dispositivi.</p>
+                <p>Matrix Network si integra con Apache Guacamole per accesso remoto diretto ai dispositivi tramite il browser.</p>
 
                 <h4>Cos'è Guacamole</h4>
                 <p>Apache Guacamole è un gateway clientless per desktop remoto che supporta:</p>
                 <ul>
                     <li><strong>SSH:</strong> Accesso terminale a dispositivi Linux/Unix</li>
-                    <li><strong>Telnet:</strong> Accesso a dispositivi legacy</li>
+                    <li><strong>Telnet:</strong> Accesso a dispositivi legacy (switch, router)</li>
                     <li><strong>RDP:</strong> Remote Desktop per Windows</li>
                     <li><strong>VNC:</strong> Virtual Network Computing</li>
                 </ul>
 
-                <h4>Configurazione Links</h4>
-                <p>Nel form Add/Edit Device, sezione <strong>Links (SSH/Telnet)</strong>:</p>
-                <ol>
-                    <li>Formato: <code>Label|ProtocolID</code></li>
-                    <li>Esempio: <code>SSH Root|ssh-12345</code></li>
-                    <li>Il ProtocolID deve corrispondere a una connessione configurata in Guacamole</li>
-                </ol>
+                <h4>Configurazione Server</h4>
+                <p>Configurare il file <code>config/guacamole.json</code>:</p>
+                <pre><code>{
+  "enabled": true,
+  
+  "server": {
+    "baseUrl": "http://guacamole-server:8080/guacamole",
+    "apiPath": "/api"
+  },
+  
+  "credentials": {
+    "username": "admin",
+    "password": "password"
+  },
+  
+  "defaults": {
+    "ssh": {
+      "port": 22,
+      "colorScheme": "green-black",
+      "fontSize": 14
+    },
+    "rdp": {
+      "port": 3389,
+      "security": "any",
+      "ignoreCert": true,
+      "width": 1920,
+      "height": 1080
+    },
+    "vnc": {
+      "port": 5900,
+      "colorDepth": 24
+    },
+    "telnet": {
+      "port": 23,
+      "colorScheme": "green-black",
+      "fontSize": 14
+    }
+  }
+}</code></pre>
 
-                <p><strong>Esempio configurazione:</strong></p>
-                <pre><code>SSH Admin|connection-1
-Telnet Management|connection-2
-RDP Desktop|connection-3</code></pre>
+                <h4>Configurazione Links nei Dispositivi</h4>
+                <p>Nel form Add/Edit Device, sezione <strong>Links</strong>, configurare:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Descrizione</th>
+                            <th>Esempio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>type</code></td>
+                            <td>Protocollo: ssh, telnet, rdp, vnc, http, https</td>
+                            <td>ssh</td>
+                        </tr>
+                        <tr>
+                            <td><code>url</code></td>
+                            <td>Indirizzo IP o hostname del dispositivo</td>
+                            <td>192.168.1.10</td>
+                        </tr>
+                        <tr>
+                            <td><code>label</code></td>
+                            <td>Etichetta del pulsante</td>
+                            <td>SSH Root</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Finestre Popup per Protocollo</h4>
+                <p>Cliccando sui pulsanti di accesso remoto, si aprono finestre popup con dimensioni ottimizzate:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Protocollo</th>
+                            <th>Dimensione</th>
+                            <th>Stile</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SSH / Telnet</td>
+                            <td>900×600 px</td>
+                            <td>Terminale (stile CMD)</td>
+                        </tr>
+                        <tr>
+                            <td>RDP</td>
+                            <td>1920×1080 px</td>
+                            <td>Desktop remoto (fullscreen-ish)</td>
+                        </tr>
+                        <tr>
+                            <td>VNC</td>
+                            <td>1280×900 px</td>
+                            <td>Desktop VNC (medium-large)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Come Funziona</h4>
+                <ol>
+                    <li>Click sul pulsante di accesso (SSH, RDP, ecc.) nel Device Detail Modal</li>
+                    <li>Matrix chiama l'API <code>/api/guacamole.php</code> con i dati del dispositivo</li>
+                    <li>Il server crea/aggiorna la connessione in Guacamole</li>
+                    <li>Si apre una finestra popup con la sessione già connessa</li>
+                </ol>
 
                 <h4>Visibilità Links</h4>
                 <ul>
-                    <li><strong>Utenti pubblici:</strong> NON vedono la colonna Links</li>
-                    <li><strong>Admin autenticati:</strong> Vedono colonna Links con pulsanti "Connect"</li>
-                    <li>Click su "Connect" apre Guacamole in nuova finestra</li>
+                    <li><strong>Utenti pubblici:</strong> NON vedono i pulsanti di accesso remoto</li>
+                    <li><strong>Admin autenticati:</strong> Vedono tutti i pulsanti nel Device Detail Modal</li>
+                    <li>I link HTTP/HTTPS sono visibili a tutti</li>
                 </ul>
+
+                <h4>Troubleshooting</h4>
+                <div class="warning">
+                    <strong>Errore "Guacamole connection failed":</strong>
+                    <ul>
+                        <li>Verificare che il server Guacamole sia raggiungibile all'URL configurato</li>
+                        <li>Controllare le credenziali in <code>config/guacamole.json</code></li>
+                        <li>Assicurarsi che l'utente abbia i permessi per creare connessioni</li>
+                        <li>Consultare <code>/doc/GUACAMOLE_SETUP.md</code> per guida dettagliata</li>
+                    </ul>
+                </div>
 
                 <h3 id="api">⚛️ API REST</h3>
                 <p>Matrix Network espone API REST per integrazioni esterne.</p>
@@ -2558,7 +2735,7 @@ df -h</code></pre>
                 <p><strong>R:</strong> Sì per visualizzazione (responsive design), NO per editing. Schermi piccoli rendono difficile gestire Topology/Floor Plan. Raccomandato desktop/laptop per admin.</p>
 
                 <h4>Q: Supporta multi-utente concorrente?</h4>
-                <p><strong>R:</strong> NO. Matrix Network è single-user. Se 2 admin modificano contemporaneamente, l'ultimo che salva sovrascrive il primo. Soluzione: coordinare modifiche o implementare locking.</p>
+                <p><strong>R:</strong> SÌ, con sistema Edit Lock. Matrix Network implementa un sistema di blocco esclusivo che permette a un solo admin di modificare i dati alla volta. Il lock si acquisisce automaticamente all'autenticazione e dura 5 minuti con rinnovo automatico ogni 60 secondi. Se un secondo admin tenta di modificare mentre il primo ha il lock, riceverà un avviso con il nome dell'editor attuale e il tempo rimanente.</p>
 
                 <h4>Q: Dov'è il database?</h4>
                 <p><strong>R:</strong> Non usa database. Tutti i dati sono in <code>data/network_manager.json</code> (flat-file JSON). Backup automatici in <code>backup/</code>. Semplice, portable, facile da backuppare.</p>
@@ -2893,6 +3070,7 @@ journalctl --vacuum-time=30d</code></pre>
                     <strong>In questa pagina:</strong>
                     <ul>
                         <li><a href="#autenticazione">Autenticazione</a></li>
+                        <li><a href="#edit-lock">Sistema Edit Lock</a></li>
                         <li><a href="#autorizzazione">Autorizzazione</a></li>
                         <li><a href="#dati-sensibili">Protezione Dati Sensibili</a></li>
                         <li><a href="#best-practices">Best Practices</a></li>
@@ -2931,6 +3109,84 @@ journalctl --vacuum-time=30d</code></pre>
 
                 <div class="alert alert-warning">
                     <strong>⚠️ Limitazione Corrente:</strong> NON c'è protezione contro brute-force. Se esposto a internet, usa firewall/VPN/reverse proxy con rate limiting.
+                </div>
+
+                <h3 id="edit-lock">🔐 Sistema Edit Lock</h3>
+                <p>Il sistema Edit Lock previene conflitti quando più admin cercano di modificare i dati contemporaneamente.</p>
+
+                <h4>Come Funziona</h4>
+                <ul>
+                    <li><strong>Lock Esclusivo:</strong> Solo un admin alla volta può avere il permesso di modificare</li>
+                    <li><strong>Acquisizione Automatica:</strong> Il lock si acquisisce automaticamente al login admin</li>
+                    <li><strong>Timeout:</strong> Il lock scade dopo 5 minuti di inattività</li>
+                    <li><strong>Heartbeat:</strong> Finché l'admin è attivo, un heartbeat ogni 60 secondi rinnova il lock</li>
+                    <li><strong>Rilascio:</strong> Il lock si rilascia automaticamente al logout o quando il browser si chiude</li>
+                </ul>
+
+                <h4>Scenari</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Risultato</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Admin A logga, poi Admin B logga</td>
+                            <td>Admin B riceve avviso: "Dati bloccati da Admin A. Tempo rimanente: X minuti"</td>
+                        </tr>
+                        <tr>
+                            <td>Admin A chiude browser senza logout</td>
+                            <td>Lock scade dopo 5 minuti, poi disponibile per altri</td>
+                        </tr>
+                        <tr>
+                            <td>Admin A sta modificando, poi perde connessione</td>
+                            <td>Lock scade dopo 5 minuti (nessun heartbeat ricevuto)</td>
+                        </tr>
+                        <tr>
+                            <td>Admin A fa logout correttamente</td>
+                            <td>Lock rilasciato immediatamente</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>API Edit Lock</h4>
+                <p>Endpoint: <code>/api/editlock.php</code></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Azione</th>
+                            <th>Payload</th>
+                            <th>Risposta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Check stato</td>
+                            <td><code>GET</code></td>
+                            <td><code>{ locked: bool, editor: string, remaining: int }</code></td>
+                        </tr>
+                        <tr>
+                            <td>Acquire lock</td>
+                            <td><code>POST { action: 'acquire', editor: 'Admin-xyz' }</code></td>
+                            <td><code>{ success: bool, lockedBy: string }</code></td>
+                        </tr>
+                        <tr>
+                            <td>Release lock</td>
+                            <td><code>POST { action: 'release', editor: 'Admin-xyz' }</code></td>
+                            <td><code>{ success: bool }</code></td>
+                        </tr>
+                        <tr>
+                            <td>Heartbeat</td>
+                            <td><code>POST { action: 'heartbeat', editor: 'Admin-xyz' }</code></td>
+                            <td><code>{ success: bool }</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info">
+                    <strong>Nota:</strong> Il sistema Edit Lock è trasparente per l'utente finale. Si attiva e disattiva automaticamente senza intervento manuale.
                 </div>
 
                 <h3 id="autorizzazione">🛡️ Autorizzazione</h3>
@@ -3270,85 +3526,123 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
 
                 <h4>Struttura network_manager.json</h4>
                 <pre><code>{
-  "version": "3.6.034",
-  "timestamp": "2025-02-09T10:30:00.000Z",
-  "checksum": "sha256_hash_here",
-  
   "devices": [
     {
       "id": 1,
       "name": "SW-CORE-01",
       "type": "switch",
-      "location": "Milan HQ",
-      "group": "Core Network",
-      "order": 100,
-      "rear": "Rack 01",
-      "brand_model": "Cisco Catalyst 2960-48TT-L",
       "status": "active",
+      "location": "Sala Server",
+      "rackId": "RACK-NETWORK-01",
+      "order": 1,
+      "isRear": false,
+      "brandModel": "Cisco Catalyst 2960-48TT-L",
       "service": "Core Switch - VLAN Routing",
       "notes": "Firmware updated 2025-01-15",
-      "ip_addresses": ["192.168.1.10", "10.0.0.1"],
+      "addresses": [
+        {
+          "network": "192.168.1.10",
+          "ip": "",
+          "vlan": 10,
+          "zone": "LAN"
+        },
+        {
+          "network": "10.0.0.1",
+          "ip": "",
+          "vlan": null,
+          "zone": "Management"
+        }
+      ],
       "ports": [
         {
           "name": "Gi0/1",
-          "type": "rj45",
-          "speed": "1G",
-          "status": "up"
+          "type": "eth",
+          "status": "active"
         },
-        ...
+        {
+          "name": "SFP01",
+          "type": "SFP/SFP+",
+          "status": "active"
+        }
       ],
       "links": [
-        "SSH Root|ssh-connection-1",
-        "Telnet|telnet-connection-2"
+        {
+          "type": "ssh",
+          "url": "192.168.1.10",
+          "label": "SSH Root"
+        },
+        {
+          "type": "http",
+          "url": "http://192.168.1.10",
+          "label": "Web Admin"
+        }
       ],
-      "topology": {
-        "x": 400,
-        "y": 300
-      }
-    },
-    ...
+      "_isExternal": false
+    }
   ],
   
   "connections": [
     {
-      "id": 1,
-      "from_device_id": 1,
-      "from_port": "Gi0/1",
-      "to_device_id": 2,
-      "to_port": "Gi0/24",
-      "type": "copper",
+      "id": "c-6da15bd9356d",
+      "from": 1,
+      "fromPort": "Gi0/1",
+      "to": 2,
+      "toPort": "Gi0/24",
+      "type": "lan",
       "status": "active",
-      "cable_marker": "CAB-A001",
-      "cable_color": "blue",
-      "notes": "Certified Cat6A"
-    },
-    ...
+      "cableMarker": "CAB-A001",
+      "cableColor": "#3b82f6",
+      "notes": "Certified Cat6A",
+      "externalDest": "",
+      "isWallJack": false
+    }
   ],
   
   "rooms": [
     {
-      "id": 1,
+      "id": "room-1",
       "name": "Datacenter A",
       "type": "datacenter",
       "location": "Milan HQ",
-      "width": 200,
-      "height": 150,
       "x": 50,
       "y": 50,
-      "color": "#f0f0f0"
+      "width": 200,
+      "height": 150,
+      "color": "#f0f0f0",
+      "path": "M50,50 L250,50 L250,200 L50,200 Z"
+    }
+  ],
+  
+  "sites": [
+    {
+      "id": "site-1",
+      "name": "HQ Milan",
+      "address": "Via Roma 1, Milano"
+    }
+  ],
+  
+  "locations": [
+    {
+      "id": 1,
+      "name": "Sala Server",
+      "type": "mapped"
     },
-    ...
+    {
+      "id": 21,
+      "name": "Piano 2 - Uffici",
+      "type": "custom"
+    }
   ]
 }</code></pre>
 
-                <h4>Field Constraints</h4>
+                <h4>Field Constraints - Devices</h4>
                 <table>
                     <thead>
                         <tr>
                             <th>Campo</th>
                             <th>Tipo</th>
                             <th>Required</th>
-                            <th>Constraints</th>
+                            <th>Descrizione</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3362,44 +3656,274 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                             <td>device.name</td>
                             <td>string</td>
                             <td>✅</td>
-                            <td>UNIQUE, max 100 chars</td>
+                            <td>Nome univoco dispositivo</td>
                         </tr>
                         <tr>
                             <td>device.type</td>
                             <td>enum</td>
                             <td>✅</td>
-                            <td>switch|router|firewall|server|pc|printer|phone|camera|wireless|patchpanel|storage|vm|other</td>
+                            <td>Vedi tabella "Tipi Dispositivo"</td>
                         </tr>
                         <tr>
                             <td>device.status</td>
                             <td>enum</td>
                             <td>❌</td>
-                            <td>active|inactive|maintenance|planned|decommissioned</td>
+                            <td>active | disabled | online | offline | maintenance | warning | error</td>
                         </tr>
                         <tr>
-                            <td>device.ip_addresses</td>
-                            <td>array[string]</td>
+                            <td>device.location</td>
+                            <td>string</td>
                             <td>❌</td>
-                            <td>Valid IPv4/IPv6</td>
+                            <td>Nome location (da locations[])</td>
                         </tr>
+                        <tr>
+                            <td>device.rackId</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>ID Rack (es: "RACK-NETWORK-01")</td>
+                        </tr>
+                        <tr>
+                            <td>device.order</td>
+                            <td>integer</td>
+                            <td>❌</td>
+                            <td>Posizione nel rack (1 = top)</td>
+                        </tr>
+                        <tr>
+                            <td>device.isRear</td>
+                            <td>boolean</td>
+                            <td>❌</td>
+                            <td>Mostra fronte/retro rack</td>
+                        </tr>
+                        <tr>
+                            <td>device.brandModel</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Marca e modello</td>
+                        </tr>
+                        <tr>
+                            <td>device.service</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Servizio/funzione principale</td>
+                        </tr>
+                        <tr>
+                            <td>device.notes</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Note libere</td>
+                        </tr>
+                        <tr>
+                            <td>device.addresses</td>
+                            <td>array</td>
+                            <td>❌</td>
+                            <td>Array di {network, ip, vlan, zone}</td>
+                        </tr>
+                        <tr>
+                            <td>device.ports</td>
+                            <td>array</td>
+                            <td>❌</td>
+                            <td>Array di {name, type, status}</td>
+                        </tr>
+                        <tr>
+                            <td>device.links</td>
+                            <td>array</td>
+                            <td>❌</td>
+                            <td>Array di {type, url, label}</td>
+                        </tr>
+                        <tr>
+                            <td>device._isExternal</td>
+                            <td>boolean</td>
+                            <td>❌</td>
+                            <td>Dispositivo esterno (non gestito)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Field Constraints - Connections</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Required</th>
+                            <th>Descrizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <tr>
                             <td>connection.id</td>
-                            <td>integer</td>
-                            <td>✅</td>
-                            <td>UNIQUE, auto-increment</td>
-                        </tr>
-                        <tr>
-                            <td>connection.from_device_id</td>
-                            <td>integer</td>
-                            <td>✅</td>
-                            <td>FOREIGN KEY to device.id</td>
-                        </tr>
-                        <tr>
-                            <td>connection.from_port</td>
                             <td>string</td>
                             <td>✅</td>
-                            <td>Must exist in device.ports[]</td>
+                            <td>Format "c-" + 12 hex chars</td>
                         </tr>
+                        <tr>
+                            <td>connection.from</td>
+                            <td>integer</td>
+                            <td>✅</td>
+                            <td>Device ID sorgente</td>
+                        </tr>
+                        <tr>
+                            <td>connection.fromPort</td>
+                            <td>string</td>
+                            <td>✅</td>
+                            <td>Nome porta sorgente</td>
+                        </tr>
+                        <tr>
+                            <td>connection.to</td>
+                            <td>integer</td>
+                            <td>✅</td>
+                            <td>Device ID destinazione</td>
+                        </tr>
+                        <tr>
+                            <td>connection.toPort</td>
+                            <td>string</td>
+                            <td>✅</td>
+                            <td>Nome porta destinazione</td>
+                        </tr>
+                        <tr>
+                            <td>connection.type</td>
+                            <td>enum</td>
+                            <td>❌</td>
+                            <td>Vedi tabella "Tipi Connessione"</td>
+                        </tr>
+                        <tr>
+                            <td>connection.status</td>
+                            <td>enum</td>
+                            <td>❌</td>
+                            <td>active | disabled | inactive | maintenance | reserved | planned</td>
+                        </tr>
+                        <tr>
+                            <td>connection.cableMarker</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Etichetta cavo (es: "CAB-A001")</td>
+                        </tr>
+                        <tr>
+                            <td>connection.cableColor</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Colore esadecimale (es: "#3b82f6")</td>
+                        </tr>
+                        <tr>
+                            <td>connection.notes</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Note libere</td>
+                        </tr>
+                        <tr>
+                            <td>connection.externalDest</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Destinazione esterna (per walljack)</td>
+                        </tr>
+                        <tr>
+                            <td>connection.isWallJack</td>
+                            <td>boolean</td>
+                            <td>❌</td>
+                            <td>Connessione a presa murale</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Tipi Dispositivo (30)</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descrizione</th>
+                            <th>Icona</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>server</td><td>Server fisico/virtuale</td><td>🖥️</td></tr>
+                        <tr><td>switch</td><td>Switch di rete</td><td>🔀</td></tr>
+                        <tr><td>router</td><td>Router</td><td>📡</td></tr>
+                        <tr><td>firewall</td><td>Firewall hardware</td><td>🛡️</td></tr>
+                        <tr><td>workstation</td><td>Workstation</td><td>🖥️</td></tr>
+                        <tr><td>laptop</td><td>Laptop/notebook</td><td>💻</td></tr>
+                        <tr><td>phone</td><td>Smartphone</td><td>📱</td></tr>
+                        <tr><td>access_point</td><td>Access point WiFi</td><td>📶</td></tr>
+                        <tr><td>printer</td><td>Stampante</td><td>🖨️</td></tr>
+                        <tr><td>storage</td><td>Storage/SAN</td><td>💾</td></tr>
+                        <tr><td>nas</td><td>NAS - Network Attached Storage</td><td>🗄️</td></tr>
+                        <tr><td>pdu</td><td>PDU - Power Distribution Unit</td><td>⚡</td></tr>
+                        <tr><td>camera</td><td>Telecamera IP</td><td>📹</td></tr>
+                        <tr><td>sensor</td><td>Sensore IoT</td><td>🌡️</td></tr>
+                        <tr><td>patch_panel</td><td>Patch panel</td><td>🔌</td></tr>
+                        <tr><td>patch</td><td>Patch panel (alias)</td><td>🔌</td></tr>
+                        <tr><td>wifi</td><td>Dispositivo WiFi generico</td><td>📶</td></tr>
+                        <tr><td>isp</td><td>ISP - Provider Internet</td><td>🌐</td></tr>
+                        <tr><td>router_wifi</td><td>Router con WiFi integrato</td><td>📡</td></tr>
+                        <tr><td>modem</td><td>Modem</td><td>📠</td></tr>
+                        <tr><td>hub</td><td>Hub di rete</td><td>🔀</td></tr>
+                        <tr><td>pc</td><td>PC desktop</td><td>🖥️</td></tr>
+                        <tr><td>ip_phone</td><td>Telefono IP/VoIP</td><td>☎️</td></tr>
+                        <tr><td>ups</td><td>UPS - Gruppo di continuità</td><td>🔋</td></tr>
+                        <tr><td>walljack</td><td>Presa a muro RJ45</td><td>🔲</td></tr>
+                        <tr><td>tv</td><td>Smart TV</td><td>📺</td></tr>
+                        <tr><td>display</td><td>Display/Monitor smart</td><td>🖵</td></tr>
+                        <tr><td>monitor</td><td>Monitor</td><td>🖵</td></tr>
+                        <tr><td>others</td><td>Altro dispositivo</td><td>❓</td></tr>
+                        <tr><td>other</td><td>Altro (alias)</td><td>❓</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Tipi Connessione (19)</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descrizione</th>
+                            <th>Colore Default</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>lan</td><td>Rete locale interna</td><td style="background:#22c55e;color:#fff">#22c55e</td></tr>
+                        <tr><td>wan</td><td>Connessione Internet/WAN</td><td style="background:#f59e0b;color:#fff">#f59e0b</td></tr>
+                        <tr><td>dmz</td><td>Zona demilitarizzata</td><td style="background:#ef4444;color:#fff">#ef4444</td></tr>
+                        <tr><td>vlan</td><td>Virtual LAN</td><td style="background:#3b82f6;color:#fff">#3b82f6</td></tr>
+                        <tr><td>trunk</td><td>Trunk link (tagged)</td><td style="background:#8b5cf6;color:#fff">#8b5cf6</td></tr>
+                        <tr><td>vpn</td><td>VPN tunnel</td><td style="background:#0ea5e9;color:#fff">#0ea5e9</td></tr>
+                        <tr><td>cloud</td><td>Connessione cloud</td><td style="background:#06b6d4;color:#fff">#06b6d4</td></tr>
+                        <tr><td>management</td><td>Rete gestione</td><td style="background:#06b6d4;color:#fff">#06b6d4</td></tr>
+                        <tr><td>servers</td><td>Rete server</td><td style="background:#8b5cf6;color:#fff">#8b5cf6</td></tr>
+                        <tr><td>iot</td><td>Rete IoT</td><td style="background:#a855f7;color:#fff">#a855f7</td></tr>
+                        <tr><td>guest</td><td>Rete ospiti</td><td style="background:#f97316;color:#fff">#f97316</td></tr>
+                        <tr><td>voice</td><td>Rete VoIP</td><td style="background:#eab308;color:#000">#eab308</td></tr>
+                        <tr><td>backup</td><td>Rete backup</td><td style="background:#78716c;color:#fff">#78716c</td></tr>
+                        <tr><td>fiber</td><td>Collegamento fibra</td><td style="background:#06b6d4;color:#fff">#06b6d4</td></tr>
+                        <tr><td>test</td><td>Rete test/lab</td><td style="background:#ec4899;color:#fff">#ec4899</td></tr>
+                        <tr><td>wallport</td><td>Presa a muro</td><td style="background:#64748b;color:#fff">#64748b</td></tr>
+                        <tr><td>walljack</td><td>Presa RJ45 a muro</td><td style="background:#64748b;color:#fff">#64748b</td></tr>
+                        <tr><td>external</td><td>Connessione esterna</td><td style="background:#94a3b8;color:#fff">#94a3b8</td></tr>
+                        <tr><td>other</td><td>Altro tipo</td><td style="background:#64748b;color:#fff">#64748b</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Zone di Rete</h4>
+                <p>Le zone sono usate nel campo <code>addresses[].zone</code> per classificare gli indirizzi IP:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zona</th>
+                            <th>Descrizione</th>
+                            <th>Colore</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>LAN</td><td>🏢 Rete locale</td><td style="background:#22c55e;color:#fff">#22c55e</td></tr>
+                        <tr><td>WAN</td><td>🌐 Internet/WAN</td><td style="background:#f59e0b;color:#fff">#f59e0b</td></tr>
+                        <tr><td>DMZ</td><td>🛡️ Zona demilitarizzata</td><td style="background:#ef4444;color:#fff">#ef4444</td></tr>
+                        <tr><td>VLAN</td><td>📊 Virtual LAN</td><td style="background:#3b82f6;color:#fff">#3b82f6</td></tr>
+                        <tr><td>Backbone</td><td>🔗 Backbone</td><td style="background:#8b5cf6;color:#fff">#8b5cf6</td></tr>
+                        <tr><td>VPN</td><td>🔒 VPN</td><td style="background:#0ea5e9;color:#fff">#0ea5e9</td></tr>
+                        <tr><td>Cloud</td><td>☁️ Cloud</td><td style="background:#06b6d4;color:#fff">#06b6d4</td></tr>
+                        <tr><td>Guest</td><td>👥 Ospiti</td><td style="background:#f97316;color:#fff">#f97316</td></tr>
+                        <tr><td>IoT</td><td>📡 IoT</td><td style="background:#a855f7;color:#fff">#a855f7</td></tr>
+                        <tr><td>Servers</td><td>🖥️ Server</td><td style="background:#8b5cf6;color:#fff">#8b5cf6</td></tr>
+                        <tr><td>Management</td><td>⚙️ Gestione</td><td style="background:#06b6d4;color:#fff">#06b6d4</td></tr>
+                        <tr><td>Voice</td><td>📞 VoIP</td><td style="background:#eab308;color:#000">#eab308</td></tr>
+                        <tr><td>Test</td><td>🧪 Test/Lab</td><td style="background:#ec4899;color:#fff">#ec4899</td></tr>
                     </tbody>
                 </table>
 
