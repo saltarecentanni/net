@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.6.028  
+**Version:** 3.6.029  
 **Date:** February 9, 2026  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
 
@@ -30,9 +30,18 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.6.028
+## 🆕 What's New in v3.6.029
 
-### 🎯 v3.6.028 - Data Integrity & Validation (Latest)
+### 🎯 v3.6.029 - Topology & UI Improvements (Latest)
+- **Topology Container Fix**: Removed fixed 600px height, now uses responsive `calc(100vh - 220px)`
+- **Dynamic Layout Calculations**: Circle, Grid, Hierarchical layouts now scale with device count
+- **Drag Boundary Bug Fix**: Fixed ancient bug where dragging icons to container edge caused visual glitches
+- **Validated Coordinates**: Protected against NaN/Infinity values in drag, pan, and zoom functions
+- **Zoom Limits**: Prevented extreme zoom (100-50000 range) to avoid visual corruption
+- **Location Dropdown Standardized**: Wall Jack room selector now uses "code - name" format like other filters
+- **Label Change**: "Room" → "Location" for consistency across UI
+
+### 📦 v3.6.028 - Data Integrity & Validation (Previous)
 - **Import/Export Validation**: Full round-trip verified - 15 connection fields preserved
 - **roomId Field**: Confirmed functional (maps wallport/walljack to floor plan rooms)
 - **Flagged Connections**: 6 incomplete connections marked with `flagged: true` for review
@@ -50,7 +59,7 @@ This is a **documentation tool**, NOT a monitoring system:
 - 21 rooms mapped with floor plan polygons
 - 25 locations across 1 site
 
-### 📦 v3.6.026 - Cleanup & Consolidation (Previous)
+### 📦 v3.6.026 - Cleanup & Consolidation
 - **UI Stability**: Fixed critical Promise errors in data loading
 - **Room Structure**: Complete 21-room mapping with FloorPlan improvements
 - **Endpoint Optimization**: Absolute path routing for Node.js/Apache compatibility

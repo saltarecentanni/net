@@ -1,7 +1,7 @@
 # TIESSE Matrix Network - Sistema de Gerenciamento de Rede
 
-**Versão**: 3.6.028  
-**Última Atualização**: 8 de fevereiro de 2026  
+**Versão**: 3.6.029  
+**Última Atualização**: 9 de fevereiro de 2026  
 **Status**: ✅ Sistema Íntegro (Auditado)
 
 ---
@@ -19,6 +19,17 @@ TIESSE Matrix Network é uma aplicação completa de gerenciamento e visualizaç
 - 🔐 Autenticação e controle de acesso
 - 💾 Backup automático de dados
 - 📱 Interface responsiva com Tailwind CSS
+
+---
+
+## 🆕 Novidades v3.6.029
+
+- **Container Topology Responsivo**: Removida altura fixa de 600px, agora usa `calc(100vh - 220px)`
+- **Layouts Dinâmicos**: Circle, Grid, Hierarchical agora escalam com número de dispositivos
+- **Bug Fix Drag**: Corrigido bug antigo onde arrastar ícones até a borda causava glitches visuais
+- **Coordenadas Validadas**: Proteção contra NaN/Infinity em funções de drag, pan e zoom
+- **Limites de Zoom**: Prevenido zoom extremo (range 100-50000)
+- **Dropdown Padronizado**: Seletor de sala Wall Jack agora usa formato "código - nome"
 
 ---
 

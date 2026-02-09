@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.6.030
+ * Version: 3.6.028
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -101,8 +101,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.6.030', '3.6.029', '3.6.028', '3.6.026', '3.6.024', '3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.6.030';
+var SUPPORTED_VERSIONS = ['3.6.028', '3.6.026', '3.6.024', '3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.6.028';
 
 /**
  * Valid enum values for schema validation
@@ -2705,14 +2705,13 @@ function toggleExternalDest() {
 
 /**
  * Populate the Wall Jack room dropdown with available rooms
- * Using standard location format: "code - name"
  */
 function populateWallJackRoomSelect() {
     var select = document.getElementById('wallJackRoomId');
     if (!select) return;
     
     var currentValue = select.value;
-    select.innerHTML = '<option value="">📍 Select Location</option>';
+    select.innerHTML = '<option value="">(No Room)</option>';
     
     // Get rooms from appState (main data source)
     var rooms = appState.rooms || [];
@@ -2731,10 +2730,9 @@ function populateWallJackRoomSelect() {
         rooms.forEach(function(room) {
             var option = document.createElement('option');
             option.value = room.id;
-            // Standard format: "code - name" (same as LocationFilter)
-            var code = String(room.id).padStart(2, '0');
-            var name = room.nickname || ('Room ' + room.id);
-            option.textContent = code + ' - ' + name;
+            option.textContent = room.nickname 
+                ? room.nickname + ' (Room ' + room.id + ')' 
+                : 'Room ' + room.id;
             select.appendChild(option);
         });
     }

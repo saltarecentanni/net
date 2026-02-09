@@ -1,6 +1,6 @@
 /**
  * Device Detail Modal - TIESSE Matrix Network
- * Version: 3.6.030
+ * Version: 3.6.028
  * Shows complete device information with port visualization and VLAN colors
  */
 

@@ -1,17 +1,15 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.6.030 - Topology & UI Improvements
+ * Version: 3.6.028 - Data Integrity & Normalization Release
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  * 
- * Features (v3.6.030):
+ * Features (v3.6.028):
  * - bcrypt password hashing (compatible with PHP)
  * - CORS whitelist (configurable)
  * - CSRF token validation
  * - Enhanced rate limiting (IP + username)
  * - Edit lock verification on save
- * - Responsive topology container
- * - Dynamic layout calculations
  * 
  * NOTE: This server is designed for INTERNAL/INTRANET use only.
  */
@@ -888,7 +886,7 @@ const server = http.createServer(requestHandler);
 server.listen(PORT, HOST, () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.6.030                  ║');
+    console.log('║     TIESSE Matrix Network Server v3.6.028                  ║');
     console.log('║              🏢 Internal/Intranet Use Only                 ║');
     console.log('╠════════════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                          ║`);

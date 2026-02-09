@@ -2,7 +2,7 @@
 /**
  * TIESSE Matrix Network - Edit Lock API
  * Prevents concurrent editing conflicts
- * Version: 3.6.030
+ * Version: 3.6.000
  */
 
 header('Content-Type: application/json');
