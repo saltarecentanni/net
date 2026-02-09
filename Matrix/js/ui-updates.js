@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 3.6.030
+ * Version: 3.6.034
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -512,7 +512,11 @@ function updateDevicesListTable(cont) {
     html += '<th class="p-2 text-left whitespace-nowrap uppercase">Service</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600 whitespace-nowrap uppercase" onclick="toggleDeviceSort(\'ports\')">Ports ' + sortIcon('ports') + '</th>';
     html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600 whitespace-nowrap uppercase" onclick="toggleDeviceSort(\'connections\')">Conn ' + sortIcon('connections') + '</th>';
-    html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600 whitespace-nowrap uppercase" onclick="toggleDeviceSort(\'links\')">Links ' + sortIcon('links') + '</th>';
+    // Links column - only for admins (legacy SSHt/telnet replaced by Guacamole)
+    var isAdmin = typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn();
+    if (isAdmin) {
+        html += '<th class="p-2 text-center cursor-pointer hover:bg-slate-600 whitespace-nowrap uppercase" onclick="toggleDeviceSort(\'links\')">Links ' + sortIcon('links') + '</th>';
+    }
     html += '<th class="p-2 text-center whitespace-nowrap uppercase">Actions</th>';
     html += '</tr></thead><tbody>';
 
@@ -569,7 +573,7 @@ function updateDevicesListTable(cont) {
         // Get formatted location label with room number prefix
         var locationLabelTable = formatLocationLabel(d) || '-';
 
-        html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200 transition-all duration-300" data-device-id="' + d.id + '">';
+        html += '<tr class="' + warningClass + ' hover:bg-blue-50 border-b border-slate-200 transition-all duration-300 cursor-pointer" data-device-id="' + d.id + '" onclick="DeviceDetail.open(' + d.id + ')" style="user-select:none;">';
         html += '<td class="p-2 text-purple-700 font-semibold max-w-xs truncate" title="' + locationLabelTable + '">📍 ' + locationLabelTable + '</td>';
         html += '<td class="p-2"><span class="px-1.5 py-0.5 rounded text-xs font-semibold" style="background-color:' + rackColor + '20;color:' + rackColor + '">' + safeRackId.toUpperCase() + '</span></td>';
         html += '<td class="p-2 text-center"><span class="inline-flex items-center justify-center gap-0.5" style="min-width:42px"><span class="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">' + String(d.order).padStart(2, '0') + '</span>' + ((d.isRear || d.rear) ? '<span class="text-[10px] text-amber-600 font-bold" title="Rear/Back position">↩</span>' : '<span class="text-[10px] opacity-0">↩</span>') + '</span></td>';
@@ -581,10 +585,12 @@ function updateDevicesListTable(cont) {
         html += '<td class="p-2 text-slate-600 max-w-xs truncate" title="' + safeService + '">' + (safeService || '-') + '</td>';
         html += '<td class="p-2 text-center"><span class="text-slate-700">' + d.ports.length + '</span> <span class="text-slate-400">(' + usedPorts + ')</span></td>';
         html += '<td class="p-2 text-center">' + (totalConnections === 0 ? (isWirelessDevice ? '<span class="text-cyan-600 font-semibold">📶</span>' : '<span class="text-orange-600 font-semibold">0 ⚠</span>') : '<span class="text-slate-700">' + totalConnections + '</span>') + '</td>';
-        // Links column - shows label if defined, otherwise URL
-        var linksHtml = (typeof DeviceLinks !== 'undefined' && d.links && d.links.length) ? DeviceLinks.renderLinks(d.links) : '-';
-        html += '<td class="p-2 text-center">' + linksHtml + '</td>';
-        html += '<td class="p-2 text-center whitespace-nowrap">';
+        // Links column - only for admins (legacy)
+        if (isAdmin) {
+            var linksHtml = (typeof DeviceLinks !== 'undefined' && d.links && d.links.length) ? DeviceLinks.renderLinks(d.links) : '-';
+            html += '<td class="p-2 text-center">' + linksHtml + '</td>';
+        }
+        html += '<td class="p-2 text-center whitespace-nowrap" onclick="event.stopPropagation()">';
         html += '<button onclick="DeviceDetail.open(' + d.id + ')" class="text-blue-500 hover:text-blue-700 text-xs mr-1" title="View Details">🔍</button>';
         html += '<span class="edit-mode-only">';
         html += '<button onclick="addConnectionFromDevice(' + d.id + ')" class="text-green-600 hover:text-green-900 text-xs mr-1" title="Add Connection">+Conn</button>';
@@ -1163,25 +1169,11 @@ var SVGMatrix = (function() {
             'data-total-width="' + contentWidth + '" data-total-height="' + contentHeight + '" ' +
             'style="display:block;" xmlns="http://www.w3.org/2000/svg">';
         
-        // Defs
+        // Defs - minimal patterns only (no gradients for cleaner look)
         html += '<defs>' +
             '<pattern id="diagonalStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
             '<rect width="3" height="6" fill="var(--color-text-lighter)"/><rect x="3" width="3" height="6" fill="var(--color-border)"/>' +
             '</pattern>' +
-            // Gradient for connection cells - makes them look 3D
-            '<linearGradient id="cellGradient" x1="0%" y1="0%" x2="0%" y2="100%">' +
-            '<stop offset="0%" style="stop-color:rgba(255,255,255,0.2)"/>' +
-            '<stop offset="50%" style="stop-color:rgba(255,255,255,0)"/>' +
-            '<stop offset="100%" style="stop-color:rgba(0,0,0,0.15)"/>' +
-            '</linearGradient>' +
-            // Inner glow filter for hover effect
-            '<filter id="innerGlow" x="-50%" y="-50%" width="200%" height="200%">' +
-            '<feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>' +
-            '<feOffset in="blur" dx="0" dy="0" result="offsetBlur"/>' +
-            '<feFlood flood-color="white" flood-opacity="0.7" result="color"/>' +
-            '<feComposite in="color" in2="offsetBlur" operator="in" result="shadow"/>' +
-            '<feComposite in="shadow" in2="SourceGraphic" operator="over"/>' +
-            '</filter>' +
             '</defs>';
         
         // Data cells
@@ -1211,21 +1203,18 @@ var SVGMatrix = (function() {
                         var portTo = conn.from === row.id ? conn.toPort : conn.fromPort;
                         var cableColor = conn.cableColor || 'var(--color-warning)';
                         
-                        // Main cell background with rounded corners and shadow
+                        // Main cell background with rounded corners - solid flat color
                         html += '<rect class="matrix-cell-clickable" x="' + (x+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="' + connColor + '"' + (isConnDisabled ? ' opacity="0.4"' : '') + ' style="cursor:pointer" data-conn-idx="' + connIdx + '" data-row="' + r + '" data-col="' + c + '"/>';
                         
-                        // Overlay gradient for 3D effect
-                        html += '<rect x="' + (x+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="url(#cellGradient)" style="pointer-events:none"/>';
-                        
-                        // Top port (TO/COLUMN) - cyan tint to match column header position (top)
-                        html += '<rect x="' + (x+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(34,211,238,0.35)" stroke="rgba(34,211,238,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                        // Top port (TO/COLUMN) - clean flat style
+                        html += '<rect x="' + (x+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(255,255,255,0.2)" style="pointer-events:none"/>';
                         html += '<text x="' + (x+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portTo || '?').substring(0,8)) + '</text>';
                         
                         // Connection arrow/indicator
-                        html += '<text x="' + (x+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
+                        html += '<text x="' + (x+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.6)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
                         
-                        // Bottom port (FROM/ROW) - amber tint to match row header position (left side)
-                        html += '<rect x="' + (x+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                        // Bottom port (FROM/ROW) - clean flat style
+                        html += '<rect x="' + (x+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(0,0,0,0.15)" style="pointer-events:none"/>';
                         html += '<text x="' + (x+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom || '?').substring(0,8)) + '</text>';
                         
                         // Cable marker - official pill style with black border (same as tooltip)
@@ -1254,21 +1243,18 @@ var SVGMatrix = (function() {
                     var portFrom = wjConn.fromPort || '-';
                     var externalDest = wjConn.externalDest || 'WJ';
                     
-                    // Main cell with rounded corners
+                    // Main cell with rounded corners - solid flat color
                     html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="var(--color-accent)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
                     
-                    // Overlay gradient for 3D effect
-                    html += '<rect x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="url(#cellGradient)" style="pointer-events:none"/>';
-                    
-                    // Top port (TO/wall jack destination) - cyan tint
-                    html += '<rect x="' + (wjX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(34,211,238,0.35)" stroke="rgba(34,211,238,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    // Top port (TO/wall jack destination) - clean flat style
+                    html += '<rect x="' + (wjX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(255,255,255,0.2)" style="pointer-events:none"/>';
                     html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((externalDest).substring(0,8)) + '</text>';
                     
                     // Connection arrow/indicator
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
+                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.6)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
                     
-                    // Bottom port (FROM/ROW) - amber tint
-                    html += '<rect x="' + (wjX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    // Bottom port (FROM/ROW) - clean flat style
+                    html += '<rect x="' + (wjX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(0,0,0,0.15)" style="pointer-events:none"/>';
                     html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom).substring(0,8)) + '</text>';
                     
                     // Cable marker - official pill style with black border
@@ -1296,21 +1282,18 @@ var SVGMatrix = (function() {
                     var externalDest = extConn.externalDest || 'EXT';
                     var extColIdx = deviceCount + (hasWallJack ? 1 : 0);
                     
-                    // Main cell with rounded corners
+                    // Main cell with rounded corners - solid flat color
                     html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="var(--color-danger)" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
                     
-                    // Overlay gradient for 3D effect
-                    html += '<rect x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="url(#cellGradient)" style="pointer-events:none"/>';
-                    
-                    // Top port (TO/external destination) - cyan tint
-                    html += '<rect x="' + (extX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(34,211,238,0.35)" stroke="rgba(34,211,238,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    // Top port (TO/external destination) - clean flat style
+                    html += '<rect x="' + (extX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(255,255,255,0.2)" style="pointer-events:none"/>';
                     html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((externalDest).substring(0,8)) + '</text>';
                     
                     // Connection arrow/indicator
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.7)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
+                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.6)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
                     
-                    // Bottom port (FROM/ROW) - amber tint
-                    html += '<rect x="' + (extX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(251,191,36,0.35)" stroke="rgba(251,191,36,0.5)" stroke-width="1" style="pointer-events:none"/>';
+                    // Bottom port (FROM/ROW) - clean flat style
+                    html += '<rect x="' + (extX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(0,0,0,0.15)" style="pointer-events:none"/>';
                     html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom).substring(0,8)) + '</text>';
                     
                     // Cable marker - official pill style with black border

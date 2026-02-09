@@ -1,10 +1,16 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.6.030 - Topology & UI Improvements
+ * Version: 3.6.034 - UI Improvements & Help Documentation
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  * 
- * Features (v3.6.030):
+ * Features (v3.6.034):
+ * - Device Detail: Fixed special ports overlap (WAN, SFP, MGMT)
+ * - Device Table: Clickable rows to open device modal
+ * - Links Column: Hidden from public (admin-only)
+ * - Help System: Complete 14-tab Italian documentation
+ *
+ * Previous Features (v3.6.030):
  * - bcrypt password hashing (compatible with PHP)
  * - CORS whitelist (configurable)
  * - CSRF token validation
@@ -829,9 +835,14 @@ function serveStaticFile(req, res, filePath) {
             'X-Frame-Options': 'SAMEORIGIN'
         };
         
-        // Add CSP for HTML files
+        // Add CSP for HTML files (allow CDNs for dev tools)
         if (ext === '.html') {
-            headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;";
+            if (filePath.includes('draw-rooms') || filePath.includes('dev-tool')) {
+                // Relaxed CSP for development tools
+                headers['Content-Security-Policy'] = "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob:;";
+            } else {
+                headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;";
+            }
         }
         
         res.writeHead(200, headers);
@@ -888,7 +899,7 @@ const server = http.createServer(requestHandler);
 server.listen(PORT, HOST, () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.6.030                  ║');
+    console.log('║     TIESSE Matrix Network Server v3.6.034                  ║');
     console.log('║              🏢 Internal/Intranet Use Only                 ║');
     console.log('╠════════════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                          ║`);

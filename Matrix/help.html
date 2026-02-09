@@ -1,0 +1,3618 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIESSE Matrix Network - Documentazione Completa</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .header .version {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            overflow-x: auto;
+        }
+        .nav-tab {
+            padding: 16px 24px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        .nav-tab:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+        .content {
+            padding: 40px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 {
+            color: #1e293b;
+            font-size: 2rem;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+        }
+        h3 {
+            color: #334155;
+            font-size: 1.5rem;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+        h4 {
+            color: #475569;
+            font-size: 1.2rem;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        p {
+            color: #475569;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+            color: #475569;
+        }
+        li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        .alert-danger {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .alert-success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #dc2626;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: #f8fafc;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .badge-required {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-optional {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .step {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid #667eea;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .toc {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc ul {
+            list-style: none;
+            margin: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📡 TIESSE Matrix Network</h1>
+            <p class="version">Documentazione Completa del Sistema | Versione 3.6.034 | Febbraio 2026</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab(0)">🚀 Installazione</button>
+            <button class="nav-tab" onclick="showTab(1)">⚙️ Configurazione</button>
+            <button class="nav-tab" onclick="showTab(2)">🎯 Primo Accesso</button>
+            <button class="nav-tab" onclick="showTab(3)">🖥️ Interfaccia</button>
+            <button class="nav-tab" onclick="showTab(4)">✨ Funzionalità</button>
+            <button class="nav-tab" onclick="showTab(5)">📝 Moduli</button>
+            <button class="nav-tab" onclick="showTab(6)">💾 Registrazioni</button>
+            <button class="nav-tab" onclick="showTab(7)">🔧 Operazioni</button>
+            <button class="nav-tab" onclick="showTab(8)">🎓 Avanzato</button>
+            <button class="nav-tab" onclick="showTab(9)">👥 Utenti</button>
+            <button class="nav-tab" onclick="showTab(10)">🆘 Problemi</button>
+            <button class="nav-tab" onclick="showTab(11)">🔨 Manutenzione</button>
+            <button class="nav-tab" onclick="showTab(12)">🔒 Sicurezza</button>
+            <button class="nav-tab" onclick="showTab(13)">📚 Riferimento</button>
+        </div>
+
+        <div class="content">
+            <!-- TAB 1: INSTALLAZIONE -->
+            <div class="tab-pane active" id="tab-0">
+                <h2>🚀 Installazione e Requisiti</h2>
+
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#req-sistema">Requisiti di Sistema</a></li>
+                        <li><a href="#pre-req">Pre-requisiti</a></li>
+                        <li><a href="#instalacao">Installazione Passo dopo Passo</a></li>
+                        <li><a href="#verificacao">Verifica</a></li>
+                        <li><a href="#troubleshoot-install">Risoluzione Problemi</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="req-sistema">📋 Requisiti di Sistema</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Componente</th>
+                            <th>Requisito Minimo</th>
+                            <th>Raccomandato</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Sistema Operativo</strong></td>
+                            <td>Linux/Windows/macOS</td>
+                            <td>Ubuntu 20.04+ / Windows 10+ / macOS 11+</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Node.js</strong></td>
+                            <td>v14.0 o superiore</td>
+                            <td>v18.0 LTS o superiore</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RAM</strong></td>
+                            <td>2 GB</td>
+                            <td>4 GB o più</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Spazio su Disco</strong></td>
+                            <td>500 MB</td>
+                            <td>2 GB (per backup)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Browser (Client)</strong></td>
+                            <td>Chrome 90+, Firefox 88+, Safari 14+</td>
+                            <td>Ultima versione disponibile</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Porta Disponibile</strong></td>
+                            <td>3000 (predefinita)</td>
+                            <td>Configurabile tramite .env</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Connessione di Rete</strong></td>
+                            <td>LAN</td>
+                            <td>LAN con accesso al server</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info">
+                    <strong>ℹ️ Nota:</strong> Il sistema funziona al 100% nel browser (frontend) con server Node.js minimalista per API e autenticazione.
+                </div>
+
+                <h3 id="pre-req">🔧 Pre-requisiti</h3>
+
+                <h4>1. Node.js e NPM</h4>
+                <p>Node.js è <strong>obbligatorio</strong> per eseguire il server backend.</p>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Verificare se Node.js è già installato:</strong>
+                    <pre>node --version
+npm --version</pre>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Se non installato, scaricarlo da:</strong>
+                    <p><a href="https://nodejs.org" target="_blank">https://nodejs.org</a> (scegliere la versione LTS)</p>
+                </div>
+
+                <h4>2. Git (Opzionale, ma Raccomandato)</h4>
+                <p>Per clonare il repository e ricevere aggiornamenti facilmente.</p>
+                <pre>git --version</pre>
+
+                <h3 id="instalacao">📦 Installazione Passo dopo Passo</h3>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Attenzione:</strong> Eseguire tutti i comandi nel terminale/prompt dei comandi con permessi adeguati.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Clonare o scaricare il progetto:</strong>
+                    <pre>git clone https://github.com/saltarecentanni/net.git
+cd net/Matrix</pre>
+                    <p>Oppure: Scaricare il file ZIP, estrarlo e navigare nella cartella <code>Matrix/</code></p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Installare le dipendenze:</strong>
+                    <pre>npm install</pre>
+                    <p>Questo comando installa i pacchetti necessari:</p>
+                    <ul>
+                        <li><code>bcrypt</code> ^6.0.0 - Crittografia delle password</li>
+                        <li><code>bcryptjs</code> ^3.0.3 - Alternative bcrypt (fallback)</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Configurare le variabili d'ambiente:</strong>
+                    <pre>cp .env.example .env</pre>
+                    <p>Modificare il file <code>.env</code> secondo necessità (dettagli nella scheda "Configurazione")</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Inizializzare i file di dati:</strong>
+                    <p>Alla prima esecuzione, il sistema crea automaticamente:</p>
+                    <ul>
+                        <li><code>data/network_manager.json</code> - Database principale</li>
+                        <li><code>data/users.json</code> - Utenti del sistema</li>
+                        <li><code>backup/</code> - Cartella per backup automatici</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <strong>Avviare il server:</strong>
+                    <pre>node server.js</pre>
+                    <p>Vedrete il messaggio:</p>
+                    <pre>🚀 Matrix server running on http://localhost:3000</pre>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <strong>Accedere nel browser:</strong>
+                    <p>Aprire il browser e andare a: <code>http://localhost:3000</code></p>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>✅ Congratulazioni!</strong> Se vedete l'interfaccia di Matrix Network, l'installazione è riuscita!
+                </div>
+
+                <h3 id="verificacao">✔️ Verifica dell'Installazione</h3>
+
+                <h4>Checklist di Verifica</h4>
+                <ul>
+                    <li>✅ Il server Node.js si è avviato senza errori</li>
+                    <li>✅ La porta 3000 è accessibile (o la porta configurata)</li>
+                    <li>✅ L'interfaccia si carica nel browser</li>
+                    <li>✅ Il file <code>data/network_manager.json</code> esiste</li>
+                    <li>✅ Il file <code>data/users.json</code> esiste</li>
+                    <li>✅ Console del browser senza errori critici (F12)</li>
+                </ul>
+
+                <h4>Comandi di Diagnostica</h4>
+                <pre># Verificare processo Node.js in esecuzione
+ps aux | grep node
+
+# Verificare porta 3000 in uso
+netstat -tuln | grep 3000    # Linux/Mac
+netstat -ano | findstr 3000  # Windows
+
+# Verificare file creati
+ls -la data/
+ls -la backup/</pre>
+
+                <h3 id="troubleshoot-install">🔧 Risoluzione Problemi di Installazione</h3>
+
+                <h4>Problema: "npm install" fallisce</h4>
+                <div class="alert alert-danger">
+                    <strong>Errore:</strong> <code>EACCES: permission denied</code>
+                </div>
+                <p><strong>Soluzione:</strong></p>
+                <pre># Linux/Mac - usare sudo (con cautela)
+sudo npm install
+
+# Oppure configurare permessi npm correttamente
+sudo chown -R $(whoami) ~/.npm
+sudo chown -R $(whoami) /usr/local/lib/node_modules</pre>
+
+                <h4>Problema: Porta 3000 già in uso</h4>
+                <div class="alert alert-danger">
+                    <strong>Errore:</strong> <code>Error: listen EADDRINUSE :::3000</code>
+                </div>
+                <p><strong>Soluzione:</strong></p>
+                <ul>
+                    <li>Cambiare la porta nel file <code>.env</code>: <code>PORT=3001</code></li>
+                    <li>Oppure terminare il processo che usa la porta:
+                        <pre># Linux/Mac
+lsof -ti:3000 | xargs kill -9
+
+# Windows
+netstat -ano | findstr :3000
+taskkill /PID [numero_del_pid] /F</pre>
+                    </li>
+                </ul>
+
+                <h4>Problema: Versione Node.js incompatibile</h4>
+                <div class="alert alert-danger">
+                    <strong>Errore:</strong> <code>SyntaxError: Unexpected token</code>
+                </div>
+                <p><strong>Soluzione:</strong> Aggiornare Node.js a v14+ o usare NVM:</p>
+                <pre># Installare NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Installare Node.js LTS
+nvm install --lts
+nvm use --lts</pre>
+
+                <h4>Problema: File di dati non vengono creati</h4>
+                <p><strong>Soluzione:</strong> Verificare permessi di scrittura:</p>
+                <pre>chmod 755 data/
+chmod 755 backup/</pre>
+
+                <h4>Problema: Il browser non carica la pagina</h4>
+                <p><strong>Possibili cause:</strong></p>
+                <ul>
+                    <li>Firewall che blocca la porta - Aggiungere eccezione nel firewall</li>
+                    <li>Proxy aziendale - Configurare eccezioni proxy</li>
+                    <li>URL errato - Confermare: <code>http://localhost:3000</code> (non https)</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>💡 Suggerimento:</strong> Verificare sempre i log del server nel terminale dove è stato eseguito <code>node server.js</code> - gli errori appaiono lì.
+                </div>
+            </div>
+
+            <!-- TAB 2: CONFIGURAZIONE -->
+            <div class="tab-pane" id="tab-1">
+                <h2>⚙️ Configurazione del Sistema</h2>
+
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#arquivos-config">File di Configurazione</a></li>
+                        <li><a href="#variaveis-env">Variabili d'Ambiente</a></li>
+                        <li><a href="#estrutura-pastas">Struttura delle Cartelle</a></li>
+                        <li><a href="#config-servidor">Configurazioni del Server</a></li>
+                        <li><a href="#config-seguranca">Configurazioni di Sicurezza</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="arquivos-config">📁 File di Configurazione</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Posizione</th>
+                            <th>Descrizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>.env</code></td>
+                            <td><code>/Matrix/.env</code></td>
+                            <td><strong>Principale</strong> - Variabili d'ambiente</td>
+                        </tr>
+                        <tr>
+                            <td><code>.env.example</code></td>
+                            <td><code>/Matrix/.env.example</code></td>
+                            <td>Template di configurazione</td>
+                        </tr>
+                        <tr>
+                            <td><code>config/config.js</code></td>
+                            <td><code>/Matrix/config/config.js</code></td>
+                            <td>Configurazioni del frontend</td>
+                        </tr>
+                        <tr>
+                            <td><code>server.js</code></td>
+                            <td><code>/Matrix/server.js</code></td>
+                            <td>Server Node.js (backend)</td>
+                        </tr>
+                        <tr>
+                            <td><code>network_manager.json</code></td>
+                            <td><code>/Matrix/data/network_manager.json</code></td>
+                            <td>Database principale (JSON)</td>
+                        </tr>
+                        <tr>
+                            <td><code>users.json</code></td>
+                            <td><code>/Matrix/data/users.json</code></td>
+                            <td>Utenti e credenziali</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="variaveis-env">🔐 Variabili d'Ambiente (.env)</h3>
+
+                <p>Il file <code>.env</code> contiene configurazioni sensibili. <strong>MAI</strong> condividere questo file pubblicamente.</p>
+
+                <h4>Struttura del .env</h4>
+                <pre># Porta del server HTTP
+PORT=3000
+
+# Chiave segreta per le sessioni (cambiarla con qualcosa di unico!)
+SESSION_SECRET=la_tua_chiave_segreta_molto_forte_123456
+
+# Ambiente: development | production
+NODE_ENV=production
+
+# Abilitare log di debug
+DEBUG=false
+
+# Timeout di sessione (in minuti)
+SESSION_TIMEOUT=120
+
+# Utente amministratore predefinito
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=Matrix@2026!
+
+# Integrazione Guacamole
+GUACAMOLE_URL=http://localhost:8080/guacamole
+GUACAMOLE_ENABLED=true</pre>
+
+                <h4>Detalhamento das Variáveis</h4>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variável</th>
+                            <th>Tipo</th>
+                            <th>Padrão</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>PORT</code></td>
+                            <td>Number</td>
+                            <td>3000</td>
+                            <td>Porta onde o servidor escuta</td>
+                        </tr>
+                        <tr>
+                            <td><code>SESSION_SECRET</code></td>
+                            <td>String</td>
+                            <td>(obrigatório)</td>
+                            <td>Chave de criptografia para sessões. Use 32+ caracteres aleatórios.</td>
+                        </tr>
+                        <tr>
+                            <td><code>NODE_ENV</code></td>
+                            <td>String</td>
+                            <td>production</td>
+                            <td><code>development</code> ou <code>production</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>DEBUG</code></td>
+                            <td>Boolean</td>
+                            <td>false</td>
+                            <td>Ativa logs detalhados no console</td>
+                        </tr>
+                        <tr>
+                            <td><code>SESSION_TIMEOUT</code></td>
+                            <td>Number</td>
+                            <td>120</td>
+                            <td>Tempo em minutos até expirar sessão inativa</td>
+                        </tr>
+                        <tr>
+                            <td><code>ADMIN_USERNAME</code></td>
+                            <td>String</td>
+                            <td>admin</td>
+                            <td>Nome de usuário do administrador inicial</td>
+                        </tr>
+                        <tr>
+                            <td><code>ADMIN_PASSWORD</code></td>
+                            <td>String</td>
+                            <td>(obrigatório)</td>
+                            <td>Senha do admin. <strong>Mude imediatamente!</strong></td>
+                        </tr>
+                        <tr>
+                            <td><code>GUACAMOLE_URL</code></td>
+                            <td>String</td>
+                            <td>-</td>
+                            <td>URL do servidor Apache Guacamole (acesso remoto)</td>
+                        </tr>
+                        <tr>
+                            <td><code>GUACAMOLE_ENABLED</code></td>
+                            <td>Boolean</td>
+                            <td>false</td>
+                            <td>Habilita botões de acesso remoto via Guacamole</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-danger">
+                    <strong>🔒 SEGURANÇA CRÍTICA:</strong>
+                    <ul>
+                        <li>Mude <code>SESSION_SECRET</code> para valor único e complexo</li>
+                        <li>Mude <code>ADMIN_PASSWORD</code> imediatamente após instalação</li>
+                        <li>Use senhas fortes: 12+ caracteres, maiúsculas, minúsculas, números e símbolos</li>
+                        <li>Adicione <code>.env</code> ao <code>.gitignore</code> (já está por padrão)</li>
+                    </ul>
+                </div>
+
+                <h3 id="estrutura-pastas">📂 Estrutura de Pastas</h3>
+
+                <pre>Matrix/
+├── 📄 index.html           # Página principal do sistema
+├── 📄 server.js            # Servidor Node.js (backend)
+├── 📄 package.json         # Dependências NPM
+├── 🔐 .env                 # Configurações sensíveis
+├── 📖 README.md            # Documentação resumida
+│
+├── 📁 api/                 # Endpoints da API
+│   ├── data.js            # Manipulação de dados
+│   ├── auth.js            # Autenticação
+│   └── backup.js          # Sistema de backup
+│
+├── 📁 js/                  # Scripts JavaScript
+│   ├── app.js             # Aplicação principal
+│   ├── ui-updates.js      # Interface e renderização
+│   ├── device-detail.js   # Modal de detalhes
+│   ├── dashboard.js       # Dashboard inicial
+│   ├── floorplan.js       # Topologia visual
+│   ├── auth.js            # Autenticação frontend
+│   ├── features.js        # Funcionalidades extras
+│   └── ...
+│
+├── 📁 css/                 # Folhas de estilo
+│   ├── styles.css         # Estilos principais
+│   └── tailwind.min.css   # Framework CSS
+│
+├── 📁 data/                # 💾 BANCO DE DADOS
+│   ├── network_manager.json   # TODOS os dados
+│   └── users.json              # Usuários cadastrados
+│
+├── 📁 backup/              # ⏰ Backups automáticos
+│   ├── network_manager_YYYYMMDD_HHMMSS.json
+│   └── ...
+│
+├── 📁 config/              # Configurações
+│   └── config.js          # Config do frontend
+│
+├── 📁 assets/              # Recursos estáticos
+│   ├── images/            # Imagens
+│   └── icons/             # Ícones
+│
+├── 📁 doc/                 # Documentação adicional
+│   ├── API.md
+│   ├── SETUP.md
+│   └── ...
+│
+├── 📁 tests/               # Testes automatizados
+│   └── ...
+│
+└── 📁 scripts/             # Scripts auxiliares
+    ├── backup.sh
+    └── ...
+</pre>
+
+                <h4>Pastas Críticas (NÃO DELETAR)</h4>
+                <ul>
+                    <li><code>data/</code> - Contém TODOS os dados do sistema. Faça backup regularmente!</li>
+                    <li><code>api/</code> - APIs essenciais para funcionamento</li>
+                    <li><code>js/</code> - Scripts principais do sistema</li>
+                    <li><code>backup/</code> - Backups automáticos (pode limpar backups antigos)</li>
+                </ul>
+
+                <h4>Pastas Opcionais</h4>
+                <ul>
+                    <li><code>tests/</code> - Pode ser removido em produção</li>
+                    <li><code>doc/</code> - Documentação de desenvolvimento</li>
+                    <li><code>scripts/</code> - Utilitários auxiliares</li>
+                </ul>
+
+                <h3 id="config-servidor">🖥️ Configurações do Servidor</h3>
+
+                <h4>Arquivo: server.js</h4>
+                <p>O servidor Node.js pode ser personalizado editando <code>server.js</code>:</p>
+
+                <pre>// Porta (também pode ser definida via .env)
+const PORT = process.env.PORT || 3000;
+
+// Timeout de requisições (em ms)
+const REQUEST_TIMEOUT = 30000; // 30 segundos
+
+// Tamanho máximo de payload JSON (em bytes)
+const MAX_JSON_SIZE = '50mb';
+
+// CORS (Cross-Origin Resource Sharing)
+const CORS_ENABLED = false; // Mude para true se necessário</pre>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Atenção:</strong> Edições no <code>server.js</code> requerem conhecimento de Node.js. Sempre faça backup antes de modificar!
+                </div>
+
+                <h3 id="config-seguranca">🔒 Configurações de Segurança</h3>
+
+                <h4>1. Senhas</h4>
+                <ul>
+                    <li>Senhas são criptografadas com bcrypt (10 rounds)</li>
+                    <li>Nunca são armazenadas em texto plano</li>
+                    <li>Mude senhas padrão imediatamente</li>
+                </ul>
+
+                <h4>2. Sessões</h4>
+                <ul>
+                    <li>Sessões expiram após X minutos de inatividade (<code>SESSION_TIMEOUT</code>)</li>
+                    <li>Token de sessão é HTTP-only (não acessível via JavaScript)</li>
+                    <li>Logout limpa sessão do servidor</li>
+                </ul>
+
+                <h4>3. Proteção XSS</h4>
+                <ul>
+                    <li>Todos os inputs de usuário são sanitizados</li>
+                    <li>Funções <code>escapeHtml()</code> aplicadas antes de renderizar</li>
+                </ul>
+
+                <h4>4. Permissões de Arquivo</h4>
+                <p>Recomendado:</p>
+                <pre># Linux/Mac
+chmod 600 .env                    # Somente dono pode ler/escrever
+chmod 755 data/                   # Leitura geral, escrita só dono
+chmod 644 data/*.json             # Leitura geral, escrita só dono
+chmod 755 backup/                 # Backups protegidos</pre>
+
+                <h4>5. Firewall</h4>
+                <p>Configure firewall para permitir apenas IPs confiáveis:</p>
+                <pre># UFW (Ubuntu)
+sudo ufw allow from 192.168.1.0/24 to any port 3000
+
+# iptables
+sudo iptables -A INPUT -p tcp -s 192.168.1.0/24 --dport 3000 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 3000 -j DROP</pre>
+
+                <div class="alert alert-danger">
+                    <strong>🚨 NUNCA exponha o servidor na Internet sem:</strong>
+                    <ul>
+                        <li>HTTPS/TLS configurado</li>
+                        <li>Autenticação forte</li>
+                        <li>Firewall/WAF</li>
+                        <li>Rate limiting</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- TAB 3: PRIMEIRO ACESSO -->
+            <div class="tab-pane" id="tab-2">
+                <h2>🎯 Primeiro Acesso e Setup Inicial</h2>
+
+                <div class="toc">
+                    <strong>Nesta página:</strong>
+                    <ul>
+                        <li><a href="#acesso-inicial">Como Acessar</a></li>
+                        <li><a href="#login-padrao">Login Inicial</a></li>
+                        <li><a href="#interface-inicial">Interface Initial</a></li>
+                        <li><a href="#primeiros-passos">Primeiros Passos</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="acesso-inicial">🌐 Como Acessar pela Primeira Vez</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Certifique-se de que o servidor está rodando:</strong>
+                    <pre>cd /path/to/Matrix
+node server.js</pre>
+                    <p>Você deve ver: <code>🚀 Matrix server running on http://localhost:3000</code></p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Abra o navegador:</strong>
+                    <p>Use Chrome, Firefox, Safari ou Edge (versões recentes)</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Digite a URL:</strong>
+                    <ul>
+                        <li><strong>Local:</strong> <code>http://localhost:3000</code></li>
+                        <li><strong>Rede local:</strong> <code>http://[IP_DO_SERVIDOR]:3000</code></li>
+                    </ul>
+                    <p>Exemplo na rede: <code>http://192.168.1.100:3000</code></p>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>💡 Dica:</strong> Para acessar de outros computadores na rede, descubra o IP do servidor:
+                    <pre># Linux/Mac
+hostname -I
+ip addr show
+
+# Windows
+ipconfig</pre>
+                </div>
+
+                <h3 id="login-padrao">🔐 Login Inicial</h3>
+
+                <p>Na primeira execução, o sistema cria um usuário administrador padrão:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Valor Padrão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Usuário</strong></td>
+                            <td><code>admin</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Senha</strong></td>
+                            <td><code>Matrix@2026!</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-danger">
+                    <strong>🔒 IMPORTANTE:</strong> Mude a senha padrão imediatamente após o primeiro login! Vá em: Menu → Usuários → Editar Senha
+                </div>
+
+                <h4>Tela de Login</h4>
+                <p>Você verá uma tela de login elegante com:</p>
+                <ul>
+                    <li>🌐 Logo "TIESSE Matrix Network"</li>
+                    <li>📝 Campos de Usuário e Senha</li>
+                    <li>🔑 Botão "Login"</li>
+                    <li>👁️ Ícone para mostrar/ocultar senha</li>
+                </ul>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Digite o usuário:</strong> <code>admin</code>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Digite a senha:</strong> <code>Matrix@2026!</code>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Clique em "Login"</strong>
+                </div>
+
+                <h3 id="interface-inicial">🖥️ Interface Inicial</h3>
+
+                <p>Após o login, você será redirecionado para o <strong>Dashboard Principal</strong>.</p>
+
+                <h4>Elementos Visíveis no Primeiro Acesso:</h4>
+
+                <ol>
+                    <li><strong>🎨 Header Superior:</strong>
+                        <ul>
+                            <li>Logo "TIESSE Matrix Network"</li>
+                            <li>Versão do sistema (v3.6.034)</li>
+                            <li>Nome do usuário logado</li>
+                            <li>Botão "Logout"</li>
+                        </ul>
+                    </li>
+                    <li><strong>📊 Dashboard Inicial:</strong>
+                        <ul>
+                            <li>Cards de estatísticas (Dispositivos, Conexões, Localizações)</li>
+                            <li>Gráficos de distribuição</li>
+                            <li>Alertas (conexões incompletas, dispositivos offline)</li>
+                        </ul>
+                    </li>
+                    <li><strong>🧭 Menu Principal:</strong>
+                        <ul>
+                            <li>Dashboard</li>
+                            <li>Devices (Dispositivos)</li>
+                            <li>Connections (Conexões)</li>
+                            <li>Topology (Topologia visual)</li>
+                            <li>Matrix (Matriz de conexões)</li>
+                            <li>Floor Plan (Planta baixa)</li>
+                            <li>Reports (Relatórios)</li>
+                            <li>Settings (Configurações)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3 id="primeiros-passos">👣 Primeiros Passos para Usuário Leigo</h3>
+
+                <div class="alert alert-success">
+                    <strong>✅ Bem-vindo ao Matrix Network!</strong> Vamos te guiar pelos primeiros passos:
+                </div>
+
+                <h4>Passo 1: Configurar sua Senha</h4>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <p>Clique no seu nome de usuário (canto superior direito)</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <p>Selecione "Alterar Senha"</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <p>Digite a senha atual: <code>Matrix@2026!</code></p>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <p>Digite e confirme a nova senha (mínimo 8 caracteres)</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <p>Clique em "Salvar"</p>
+                </div>
+
+                <h4>Passo 2: Explorar o Dashboard</h4>
+                <p>O Dashboard mostra uma visão geral do sistema:</p>
+                <ul>
+                    <li><strong>Cards de Métricas:</strong> Número de dispositivos, conexões, salas</li>
+                    <li><strong>Dispositivos Offline:</strong> Alertas em vermelho</li>
+                    <li><strong>Conexões Incompletas:</strong> Links que precisam de atenção</li>
+                    <li><strong>Distribuição por Tipo:</strong> Quantos switches, roteadores, etc.</li>
+                </ul>
+
+                <h4>Passo 3: Ver Dispositivos</h4>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <p>Clique em "Devices" no menu principal</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <p>Você verá uma tabela com todos os dispositivos cadastrados</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <p>Clique no ícone 🔍 ou <strong>na linha inteira</strong> de qualquer device para ver detalhes</p>
+                </div>
+
+                <h4>Passo 4: Visualizar Topologia</h4>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <p>Clique em "Topology" no menu principal</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <p>Você verá um diagrama visual de todos os dispositivos e conexões</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <p>Arraste dispositivos para reorganizar (modo edição)</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <p>Use scroll do mouse para zoom in/out</p>
+                </div>
+
+                <h4>Passo 5: Ver Matriz de Conexões</h4>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <p>Clique em "Matrix" no menu principal</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <p>Veja uma matriz com todos os dispositivos (linhas × colunas)</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <p>Células coloridas indicam conexões entre dispositivos</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <p>Clique em uma célula para ver detalhes da conexão</p>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>💡 Modo de Edição:</strong> Por padrão, você está em "modo visualização". Para adicionar/editar/deletar dispositivos, ative o "Modo de Edição" clicando no botão no canto superior direito.
+                </div>
+
+                <h4>Passo 6: Cadastrar Primeiro Dispositivo (Opcional)</h4>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <p>Ative o <strong>Modo de Edição</strong> (botão no topo)</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <p>Vá em "Devices" → Clique em "+ Add Device"</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <p>Preencha o formulário (detalhes na aba "Formulários")</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <p>Clique em "Save"</p>
+                </div>
+
+                <h3>📚 Próximos Passos</h3>
+                <p>Agora que você fez o primeiro acesso, explore:</p>
+                <ul>
+                    <li><strong>Aba "Interface":</strong> Entenda cada elemento da tela</li>
+                    <li><strong>Aba "Funcionalidades":</strong> Aprenda o que o sistema pode fazer</li>
+                    <li><strong>Aba "Cadastros":</strong> Como adicionar novos dados</li>
+                    <li><strong>Aba "Formulários":</strong> Referência de todos os campos</li>
+                </ul>
+
+                <div class="alert alert-success">
+                    <strong>🎉 Parabéns!</strong> Você completou o setup inicial. Agora explore o sistema com confiança!
+                </div>
+            </div>
+
+            <!-- TAB 4: INTERFACCIA -->
+            <div class="tab-pane" id="tab-3">
+                <h2>🖥️ Guida all'Interfaccia Utente</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#layout-pagina">Layout della Pagina</a></li>
+                        <li><a href="#header-buttons">Pulsanti dell'Header</a></li>
+                        <li><a href="#actions-bar">Barra delle Azioni</a></li>
+                        <li><a href="#navigation-tabs">Schede di Navigazione</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="layout-pagina">🖼️ Layout della Pagina</h3>
+                <p>L'interfaccia di Matrix Network è divisa in 4 aree principali:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Area</th>
+                            <th>Descrizione</th>
+                            <th>Elementi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Header (Intestazione)</strong></td>
+                            <td>Barra superiore sempre visibile</td>
+                            <td>Logo, Login/Logout, Logs, Versione</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Actions Bar</strong></td>
+                            <td>Azioni rapide e filtri globali</td>
+                            <td>Filtro Location, Contatori, Save, Export/Import</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tab Navigation</strong></td>
+                            <td>Schede per navigare tra le sezioni</td>
+                            <td>Devices, Connections, Topology, Matrix, Floor Plan, Help</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Content Area</strong></td>
+                            <td>Contenuto della scheda attiva</td>
+                            <td>Varia in base alla scheda selezionata</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="header-buttons">🔘 Pulsanti dell'Header</h3>
+
+                <h4>🔓 Edit Mode / 🔒 Logout</h4>
+                <p><strong>Edit Mode:</strong> Apre il popup di login per accedere alla modalità di modifica. Visibile sempre quando non autenticato.</p>
+                <p><strong>Logout:</strong> Esce dalla modalità di modifica. Visibile solo dopo aver effettuato il login.</p>
+
+                <h4>📋 Activity Logs</h4>
+                <p>Apre la scheda con lo storico completo di tutte le modifiche effettuate nel sistema. Sempre visibile.</p>
+
+                <h4>Versione (es. v3.6.034)</h4>
+                <p>Mostra la versione corrente del sistema. Indica anche se ci sono aggiornamenti disponibili.</p>
+
+                <h3 id="actions-bar">⚡ Barra delle Azioni</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pulsante</th>
+                            <th>Funzione</th>
+                            <th>Disponibilità</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🌐 <strong>All Locations</strong></td>
+                            <td>Filtro globale per Location. Filtra tutti i dati in tutte le schede</td>
+                            <td>Sempre</td>
+                        </tr>
+                        <tr>
+                            <td>📱 <strong>N Devices</strong></td>
+                            <td>Mostra totale dispositivi. Click per aprire scheda Devices</td>
+                            <td>Sempre</td>
+                        </tr>
+                        <tr>
+                            <td>⚡ <strong>N Connections</strong></td>
+                            <td>Mostra totale connessioni. Click per aprire scheda Connections</td>
+                            <td>Sempre</td>
+                        </tr>
+                        <tr>
+                            <td>💾 <strong>Save Now</strong></td>
+                            <td><span class="badge badge-required">CRITICO!</span> Salva tutte le modifiche sul server</td>
+                            <td>Solo Edit Mode</td>
+                        </tr>
+                        <tr>
+                            <td>📊 <strong>Export to Excel</strong></td>
+                            <td>Scarica file Excel con tutti i dati (dispositivi, connessioni, stanze)</td>
+                            <td>Sempre</td>
+                        </tr>
+                        <tr>
+                            <td>💾 <strong>Export JSON</strong></td>
+                            <td>Scarica backup JSON completo del sistema</td>
+                            <td>Sempre</td>
+                        </tr>
+                        <tr>
+                            <td>📥 <strong>Import JSON</strong></td>
+                            <td>Carica backup JSON (SOVRASCRIVE tutti i dati!)</td>
+                            <td>Solo Edit Mode</td>
+                        </tr>
+                        <tr>
+                            <td>🗑️ <strong>Clear All</strong></td>
+                            <td>Elimina TUTTI i dati (crea backup automatico prima)</td>
+                            <td>Solo Edit Mode</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-danger">
+                    <strong>⚠️ IMPORTANTE:</strong> Le modifiche NON vengono salvate automaticamente! Devi sempre cliccare <strong>💾 Save Now</strong> dopo ogni sessione di modifiche, altrimenti perderai il lavoro!
+                </div>
+
+                <h3 id="navigation-tabs">📑 Schede di Navigazione</h3>
+
+                <p>Il sistema è organizzato in 6 schede principali:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scheda</th>
+                            <th>Icona</th>
+                            <th>Descrizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Devices</strong></td>
+                            <td>📱</td>
+                            <td>Gestione dispositivi di rete (switch, router, server, PC, stampanti, ecc.)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Connections</strong></td>
+                            <td>⚡</td>
+                            <td>Gestione connessioni/cavi tra dispositivi con indicazione porte</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Topology</strong></td>
+                            <td>🗺️</td>
+                            <td>Mappa grafica interattiva della rete con icone stile Cisco</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Matrix</strong></td>
+                            <td>📊</td>
+                            <td>Matrice delle connessioni (griglia che mostra chi è collegato a chi)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Floor Plan</strong></td>
+                            <td>🏢</td>
+                            <td>Planimetria con stanze fisiche e dispositivi associati</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Help</strong></td>
+                            <td>❓</td>
+                            <td>Questa guida completa che stai leggendo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info">
+                    <strong>💡 Suggerimento:</strong> Usa la combinazione <strong>Ctrl+Click</strong> sui link tra le celle della Matrix per navigare rapidamente tra le schede!
+                </div>
+            </div>
+
+            <!-- TAB 5: FUNZIONALITÀ -->
+            <div class="tab-pane" id="tab-4">
+                <h2>✨ Funzionalità Principali</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#dashboard">Dashboard</a></li>
+                        <li><a href="#filtri">Sistema di Filtri</a></li>
+                        <li><a href="#ricerca">Ricerca Avanzata</a></li>
+                        <li><a href="#visualizzazioni">Visualizzazioni Multiple</a></li>
+                        <li><a href="#export-import">Export/Import</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="dashboard">📊 Dashboard Statistiche</h3>
+                <p>Il sistema fornisce statistiche in tempo reale su:</p>
+                <ul>
+                    <li><strong>Totale Dispositivi:</strong> Conteggio per tipo (switch, router, server, ecc.)</li>
+                    <li><strong>Totale Connessioni:</strong> Connessioni valide vs incomplette</li>
+                    <li><strong>Localizazioni:</strong> Numero di sedi/edifici mappati</li>
+                    <li><strong>Utilizzo Porte:</strong> Porte utilizzate vs disponibili per ogni dispositivo</li>
+                    <li><strong>Dispositivi Disconnessi:</strong> Avvisi per dispositivi senza connessioni</li>
+                </ul>
+
+                <h3 id="filtri">🔍 Sistema di Filtri</h3>
+
+                <h4>Filtro Location (Globale)</h4>
+                <p>Il filtro Location nella barra Actions influenza <strong>tutte</strong> le schede contemporaneamente:</p>
+                <ul>
+                    <li>Selezionando una Location, vedrai solo i dispositivi e connessioni di quella sede</li>
+                    <li>"All Locations" mostra tutti i dati</li>
+                    <li>Il filtro persiste navigando tra le schede</li>
+                </ul>
+
+                <h4>Filtri per Scheda</h4>
+                <p>Ogni scheda ha i suoi filtri specifici:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scheda</th>
+                            <th>Filtri Disponibili</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Devices</td>
+                            <td>Location, Group, Type, Status, Name/IP (ricerca testuale)</td>
+                        </tr>
+                        <tr>
+                            <td>Connections</td>
+                            <td>Location, Type, Status, Cable Marker</td>
+                        </tr>
+                        <tr>
+                            <td>Topology</td>
+                            <td>Location, Type (visibilità layer)</td>
+                        </tr>
+                        <tr>
+                            <td>Matrix</td>
+                            <td>Location</td>
+                        </tr>
+                        <tr>
+                            <td>Floor Plan</td>
+                            <td>Location (selezione edificio)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="ricerca">🔎 Ricerca Avanzata</h3>
+
+                <h4>Ricerca nella Scheda Devices</h4>
+                <p>Campo di ricerca testuale che cerca in:</p>
+                <ul>
+                    <li>Nome dispositivo</li>
+                    <li>Brand/Model</li>
+                    <li>Indirizzi IP</li>
+                    <li>Note</li>
+                </ul>
+                <p><strong>Ricerca in tempo reale:</strong> I risultati si aggiornano mentre digiti.</p>
+
+                <h4>Ricerca nella Scheda Connections</h4>
+                <p>Filtra le connessioni per:</p>
+                <ul>
+                    <li>Nome dispositivo sorgente o destinazione</li>
+                    <li>Cable Marker (etichetta cavo)</li>
+                    <li>Tipo di connessione</li>
+                </ul>
+
+                <h3 id="visualizzazioni">👁️ Visualizzazioni Multiple</h3>
+
+                <h4>Vista Cards vs Table</h4>
+                <p>Nella scheda <strong>Devices</strong>, puoi cambiare tra:</p>
+                <ul>
+                    <li><strong>Cards (Schede):</strong> Layout a card con icone grandi e info principali</li>
+                    <li><strong>Table (Tabella):</strong> Layout tabulare compatto con tutte le colonne</li>
+                </ul>
+
+                <h4>Topology: Livelli di Visualizzazione</h4>
+                <ul>
+                    <li><strong>Zoom:</strong> Scroll del mouse per ingrandire/ridurre (limiti: 100%-50000%)</li>
+                    <li><strong>Pan:</strong> Trascina lo sfondo per muovere la vista</li>
+                    <li><strong>Filtro Type:</strong> Mostra/nascondi dispositivi per tipo</li>
+                </ul>
+
+                <h4>Matrix: Dettaglio Connessioni</h4>
+                <p>Click su una cella colorata per aprire un popup con:</p>
+                <ul>
+                    <li>Dispositivo sorgente e porta</li>
+                    <li>Dispositivo destinazione e porta</li>
+                    <li>Tipo di connessione e stato</li>
+                    <li>Cable marker e colore</li>
+                </ul>
+
+                <h3 id="export-import">💾 Export/Import e Backup</h3>
+
+                <h4>Export Excel</h4>
+                <p>Genera file .xlsx con 3 fogli:</p>
+                <ol>
+                    <li><strong>Devices:</strong> Tutti i dispositivi con tutte le proprietà</li>
+                    <li><strong>Connections:</strong> Tutte le connessioni mappate</li>
+                    <li><strong>Rooms:</strong> Stanze del Floor Plan (se presenti)</li>
+                </ol>
+                <p><span class="badge badge-optional">Perfetto per inventario e reportistica!</span></p>
+
+                <h4>Export JSON</h4>
+                <p>Backup completo in formato JSON:</p>
+                <ul>
+                    <li>Contiene TUTTI i dati del sistema</li>
+                    <li>Include checksum SHA-256 per verifica integrità</li>
+                    <li>Versione timestamp nel nome file</li>
+                    <li>Usalo per backup periodici!</li>
+                </ul>
+
+                <h4>Import JSON</h4>
+                <div class="alert alert-danger">
+                    <strong>⚠️ ATTENZIONE:</strong> Import JSON <strong>SOVRASCRIVE</strong> completamente tutti i dati esistenti! Crea sempre un backup prima!
+                </div>
+                <p>Il sistema:</p>
+                <ol>
+                    <li>Crea automaticamente un backup dei dati attuali</li>
+                    <li>Valida il file JSON (versione, checksum, schema)</li>
+                    <li>Verifica compatibilità versione</li>
+                    <li>Importa i nuovi dati</li>
+                    <li>Aggiorna l'interfaccia</li>
+                </ol>
+
+                <h4>Export Drawio (dalla Topology)</h4>
+                <p>Esporta la topologia in formato .drawio (diagrams.net):</p>
+                <ul>
+                    <li>Mantiene posizioni dei dispositivi</li>
+                    <li>Include icone e connessioni</li>
+                    <li>Modificabile in Draw.io / diagrams.net</li>
+                </ul>
+
+                <h4>Export PNG (da Topology e Matrix)</h4>
+                <p>Salva immagine della visualizzazione corrente:</p>
+                <ul>
+                    <li>Include titolo e data</li>
+                    <li>Alta risoluzione (adatta per stampa)</li>
+                    <li>Trasparenza per sfondi</li>
+                </ul>
+            </div>
+
+            <!-- TAB 6: MODULI (FORMS) -->
+            <div class="tab-pane" id="tab-5">
+                <h2>📝 Moduli e Campi</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#form-device">Form Add/Edit Device</a></li>
+                        <li><a href="#form-connection">Form Add Connection</a></li>
+                        <li><a href="#form-room">Form Add Room</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="form-device">📱 Form Add/Edit Device</h3>
+                <p>Questo form gestisce i dispositivi di rete. Campi disponibili:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Obbligatorio</th>
+                            <th>Descrizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Location</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Sede/Edificio (es: Milan HQ, Rome Datacenter). Influenza il filtro globale</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Group</strong></td>
+                            <td>Text</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Raggruppamento logico (es: Core Network, Access, Servers). Massimo 50 caratteri</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Order</strong></td>
+                            <td>Number</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Numero progressivo per ordinamento (es: 1-server, 2-switch-core, 3-switch-floor1). Min: 0, Max: 10000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rear</strong></td>
+                            <td>Text</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Numero rack posteriore (es: Rack 01, Cab-A3). Usato per Floor Plan</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Name</strong></td>
+                            <td>Text</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Nome del dispositivo (es: SW-CORE-01). <strong>Deve essere UNICO</strong>. Max 100 caratteri</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Brand/Model</strong></td>
+                            <td>Text</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Marca e modello (es: Cisco Catalyst 2960, HP ProLiant DL380). Max 100 caratteri</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Tipo dispositivo. Valori: switch, router, firewall, server, pc, printer, phone, camera, wireless, patchpanel, storage, vm, other</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Stato operativo. Valori: active (verde), inactive (rosso), maintenance (giallo), planned (grigio), decommissioned (nero)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Service</strong></td>
+                            <td>Text</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Servizio principale (es: DHCP Server, VoIP Gateway). Max 100 caratteri</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Notes</strong></td>
+                            <td>Textarea</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Note libere (es: "Aggiornato firmware 2025-01-15"). Max 1000 caratteri</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IP Addresses</strong></td>
+                            <td>Multi-input</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Lista indirizzi IP. Button "+ Add IP" per aggiungere. Formato: IPv4 (es: 192.168.1.10) o IPv6</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ports</strong></td>
+                            <td>Port Builder</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Definizione porte fisiche. Sezioni: Standard RJ45, SFP/SFP+, Special (WAN/MGMT)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Links (SSH/Telnet)</strong></td>
+                            <td>Multi-input</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Link Guacamole (visibili solo agli admin). Formato: <code>Label|ProtocolID</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>⚙️ Port Builder (Definizione Porte)</h4>
+                <p>Il Port Builder permette di definire le porte fisiche del dispositivo:</p>
+
+                <ol>
+                    <li><strong>Standard RJ45 Ports:</strong>
+                        <ul>
+                            <li>Inserisci il numero di porte (es: 24)</li>
+                            <li>Sistema crea automaticamente Gi0/1, Gi0/2, ... Gi0/24</li>
+                            <li>Prefisso personalizzabile (Gi, Eth, Fa, ecc.)</li>
+                        </ul>
+                    </li>
+                    <li><strong>SFP/SFP+ Ports:</strong>
+                        <ul>
+                            <li>Porte per moduli ottici</li>
+                            <li>Separatore visibile nel device detail</li>
+                        </ul>
+                    </li>
+                    <li><strong>Special Ports:</strong>
+                        <ul>
+                            <li>WAN: Porta WAN per router/firewall</li>
+                            <li>MGMT: Porta di management</li>
+                            <li>Console: Porta console (RJ45 azzurra)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>💡 Suggerimento:</strong> Non serve definire le porte per dispositivi endpoint (PC, stampanti, telefoni). Le porte sono utili per switch, router, patch panel.
+                </div>
+
+                <h3 id="form-connection">⚡ Form Add Connection</h3>
+                <p>Form per creare connessioni/cavi tra dispositivi:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Obbligatorio</th>
+                            <th>Descrizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Source Device</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Dispositivo sorgente (da). Lista dispositivi attivi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Source Port</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Porta sorgente. Mostra solo porte non utilizzate</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Destination Device</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Dispositivo destinatario (a). Lista dispositivi attivi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Destination Port</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-required">SI</span></td>
+                            <td>Porta destinatario. Mostra solo porte non utilizzate</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Tipo connessione: copper (rame-ethernet), fiber (fibra ottica), serial, coaxial, wireless, other</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Stato: active (verde), inactive (rosso), testing (giallo), planned (grigio)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cable Marker</strong></td>
+                            <td>Text</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Etichetta fisica del cavo (es: CAB-001, A14). Max 50 caratteri</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cable Color</strong></td>
+                            <td>Select</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Colore fisico del cavo (blu, giallo, rosso, verde, bianco, grigio, nero, arancione)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Notes</strong></td>
+                            <td>Textarea</td>
+                            <td><span class="badge badge-optional">NO</span></td>
+                            <td>Note (es: "Certificato Cat6A - Test 2025-01-10"). Max 500 caratteri</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Validazione Porte:</strong> Il sistema previene l'uso di porte già occupate. Se una porta non appare nella lista, significa che è già utilizzata da un'altra connessione.
+                </div>
+
+                <h3 id="form-room">🏢 Form Add Room (Floor Plan)</h3>
+                <p>Form per definire stanze fisiche:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Descrizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Name</strong></td>
+                            <td>Nome stanza (es: "Server Room A", "Office 201"). Obbligatorio, max 100 caratteri</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Type</strong></td>
+                            <td>Tipo: datacenter, serverroom, office, warehouse, corridor, technical, other</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Width/Height</strong></td>
+                            <td>Dimensioni della stanza in pixel per il canvas. Default: 100x100</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Position X/Y</strong></td>
+                            <td>Posizione della stanza nella planimetria. Trascinabile con il mouse</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color</strong></td>
+                            <td>Colore di sfondo della stanza (picker visuale)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-pane" id="tab-6">
+                <h2>� Registrazioni e Processi</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#workflow-device">Workflow: Registrare un Dispositivo</a></li>
+                        <li><a href="#workflow-connection">Workflow: Creare una Connessione</a></li>
+                        <li><a href="#workflow-floor">Workflow: Organizzare il Floor Plan</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="workflow-device">📱 Workflow: Registrare un Dispositivo</h3>
+
+                <h4>Passaggio 1: Aprire il Form</h4>
+                <ol>
+                    <li>Vai alla scheda <strong>Devices</strong></li>
+                    <li>Clicca il pulsante <strong>+ Add Device</strong> (visibile solo in Edit Mode)</li>
+                    <li>Il form si apre come modale sovrapposta</li>
+                </ol>
+
+                <h4>Passaggio 2: Campi Obbligatori</h4>
+                <p>Compila i campi contrassegnati con asterisco rosso:</p>
+                <ol>
+                    <li><strong>Location:</strong> Seleziona la sede (es: Milan HQ)</li>
+                    <li><strong>Group:</strong> Inserisci il gruppo (es: Core Network)</li>
+                    <li><strong>Order:</strong> Numero per ordinamento (es: 100)</li>
+                    <li><strong>Name:</strong> Nome UNICO (es: SW-CORE-01)</li>
+                    <li><strong>Type:</strong> Seleziona il tipo (es: switch)</li>
+                </ol>
+
+                <h4>Passaggio 3: Campi Opzionali</h4>
+                <p>Completa i dati aggiuntivi:</p>
+                <ul>
+                    <li><strong>Brand/Model:</strong> Es: "Cisco Catalyst 2960-48TT-L"</li>
+                    <li><strong>Status:</strong> Imposta su "active"</li>
+                    <li><strong>IP Addresses:</strong> Clicca "+ Add IP" e inserisci (es: 192.168.1.10)</li>
+                    <li><strong>Service:</strong> Es: "Core Switch - VLAN Routing"</li>
+                    <li><strong>Notes:</strong> Info utili</li>
+                </ul>
+
+                <h4>Passaggio 4: Definire le Porte</h4>
+                <p>Per dispositivi con porte (switch, router, patch panel):</p>
+                <ol>
+                    <li>Nella sezione <strong>Ports</strong>, clicca "Port Builder"</li>
+                    <li>Inserisci il numero di porte RJ45 (es: 48)</li>
+                    <li>Scegli prefisso (Gi per Gigabit, Fa per FastEthernet)</li>
+                    <li>Aggiungi eventuali porte SFP (es: 4 SFP+)</li>
+                    <li>Aggiungi porte speciali se necessario (WAN, MGMT)</li>
+                    <li>Clicca "Generate Ports"</li>
+                </ol>
+
+                <h4>Passaggio 5: Salvare</h4>
+                <ol>
+                    <li>Clicca <strong>💾 Save Device</strong> in fondo al form</li>
+                    <li>Il modale si chiude e il dispositivo appare nella tabella</li>
+                    <li><strong>IMPORTANTE:</strong> Clicca <strong>💾 Save Now</strong> nella barra Actions per salvare sul server!</li>
+                </ol>
+
+                <div class="alert alert-danger">
+                    <strong>⚠️ RICORDA:</strong> Le modifiche restano SOLO in memoria fino a quando non clicchi <strong>💾 Save Now</strong>. In caso di refresh/chiusura, perderai tutto!
+                </div>
+
+                <h3 id="workflow-connection">⚡ Workflow: Creare una Connessione</h3>
+
+                <h4>Prerequisiti</h4>
+                <ul>
+                    <li>I dispositivi sorgente e destinazione devono esistere</li>
+                    <li>I dispositivi devono avere porte definite (almeno una libera)</li>
+                    <li>Essere in Edit Mode</li>
+                </ul>
+
+                <h4>Passaggio 1: Aprire il Form</h4>
+                <ol>
+                    <li>Vai alla scheda <strong>Connections</strong></li>
+                    <li>Clicca <strong>+ Add Connection</strong></li>
+                </ol>
+
+                <h4>Passaggio 2: Selezionare i Dispositivi</h4>
+                <ol>
+                    <li><strong>Source Device:</strong> Seleziona il dispositivo A (es: SW-CORE-01)</li>
+                    <li><strong>Source Port:</strong> Seleziona la porta di A (es: Gi0/1)</li>
+                    <li><strong>Destination Device:</strong> Seleziona il dispositivo B (es: SW-FLOOR1-01)</li>
+                    <li><strong>Destination Port:</strong> Seleziona la porta di B (es: Gi0/24)</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>💡 Suggerimento:</strong> Le porte già utilizzate NON appaiono nelle liste. Se non vedi una porta, controlla se è già connessa a un altro dispositivo.
+                </div>
+
+                <h4>Passaggio 3: Dettagli Cavo</h4>
+                <ol>
+                    <li><strong>Type:</strong> Seleziona tipo (copper per ethernet, fiber per fibra ottica)</li>
+                    <li><strong>Status:</strong> Imposta su "active"</li>
+                    <li><strong>Cable Marker:</strong> Etichetta fisica (es: "CAB-A001")</li>
+                    <li><strong>Cable Color:</strong> Colore fisico (facilita identificazione sul campo)</li>
+                </ol>
+
+                <h4>Passaggio 4: Salvare</h4>
+                <ol>
+                    <li>Clicca <strong>💾 Save Connection</strong></li>
+                    <li>La connessione appare nella tabella</li>
+                    <li>Clicca <strong>💾 Save Now</strong> per rendere permanente</li>
+                </ol>
+
+                <h4>Verifica Automatica</h4>
+                <p>Dopo aver salvato, vai su:</p>
+                <ul>
+                    <li><strong>Topology:</strong> Vedrai una linea tra i due dispositivi</li>
+                    <li><strong>Matrix:</strong> La cella all'incrocio dei due dispositivi sarà colorata</li>
+                    <li><strong>Device Detail:</strong> La porta apparirà come "occupata" (verde)</li>
+                </ul>
+
+                <h3 id="workflow-floor">🏢 Workflow: Organizzare il Floor Plan</h3>
+
+                <h4>Passaggio 1: Creare le Stanze</h4>
+                <ol>
+                    <li>Vai alla scheda <strong>Floor Plan</strong></li>
+                    <li>Seleziona la Location dal filtro</li>
+                    <li>Clicca <strong>+ Add Room</strong></li>
+                    <li>Inserisci il nome (es: "Datacenter A")</li>
+                    <li>Scegli il tipo (es: "datacenter")</li>
+                    <li>Salva</li>
+                </ol>
+
+                <h4>Passaggio 2: Posizionare le Stanze</h4>
+                <ol>
+                    <li>Trascina le stanze nel canvas per posizionarle</li>
+                    <li>Ridimensiona usando gli handle agli angoli</li>
+                    <li>Cambia colore cliccando sull'icona colore nella barra degli strumenti</li>
+                </ol>
+
+                <h4>Passaggio 3: Associare i Dispositivi</h4>
+                <ol>
+                    <li>Modifica un dispositivo (clicca Edit nella tabella Devices)</li>
+                    <li>Nel campo <strong>Rear</strong>, inserisci il nome ESATTO della stanza</li>
+                    <li>Salva il dispositivo</li>
+                    <li>Torna al Floor Plan: il dispositivo apparirà nella stanza</li>
+                </ol>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Nota:</strong> Il campo <strong>Rear</strong> deve corrispondere ESATTAMENTE al nome della stanza (case-sensitive). Es: "Datacenter A" ≠ "datacenter a"
+                </div>
+
+                <h4>Passaggio 4: Organizzare i Dispositivi nelle Stanze</h4>
+                <ol>
+                    <li>Trascina i dispositivi all'interno delle stanze per posizionarli</li>
+                    <li>I dispositivi si agganciano automaticamente alla griglia</li>
+                    <li>Clicca <strong>💾 Save Now</strong> per salvare le posizioni</li>
+                </ol>
+            </div>
+
+            <div class="tab-pane" id="tab-7">
+                <h2>🔧 Operazioni Comuni</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#operazione-save">Salvare le Modifiche</a></li>
+                        <li><a href="#operazione-export">Export Dati</a></li>
+                        <li><a href="#operazione-import">Import Dati</a></li>
+                        <li><a href="#operazione-clear">Clear All</a></li>
+                        <li><a href="#operazione-print">Stampare/Esportare Viste</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="operazione-save">💾 Salvare le Modifiche</h3>
+                
+                <div class="alert alert-danger">
+                    <strong>⚠️ CRITICO:</strong> Le modifiche non vengono salvate automaticamente! Devi sempre cliccare <strong>💾 Save Now</strong> dopo ogni sessione di modifiche.
+                </div>
+
+                <h4>Come Funziona il Salvataggio</h4>
+                <ol>
+                    <li><strong>Modifiche in memoria:</strong> Quando aggiungi/modifichi/elimini dispositivi o connessioni, i dati rimangono solo in memoria del browser</li>
+                    <li><strong>Salvataggio sul server:</strong> Cliccando <strong>💾 Save Now</strong>, i dati vengono inviati al server e salvati su disco</li>
+                    <li><strong>Backup automatico:</strong> Prima di ogni salvataggio, il sistema crea un backup automatico dei dati precedenti</li>
+                    <li><strong>Conferma:</strong> Ricevi un messaggio di conferma quando il salvataggio è completato</li>
+                </ol>
+
+                <h4>Quando Salvare</h4>
+                <ul>
+                    <li>Dopo aver aggiunto nuovi dispositivi</li>
+                    <li>Dopo aver creato connessioni</li>
+                    <li>Dopo modifiche a dispositivi esistenti</li>
+                    <li>Prima di esportare o chiudere il browser</li>
+                    <li>Periodicamente durante sessioni di lavoro lunghe</li>
+                </ul>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Attenzione:</strong> Se chiudi il browser o aggiorni la pagina prima di salvare, <strong>perderai tutte le modifiche</strong> non salvate!
+                </div>
+
+                <h3 id="operazione-export">📊 Export Dati</h3>
+
+                <h4>Export Excel (.xlsx)</h4>
+                <p>Genera un file Excel con 3 fogli:</p>
+                <ol>
+                    <li><strong>Devices:</strong> Tutti i dispositivi con tutte le proprietà (Location, Group, Name, Type, Status, IPs, Brand/Model, Service, Notes)</li>
+                    <li><strong>Connections:</strong> Tutte le connessioni (From Device, From Port, To Device, To Port, Type, Status, Cable Marker, Color)</li>
+                    <li><strong>Rooms:</strong> Stanze del Floor Plan (Name, Type, Dimensions, Position)</li>
+                </ol>
+
+                <p><strong>Utilizzo:</strong></p>
+                <ol>
+                    <li>Clicca <strong>📊 Export to Excel</strong> nella barra Actions</li>
+                    <li>Il file viene scaricato automaticamente (nome: <code>matrix-network-YYYY-MM-DD.xlsx</code>)</li>
+                    <li>Apri con Excel, LibreOffice, Google Sheets</li>
+                </ol>
+
+                <p><strong>Casi d'uso:</strong></p>
+                <ul>
+                    <li>Inventario per reportistica</li>
+                    <li>Analisi dati in Excel</li>
+                    <li>Condivisione con colleghi non tecnici</li>
+                    <li>Import in altri sistemi</li>
+                </ul>
+
+                <h4>Export JSON</h4>
+                <p>Backup completo del sistema in formato JSON:</p>
+                <ol>
+                    <li>Clicca <strong>💾 Export JSON</strong></li>
+                    <li>File scaricato: <code>matrix-backup-YYYY-MM-DD-HH-MM-SS.json</code></li>
+                    <li>Contiene TUTTI i dati: dispositivi, connessioni, stanze, settings</li>
+                    <li>Include checksum SHA-256 per verifica integrità</li>
+                </ol>
+
+                <p><strong>Struttura JSON:</strong></p>
+                <pre><code>{
+  "version": "3.6.034",
+  "timestamp": "2025-02-09T10:30:00Z",
+  "checksum": "a3f5b8...",
+  "data": {
+    "devices": [...],
+    "connections": [...],
+    "rooms": [...]
+  }
+}</code></pre>
+
+                <p><strong>Quando usarlo:</strong></p>
+                <ul>
+                    <li><strong>Backup periodici:</strong> Esegui export settimanale/mensile</li>
+                    <li><strong>Prima di modifiche importanti:</strong> Backup di sicurezza</li>
+                    <li><strong>Migrazione sistemi:</strong> Trasferire dati tra server</li>
+                    <li><strong>Versionamento:</strong> Mantenere storico delle configurazioni</li>
+                </ul>
+
+                <h4>Export Drawio (dalla Topology)</h4>
+                <ol>
+                    <li>Vai alla scheda <strong>Topology</strong></li>
+                    <li>Clicca <strong>Export Drawio</strong></li>
+                    <li>File scaricato: <code>topology-YYYY-MM-DD.drawio</code></li>
+                    <li>Apri con diagrams.net o Draw.io desktop</li>
+                    <li>Modifica la topologia con strumenti professionali</li>
+                </ol>
+
+                <h4>Export PNG (Immagini)</h4>
+                <p>Esporta screenshot di alta qualità:</p>
+                <ol>
+                    <li><strong>Topology PNG:</strong> Click su "Export PNG" nella scheda Topology</li>
+                    <li><strong>Matrix PNG:</strong> Click su "Export PNG" nella scheda Matrix</li>
+                    <li>Immagine include titolo, data, watermark</li>
+                    <li>Alta risoluzione (adatta per stampa/presentazioni)</li>
+                </ol>
+
+                <h3 id="operazione-import">📥 Import Dati</h3>
+
+                <div class="alert alert-danger">
+                    <strong>⚠️ PERICOLO:</strong> Import JSON <strong>SOVRASCRIVE COMPLETAMENTE</strong> tutti i dati esistenti! Questa operazione è <strong>IRREVERSIBILE</strong> (salvo backup automatico).
+                </div>
+
+                <h4>Processo di Import</h4>
+                <ol>
+                    <li>Entra in <strong>Edit Mode</strong></li>
+                    <li>Clicca <strong>📥 Import JSON</strong></li>
+                    <li>Appare conferma con avviso (leggi attentamente!)</li>
+                    <li>Sistema crea automaticamente backup dei dati attuali</li>
+                    <li>Seleziona file JSON da caricare</li>
+                    <li>Sistema valida il file:
+                        <ul>
+                            <li>Verifica formato JSON</li>
+                            <li>Controlla versione compatibile</li>
+                            <li>Valida checksum (se presente)</li>
+                            <li>Verifica schema dati</li>
+                        </ul>
+                    </li>
+                    <li>Se valido: dati importati e interfaccia aggiornata</li>
+                    <li>Se invalido: errore mostrato, dati NON modificati</li>
+                </ol>
+
+                <h4>Sicurezza Import</h4>
+                <ul>
+                    <li><strong>Backup automatico:</strong> Prima di import, crea backup in <code>/workspaces/net/Matrix/backup/</code></li>
+                    <li><strong>Validazione schema:</strong> Rifiuta file con struttura non valida</li>
+                    <li><strong>Versione check:</strong> Avvisa se versione non compatibile</li>
+                    <li><strong>Rollback manuale:</strong> In caso di problemi, usa backup automatico per ripristinare</li>
+                </ul>
+
+                <h3 id="operazione-clear">🗑️ Clear All (Elimina Tutto)</h3>
+
+                <div class="alert alert-danger">
+                    <strong>⚠️ PERICOLO MASSIMO:</strong> Questa operazione elimina <strong>TUTTI I DATI</strong> del sistema! Usare solo per reset completo.
+                </div>
+
+                <h4>Cosa Fa Clear All</h4>
+                <ul>
+                    <li>Elimina TUTTI i dispositivi</li>
+                    <li>Elimina TUTTE le connessioni</li>
+                    <li>Elimina TUTTE le stanze del Floor Plan</li>
+                    <li>Resetta TUTTI i contatori</li>
+                    <li>Crea backup automatico prima di procedere</li>
+                </ul>
+
+                <h4>Quando Usarlo</h4>
+                <ul>
+                    <li>Reset completo per nuovo progetto</li>
+                    <li>Testing e development</li>
+                    <li>Pulizia dopo demo/presentazione</li>
+                    <li><strong>MAI</strong> su sistema in produzione senza backup esterno!</li>
+                </ul>
+
+                <h4>Procedura Sicura</h4>
+                <ol>
+                    <li><strong>PRIMA:</strong> Esegui <strong>💾 Export JSON</strong> manuale e salva in luogo sicuro</li>
+                    <li>Entra in Edit Mode</li>
+                    <li>Clicca <strong>🗑️ Clear All</strong></li>
+                    <li>Leggi attentamente la conferma (include informazioni su backup automatico)</li>
+                    <li>Conferma l'operazione</li>
+                    <li>Sistema crea backup automatico in <code>/backup/</code></li>
+                    <li>Tutti i dati vengono cancellati</li>
+                    <li>Interfaccia si resetta</li>
+                </ol>
+
+                <h3 id="operazione-print">🖨️ Stampare/Esportare Viste</h3>
+
+                <h4>Stampa Tabella Devices</h4>
+                <ol>
+                    <li>Vai alla scheda <strong>Devices</strong></li>
+                    <li>Applica eventuali filtri (Location, Type, Status)</li>
+                    <li>Click destro → Stampa (o Ctrl+P)</li>
+                    <li>Scegli "Salva come PDF" per documento digitale</li>
+                </ol>
+
+                <h4>Stampa Matrix</h4>
+                <ol>
+                    <li>Vai alla scheda <strong>Matrix</strong></li>
+                    <li>Clicca <strong>Export PNG</strong> per immagine alta risoluzione</li>
+                    <li>Stampa l'immagine o inserisci in documento</li>
+                </ol>
+
+                <h4>Stampa Topology</h4>
+                <ol>
+                    <li>Vai alla scheda <strong>Topology</strong></li>
+                    <li>Regola zoom per inquadratura ottimale</li>
+                    <li>Clicca <strong>Export PNG</strong></li>
+                    <li>Stampa immagine o usa <strong>Export Drawio</strong> per modifiche professionali</li>
+                </ol>
+            </div>
+
+            <div class="tab-pane" id="tab-8">
+                <h2>🎓 Funzionalità Avanzate</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#guacamole">Integrazione Apache Guacamole</a></li>
+                        <li><a href="#api">API REST</a></li>
+                        <li><a href="#customization">Personalizzazione</a></li>
+                        <li><a href="#automation">Automazione</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="guacamole">🖥️ Integrazione Apache Guacamole</h3>
+                <p>Matrix Network si integra con Apache Guacamole per accesso remoto ai dispositivi.</p>
+
+                <h4>Cos'è Guacamole</h4>
+                <p>Apache Guacamole è un gateway clientless per desktop remoto che supporta:</p>
+                <ul>
+                    <li><strong>SSH:</strong> Accesso terminale a dispositivi Linux/Unix</li>
+                    <li><strong>Telnet:</strong> Accesso a dispositivi legacy</li>
+                    <li><strong>RDP:</strong> Remote Desktop per Windows</li>
+                    <li><strong>VNC:</strong> Virtual Network Computing</li>
+                </ul>
+
+                <h4>Configurazione Links</h4>
+                <p>Nel form Add/Edit Device, sezione <strong>Links (SSH/Telnet)</strong>:</p>
+                <ol>
+                    <li>Formato: <code>Label|ProtocolID</code></li>
+                    <li>Esempio: <code>SSH Root|ssh-12345</code></li>
+                    <li>Il ProtocolID deve corrispondere a una connessione configurata in Guacamole</li>
+                </ol>
+
+                <p><strong>Esempio configurazione:</strong></p>
+                <pre><code>SSH Admin|connection-1
+Telnet Management|connection-2
+RDP Desktop|connection-3</code></pre>
+
+                <h4>Visibilità Links</h4>
+                <ul>
+                    <li><strong>Utenti pubblici:</strong> NON vedono la colonna Links</li>
+                    <li><strong>Admin autenticati:</strong> Vedono colonna Links con pulsanti "Connect"</li>
+                    <li>Click su "Connect" apre Guacamole in nuova finestra</li>
+                </ul>
+
+                <h3 id="api">⚛️ API REST</h3>
+                <p>Matrix Network espone API REST per integrazioni esterne.</p>
+
+                <h4>Endpoints Disponibili</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Metodo</th>
+                            <th>Descrizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/api/data</code></td>
+                            <td>GET</td>
+                            <td>Ottieni tutti i dati (devices, connections, rooms)</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/data</code></td>
+                            <td>POST</td>
+                            <td>Salva tutti i dati (richiede autenticazione)</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/devices</code></td>
+                            <td>GET</td>
+                            <td>Lista dispositivi</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/connections</code></td>
+                            <td>GET</td>
+                            <td>Lista connessioni</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/logs</code></td>
+                            <td>GET</td>
+                            <td>Activity logs</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/validate</code></td>
+                            <td>POST</td>
+                            <td>Valida JSON import (richiede autenticazione)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Esempio Chiamata API</h4>
+                <pre><code>// GET tutti i dati
+fetch('http://localhost:3000/api/data')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Devices:', data.devices.length);
+    console.log('Connections:', data.connections.length);
+  });
+
+// GET solo dispositivi
+fetch('http://localhost:3000/api/devices')
+  .then(response => response.json())
+  .then(devices => {
+    devices.forEach(d => console.log(d.name, d.type));
+  });</code></pre>
+
+                <h4>Autenticazione API</h4>
+                <p>Le operazioni di scrittura (POST) richiedono autenticazione:</p>
+                <pre><code>fetch('http://localhost:3000/api/data', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: JSON.stringify(data)
+})</code></pre>
+
+                <h3 id="customization">🎨 Personalizzazione</h3>
+
+                <h4>Temi e Colori</h4>
+                <p>Modifica il file <code>css/style.css</code> per personalizzare l'aspetto:</p>
+                <ul>
+                    <li><strong>Colori primari:</strong> Variabili CSS <code>--primary-color</code>, <code>--secondary-color</code></li>
+                    <li><strong>Font:</strong> Famiglia font in <code>body { font-family: ... }</code></li>
+                    <li><strong>Icone:</strong> Modifica icone SVG in <code>assets/icons/</code></li>
+                </ul>
+
+                <h4>Logo Aziendale</h4>
+                <p>Sostituisci il logo modificando <code>index.html</code>:</p>
+                <pre><code>&lt;div class="logo"&gt;
+  &lt;img src="assets/img/your-logo.png" alt="Your Company" /&gt;
+&lt;/div&gt;</code></pre>
+
+                <h4>Port Types Personalizzati</h4>
+                <p>Aggiungi nuovi tipi di porta modificando <code>js/device-detail.js</code>:</p>
+                <pre><code>const customPortTypes = {
+  'QSFP': { label: 'QSFP+', color: '#9333EA' },
+  'QSFP28': { label: 'QSFP28', color: '#DB2777' }
+};</code></pre>
+
+                <h3 id="automation">⏱️ Automazione</h3>
+
+                <h4>Script di Backup Automatico</h4>
+                <p>Crea script bash per backup periodici:</p>
+                <pre><code>#!/bin/bash
+# backup-matrix.sh
+
+DATE=$(date +%Y-%m-%d)
+BACKUP_DIR="/backups/matrix"
+API_URL="http://localhost:3000/api/data"
+
+mkdir -p "$BACKUP_DIR"
+curl -s "$API_URL" > "$BACKUP_DIR/matrix-$DATE.json"
+
+# Mantieni solo ultimi 30 giorni
+find "$BACKUP_DIR" -name "matrix-*.json" -mtime +30 -delete
+
+echo "Backup completato: matrix-$DATE.json"</code></pre>
+
+                <p>Aggiungi a crontab per esecuzione giornaliera:</p>
+                <pre><code>0 2 * * * /path/to/backup-matrix.sh >> /var/log/matrix-backup.log 2>&1</code></pre>
+
+                <h4>Import Automatico da CSV</h4>
+                <p>Script per importare dispositivi da file CSV:</p>
+                <pre><code>import csv, requests, json
+
+with open('devices.csv') as f:
+    reader = csv.DictReader(f)
+    devices = []
+    
+    for row in reader:
+        device = {
+            'name': row['Name'],
+            'type': row['Type'],
+            'location': row['Location'],
+            'group': row['Group'],
+            'order': int(row['Order']),
+            'ip_addresses': [row['IP']],
+            'brand_model': row['Brand'],
+            'status': 'active'
+        }
+        devices.append(device)
+
+data = {'devices': devices, 'connections': [], 'rooms': []}
+requests.post('http://localhost:3000/api/data', json=data)</code></pre>
+
+                <h4>Monitoring e Alerting</h4>
+                <p>Monitora lo stato del sistema:</p>
+                <pre><code>#!/bin/bash
+# check-devices.sh
+
+INACTIVE=$(curl -s http://localhost:3000/api/devices | \
+  jq '[.[] | select(.status == "inactive")] | length')
+
+if [ $INACTIVE -gt 0 ]; then
+  echo "WARNING: $INACTIVE dispositivi inattivi"
+  # Invia notifica (email, Slack, ecc.)
+fi</code></pre>
+            </div>
+
+            <div class="tab-pane" id="tab-9">
+                <h2>👥 Gestione Utenti</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#tipi-utenti">Tipi di Utenti</a></li>
+                        <li><a href="#auth-system">Sistema di Autenticazione</a></li>
+                        <li><a href="#permissions">Permessi</a></li>
+                        <li><a href="#password-change">Cambio Password</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="tipi-utenti">📄 Tipi di Utenti</h3>
+                <p>Matrix Network supporta 2 livelli di accesso:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Accesso</th>
+                            <th>Permessi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pubblico (Guest)</strong></td>
+                            <td>Senza autenticazione</td>
+                            <td>
+                                <ul>
+                                    <li>✅ Visualizzare tutte le schede</li>
+                                    <li>✅ Usare filtri e ricerca</li>
+                                    <li>✅ Export Excel/JSON</li>
+                                    <li>✅ Visualizzare Device Detail</li>
+                                    <li>❌ NO modifica dati</li>
+                                    <li>❌ NO delete</li>
+                                    <li>❌ NO import</li>
+                                    <li>❌ NO Links SSH/Telnet visibili</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Admin (Autenticato)</strong></td>
+                            <td>Richiede login</td>
+                            <td>
+                                <ul>
+                                    <li>✅ TUTTE le funzioni Guest +</li>
+                                    <li>✅ Add/Edit/Delete dispositivi</li>
+                                    <li>✅ Add/Edit/Delete connessioni</li>
+                                    <li>✅ Add/Edit/Delete rooms</li>
+                                    <li>✅ Save dati sul server</li>
+                                    <li>✅ Import JSON</li>
+                                    <li>✅ Clear All</li>
+                                    <li>✅ Vedere Links SSH/Telnet</li>
+                github<li>✅ Accesso Guacamole</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="auth-system">🔐 Sistema di Autenticazione</h3>
+
+                <h4>Login</h4>
+                <ol>
+                    <li>Clicca <strong>🔓 Edit Mode</strong> nell'header</li>
+                    <li>Inserisci le credenziali:
+                        <ul>
+                            <li><strong>Username:</strong> (default: <code>admin</code>)</li>
+                            <li><strong>Password:</strong> (configurata in <code>config/auth.json</code>)</li>
+                        </ul>
+                    </li>
+                    <li>Clicca <strong>Login</strong></li>
+                    <li>Se corretto: modalità Edit attivata, pulsante cambia in <strong>🔒 Logout</strong></li>
+                </ol>
+
+                <h4>Logout</h4>
+                <ol>
+                    <li>Clicca <strong>🔒 Logout</strong></li>
+                    <li>Sessione terminata</li>
+                    <li>Torni alla modalità Guest (read-only)</li>
+                </ol>
+
+                <h4>Sessione</h4>
+                <ul>
+                    <li><strong>Durata:</strong> Illimitata finché il browser rimane aperto</li>
+                    <li><strong>Storage:</strong> Session storage (cancellato chiudendo browser)</li>
+                    <li><strong>Inattività:</strong> Nessun timeout automatico</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>💡 Suggerimento:</strong> Esegui sempre <strong>Logout</strong> prima di lasciare il computer incustodito!
+                </div>
+
+                <h3 id="permissions">🛡️ Permessi</h3>
+
+                <h4>Permessi Read (Pubblico)</h4>
+                <ul>
+                    <li>Accesso completo in lettura a tutte le schede</li>
+                    <li>Filtri Location/Group/Type/Status</li>
+                    <li>Ricerca testuale dispositivi/connessioni</li>
+                    <li>Visualizzazione Topology/Matrix/Floor Plan</li>
+                    <li>Device Detail modal (ma no edit)</li>
+                    <li>Export Excel e JSON</li>
+                    <li>Activity Logs in lettura</li>
+                </ul>
+
+                <h4>Permessi Write (Admin)</h4>
+                <ul>
+                    <li><strong>CRUD Devices:</strong> Create, Read, Update, Delete dispositivi</li>
+                    <li><strong>CRUD Connections:</strong> Create, Read, Update, Delete connessioni</li>
+                    <li><strong>CRUD Rooms:</strong> Create, Read, Update, Delete stanze Floor Plan</li>
+                    <li><strong>Save:</strong> Persiste modifiche su disco (pulsante 💾 Save Now)</li>
+                    <li><strong>Import:</strong> Carica JSON sovrascrivi dati</li>
+                    <li><strong>Clear All:</strong> Reset completo sistema</li>
+                </ul>
+
+                <h4>Permessi Links (Solo Admin)</h4>
+                <ul>
+                    <li>Visibilità colonna "Links" nella tabella Devices</li>
+                    <li>Pulsanti "Connect" per SSH/Telnet/RDP</li>
+                    <li>Accesso Apache Guacamole per remote access</li>
+                </ul>
+
+                <h3 id="password-change">🔑 Cambio Password</h3>
+
+                <h4>Modifica Manuale</h4>
+                <p>La password è configurata nel file <code>config/auth.json</code>:</p>
+                <ol>
+                    <li>Connetti al server via SSH</li>
+                    <li>Modifica <code>/workspaces/net/Matrix/config/auth.json</code>:</li>
+                </ol>
+                <pre><code>{
+  "users": [
+    {
+      "username": "admin",
+      "password_hash": "your_hashed_password_here",
+      "role": "admin"
+    }
+  ]
+}</code></pre>
+                <ol start="3">
+                    <li>Genera hash password sicuro (es: bcrypt, sha256)</li>
+                    <li>Salva il file</li>
+                    <li>Riavvia server Node.js: <code>pm2 restart matrix</code></li>
+                </ol>
+
+                <h4>Tool Generazione Hash</h4>
+                <p>Script Node.js per generare hash bcrypt:</p>
+                <pre><code>// generate-hash.js
+const bcrypt = require('bcrypt');
+const password = process.argv[2];
+
+if (!password) {
+  console.log('Usage: node generate-hash.js YOUR_PASSWORD');
+  process.exit(1);
+}
+
+bcrypt.hash(password, 10, (err, hash) => {
+  if (err) throw err;
+  console.log('Password hash:', hash);
+});</code></pre>
+
+                <p>Utilizzo:</p>
+                <pre><code>$ node generate-hash.js MySecurePass123
+Password hash: $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p...</code></pre>
+
+                <h4>Best Practices Password</h4>
+                <ul>
+                    <li>✅ <strong>Lunghezza minima:</strong> 12 caratteri</li>
+                    <li>✅ <strong>Complessità:</strong> Maiuscole, minuscole, numeri, simboli</li>
+                    <li>✅ <strong>No parole comuni:</strong> Evita password dizionario</li>
+                    <li>✅ <strong>Unica:</strong> Non riutilizzare password di altri sistemi</li>
+                    <li>✅ <strong>Rotazione:</strong> Cambia ogni 90 giorni</li>
+                    <li>✅ <strong>Gestione sicura:</strong> Usa password manager</li>
+                </ul>
+
+                <div class="alert alert-danger">
+                    <strong>⚠️ SICUREZZA:</strong> Non memorizzare MAI password in chiaro! Usa sempre hashing (bcrypt raccomandato).
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab-10">
+                <h2>🆘 Problemi e Soluzioni (FAQ)</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#prob-login">Problemi di Login</a></li>
+                        <li><a href="#prob-save">Problemi di Salvataggio</a></li>
+                        <li><a href="#prob-ports">Problemi con le Porte</a></li>
+                        <li><a href="#prob-topology">Problemi Topology/Matrix</a></li>
+                        <li><a href="#prob-performance">Problemi di Performance</a></li>
+                        <li><a href="#faq">FAQ Generali</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="prob-login">🔐 Problemi di Login</h3>
+
+                <h4>Q: "Invalid credentials" anche con password corretta</h4>
+                <p><strong>Cause possibili:</strong></p>
+                <ul>
+                    <li>Username o password errati (verifica maiuscole/minuscole)</li>
+                    <li>File <code>config/auth.json</code> corrotto o non leggibile</li>
+                    <li>Hash password non valido</li>
+                </ul>
+                <p><strong>Soluzione:</strong></p>
+                <ol>
+                    <li>Verifica console browser (F12) per errori</li>
+                    <li>Controlla log server: <code>pm2 logs matrix</code></li>
+                    <li>Rigenera hash password con <code>generate-hash.js</code></li>
+                    <li>Riavvia server: <code>pm2 restart matrix</code></li>
+                </ol>
+
+                <h4>Q: Logout automatico inaspettato</h4>
+                <p><strong>Causa:</strong> Session storage cancellato (nuovo tab, refresh forzato)</p>
+                <p><strong>Soluzione:</strong> Effettua login nuovamente. Sessione NON persiste tra tab/finestre diverse.</p>
+
+                <h3 id="prob-save">💾 Problemi di Salvataggio</h3>
+
+                <h4>Q: "Save Now" non funziona, nessun messaggio di errore</h4>
+                <p><strong>Diagnosi:</strong></p>
+                <ol>
+                    <li>Apri console browser (F12)</li>
+                    <li>Clicca Save Now</li>
+                    <li>Cerca errori in rosso</li>
+                </ol>
+                <p><strong>Cause comuni:</strong></p>
+                <ul>
+                    <li><strong>Server offline:</strong> Verifica <code>pm2 status</code></li>
+                    <li><strong>Permessi file:</strong> Directory <code>data/</code> non scrivibile</li>
+                    <li><strong>JSON invalido:</strong> Dati corrotti in memoria</li>
+                    <li><strong>Spazio disco:</strong> Disco pieno</li>
+                </ul>
+                <p><strong>Soluzione:</strong></p>
+                <pre><code># Verifica server
+pm2 status
+pm2 restart matrix
+
+# Verifica permessi
+ls -la /workspaces/net/Matrix/data/
+chmod 755 /workspaces/net/Matrix/data/
+chown $USER:$USER /workspaces/net/Matrix/data/network_manager.json
+
+# Verifica spazio
+df -h</code></pre>
+
+                <h4>Q: Perso modifiche dopo refresh</h4>
+                <p><strong>Causa:</strong> Non hai cliccato <strong>💾 Save Now</strong> prima del refresh!</p>
+                <p><strong>Prevenzione:</strong></p>
+                <ul>
+                    <li>Salva frequentemente durante sessioni lunghe</li>
+                    <li>Usa <code>Ctrl+S</code> come promemoria (anche se non salva, ti ricorda di cliccare Save Now)</li>
+                    <li>Esporta JSON backup prima di modifiche importanti</li>
+                </ul>
+
+                <h3 id="prob-ports">🔌 Problemi con le Porte</h3>
+
+                <h4>Q: Porta non appare nella lista quando creo connessione</h4>
+                <p><strong>Causa:</strong> Porta già utilizzata da altra connessione</p>
+                <p><strong>Verifica:</strong></p>
+                <ol>
+                    <li>Vai su scheda <strong>Devices</strong></li>
+                    <li>Clicca sul dispositivo per aprire Device Detail</li>
+                    <li>Porta occupata ha badge verde "Used"</li>
+                    <li>Hover/Click sulla porta mostra la connessione esistente</li>
+                </ol>
+                <p><strong>Soluzione:</strong> Elimina la connessione esistente o usa un'altra porta.</p>
+
+                <h4>Q: Device Detail mostra "No ports defined"</h4>
+                <p><strong>Causa:</strong> Dispositivo creato senza definire porte</p>
+                <p><strong>Soluzione:</strong></p>
+                <ol>
+                    <li>Entra in Edit Mode</li>
+                    <li>Clicca <strong>Edit</strong> sul dispositivo</li>
+                    <li>Scorri a sezione <strong>Ports</strong></li>
+                    <li>Usa <strong>Port Builder</strong> per generare porte</li>
+                    <li>Salva dispositivo</li>
+                    <li>Salva sul server (<strong>💾 Save Now</strong>)</li>
+                </ol>
+
+                <h4>Q: Special ports (WAN, SFP) si sovrappongono nel Device Detail</h4>
+                <p><strong>Stato:</strong> Risolto nella v3.6.034</p>
+                <p><strong>Soluzione:</strong> Aggiorna a versione latest. Se problema persiste, svuota cache browser (Ctrl+Shift+R).</p>
+
+                <h3 id="prob-topology">🗺️ Problemi Topology/Matrix</h3>
+
+                <h4>Q: Topology mostra connessioni ma dispositivi non visibili</h4>
+                <p><strong>Causa:</strong> Dispositivi fuori dalla viewport o filtrati</p>
+                <p><strong>Soluzione:</strong></p>
+                <ul>
+                    <li>Zoom out (scroll mouse verso basso)</li>
+                    <li>Usa pulsante <strong>Fit to Screen</strong></li>
+                    <li>Controlla filtro <strong>Type</strong> (mostra/nascondi per tipo)</li>
+                    <li>Verifica filtro <strong>Location</strong> (forse dispositivi in altra sede)</li>
+                </ul>
+
+                <h4>Q: Matrix cella colorata ma non mostra dettagli al click</h4>
+                <p><strong>Diagnosi:</strong> Console browser (F12) mostra errore JavaScript</p>
+                <p><strong>Soluzione:</strong></p>
+                <ol>
+                    <li>Refresh pagina (Ctrl+F5 per svuotare cache)</li>
+                    <li>Verifica cache-busting version (deve essere v3.6.034 o superiore)</li>
+                    <li>Se persiste: Export JSON, Clear All, Import JSON</li>
+                </ol>
+
+                <h4>Q: Floor Plan non mostra dispositivi nelle stanze</h4>
+                <p><strong>Causa:</strong> Campo <strong>Rear</strong> non corrisponde al nome stanza</p>
+                <p><strong>Verifica:</strong></p>
+                <ol>
+                    <li>Tab <strong>Devices</strong>: controlla colonna "Rear"</li>
+                    <li>Tab <strong>Floor Plan</strong>: verifica nome esatto stanza (case-sensitive!)</li>
+                    <li>Esempio: "Datacenter A" ≠ "datacenter a" ≠ "DataCenter A"</li>
+                </ol>
+                <p><strong>Soluzione:</strong> Modifica dispositivi e assicura che Rear = nome stanza ESATTO.</p>
+
+                <h3 id="prob-performance">⏱️ Problemi di Performance</h3>
+
+                <h4>Q: Tabella Devices lenta con molti dispositivi (>1000)</h4>
+                <p><strong>Soluzioni:</strong></p>
+                <ul>
+                    <li>Usa <strong>filtri</strong> per ridurre risultati (Location, Type, Status)</li>
+                    <li>Usa <strong>ricerca testuale</strong> per isolare dispositivi</li>
+                    <li>Passa a vista <strong>Cards</strong> invece di <strong>Table</strong> (rendering più veloce)</li>
+                    <li>Disabilita <strong>Topology auto-refresh</strong> durante modifiche di massa</li>
+                </ul>
+
+                <h4>Q: Topology lag/scatti quando trascino dispositivi</h4>
+                <p><strong>Causa:</strong> Molti dispositivi (>200) o browser/hardware lento</p>
+                <p><strong>Soluzioni:</strong></p>
+                <ul>
+                    <li>Filtra per Location (mostra solo 1 sede alla volta)</li>
+                    <li>Disabilita animazioni (modifica CSS <code>transition: none</code>)</li>
+                    <li>Usa browser moderno (Chrome/Edge 90+)</li>
+                    <li>Hardware: min 8GB RAM raccomandati per >500 dispositivi</li>
+                </ul>
+
+                <h3 id="faq">❓ FAQ Generali</h3>
+
+                <h4>Q: Posso  usare Matrix su mobile/tablet?</h4>
+                <p><strong>R:</strong> Sì per visualizzazione (responsive design), NO per editing. Schermi piccoli rendono difficile gestire Topology/Floor Plan. Raccomandato desktop/laptop per admin.</p>
+
+                <h4>Q: Supporta multi-utente concorrente?</h4>
+                <p><strong>R:</strong> NO. Matrix Network è single-user. Se 2 admin modificano contemporaneamente, l'ultimo che salva sovrascrive il primo. Soluzione: coordinare modifiche o implementare locking.</p>
+
+                <h4>Q: Dov'è il database?</h4>
+                <p><strong>R:</strong> Non usa database. Tutti i dati sono in <code>data/network_manager.json</code> (flat-file JSON). Backup automatici in <code>backup/</code>. Semplice, portable, facile da backuppare.</p>
+
+                <h4>Q: Limiti massimi?</h4>
+                <p><strong>R:</strong> Testato con:</p>
+                <ul>
+                    <li><strong>Dispositivi:</strong> 2000+ (performance ottimale <500)</li>
+                    <li><strong>Connessioni:</strong> 5000+ (performance ottimale <1000)</li>
+                    <li><strong>Porte per device:</strong> 128 (limite pratico, tecnicamente illimitato)</li>
+                    <li><strong>File JSON:</strong> <10MB raccomandato</li>
+                </ul>
+
+                <h4>Q: C'è dark mode?</h4>
+                <p><strong>R:</strong> Non implementato di default. Puoi personalizzare CSS in <code>css/style.css</code> per creare tema dark.</p>
+
+                <h4>Q: Integrazione con monitoring tools (Zabbix, Nagios)?</h4>
+                <p><strong>R:</strong> Via API REST. Usa <code>GET /api/devices</code> per ottenere lista dispositivi con IPs, poi integra con monitoring. Script Python examples in <code>scripts/integration/</code>.</p>
+
+                <h4>Q: Come contribuire al progetto?</h4>
+                <p><strong>R:</strong> Matrix Network è progetto privato/interno. Per feature requests, contatta team di sviluppo via issue tracker interno.</p>
+            </div>
+
+            <div class="tab-pane" id="tab-11">
+                <h2>🔨 Manutenzione e Amministrazione</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#logs">Activity Logs</a></li>
+                        <li><a href="#backup">Backup e Restore</a></li>
+                        <li><a href="#monitoring">Monitoring</a></li>
+                        <li><a href="#updates">Aggiornamenti</a></li>
+                        <li><a href="#cleanup">Pulizia e Ottimizzazione</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="logs">📜 Activity Logs</h3>
+                
+                <h4>Accesso ai Logs</h4>
+                <p>Clicca <strong>📝 Activity Logs</strong> nell'header per visualizzare lo storico completo.</p>
+
+                <h4>Cosa Viene Loggato</h4>
+                <ul>
+                    <li><strong>Device ADD:</strong> Creazione nuovo dispositivo (nome, tipo, location)</li>
+                    <li><strong>Device EDIT:</strong> Modifica dispositivo esistente (campo modificato, vecchio → nuovo valore)</li>
+                    <li><strong>Device DELETE:</strong> Eliminazione dispositivo (nome, tipo)</li>
+                    <li><strong>Connection ADD:</strong> Nuova connessione (from → to con porte)</li>
+                    <li><strong>Connection EDIT:</strong> Modifica connessione (campo modificato)</li>
+                    <li><strong>Connection DELETE:</strong> Eliminazione connessione</li>
+                    <li><strong>Room ADD/EDIT/DELETE:</strong> Modifiche Floor Plan</li>
+                    <li><strong>DATA SAVE:</strong> Salvataggio dati sul server (timestamp)</li>
+                    <li><strong>DATA IMPORT:</strong> Import JSON (fonte file, timestamp)</li>
+                    <li><strong>CLEAR ALL:</strong> Reset completo sistema</li>
+                </ul>
+
+                <h4>Formato Log Entry</h4>
+                <pre><code>{
+  "timestamp": "2025-02-09T15:30:00.000Z",
+  "user": "admin",
+  "action": "Device ADD",
+  "target": "SW-CORE-01",
+  "details": {
+    "type": "switch",
+    "location": "Milan HQ",
+    "ip": "192.168.1.10"
+  },
+  "ip_address": "192.168.1.100"
+}</code></pre>
+
+                <h4>Export Logs</h4>
+                <ol>
+                    <li>Apri Activity Logs modal</li>
+                    <li>Clicca <strong>Export Logs</strong></li>
+                    <li>File JSON scaricato: <code>activity-logs-YYYY-MM-DD.json</code></li>
+                    <li>Usalo per audit, compliance, troubleshooting</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>💡 Suggerimento:</strong> Export logs periodicamente per audit trail completo. Retention raccomandato: 12 mesi.
+                </div>
+
+                <h3 id="backup">💾 Backup e Restore</h3>
+
+                <h4>Strategie di Backup</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Frequenza</th>
+                            <th>Metodo</th>
+                            <th>Retention</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Backup Manuale</strong></td>
+                            <td>Prima di modifiche importanti</td>
+                            <td>Export JSON manuale</td>
+                            <td>Permanente (archiviazione esterna)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Backup Automatico</strong></td>
+                            <td>Ogni salvataggio (Save Now)</td>
+                            <td>Sistema crea <code>backup/*.json</code></td>
+                            <td>30 giorni (auto-cleanup)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Backup Pianificato</strong></td>
+                            <td>Giornaliero (2 AM)</td>
+                            <td>Script cron + API</td>
+                            <td>90 giorni</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Script Backup Automatico</h4>
+                <pre><code>#!/bin/bash
+# /etc/cron.daily/matrix-backup.sh
+
+BACKUP_DIR="/backups/matrix"
+DATE=$(date +%Y%m%d_%H%M%S)
+RETENTION_DAYS=90
+
+mkdir -p "$BACKUP_DIR"
+
+# Download da API
+curl -s http://localhost:3000/api/data > "$BACKUP_DIR/matrix_$DATE.json"
+
+# Verifica file non vuoto
+if [ -s "$BACKUP_DIR/matrix_$DATE.json" ]; then
+    echo "Backup OK: matrix_$DATE.json"
+    
+    # Cleanup vecchi backup
+    find "$BACKUP_DIR" -name "matrix_*.json" -mtime +$RETENTION_DAYS -delete
+else
+    echo "ERRORE: Backup vuoto o fallito!"
+    rm -f "$BACKUP_DIR/matrix_$DATE.json"
+    exit 1
+fi</code></pre>
+
+                <h4>Restore da Backup</h4>
+                <ol>
+                    <li><strong>PRIMA:</strong> Export corrente come ulteriore sicurezza</li>
+                    <li>Entra in Edit Mode</li>
+                    <li>Clicca <strong>📥 Import JSON</strong></li>
+                    <li>Seleziona file backup da ripristinare</li>
+                    <li>Sistema valida e importa</li>
+                    <li>Verifica dati caricati correttamente</li>
+                    <li>Clicca <strong>💾 Save Now</strong> per persistere</li>
+                </ol>
+
+                <h4>Backup Offsite</h4>
+                <p>Raccomandazioni per disaster recovery:</p>
+                <ul>
+                    <li><strong>3-2-1 Rule:</strong> 3 copie, 2 media diversi, 1 offsite</li>
+                    <li><strong>Cloud storage:</strong> S3, Google Cloud Storage, Azure Blob</li>
+                    <li><strong>Versioning:</strong> Mantieni multiple versioni temporali</li>
+                    <li><strong>Encryption:</strong> Cripta backup sensibili (GPG, 7zip con password)</li>
+                    <li><strong>Testing:</strong> Testa restore almeno trimestralmente</li>
+                </ul>
+
+                <h3 id="monitoring">📊 Monitoring</h3>
+
+                <h4>Monitorare il Sistema</h4>
+                <p>Metriche chiave da monitorare:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metrica</th>
+                            <th>Comando/Script</th>
+                            <th>Soglia Alert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Server uptime</td>
+                            <td><code>pm2 status matrix</code></td>
+                            <td>Status ≠ online</td>
+                        </tr>
+                        <tr>
+                            <td>Utilizzo memoria</td>
+                            <td><code>pm2 monit</code></td>
+                            <td>> 500MB</td>
+                        </tr>
+                        <tr>
+                            <td>Errori server</td>
+                            <td><code>pm2 logs matrix --err</code></td>
+                            <td>> 10 errori/ora</td>
+                        </tr>
+                        <tr>
+                            <td>File JSON size</td>
+                            <td><code>du -h data/network_manager.json</code></td>
+                            <td>> 20MB</td>
+                        </tr>
+                        <tr>
+                            <td>Backup falliti</td>
+                            <td>Check log backup script</td>
+                            <td>1+ fallimento consecutivo</td>
+                        </tr>
+                        <tr>
+                            <td>Dispositivi inattivi</td>
+                            <td><code>GET /api/devices</code> + filtro status</td>
+                            <td>> 5% dispositivi inactive</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Script Health Check</h4>
+                <pre><code>#!/bin/bash
+# matrix-healthcheck.sh
+
+ERRORS=0
+
+# Check server running
+if ! pm2 pid matrix > /dev/null; then
+    echo "ERROR: Matrix server offline!"
+    pm2 restart matrix
+    ((ERRORS++))
+fi
+
+# Check API responsive
+if ! curl -s http://localhost:3000/api/data > /dev/null; then
+    echo "ERROR: API non risponde!"
+    ((ERRORS++))
+fi
+
+# Check file JSON readable
+if [ ! -r /workspaces/net/Matrix/data/network_manager.json ]; then
+    echo "ERROR: File JSON non leggibile!"
+    ((ERRORS++))
+fi
+
+# Check disk space
+DISK_USAGE=$(df -h /workspaces | tail -1 | awk '{print $5}' | sed 's/%//')
+if [ $DISK_USAGE -gt 90 ]; then
+    echo "WARNING: Spazio disco >90% ($DISK_USAGE%)"
+    ((ERRORS++))
+fi
+
+if [ $ERRORS -eq 0 ]; then
+    echo "OK: Sistema in salute"
+else
+    echo "FAIL: $ERRORS problemi rilevati"
+    # Invia notifica (email, Slack, etc.)
+fi
+
+exit $ERRORS</code></pre>
+
+                <p>Aggiungi a crontab per check ogni 5 minuti:</p>
+                <pre><code>*/5 * * * * /usr/local/bin/matrix-healthcheck.sh >> /var/log/matrix-health.log 2>&1</code></pre>
+
+                <h3 id="updates">⬆️ Aggiornamenti</h3>
+
+                <h4>Versioning</h4>
+                <p>Matrix Network usa semantic versioning: <code>MAJOR.MINOR.PATCH</code></p>
+                <ul>
+                    <li><strong>MAJOR:</strong> Breaking changes (es: 3.x → 4.x)</li>
+                    <li><strong>MINOR:</strong> Nuove funzionalità retrocompatibili (es: 3.5.x → 3.6.x)</li>
+                    <li><strong>PATCH:</strong> Bug fix, ottimizzazioni (es: 3.6.33 → 3.6.34)</li>
+                </ul>
+
+                <h4>Come Aggiornare</h4>
+                <ol>
+                    <li><strong>BACKUP:</strong> Export JSON completo + backup directory <code>/Matrix/</code></li>
+                    <li>Download nuova versione da repository</li>
+                    <li>Stop server: <code>pm2 stop matrix</code></li>
+                    <li>Backup vecchia versione: <code>mv Matrix Matrix_old</code></li>
+                    <li>Estrai nuova versione: <code>unzip matrix-v3.6.034.zip</code></li>
+                    <li>Copia dati vecchi: <code>cp Matrix_old/data/*.json Matrix/data/</code></li>
+                    <li>Copia config: <code>cp Matrix_old/config/* Matrix/config/</code></li>
+                    <li>Installa dipendenze: <code>cd Matrix && npm install</code></li>
+                    <li>Start server: <code>pm2 start server.js --name matrix</code></li>
+                    <li>Verifica: apri browser e testa funzionalità</li>
+                    <li>Se OK: rimuovi <code>Matrix_old/</code></li>
+                    <li>Se problemi: <code>pm2 stop matrix && mv Matrix_old Matrix && pm2 start</code></li>
+                </ol>
+
+                <h4>Changelog</h4>
+                <p>Consulta <code>RELEASE_NOTES.md</code> per dettagli di ogni versione. Esempio:</p>
+                <pre><code># v3.6.034 (2025-02-08)
+## Fixes
+- Device Detail: Fixed special ports overlap (WAN, SFP, MGMT)
+- Device table: Made entire row clickable
+- Links column: Hidden from public users (admin-only)
+
+## Changes
+- Port labels: Increased font size 7px -> 8px
+- Port section: Increased gap 8px -> 16px
+- Alignment: Changed flex-end -> flex-start for better spacing</code></pre>
+
+                <h3 id="cleanup">🧹 Pulizia e Ottimizzazione</h3>
+
+                <h4>Cleanup Backup Automatici</h4>
+                <p>Sistema mantiene backup automatici in <code>backup/</code>. Cleanup manuale:</p>
+                <pre><code># Mantieni solo ultimi 30 giorni
+find /workspaces/net/Matrix/backup -name "*.json" -mtime +30 -delete
+
+# Conta backup presenti
+ls -1 /workspaces/net/Matrix/backup/*.json | wc -l</code></pre>
+
+                <h4>Cleanup Log Files</h4>
+                <pre><code># PM2 logs rotation
+pm2 flush matrix
+
+# System logs cleanup
+journalctl --vacuum-time=30d</code></pre>
+
+                <h4>Ottimizzazione File JSON</h4>
+                <p>Se file <code>network_manager.json</code> diventa molto grande (>10MB):</p>
+                <ol>
+                    <li>Export JSON</li>
+                    <li>Analizza con script: quanti dispositivi? Porte? Connessioni?</li>
+                    <li>Considera split per Location (multiple istanze Matrix per sede)</li>
+                    <li>Archivia dispositivi decommissioned (status=decommissioned)</li>
+                    <li>Rimuovi dispositivi obsoleti non più utilizzati</li>
+                </ol>
+
+                <h4>Vacuum Database (N/A)</h4>
+                <p>Matrix NON usa database, quindi non serve vacuum. File JSON è autoottimizzante (compact format).</p>
+
+                <div class="alert alert-success">
+                    <strong>✅ Best Practice:</strong> Esegui manutenzione mensile: backup verification, health check, cleanup logs, review dispositivi obsoleti.
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab-12">
+                <h2>🔒 Sicurezza</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#autenticazione">Autenticazione</a></li>
+                        <li><a href="#autorizzazione">Autorizzazione</a></li>
+                        <li><a href="#dati-sensibili">Protezione Dati Sensibili</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                        <li><a href="#audit">Audit e Compliance</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="autenticazione">🔑 Autenticazione</h3>
+
+                <h4>Meccanismo Corrente</h4>
+                <p>Matrix Network usa autenticazione semplice username/password:</p>
+                <ul>
+                    <li><strong>Storage:</strong> Credenziali in <code>config/auth.json</code></li>
+                    <li><strong>Hash:</strong> Password salvate come hash bcrypt (NON plaintext)</li>
+                    <li><strong>Sessione:</strong> Session storage browser (non persistente)</li>
+                    <li><strong>Timeout:</strong> Nessun timeout automatico (logout manuale)</li>
+                </ul>
+
+                <h4>Hardening Autenticazione</h4>
+                <p><strong>Raccomandazioni immediate:</strong></p>
+                <ol>
+                    <li><strong>Password forte:</strong> Min 12 caratteri, complessità alta</li>
+                    <li><strong>Rotazione:</strong> Cambia password ogni 90 giorni</li>
+                    <li><strong>File permissions:</strong> <code>chmod 600 config/auth.json</code></li>
+                    <li><strong>No condivisione:</strong> 1 account = 1 persona (no shared admin)</li>
+                </ol>
+
+                <p><strong>Upgrade futuri (roadmap):</strong></p>
+                <ul>
+                    <li>Multi-factor authentication (MFA/2FA)</li>
+                    <li>LDAP/Active Directory integration</li>
+                    <li>OAuth2/SAML single sign-on</li>
+                    <li>Session timeout configurabile</li>
+                    <li>Rate limiting login attemp ts</li>
+                </ul>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Limitazione Corrente:</strong> NON c'è protezione contro brute-force. Se esposto a internet, usa firewall/VPN/reverse proxy con rate limiting.
+                </div>
+
+                <h3 id="autorizzazione">🛡️ Autorizzazione</h3>
+
+                <h4>Modello RBAC (Role-Based Access Control)</h4>
+                <p>2 ruoli disponibili:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ruolo</th>
+                            <th>Permessi Read</th>
+                            <th>Permessi Write</th>
+                            <th>Permessi Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Guest (pubblico)</strong></td>
+                            <td>
+                                ✅ Tutte le schede<br>
+                                ✅ Filtri e ricerca<br>
+                                ✅ Export Excel/JSON<br>
+                                ✅ Device Detail
+                            </td>
+                            <td>
+                                ❌ Nessuno
+                            </td>
+                            <td>
+                                ❌ Nessuno
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Admin</strong></td>
+                            <td>
+                                ✅ Tutto Guest +
+                            </td>
+                            <td>
+                                ✅ CRUD devices<br>
+                                ✅ CRUD connections<br>
+                                ✅ CRUD rooms<br>
+                                ✅ Save/Import/Clear
+                            </td>
+                            <td>
+                                ✅ Vedere Links SSH/Telnet<br>
+                                ✅ Guacamole access<br>
+                                ✅ Activity Logs completi
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Principle of Least Privilege</h4>
+                <p>Raccomandazioni:</p>
+                <ul>
+                    <li><strong>Default Deny:</strong> Utenti pubblici NON possono modificare (già implementato)</li>
+                    <li><strong>Separation of Duties:</strong> Admin diversi per diverse sedi (future enhancement)</li>
+                    <li><strong>Audit Trail:</strong> Activity Logs registrano TUTTE le modifiche</li>
+                </ul>
+
+                <h3 id="dati-sensibili">📜 Protezione Dati Sensibili</h3>
+
+                <h4>Dati Sensibili in Matrix</h4>
+                <p>Identifica cosa proteggere:</p>
+                <ul>
+                    <li><strong>IP Addresses:</strong> Topologia di rete (info sensibile per security)</li>
+                    <li><strong>Links SSH/Telnet:</strong> Accesso diretto ai dispositivi</li>
+                    <li><strong>Notes:</strong> Possono contenere password/credenziali (BAD PRACTICE!)</li>
+                    <li><strong>Service info:</strong> Servizi critici esposti</li>
+                    <li><strong>Floor Plan:</strong> Layout fisico datacenter</li>
+                </ul>
+
+                <h4>Encryption at Rest</h4>
+                <p>File <code>data/network_manager.json</code> è salvato in plaintext. Raccomandazioni:</p>
+                <ol>
+                    <li><strong>Filesystem encryption:</strong> Usa LUKS/dm-crypt per tutto il disco</li>
+                    <li><strong>File-level encryption:</strong> GPG per singoli file backup:
+                        <pre><code>gpg -c network_manager.json  # Encrypt
+gpg network_manager.json.gpg  # Decrypt</code></pre>
+                    </li>
+                    <li><strong>Backup encrypted:</strong> 7zip con password forte per backup offsite</li>
+                </ol>
+
+                <h4>Encryption in Transit</h4>
+                <p>Default: HTTP (NON encrypted). <strong>Upgrade a HTTPS:</strong></p>
+                <ol>
+                    <li>Ottieni certificato SSL (Let's Encrypt gratuito)</li>
+                    <li>Configura reverse proxy (Nginx/Apache):
+                        <pre><code>server {
+    listen 443 ssl;
+    server_name matrix.example.com;
+    
+    ssl_certificate /etc/letsencrypt/live/matrix.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/matrix.example.com/privkey.pem;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}</code></pre>
+                    </li>
+                    <li>Redirect HTTP -> HTTPS</li>
+                    <li>HSTS header per forzare HTTPS</li>
+                </ol>
+
+                <h4>Protezione Credenziali</h4>
+                <div class="alert alert-danger">
+                    <strong>⚠️ NEVER:</strong> Non inserire MAI password nelle Notes o Service fields! Usa password manager separato (KeePass, 1Password, Bitwarden).
+                </div>
+
+                <h3 id="best-practices">✅ Best Practices</h3>
+
+                <h4>Network Security</h4>
+                <ul>
+                    <li><strong>Firewall:</strong> Limita accesso porta 3000 solo da rete interna</li>
+                    <li><strong>VPN:</strong> Accesso remoto via VPN, NON esposizione diretta internet</li>
+                    <li><strong>Reverse Proxy:</strong> Usa Nginx/Apache con rate limiting, WAF</li>
+                    <li><strong>IP Whitelist:</strong> Permetti solo IP trusted</li>
+                </ul>
+
+                <h4>Application Security</h4>
+                <ul>
+                    <li><strong>HTTPS Only:</strong> Certificato SSL valido, no HTTP</li>
+                    <li><strong>Security Headers:</strong> X-Frame-Options, CSP, X-Content-Type-Options</li>
+                    <li><strong>Input Validation:</strong> Validazione lato server (già implementata)</li>
+                    <li><strong>XSS Protection:</strong> Sanitizzazione input (già implementata)</li>
+                    <li><strong>CSRF Protection:</strong> Token CSRF per operazioni write (future)</li>
+                </ul>
+
+                <h4>Data Security</h4>
+                <ul>
+                    <li><strong>Backup Encrypted:</strong> Tutti i backup offsite devono essere cifrati</li>
+                    <li><strong>Access Control:</strong> File JSON readable solo da processo Matrix (<code>chmod 600</code>)</li>
+                    <li><strong>Audit Trail:</strong> Activity Logs per tracciare tutte le modifiche</li>
+                    <li><strong>Data Retention:</strong> Policy per eliminazione dati obsoleti</li>
+                </ul>
+
+                <h4>Operational Security</h4>
+                <ul>
+                    <li><strong>Least Privilege:</strong> Processo Node.js NON root</li>
+                    <li><strong>Updates:</strong> Mantieni Node.js e dipendenze aggiornate</li>
+                    <li><strong>Monitoring:</strong> Alert su modifiche inaspettate</li>
+                    <li><strong>Incident Response:</strong> Piano per gestione breach</li>
+                </ul>
+
+                <h3 id="audit">📊 Audit e Compliance</h3>
+
+                <h4>Activity Logs per Audit</h4>
+                <p>Matrix registra automaticamente:</p>
+                <ul>
+                    <li><strong>Timestamp ISO 8601:</strong> Data/ora precisa</li>
+                    <li><strong>User:</strong> Username che ha effettuato azione</li>
+                    <li><strong>Action:</strong> Tipo operazione (ADD/EDIT/DELETE/SAVE/IMPORT)</li>
+                    <li><strong>Target:</strong> Dispositivo/connessione modificato</li>
+                    <li><strong>Details:</strong> Campi modificati e valori</li>
+                    <li><strong>IP Address:</strong> IP sorgente richiesta</li>
+                </ul>
+
+                <h4>Export Audit Trail</h4>
+                <p>Per compliance (GDPR, SOX, HIPAA):</p>
+                <ol>
+                    <li>Export logs periodicamente (mensile/trimestrale)</li>
+                    <li>Archivia in storage immutabile (WORM media)</li>
+                    <li>Retention secondo policy aziendale (tipico: 7 anni)</li>
+                    <li>Formato machine-readable (JSON) per analisi</li>
+                </ol>
+
+                <h4>Compliance Checklist</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Requisito</th>
+                            <th>Stato Matrix</th>
+                            <th>Azione Necessaria</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Access Control</td>
+                            <td>⚠️ Parziale</td>
+                            <td>Implementare MFA</td>
+                        </tr>
+                        <tr>
+                            <td>Audit Trail</td>
+                            <td>✅ Completo</td>
+                            <td>Nessuna (già OK)</td>
+                        </tr>
+                        <tr>
+                            <td>Data Encryption (rest)</td>
+                            <td>❌ Mancante</td>
+                            <td>Filesystem encryption o GPG</td>
+                        </tr>
+                        <tr>
+                            <td>Data Encryption (transit)</td>
+                            <td>❌ HTTP only</td>
+                            <td>Implementare HTTPS</td>
+                        </tr>
+                        <tr>
+                            <td>Backup/Recovery</td>
+                            <td>✅ Automatico</td>
+                            <td>Testare restore regolarmente</td>
+                        </tr>
+                        <tr>
+                            <td>Retention Policy</td>
+                            <td>⚠️ Parziale</td>
+                            <td>Documentare policy formale</td>
+                        </tr>
+                        <tr>
+                            <td>Incident Response</td>
+                            <td>❌ Nessuno</td>
+                            <td>Creare piano IR</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Security Hardening Roadmap</h4>
+                <p><strong>Fase 1 (Immediate):</strong></p>
+                <ol>
+                    <li>Password forte e cambio immediato default</li>
+                    <li>File permissions: <code>chmod 600 config/auth.json data/*.json</code></li>
+                    <li>Firewall rules: blocca porta 3000 da internet</li>
+                    <li>HTTPS con Let's Encrypt + Nginx reverse proxy</li>
+                </ol>
+
+                <p><strong>Fase 2 (30 giorni):</strong></p>
+                <ol>
+                    <li>Backup encryption con GPG</li>
+                    <li>Script monitoring e alerting</li>
+                    <li>Documentazione policy sicurezza</li>
+                    <li>Training utenti su best practices</li>
+                </ol>
+
+                <p><strong>Fase 3 (90 giorni):</strong></p>
+                <ol>
+                    <li>Implementare MFA (Google Authenticator)</li>
+                    <li>LDAP/AD integration</li>
+                    <li>WAF (Web Application Firewall)</li>
+                    <li>Penetration testing esterno</li>
+                </ol>
+
+                <div class="alert alert-success">
+                    <strong>✅ Priorità Alta:</strong> Password forte + Firewall + HTTPS sono i 3 interventi più critici. Implementali SUBITO se Matrix è accessibile da rete non fidata.
+                </div>
+            </div>
+
+            <div class="tab-pane" id="tab-13">
+                <h2>📚 Riferimento Tecnico</h2>
+                
+                <div class="toc">
+                    <strong>In questa pagina:</strong>
+                    <ul>
+                        <li><a href="#struttura-file">Struttura File</a></li>
+                        <li><a href="#schema-json">Schema JSON</a></li>
+                        <li><a href="#env-vars">Variabili d'Ambiente</a></li>
+                        <li><a href="#api-ref">Riferimento API</a></li>
+                        <li><a href="#glossario">Glossario</a></li>
+                    </ul>
+                </div>
+
+                <h3 id="struttura-file">📂 Struttura File</h3>
+
+                <h4>Directory Tree</h4>
+                <pre><code>/workspaces/net/Matrix/
+├── server.js                 # Server Node.js principale
+├── package.json              # Dipendenze NPM
+├── index.html                # Frontend principale
+├── help.html                 # Documentazione (questo file)
+├── README.md                 # Documentazione setup
+├── api/
+│   └── data.php              # API legacy PHP (deprecated)
+├── assets/
+│   ├── icons/                # Icone SVG dispositivi
+│   └── img/                  # Immagini/loghi
+├── backup/                   # Backup automatici
+│   └── *.json                # File backup timestamp
+├── config/
+│   ├── auth.json             # Credenziali autenticazione
+│   ├── guacamole.json        # Config Guacamole (opzionale)
+│   └── settings.json         # Impostazioni globali
+├── css/
+│   ├── style.css             # Stili globali
+│   └── device-detail.css     # Stili modal device detail
+├── data/
+│   ├── network_manager.json  # DATABASE PRINCIPALE
+│   └── activity_logs.json    # Activity logs
+├── doc/                      # Documentazione tecnica
+├── js/
+│   ├── app.js                # Core application logic
+│   ├── auth.js               # Gestione autenticazione
+│   ├── connections.js        # Gestione connessioni
+│   ├── dashboard.js          # Dashboard/statistiche
+│   ├── device-detail.js      # Modal dettaglio dispositivo
+│   ├── features.js           # Features/utilities
+│   ├── floorplan.js          # Floor plan canvas
+│   ├── matrix.js             # Matrix view
+│   ├── topology.js           # Topology canvas
+│   └── ui-updates.js         # Rendering UI/tabelle
+├── scripts/
+│   ├── maintenance/          # Script manutenzione
+│   └── integration/          # Script integrazione esterna
+└── tests/                    # Test suite (opzionale)</code></pre>
+
+                <h4>File Critici</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Scopo</th>
+                            <th>Backup?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>data/network_manager.json</code></td>
+                            <td>Database con tutti i dispositivi/connessioni/rooms</td>
+                            <td>✅ CRITICO</td>
+                        </tr>
+                        <tr>
+                            <td><code>data/activity_logs.json</code></td>
+                            <td>Storico modifiche per audit</td>
+                            <td>✅ Raccomandato</td>
+                        </tr>
+                        <tr>
+                            <td><code>config/auth.json</code></td>
+                            <td>Credenziali admin</td>
+                            <td>✅ Raccomandato</td>
+                        </tr>
+                        <tr>
+                            <td><code>backup/*.json</code></td>
+                            <td>Backup automatici</td>
+                            <td>✅ Già backup</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="schema-json">📝 Schema JSON</h3>
+
+                <h4>Struttura network_manager.json</h4>
+                <pre><code>{
+  "version": "3.6.034",
+  "timestamp": "2025-02-09T10:30:00.000Z",
+  "checksum": "sha256_hash_here",
+  
+  "devices": [
+    {
+      "id": 1,
+      "name": "SW-CORE-01",
+      "type": "switch",
+      "location": "Milan HQ",
+      "group": "Core Network",
+      "order": 100,
+      "rear": "Rack 01",
+      "brand_model": "Cisco Catalyst 2960-48TT-L",
+      "status": "active",
+      "service": "Core Switch - VLAN Routing",
+      "notes": "Firmware updated 2025-01-15",
+      "ip_addresses": ["192.168.1.10", "10.0.0.1"],
+      "ports": [
+        {
+          "name": "Gi0/1",
+          "type": "rj45",
+          "speed": "1G",
+          "status": "up"
+        },
+        ...
+      ],
+      "links": [
+        "SSH Root|ssh-connection-1",
+        "Telnet|telnet-connection-2"
+      ],
+      "topology": {
+        "x": 400,
+        "y": 300
+      }
+    },
+    ...
+  ],
+  
+  "connections": [
+    {
+      "id": 1,
+      "from_device_id": 1,
+      "from_port": "Gi0/1",
+      "to_device_id": 2,
+      "to_port": "Gi0/24",
+      "type": "copper",
+      "status": "active",
+      "cable_marker": "CAB-A001",
+      "cable_color": "blue",
+      "notes": "Certified Cat6A"
+    },
+    ...
+  ],
+  
+  "rooms": [
+    {
+      "id": 1,
+      "name": "Datacenter A",
+      "type": "datacenter",
+      "location": "Milan HQ",
+      "width": 200,
+      "height": 150,
+      "x": 50,
+      "y": 50,
+      "color": "#f0f0f0"
+    },
+    ...
+  ]
+}</code></pre>
+
+                <h4>Field Constraints</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Tipo</th>
+                            <th>Required</th>
+                            <th>Constraints</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>device.id</td>
+                            <td>integer</td>
+                            <td>✅</td>
+                            <td>UNIQUE, auto-increment</td>
+                        </tr>
+                        <tr>
+                            <td>device.name</td>
+                            <td>string</td>
+                            <td>✅</td>
+                            <td>UNIQUE, max 100 chars</td>
+                        </tr>
+                        <tr>
+                            <td>device.type</td>
+                            <td>enum</td>
+                            <td>✅</td>
+                            <td>switch|router|firewall|server|pc|printer|phone|camera|wireless|patchpanel|storage|vm|other</td>
+                        </tr>
+                        <tr>
+                            <td>device.status</td>
+                            <td>enum</td>
+                            <td>❌</td>
+                            <td>active|inactive|maintenance|planned|decommissioned</td>
+                        </tr>
+                        <tr>
+                            <td>device.ip_addresses</td>
+                            <td>array[string]</td>
+                            <td>❌</td>
+                            <td>Valid IPv4/IPv6</td>
+                        </tr>
+                        <tr>
+                            <td>connection.id</td>
+                            <td>integer</td>
+                            <td>✅</td>
+                            <td>UNIQUE, auto-increment</td>
+                        </tr>
+                        <tr>
+                            <td>connection.from_device_id</td>
+                            <td>integer</td>
+                            <td>✅</td>
+                            <td>FOREIGN KEY to device.id</td>
+                        </tr>
+                        <tr>
+                            <td>connection.from_port</td>
+                            <td>string</td>
+                            <td>✅</td>
+                            <td>Must exist in device.ports[]</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="env-vars">⚙️ Variabili d'Ambiente</h3>
+
+                <h4>File .env (Opzionale)</h4>
+                <p>Crea file <code>.env</code> nella root per configurazione:</p>
+                <pre><code># Server Configuration
+PORT=3000
+HOST=0.0.0.0
+NODE_ENV=production
+
+# Paths
+DATA_DIR=./data
+BACKUP_DIR=./backup
+LOG_DIR=./logs
+
+# Security
+SESSION_SECRET=your_random_secret_here
+JWT_SECRET=your_jwt_secret_here
+
+# Features
+ENABLE_GUACAMOLE=true
+GUACAMOLE_URL=http://localhost:8080/guacamole
+
+# Logging
+LOG_LEVEL=info  # debug|info|warn|error
+LOG_FILE=matrix.log
+
+# Backup
+AUTO_BACKUP=true
+BACKUP_RETENTION_DAYS=30
+
+# Performance
+MAX_DEVICES=10000
+MAX_CONNECTIONS=10000
+CACHE_TIMEOUT=300  # seconds</code></pre>
+
+                <h4>Utilizzo nel Codice</h4>
+                <pre><code>// server.js
+const PORT = process.env.PORT || 3000;
+const DATA_DIR = process.env.DATA_DIR || './data';
+
+if (process.env.ENABLE_GUACAMOLE === 'true') {
+  // Enable Guacamole integration
+}</code></pre>
+
+                <h3 id="api-ref">🗋️ Riferimento API</h3>
+
+                <h4>GET /api/data</h4>
+                <p><strong>Descrizione:</strong> Ottieni tutti i dati (devices, connections, rooms)</p>
+                <p><strong>Autenticazione:</strong> Nessuna (pubblico)</p>
+                <p><strong>Response:</strong></p>
+                <pre><code>{
+  "version": "3.6.034",
+  "timestamp": "2025-02-09T10:30:00.000Z",
+  "devices": [...],
+  "connections": [...],
+  "rooms": [...]
+}</code></pre>
+
+                <h4>POST /api/data</h4>
+                <p><strong>Descrizione:</strong> Salva tutti i dati</p>
+                <p><strong>Autenticazione:</strong> Richiesta (Bearer token)</p>
+                <p><strong>Request Body:</strong></p>
+                <pre><code>{
+  "devices": [...],
+  "connections": [...],
+  "rooms": [...]
+}</code></pre>
+                <p><strong>Response:</strong></p>
+                <pre><code>{
+  "success": true,
+  "message": "Data saved successfully",
+  "backup_file": "backup/matrix_20250209_103000.json"
+}</code></pre>
+
+                <h4>GET /api/devices</h4>
+                <p><strong>Descrizione:</strong> Lista solo dispositivi</p>
+                <p><strong>Query params:</strong> <code>?location=Milan%20HQ&type=switch&status=active</code></p>
+
+                <h4>GET /api/connections</h4>
+                <p><strong>Descrizione:</strong> Lista solo connessioni</p>
+                <p><strong>Query params:</strong> <code>?status=active&type=fiber</code></p>
+
+                <h4>GET /api/logs</h4>
+                <p><strong>Descrizione:</strong> Activity logs</p>
+                <p><strong>Query params:</strong> <code>?limit=100&offset=0&user=admin</code></p>
+
+                <h4>POST /api/validate</h4>
+                <p><strong>Descrizione:</strong> Valida JSON prima di import</p>
+                <p><strong>Request:</strong> Multipart form-data con file JSON</p>
+                <p><strong>Response:</strong></p>
+                <pre><code>{
+  "valid": true,
+  "version": "3.6.034",
+  "devices_count": 150,
+  "connections_count": 300,
+  "errors": [],
+  "warnings": ["Device 'SW-01' has no IP address"]
+}</code></pre>
+
+                <h3 id="glossario">📚 Glossario</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Termine</th>
+                            <th>Definizione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Device</strong></td>
+                            <td>Dispositivo di rete (switch, router, server, PC, ecc.)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Connection</strong></td>
+                            <td>Connessione fisica (cavo) tra due dispositivi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Port</strong></td>
+                            <td>Porta fisica su dispositivo (es: Gi0/1, eth0)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Location</strong></td>
+                            <td>Sede fisica/edificio dove risiedono i dispositivi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Group</strong></td>
+                            <td>Raggruppamento logico di dispositivi (Core, Access, Servers)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Topology</strong></td>
+                            <td>Vista grafica della rete con icone e linee</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Matrix</strong></td>
+                            <td>Vista matriciale delle connessioni (griglia dispositivi)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Floor Plan</strong></td>
+                            <td>Planimetria con stanze fisiche e posizionamento dispositivi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RJ45</strong></td>
+                            <td>Connettore ethernet standard (8P8C)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SFP/SFP+</strong></td>
+                            <td>Small Form-factor Pluggable - moduli ottici</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cable Marker</strong></td>
+                            <td>Etichetta fisica del cavo per identificazione sul campo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rear</strong></td>
+                            <td>Numero rack/stanza posteriore per Floor Plan</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Edit Mode</strong></td>
+                            <td>Modalità amministratore con permessi di scrittura</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Guest Mode</strong></td>
+                            <td>Modalità pubblico solo lettura (default)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Guacamole</strong></td>
+                            <td>Apache Guacamole - gateway clientless per accesso remoto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cache Busting</strong></td>
+                            <td>URL versioning per forzare reload file JS/CSS (es: ?v=3.6.034)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <hr>
+                
+                <div class="alert alert-success" style="margin-top:30px;">
+                    <h3 style="margin-top:0;">🎉 Hai completato la guida!</h3>
+                    <p>Ora conosci tutte le funzionalità di Matrix Network. Per domande o supporto:</p>
+                    <ul>
+                        <li><strong>Documentazione tecnica:</strong> <code>/Matrix/doc/</code></li>
+                        <li><strong>Issue tracker:</strong> Repository interno</li>
+                        <li><strong>Team sviluppo:</strong> Contatta i maintainer del progetto</li>
+                    </ul>
+                    <p style="margin-bottom:0;"><strong>Buon lavoro con Matrix Network! 🚀</strong></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function showTab(index) {
+            // Hide all tabs
+            const panes = document.querySelectorAll('.tab-pane');
+            panes.forEach(pane => pane.classList.remove('active'));
+
+            // Deactivate all nav buttons
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById('tab-' + index).classList.add('active');
+            tabs[index].classList.add('active');
+
+            // Scroll to top
+            document.querySelector('.content').scrollTop = 0;
+        }
+    </script>
+</body>
+</html>

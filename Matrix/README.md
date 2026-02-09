@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Sistema de Gerenciamento de Rede
 
-**Versão**: 3.6.029  
+**Versão**: 3.6.034  
 **Última Atualização**: 9 de fevereiro de 2026  
 **Status**: ✅ Sistema Íntegro (Auditado)
 
@@ -22,12 +22,32 @@ TIESSE Matrix Network é uma aplicação completa de gerenciamento e visualizaç
 
 ---
 
-## 🆕 Novidades v3.6.029
+## 🆕 Novidades v3.6.034
 
-- **Container Topology Responsivo**: Removida altura fixa de 600px, agora usa `calc(100vh - 220px)`
-- **Layouts Dinâmicos**: Circle, Grid, Hierarchical agora escalam com número de dispositivos
-- **Bug Fix Drag**: Corrigido bug antigo onde arrastar ícones até a borda causava glitches visuais
-- **Coordenadas Validadas**: Proteção contra NaN/Infinity em funções de drag, pan e zoom
+### UI/UX Improvements
+- **Device Detail Modal**: Fixed special ports (WAN, SFP, MGMT) overlap with improved layout (gap: 16px, align: flex-start)
+- **Device Table**: Entire rows now clickable to open device detail modal
+- **Links Column**: Hidden from public view (visible only to authenticated admins)
+- **Help Documentation**: Complete 14-tab Italian documentation system with comprehensive guides
+
+### Previous Updates (v3.6.032)
+
+#### Device Detail Modal Redesign
+- **RJ45-Style Ports**: Realistic hardware visualization with LEDs
+- **Smart Layout**: LAN ports (left) vs Special ports (right) with labels
+- **Improved Tooltips**: Only show destination, no tooltip on disconnected ports
+
+### Zone/Connection Type Expansion
+| New Types | vlan, vpn, cloud, servers, iot, guest, voice, test |
+|-----------|---------------------------------------------------|
+| Total | 18 connection types with color-coded badges |
+
+### Quick Access (Guacamole)
+- All remote buttons use Guacamole API with fallback
+
+### v3.6.029-031 Highlights
+- Container Topology Responsivo
+- Bug Fix Drag & Coordenadas Validadas
 - **Limites de Zoom**: Prevenido zoom extremo (range 100-50000)
 - **Dropdown Padronizado**: Seletor de sala Wall Jack agora usa formato "código - nome"
 
@@ -99,7 +119,7 @@ http://localhost:3000
 Matrix/
 ├── index.html              # Interface principal
 ├── server.js              # Servidor Node.js
-├── package.json           # Dependências (v3.6.028)
+├── package.json           # Dependências (v3.6.032)
 ├── data/
 │   └── network_manager.json    # Dados principais (101 devices, 73 conexões)
 ├── js/

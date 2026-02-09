@@ -1,6 +1,6 @@
 # JSON Import/Export Alignment Check
-**Date**: 2026-02-08  
-**Version**: 3.6.028  
+**Date**: 2026-02-09  
+**Version**: 3.6.032  
 **Status**: ✅ ALIGNED
 
 ## Overview

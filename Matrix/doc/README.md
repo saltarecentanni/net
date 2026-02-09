@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.6.029  
+**Version:** 3.6.032  
 **Date:** February 9, 2026  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
 
@@ -19,7 +19,7 @@ TIESSE Matrix Network is a **documentation system** for corporate network infras
 - 📊 **View connection matrix** - Grid showing all device-to-device connections
 - 🏢 **Map floor plans** - Associate devices with physical rooms
 - 💾 **Export data** - Excel, JSON backup, PNG images, Draw.io diagrams
-- 🔗 **Quick access links** - SSH, RDP, VNC, Telnet direct links to devices
+- 🔗 **Quick access links** - SSH, RDP, VNC, Telnet via Guacamole integration
 
 ### ⚠️ Important Note
 
@@ -30,43 +30,38 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.6.029
+## 🆕 What's New in v3.6.032
 
-### 🎯 v3.6.029 - Topology & UI Improvements (Latest)
-- **Topology Container Fix**: Removed fixed 600px height, now uses responsive `calc(100vh - 220px)`
-- **Dynamic Layout Calculations**: Circle, Grid, Hierarchical layouts now scale with device count
-- **Drag Boundary Bug Fix**: Fixed ancient bug where dragging icons to container edge caused visual glitches
-- **Validated Coordinates**: Protected against NaN/Infinity values in drag, pan, and zoom functions
-- **Zoom Limits**: Prevented extreme zoom (100-50000 range) to avoid visual corruption
-- **Location Dropdown Standardized**: Wall Jack room selector now uses "code - name" format like other filters
-- **Label Change**: "Room" → "Location" for consistency across UI
+### 🎯 v3.6.032 - Device Detail Modal & Zone System (Current)
 
-### 📦 v3.6.028 - Data Integrity & Validation (Previous)
-- **Import/Export Validation**: Full round-trip verified - 15 connection fields preserved
-- **roomId Field**: Confirmed functional (maps wallport/walljack to floor plan rooms)
-- **Flagged Connections**: 6 incomplete connections marked with `flagged: true` for review
-- **Validator Enhanced**: `json-validator.js` now recognizes `roomId`, `flagged`, `flagReason`, `isWallJack`
-- **Port Normalization**: `normalizePortName()` pads eth1→eth01, preserves GbE/SFP/WAN prefixes
-- **Bug Fix**: `saveDevice()` now correctly saves `ports` and `links` fields
-- **Bug Fix**: `saveConnection()` normalizes port names on save
-- **Data Cleanup**: 79 ports + 3 connection ports fixed, UUIDs on all 93 connections
-- **Doc Consolidation**: Merged duplicate docs, updated all line counts (17,742 total JS)
-- **Verification**: 12-point audit + SHA-256 roundtrip = ZERO ERRORS
+#### 🎨 Device Detail Modal Redesign
+- **RJ45-style ports**: Realistic hardware appearance with LED indicators
+- **Port sizes**: RJ45 26x34px, SFP 36x26px, Console 30x26px
+- **LED indicators**: Green = connected, Red = disconnected, Gray = disabled
+- **Smart layout**: LAN ports (left) | Special ports (right: WAN, SFP, MGMT, CON)
+- **Auto 2-row**: Switches >12 ports display in 2 rows (odd top, even bottom)
+- **Clean tooltips**: Shows only destination info, no tooltip for disconnected
 
-**Current Data Metrics:**
-- 101 devices (43 routers, 19 servers, 13 switches)
-- 93 connections (72 LAN, 14 wallport, 4 trunk, 2 WAN, 1 other)
-- 21 rooms mapped with floor plan polygons
-- 25 locations across 1 site
+#### 🔗 Zone/Connection Type Expansion
+New connection types: `vlan`, `vpn`, `cloud`, `servers`, `iot`, `guest`, `voice`, `test`
 
-### 📦 v3.6.026 - Cleanup & Consolidation
-- **UI Stability**: Fixed critical Promise errors in data loading
-- **Room Structure**: Complete 21-room mapping with FloorPlan improvements
-- **Endpoint Optimization**: Absolute path routing for Node.js/Apache compatibility
-- **Error Handling**: Enhanced try-catch blocks for data migrations
-- **Device Management**: Smart device matching (29 hidden devices fully validated)
-- **JSON Validation System**: 273 lines of validation protecting data integrity
-- **Data Consolidation**: Deprecated field detection + automatic field merging
+| Type | Color | Type | Color |
+|------|-------|------|-------|
+| lan | 🟢 Green | trunk | 🟣 Purple |
+| wan | 🟠 Orange | vpn | 🔵 Cyan |
+| dmz | 🔴 Red | cloud | 🔷 Light Blue |
+| vlan | 🔵 Blue | test | 💗 Pink |
+
+#### 🔘 Guacamole Integration
+- All remote access buttons use Guacamole API
+- Buttons: WEB, SSH, RDP, VNC, TEL, EDIT
+- Fallback to direct protocol if Guacamole unavailable
+
+### 📦 v3.6.028-030 - Data Integrity & UI Improvements
+- **Import/Export Validation**: Full round-trip verified
+- **Port Normalization**: eth1→eth01 automatic padding
+- **Topology fixes**: Drag boundary, zoom limits
+- **Data metrics**: 101 devices, 93 connections, 21 rooms
 
 ---
 
@@ -463,7 +458,7 @@ For issues or feature requests:
 
 ---
 
-**Version:** 3.6.028  
-**Last Updated:** February 8, 2026  
+**Version:** 3.6.032  
+**Last Updated:** February 9, 2026  
 **Status:** ✅ Production Ready  
 **© Tiesse S.P.A.**

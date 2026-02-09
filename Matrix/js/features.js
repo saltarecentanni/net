@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Extended Features Module
- * Version: 3.6.030
+ * Version: 3.6.034
  * 
  * Features:
  * - Activity Logs (last 200 changes)
@@ -2395,30 +2395,77 @@ var SVGTopology = (function() {
         // ═══════════════════════════════════════════════════════════════════
         html += '<g class="network-zones">';
         
-        // Collect devices by zone
-        // Zone is calculated dynamically from addresses[].zone (not from d.zone in JSON)
-        var zoneGroups = {};
-        devices.forEach(function(d) {
-            // Calculate zone dynamically from addresses
-            var deviceZone = '';
-            if (d.addresses && d.addresses.length > 0) {
-                for (var i = 0; i < d.addresses.length; i++) {
-                    if (d.addresses[i].zone && d.addresses[i].zone.trim()) {
-                        deviceZone = d.addresses[i].zone.trim();
-                        break;
-                    }
-                }
+        // Helper function to calculate subnet from IP (e.g., "192.168.1.100/24" -> "192.168.1.0/24")
+        function getSubnet(ipWithMask) {
+            if (!ipWithMask) return null;
+            var parts = ipWithMask.split('/');
+            var ip = parts[0];
+            var mask = parts[1] ? parseInt(parts[1]) : 24; // Default /24
+            
+            // Convert IP to numeric
+            var octets = ip.split('.');
+            if (octets.length !== 4) return null;
+            
+            var ipNum = 0;
+            for (var i = 0; i < 4; i++) {
+                ipNum = (ipNum << 8) + parseInt(octets[i]);
             }
             
-            if (deviceZone && devicePositions[d.id]) {
-                var zoneName = deviceZone;
-                if (!zoneGroups[zoneName]) {
-                    zoneGroups[zoneName] = {
-                        name: zoneName,
-                        devices: []
-                    };
+            // Apply mask
+            var maskNum = mask === 0 ? 0 : (0xFFFFFFFF << (32 - mask)) >>> 0;
+            var subnetNum = (ipNum & maskNum) >>> 0;
+            
+            // Convert back to dotted format
+            var subnetOctets = [
+                (subnetNum >>> 24) & 255,
+                (subnetNum >>> 16) & 255,
+                (subnetNum >>> 8) & 255,
+                subnetNum & 255
+            ];
+            
+            return subnetOctets.join('.') + '/' + mask;
+        }
+        
+        // Collect devices by zone + subnet (dispositivos só são agrupados se tiverem a mesma zone E mesma subnet)
+        // Zone is calculated dynamically from addresses[].zone
+        var zoneSubnetGroups = {};
+        devices.forEach(function(d) {
+            // Find zone and subnet from addresses
+            if (d.addresses && d.addresses.length > 0) {
+                for (var i = 0; i < d.addresses.length; i++) {
+                    var addr = d.addresses[i];
+                    var deviceZone = addr.zone ? addr.zone.trim() : '';
+                    var ipValue = addr.network || addr.ip || '';
+                    
+                    if (deviceZone && ipValue && devicePositions[d.id]) {
+                        // Calculate subnet from IP
+                        var subnet = getSubnet(ipValue);
+                        if (!subnet) {
+                            // If no valid subnet, use IP itself as identifier
+                            subnet = ipValue.split('/')[0];
+                        }
+                        
+                        // Create unique key: zone + subnet
+                        var groupKey = deviceZone + '|' + subnet;
+                        
+                        if (!zoneSubnetGroups[groupKey]) {
+                            zoneSubnetGroups[groupKey] = {
+                                zone: deviceZone,
+                                subnet: subnet,
+                                devices: []
+                            };
+                        }
+                        
+                        // Avoid duplicates
+                        var alreadyAdded = zoneSubnetGroups[groupKey].devices.some(function(dev) {
+                            return dev.id === d.id;
+                        });
+                        if (!alreadyAdded) {
+                            zoneSubnetGroups[groupKey].devices.push(d);
+                        }
+                        break; // Only use first address with zone
+                    }
                 }
-                zoneGroups[zoneName].devices.push(d);
             }
         });
         
@@ -2440,12 +2487,14 @@ var SVGTopology = (function() {
         };
         var defaultZoneColor = { fill: '#e2e8f0', stroke: '#64748b', text: '#334155' }; // Slate/Gray
         
-        // Draw zone connections as thick lines between devices in same zone
-        // This replaces the old rectangular zone backgrounds
-        Object.keys(zoneGroups).forEach(function(zoneName) {
-            var zone = zoneGroups[zoneName];
+        // Draw zone connections as thick lines between devices in same zone+subnet
+        // Devices are grouped by zone + subnet, not just zone
+        Object.keys(zoneSubnetGroups).forEach(function(groupKey) {
+            var group = zoneSubnetGroups[groupKey];
+            var zoneName = group.zone;
+            var subnet = group.subnet;
             var zc = zoneColors[zoneName] || defaultZoneColor;
-            var zoneDevices = zone.devices;
+            var zoneDevices = group.devices;
             
             // Need at least 2 devices to draw zone connections
             if (zoneDevices.length < 2) {
@@ -2503,14 +2552,16 @@ var SVGTopology = (function() {
                     'stroke="' + zc.stroke + '" stroke-width="5" stroke-opacity="0.35" stroke-linecap="round"/>';
             });
             
-            // Draw zone label at centroid
+            // Draw zone label at centroid (show zone + subnet for network zones)
             var zoneIcons = {
                 'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
                 'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
                 'IoT': '📡', 'Servers': '🖥️', 'Management': '⚙️', 'Voice': '📞', 'Storage': '💾'
             };
             var zoneIcon = zoneIcons[zoneName] || '🔲';
-            var labelText = zoneIcon + ' ' + zoneName;
+            // Show subnet in label for identification
+            var shortSubnet = subnet.split('/')[0].split('.').slice(0, 3).join('.') + '.*';
+            var labelText = zoneIcon + ' ' + zoneName + ' (' + shortSubnet + ')';
             
             // Label background pill at centroid
             var labelWidth = labelText.length * 5.5 + 12;
@@ -3287,30 +3338,68 @@ var SVGTopology = (function() {
         
         var devices = getTopologyFilteredDevices();
         
-        // Collect devices by zone
-        // Zone is calculated dynamically from addresses[].zone (not from d.zone in JSON)
-        var zoneGroups = {};
+        // Helper function to calculate subnet from IP
+        function getSubnet(ipWithMask) {
+            if (!ipWithMask) return null;
+            var parts = ipWithMask.split('/');
+            var ip = parts[0];
+            var mask = parts[1] ? parseInt(parts[1]) : 24;
+            
+            var octets = ip.split('.');
+            if (octets.length !== 4) return null;
+            
+            var ipNum = 0;
+            for (var i = 0; i < 4; i++) {
+                ipNum = (ipNum << 8) + parseInt(octets[i]);
+            }
+            
+            var maskNum = mask === 0 ? 0 : (0xFFFFFFFF << (32 - mask)) >>> 0;
+            var subnetNum = (ipNum & maskNum) >>> 0;
+            
+            var subnetOctets = [
+                (subnetNum >>> 24) & 255,
+                (subnetNum >>> 16) & 255,
+                (subnetNum >>> 8) & 255,
+                subnetNum & 255
+            ];
+            
+            return subnetOctets.join('.') + '/' + mask;
+        }
+        
+        // Collect devices by zone + subnet
+        var zoneSubnetGroups = {};
         devices.forEach(function(d) {
-            // Calculate zone dynamically from addresses
-            var deviceZone = '';
             if (d.addresses && d.addresses.length > 0) {
                 for (var i = 0; i < d.addresses.length; i++) {
-                    if (d.addresses[i].zone && d.addresses[i].zone.trim()) {
-                        deviceZone = d.addresses[i].zone.trim();
+                    var addr = d.addresses[i];
+                    var deviceZone = addr.zone ? addr.zone.trim() : '';
+                    var ipValue = addr.network || addr.ip || '';
+                    
+                    if (deviceZone && ipValue && devicePositions[d.id]) {
+                        var subnet = getSubnet(ipValue);
+                        if (!subnet) {
+                            subnet = ipValue.split('/')[0];
+                        }
+                        
+                        var groupKey = deviceZone + '|' + subnet;
+                        
+                        if (!zoneSubnetGroups[groupKey]) {
+                            zoneSubnetGroups[groupKey] = {
+                                zone: deviceZone,
+                                subnet: subnet,
+                                devices: []
+                            };
+                        }
+                        
+                        var alreadyAdded = zoneSubnetGroups[groupKey].devices.some(function(dev) {
+                            return dev.id === d.id;
+                        });
+                        if (!alreadyAdded) {
+                            zoneSubnetGroups[groupKey].devices.push(d);
+                        }
                         break;
                     }
                 }
-            }
-            
-            if (deviceZone && devicePositions[d.id]) {
-                var zoneName = deviceZone;
-                if (!zoneGroups[zoneName]) {
-                    zoneGroups[zoneName] = {
-                        name: zoneName,
-                        devices: []
-                    };
-                }
-                zoneGroups[zoneName].devices.push(d);
             }
         });
         
@@ -3333,10 +3422,12 @@ var SVGTopology = (function() {
         var defaultZoneColor = { fill: '#e2e8f0', stroke: '#64748b', text: '#334155' };
         
         var html = '';
-        Object.keys(zoneGroups).forEach(function(zoneName) {
-            var zone = zoneGroups[zoneName];
+        Object.keys(zoneSubnetGroups).forEach(function(groupKey) {
+            var group = zoneSubnetGroups[groupKey];
+            var zoneName = group.zone;
+            var subnet = group.subnet;
             var zc = zoneColors[zoneName] || defaultZoneColor;
-            var zoneDevices = zone.devices;
+            var zoneDevices = group.devices;
             
             // Need at least 2 devices to draw zone connections
             if (zoneDevices.length < 2) {
@@ -3393,14 +3484,15 @@ var SVGTopology = (function() {
                     'stroke="' + zc.stroke + '" stroke-width="5" stroke-opacity="0.35" stroke-linecap="round"/>';
             });
             
-            // Zone label at centroid
+            // Zone label at centroid (show zone + subnet)
             var zoneIcons2 = {
                 'DMZ': '🛡️', 'Backbone': '🔗', 'LAN': '🏢', 'WAN': '🌐',
                 'VLAN': '📊', 'VPN': '🔒', 'Cloud': '☁️', 'Guest': '👥',
                 'IoT': '📡', 'Servers': '🖥️', 'Management': '⚙️', 'Voice': '📞', 'Storage': '💾'
             };
             var zoneIcon = zoneIcons2[zoneName] || '🔲';
-            var labelText = zoneIcon + ' ' + zoneName;
+            var shortSubnet = subnet.split('/')[0].split('.').slice(0, 3).join('.') + '.*';
+            var labelText = zoneIcon + ' ' + zoneName + ' (' + shortSubnet + ')';
             
             var labelWidth = labelText.length * 5.5 + 12;
             html += '<rect x="' + (centroidX - labelWidth/2) + '" y="' + (centroidY - 9) + '" ' +

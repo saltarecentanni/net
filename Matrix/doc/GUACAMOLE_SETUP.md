@@ -4,7 +4,7 @@
 
 O TIESSE Matrix Network integra-se com Apache Guacamole para acesso SSH, RDP, VNC e Telnet diretamente pelo navegador.
 
-**Versão**: 3.6.028  
+**Versão**: 3.6.032  
 **Data**: Fevereiro 9, 2026
 
 ---

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Floor Plan Module
- * Version: 3.6.030
+ * Version: 3.6.034
  * 
  * Interactive floor plan visualization with:
  * - SVG rendering and manipulation
@@ -30,7 +30,7 @@ var FloorPlan = (function() {
     // ============================================================================
     var container = null;
     var svgElement = null;
-    var scale = 1;
+    var scale = 0.7; // Default zoom 70%
     var panX = 0;
     var panY = 0;
     var isPanning = false;
@@ -243,7 +243,7 @@ var FloorPlan = (function() {
     }
     
     function resetZoom() {
-        scale = 1;
+        scale = 0.7; // Reset to default 70%
         panX = 0;
         panY = 0;
         applyTransform();
@@ -356,7 +356,9 @@ var FloorPlan = (function() {
             16: { x: 0, y: 20 },    // down
             17: { x: 0, y: 20 },    // down
             18: { x: 0, y: 20 },    // down
-            19: { x: 0, y: -40 }    // MORE UP (above the number)
+            19: { x: 0, y: -40 },   // MORE UP (above the number)
+            20: { x: 0, y: 20 },    // Zone Test - Arcipelago 01
+            21: { x: 0, y: 20 }     // Zone Test - Arcipelago 02
         };
         
         var offset = markerOffsets[room.id] || { x: 0, y: 20 };
@@ -417,15 +419,11 @@ var FloorPlan = (function() {
         var roomDevices = typeof getDevicesInRoom === 'function' ? getDevicesInRoom(room) : [];
         
         // Get Wall Jacks assigned to this room via roomId field
-        // Simple logic: Wall Jack has roomId -> appears in that room
-        // No roomId -> doesn't appear anywhere (until assigned)
         var roomWallJacks = [];
         if (typeof appState !== 'undefined' && appState.connections) {
             var roomId = room.id.toString();
-            
             roomWallJacks = appState.connections.filter(function(c) {
                 if (!c.isWallJack) return false;
-                // Only show if explicitly assigned to this room
                 return c.roomId !== undefined && c.roomId !== null && 
                        c.roomId !== '' && c.roomId.toString() === roomId;
             });
@@ -467,10 +465,10 @@ var FloorPlan = (function() {
         function getTypeIcon(type) {
             try {
                 if (typeof SVGTopology !== 'undefined' && SVGTopology.getMiniIcon) {
-                    return SVGTopology.getMiniIcon(type, 32);
+                    return SVGTopology.getMiniIcon(type, 24);
                 }
             } catch(e) {}
-            return '<span style="font-size:24px;">' + getDeviceTypeIcon(type) + '</span>';
+            return '<span style="font-size:18px;">' + getDeviceTypeIcon(type) + '</span>';
         }
         
         function getTypeLabel(type) {
@@ -483,168 +481,231 @@ var FloorPlan = (function() {
             return type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, ' ');
         }
         
-        // Build modal content HTML - Horizontal expanded layout
+        // Room ID formatted as 2 digits
+        var roomIdFormatted = String(room.id).padStart(2, '0');
+        
+        // Build modal content HTML
         var html = '<div class="room-info-modal" style="min-width:900px;">';
         
-        // Check if user is authenticated
-        var isAuth = typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn();
+        // Header row: Room selector dropdown + Stats badges
+        html += '<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;padding-bottom:16px;border-bottom:2px solid #e2e8f0;">';
         
-        // Top row: Nickname edit + Stats cards
-        html += '<div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:20px;">';
+        // Room selector dropdown
+        html += '<div style="display:flex;align-items:center;gap:8px;">';
+        html += '<span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;">Room:</span>';
+        html += '<select id="floorRoomSelector" onchange="event.stopPropagation(); FloorPlan.switchRoom(this.value)" style="padding:8px 12px;border:2px solid #22c55e;border-radius:8px;font-size:14px;font-weight:600;background:white;color:#166534;cursor:pointer;min-width:200px;">';
         
-        // Nickname section
-        html += '<div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);padding:16px;border-radius:12px;">';
-        html += '<label style="font-size:11px;font-weight:600;color:#166534;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Room Nickname</label>';
-        
-        if (isAuth) {
-            // Editable input for authenticated users
-            html += '<input type="text" id="roomNicknameInput" value="' + escapeHtml(room.nickname || '') + '" ';
-            html += 'placeholder="Ex: Sala Server, Data Center, Office 12" ';
-            html += 'style="width:100%;padding:10px 14px;border:2px solid #86efac;border-radius:8px;font-size:14px;background:white;outline:none;" ';
-            html += 'onfocus="this.style.borderColor=\'#22c55e\';this.style.boxShadow=\'0 0 0 3px rgba(34,197,94,0.1)\'" ';
-            html += 'onblur="this.style.borderColor=\'#86efac\';this.style.boxShadow=\'none\'">';
-        } else {
-            // Read-only display for guests
-            html += '<div style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;background:#f8fafc;color:#64748b;">';
-            html += escapeHtml(room.nickname || '(not set)');
-            html += '</div>';
-            html += '<div style="font-size:10px;color:#94a3b8;margin-top:4px;">🔒 Login to edit</div>';
-        }
+        // Populate rooms dropdown
+        var allRooms = rooms.slice().sort(function(a, b) { return parseInt(a.id) - parseInt(b.id); });
+        allRooms.forEach(function(r) {
+            var rId = String(r.id).padStart(2, '0');
+            var rName = r.nickname || ('Room ' + r.id);
+            var selected = String(r.id) === String(room.id) ? ' selected' : '';
+            html += '<option value="' + r.id + '"' + selected + '>' + rId + ' - ' + escapeHtml(rName) + '</option>';
+        });
+        html += '</select>';
         html += '</div>';
         
-        // Stats cards row
-        html += '<div style="display:flex;gap:12px;">';
-        
-        // Room ID
-        html += '<div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
-        html += '<div style="font-size:22px;font-weight:700;color:#1d4ed8;">' + room.id + '</div>';
-        html += '<div style="font-size:10px;color:#3b82f6;font-weight:600;">ROOM ID</div>';
-        html += '</div>';
-        
-        // Devices
-        html += '<div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
-        html += '<div style="font-size:22px;font-weight:700;color:#166534;">' + roomDevices.length + '</div>';
-        html += '<div style="font-size:10px;color:#22c55e;font-weight:600;">DEVICES</div>';
-        html += '</div>';
-        
-        // Active
-        html += '<div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
-        html += '<div style="font-size:22px;font-weight:700;color:#059669;">' + activeCount + '</div>';
-        html += '<div style="font-size:10px;color:#059669;font-weight:600;">ACTIVE</div>';
-        html += '</div>';
-        
-        // Disabled
-        if (disabledCount > 0) {
-            html += '<div style="background:linear-gradient(135deg,#fef2f2,#fecaca);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
-            html += '<div style="font-size:22px;font-weight:700;color:#dc2626;">' + disabledCount + '</div>';
-            html += '<div style="font-size:10px;color:#ef4444;font-weight:600;">DISABLED</div>';
-            html += '</div>';
-        }
-        
-        // Connections
-        html += '<div style="background:linear-gradient(135deg,#fef3c7,#fde68a);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
-        html += '<div style="font-size:22px;font-weight:700;color:#b45309;">' + roomConnections.length + '</div>';
-        html += '<div style="font-size:10px;color:#d97706;font-weight:600;">CONNECTIONS</div>';
-        html += '</div>';
-        
-        // Wall Jacks
+        // Stats badges (compact)
+        html += '<div style="display:flex;gap:8px;margin-left:auto;">';
+        html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#f0fdf4;color:#166534;border-radius:20px;font-size:12px;font-weight:600;">📱 ' + roomDevices.length + ' devices</span>';
+        html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#fef3c7;color:#b45309;border-radius:20px;font-size:12px;font-weight:600;">⚡ ' + roomConnections.length + ' conn.</span>';
         if (roomWallJacks.length > 0) {
-            html += '<div style="background:linear-gradient(135deg,#ecf0f1,#bdc3c7);padding:12px 20px;border-radius:10px;text-align:center;min-width:80px;">';
-            html += '<div style="font-size:22px;font-weight:700;color:#2c3e50;">' + roomWallJacks.length + '</div>';
-            html += '<div style="font-size:10px;color:#7f8c8d;font-weight:600;">WALL JACKS</div>';
-            html += '</div>';
+            html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#e2e8f0;color:#475569;border-radius:20px;font-size:12px;font-weight:600;">🔌 ' + roomWallJacks.length + ' WJ</span>';
         }
-
-        html += '</div></div>'; // End stats + nickname row
+        html += '</div>';
+        html += '</div>';
+        
+        // Filter bar - standardized like Devices/Connections
+        var typeKeys = Object.keys(devicesByType).sort();
+        
+        // Get unique locations and groups from room devices
+        var locationsInRoom = {};
+        var groupsInRoom = {};
+        var connectedCount = 0;
+        var connectedDeviceIds = {};
+        
+        // Find connected devices
+        (appState.connections || []).forEach(function(c) {
+            connectedDeviceIds[c.from] = true;
+            connectedDeviceIds[c.to] = true;
+        });
+        
+        roomDevices.forEach(function(d) {
+            if (d.location) locationsInRoom[d.location] = (locationsInRoom[d.location] || 0) + 1;
+            if (d.rackId) groupsInRoom[d.rackId] = (groupsInRoom[d.rackId] || 0) + 1;
+            if (connectedDeviceIds[d.id]) connectedCount++;
+        });
+        
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:10px;flex-wrap:wrap;">';
+        html += '<span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;white-space:nowrap;">Filters:</span>';
+        
+        // Location filter
+        var locationKeys = Object.keys(locationsInRoom).sort();
+        if (locationKeys.length > 0) {
+            html += '<select id="floorFilterLocation" onchange="event.stopPropagation(); FloorPlan.applyFilters()" style="padding:6px 10px;border:2px solid #cbd5e1;border-radius:6px;font-size:12px;background:white;font-weight:600;">';
+            html += '<option value="">📍 All Locations</option>';
+            locationKeys.forEach(function(loc) {
+                html += '<option value="' + escapeHtml(loc) + '">' + escapeHtml(loc) + ' (' + locationsInRoom[loc] + ')</option>';
+            });
+            html += '</select>';
+        }
+        
+        // Group filter
+        var groupKeys = Object.keys(groupsInRoom).sort();
+        if (groupKeys.length > 0) {
+            html += '<select id="floorFilterGroup" onchange="event.stopPropagation(); FloorPlan.applyFilters()" style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;background:white;">';
+            html += '<option value="">🗄️ All Groups</option>';
+            groupKeys.forEach(function(grp) {
+                html += '<option value="' + escapeHtml(grp) + '">' + escapeHtml(grp) + ' (' + groupsInRoom[grp] + ')</option>';
+            });
+            html += '</select>';
+        }
+        
+        // Search
+        html += '<input type="text" id="floorFilterSearch" placeholder="🔍 Search name..." oninput="event.stopPropagation(); FloorPlan.applyFilters()" onclick="event.stopPropagation()" style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;width:140px;">';
+        
+        // Type filter
+        html += '<select id="floorFilterType" onchange="event.stopPropagation(); FloorPlan.applyFilters()" style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;background:white;">';
+        html += '<option value="">📦 All Types</option>';
+        typeKeys.forEach(function(type) {
+            var count = devicesByType[type].length;
+            html += '<option value="' + type + '">' + getTypeLabel(type) + ' (' + count + ')</option>';
+        });
+        html += '</select>';
+        
+        // Status filter - default to Online
+        html += '<select id="floorFilterStatus" onchange="event.stopPropagation(); FloorPlan.applyFilters()" style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;background:white;">';
+        html += '<option value="">🔘 All Status</option>';
+        html += '<option value="active" selected>🟢 Online (' + activeCount + ')</option>';
+        html += '<option value="disabled">🔴 Offline (' + disabledCount + ')</option>';
+        html += '</select>';
+        
+        // Connected toggle - default checked
+        html += '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#475569;cursor:pointer;white-space:nowrap;">';
+        html += '<input type="checkbox" id="floorFilterConnected" checked onchange="event.stopPropagation(); FloorPlan.applyFilters()" onclick="event.stopPropagation()" style="accent-color:#3b82f6;">';
+        html += '<span>Connected</span>';
+        html += '</label>';
+        
+        // Device count badge
+        html += '<span id="floorFilterCount" style="padding:6px 12px;background:#dbeafe;color:#1d4ed8;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;">' + roomDevices.length + ' devices</span>';
+        
+        // Clear filters
+        html += '<button onclick="event.stopPropagation(); FloorPlan.clearFilters()" style="padding:6px 10px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">✕ Clear</button>';
+        
+        html += '</div>';
+        
+        // Devices container (will be filtered by JS) - larger height
+        html += '<div id="floorDevicesContainer" style="max-height:55vh;overflow-y:auto;">';
         
         // Devices section - horizontal grid layout
         if (roomDevices.length > 0) {
-            var typeKeys = Object.keys(devicesByType).sort();
             var numTypes = typeKeys.length;
             var gridCols = numTypes >= 3 ? 3 : (numTypes === 2 ? 2 : 1);
             
-            html += '<div style="display:grid;grid-template-columns:repeat(' + gridCols + ',1fr);gap:16px;">';
+            html += '<div id="floorDevicesGrid" style="display:grid;grid-template-columns:repeat(' + gridCols + ',minmax(320px,1fr));gap:16px;">';
             
             typeKeys.forEach(function(type) {
                 var devices = devicesByType[type];
                 var typeLabel = getTypeLabel(type);
                 var typeIcon = getTypeIcon(type);
                 
-                html += '<div style="background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">';
+                html += '<div class="floor-type-group" data-type="' + type + '" style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;min-width:0;">';
                 
                 // Type header
-                html += '<div style="background:linear-gradient(135deg,#f1f5f9,#e2e8f0);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e2e8f0;">';
-                html += '<div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">' + typeIcon + '</div>';
-                html += '<span style="font-weight:600;color:#334155;font-size:13px;flex-grow:1;">' + typeLabel + '</span>';
-                html += '<span style="background:#3b82f6;color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;">' + devices.length + '</span>';
+                html += '<div style="background:linear-gradient(135deg,#f1f5f9,#e2e8f0);padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e2e8f0;">';
+                html += '<div style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">' + typeIcon + '</div>';
+                html += '<span style="font-weight:600;color:#334155;font-size:12px;flex-grow:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + typeLabel + '</span>';
+                html += '<span class="floor-type-count" style="background:#3b82f6;color:white;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;flex-shrink:0;">' + devices.length + '</span>';
                 html += '</div>';
                 
-                // Devices list
-                html += '<div style="padding:8px;max-height:200px;overflow-y:auto;">';
+                // Devices list - larger height to reduce scrolling
+                html += '<div class="floor-devices-list" style="padding:8px;max-height:280px;overflow-y:auto;">';
                 
                 devices.forEach(function(device) {
                     var isActive = device.status !== 'disabled' && device.status !== 'off';
                     var bgColor = isActive ? '#f0fdf4' : '#fef2f2';
                     var dotColor = isActive ? '#22c55e' : '#ef4444';
+                    var statusClass = isActive ? 'active' : 'disabled';
+                    var deviceLocation = device.location || '';
+                    var deviceGroup = device.rackId || '';
                     
-                    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;margin:4px 0;border-radius:8px;background:' + bgColor + ';">';
+                    html += '<div class="floor-device-item" data-device-id="' + device.id + '" data-status="' + statusClass + '" data-name="' + escapeHtml(device.name.toLowerCase()) + '" data-location="' + escapeHtml(deviceLocation) + '" data-group="' + escapeHtml(deviceGroup) + '" style="display:flex;align-items:center;gap:6px;padding:6px 8px;margin:3px 0;border-radius:8px;background:' + bgColor + ';">';
                     
                     // Status dot
                     html += '<span style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;"></span>';
                     
-                    // Device info
-                    html += '<div style="flex-grow:1;min-width:0;">';
-                    html += '<div style="font-weight:500;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + escapeHtml(device.name) + '">' + escapeHtml(device.name) + '</div>';
+                    // Device info - wider area
+                    html += '<div style="flex-grow:1;min-width:0;max-width:180px;">';
+                    html += '<div style="font-weight:600;color:#1e293b;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + escapeHtml(device.name) + '">' + escapeHtml(device.name) + '</div>';
                     
-                    var infoItems = [];
-                    if (device.ip) infoItems.push(device.ip);
-                    if (device.rackId) infoItems.push('Rack: ' + device.rackId);
-                    if (infoItems.length > 0) {
-                        html += '<div style="font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + infoItems.join(' • ') + '</div>';
+                    // Build device info with better organization
+                    var deviceIp = '';
+                    if (device.addresses && device.addresses.length > 0) {
+                        deviceIp = (device.addresses[0].ip || device.addresses[0].network || '').split('/')[0];
+                    }
+                    
+                    // Line 1: IP and Group
+                    var line1Items = [];
+                    if (deviceIp) line1Items.push('IP: ' + deviceIp);
+                    if (device.rackId) line1Items.push('Group: ' + device.rackId);
+                    
+                    // Line 2: VLAN, Zone/DMZ, Description
+                    var line2Items = [];
+                    if (device.vlan) line2Items.push('VLAN: ' + device.vlan);
+                    if (device.zone) line2Items.push(device.zone);
+                    if (device.dmz) line2Items.push('DMZ');
+                    
+                    if (line1Items.length > 0) {
+                        html += '<div style="font-size:9px;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">' + line1Items.join(' • ') + '</div>';
+                    }
+                    if (line2Items.length > 0) {
+                        html += '<div style="font-size:8px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + line2Items.join(' • ') + '</div>';
                     }
                     html += '</div>';
                     
-                    // Links - support both formats: links[] array or link/link2 properties
-                    var deviceLinks = [];
-                    if (device.links && Array.isArray(device.links) && device.links.length > 0) {
-                        deviceLinks = device.links;
-                    } else if (device.link || device.link2) {
-                        if (device.link) deviceLinks.push({ url: device.link, label: 'Link 1' });
-                        if (device.link2) deviceLinks.push({ url: device.link2, label: 'Link 2' });
+                    // Quick Access Buttons via Guacamole - based on device.links
+                    var deviceLinks = device.links || [];
+                    var hasSsh = deviceLinks.some(function(l) { return l.type === 'ssh'; });
+                    var hasRdp = deviceLinks.some(function(l) { return l.type === 'rdp'; });
+                    var hasVnc = deviceLinks.some(function(l) { return l.type === 'vnc'; });
+                    var hasTelnet = deviceLinks.some(function(l) { return l.type === 'telnet'; });
+                    var hasWeb = deviceLinks.some(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
+                    
+                    html += '<div style="display:flex;gap:4px;flex-shrink:0;align-items:center;flex-wrap:wrap;justify-content:flex-end;">';
+                    
+                    // Web access button
+                    if (hasWeb && deviceIp) {
+                        var webLink = deviceLinks.find(function(l) { return l.type === 'http' || l.type === 'https' || l.type === 'web'; });
+                        var webUrl = webLink && webLink.url ? webLink.url : 'http://' + deviceIp;
+                        if (!webUrl.startsWith('http')) webUrl = 'http://' + webUrl;
+                        html += '<a href="' + escapeHtml(webUrl) + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white;border-radius:6px;font-size:14px;text-decoration:none;" title="Web Interface">🌐</a>';
                     }
                     
-                    if (deviceLinks.length > 0) {
-                        html += '<div style="display:flex;gap:4px;flex-shrink:0;">';
-                        // Cores muito claras (pastéis) para melhor visibilidade do ícone
-                        var linkColors = { 'SSH': '#fee2e2', 'RDP': '#dbeafe', 'VNC': '#f3e8ff', 'HTTP': '#faf5ff', 'HTTPS': '#faf5ff', 'SMB': '#e0e7ff', 'TELNET': '#f1f5f9', 'default': '#f1f5f9' };
-                        deviceLinks.forEach(function(linkObj, idx) {
-                            var url = linkObj.url || linkObj;
-                            var label = linkObj.label || linkObj.type || 'Link';
-                            var type = (linkObj.type || '').toUpperCase();
-                            var bgColor = linkColors[type] || linkColors['default'];
-                            var icon = type === 'SSH' ? '💻' : (type === 'RDP' ? '🖥️' : (type === 'VNC' ? '📺' : (type === 'TELNET' ? '📟' : '🔗')));
-                            
-                            // Use same system as DeviceLinks.renderLinks
-                            if (url.match(/^(https?|ftp):\/\//i) || url.match(/^\\\//) || url.match(/^\//) || type === 'HTTP' || type === 'HTTPS') {
-                                // HTTP/HTTPS/FTP - regular link
-                                var href = url;
-                                if (!href.match(/^[a-z]+:\/\//i) && !href.startsWith('//')) {
-                                    href = 'http://' + href;
-                                }
-                                html += '<a href="' + escapeHtml(href) + '" target="_blank" style="background:' + bgColor + ';color:#1e293b;padding:5px 8px;border-radius:6px;font-size:12px;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.1);" title="' + escapeHtml(label + ': ' + url) + '">' + icon + '</a>';
-                            } else {
-                                // SSH/RDP/VNC/Telnet/SMB - Try Guacamole first, fallback to protocol handler
-                                var protocolUrl = url;
-                                if (!url.match(/^[a-z]+:\/\//i)) {
-                                    protocolUrl = (type.toLowerCase() || 'ssh') + '://' + url;
-                                }
-                                // Use data attributes for Guacamole integration
-                                html += '<a href="javascript:void(0)" data-protocol-url="' + escapeHtml(protocolUrl) + '" data-copy-url="' + escapeHtml(url) + '" data-device-id="' + device.id + '" data-protocol="' + (type.toLowerCase() || 'ssh') + '" onclick="FloorPlan.openRemoteLink(this)" style="background:' + bgColor + ';color:#1e293b;padding:5px 8px;border-radius:6px;font-size:12px;text-decoration:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.1);" title="🔗 ' + type + ': ' + escapeHtml(url) + '">' + icon + '</a>';
-                            }
-                        });
-                        html += '</div>';
+                    // SSH button
+                    if (hasSsh && deviceIp) {
+                        html += '<button onclick="event.stopPropagation(); FloorPlan.openDeviceGuacamole(' + device.id + ', \'ssh\')" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,#1e293b,#0f172a);color:#22c55e;border:none;border-radius:6px;font-size:11px;font-family:monospace;font-weight:bold;cursor:pointer;" title="SSH Terminal">>_</button>';
                     }
                     
+                    // RDP button
+                    if (hasRdp && deviceIp) {
+                        html += '<button onclick="event.stopPropagation(); FloorPlan.openDeviceGuacamole(' + device.id + ', \'rdp\')" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,#4f46e5,#3730a3);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer;" title="Remote Desktop">🖥️</button>';
+                    }
+                    
+                    // VNC button
+                    if (hasVnc && deviceIp) {
+                        html += '<button onclick="event.stopPropagation(); FloorPlan.openDeviceGuacamole(' + device.id + ', \'vnc\')" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,#059669,#047857);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer;" title="VNC Viewer">🖼️</button>';
+                    }
+                    
+                    // Telnet button
+                    if (hasTelnet && deviceIp) {
+                        html += '<button onclick="event.stopPropagation(); FloorPlan.openDeviceGuacamole(' + device.id + ', \'telnet\')" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,#ea580c,#9a3412);color:white;border:none;border-radius:6px;font-size:10px;font-family:monospace;font-weight:bold;cursor:pointer;" title="Telnet">tel</button>';
+                    }
+                    
+                    // Device Details button - closes FloorPlan modal and opens DeviceDetail
+                    html += '<button onclick="event.stopPropagation(); FloorPlan.openDeviceDetail(' + device.id + ')" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:6px;font-size:14px;cursor:pointer;" title="Device Details">🔍</button>';
+                    
+                    html += '</div>';
                     html += '</div>';
                 });
                 
@@ -657,77 +718,71 @@ var FloorPlan = (function() {
             html += '<div style="background:linear-gradient(135deg,#fef2f2,#fecaca);border-radius:12px;padding:32px;text-align:center;">';
             html += '<div style="font-size:40px;margin-bottom:12px;">📭</div>';
             html += '<div style="color:#991b1b;font-weight:600;font-size:15px;">No devices assigned to this room</div>';
-            html += '<div style="color:#b91c1c;font-size:12px;margin-top:6px;">Set device location to "<strong>' + escapeHtml(room.nickname || room.id) + '</strong>" to assign it here</div>';
+            html += '<div style="color:#b91c1c;font-size:12px;margin-top:6px;">Set device location to "<strong>' + escapeHtml(room.nickname || roomIdFormatted) + '</strong>" to assign it here</div>';
             html += '</div>';
         }
         
         // Wall Jacks section
         if (roomWallJacks.length > 0) {
-            html += '<div style="margin-top:16px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">';
+            html += '<div style="margin-top:12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;">';
             
             // Wall Jacks header
-            html += '<div style="background:linear-gradient(135deg,#ecf0f1,#bdc3c7);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #bdc3c7;">';
-            html += '<div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;">🔌</div>';
-            html += '<span style="font-weight:600;color:#2c3e50;font-size:13px;flex-grow:1;">Wall Jacks</span>';
-            html += '<span style="background:#7f8c8d;color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;">' + roomWallJacks.length + '</span>';
+            html += '<div style="background:linear-gradient(135deg,#ecf0f1,#bdc3c7);padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #bdc3c7;">';
+            html += '<div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🔌</div>';
+            html += '<span style="font-weight:600;color:#2c3e50;font-size:12px;flex-grow:1;">Wall Jacks</span>';
+            html += '<span style="background:#7f8c8d;color:white;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;flex-shrink:0;">' + roomWallJacks.length + '</span>';
             html += '</div>';
             
             // Wall Jacks list
-            html += '<div style="padding:8px;max-height:180px;overflow-y:auto;">';
+            html += '<div style="padding:6px;max-height:150px;overflow-y:auto;">';
             
             roomWallJacks.forEach(function(wj) {
                 var isActive = wj.status === 'active';
                 var bgColor = isActive ? '#f0fdf4' : '#fef2f2';
                 var dotColor = isActive ? '#22c55e' : '#ef4444';
                 
-                // Get source device name
                 var sourceDevice = '';
                 if (typeof appState !== 'undefined' && appState.devices && wj.from) {
                     var dev = appState.devices.find(function(d) { return d.id === wj.from; });
                     if (dev) sourceDevice = dev.name;
                 }
                 
-                html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;margin:4px 0;border-radius:8px;background:' + bgColor + ';">';
-                
-                // Status dot
-                html += '<span style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;"></span>';
-                
-                // Wall Jack info
+                html += '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;margin:2px 0;border-radius:6px;background:' + bgColor + ';">';
+                html += '<span style="width:6px;height:6px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;"></span>';
                 html += '<div style="flex-grow:1;min-width:0;">';
-                html += '<div style="font-weight:500;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + escapeHtml(wj.externalDest) + '">' + escapeHtml(wj.externalDest) + '</div>';
+                html += '<div style="font-weight:500;color:#1e293b;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + escapeHtml(wj.externalDest) + '">' + escapeHtml(wj.externalDest) + '</div>';
                 
                 var infoItems = [];
                 if (wj.cableMarker) infoItems.push('Cable: ' + wj.cableMarker);
                 if (sourceDevice) infoItems.push('From: ' + sourceDevice);
                 if (wj.fromPort) infoItems.push('Port: ' + wj.fromPort);
                 if (infoItems.length > 0) {
-                    html += '<div style="font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + infoItems.join(' • ') + '</div>';
+                    html += '<div style="font-size:9px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + infoItems.join(' • ') + '</div>';
                 }
-                html += '</div>';
-                
-                html += '</div>';
+                html += '</div></div>';
             });
             
             html += '</div></div>';
         }
         
-        html += '</div>';
+        html += '</div>'; // End floorDevicesContainer
+        html += '</div>'; // End room-info-modal
         
-        // Title
-        var titleText = room.nickname ? room.nickname + ' (Room ' + room.id + ')' : 'Room ' + room.id;
+        // Room display name with 2-digit format
+        var roomDisplayName = room.nickname || ('Room ' + roomIdFormatted);
+        var titleText = roomDisplayName + ' (' + roomIdFormatted + ')';
         
-        // Show modal
+        // Show modal - 70% width, then apply default filters
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: '<span style="color:#166534">🏢 ' + escapeHtml(titleText) + '</span>',
                 html: html,
                 showCloseButton: true,
-                showConfirmButton: isAuth,
+                showConfirmButton: false,
                 showCancelButton: true,
-                confirmButtonText: '💾 Save Nickname',
-                cancelButtonText: isAuth ? 'Cancel' : 'Close',
-                confirmButtonColor: '#22c55e',
+                cancelButtonText: 'Close',
                 cancelButtonColor: '#64748b',
+                allowOutsideClick: false,
                 width: 'auto',
                 background: '#ffffff',
                 customClass: {
@@ -735,78 +790,149 @@ var FloorPlan = (function() {
                     title: 'text-lg',
                     htmlContainer: 'text-left'
                 },
-                preConfirm: isAuth ? function() {
-                    return document.getElementById('roomNicknameInput').value;
-                } : null
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    var oldNickname = room.nickname;
-                    var newNickname = result.value;
-                    
-                    // Update room nickname in local array
-                    room.nickname = newNickname;
-                    
-                    // ALSO update in appState.rooms to ensure sync (compare as strings)
-                    if (typeof appState !== 'undefined' && appState.rooms) {
-                        var roomIdStr = String(room.id);
-                        var appRoom = appState.rooms.find(function(r) { return String(r.id) === roomIdStr; });
-                        if (appRoom && appRoom !== room) {
-                            appRoom.nickname = newNickname;
-                        }
-                    }
-                    
-                    // Save to both localStorage and server
-                    if (typeof appState !== 'undefined') {
-                        appState.rooms = rooms; // Ensure sync
-                        // Use saveToStorage to sync both localStorage and server
-                        if (typeof saveToStorage === 'function') {
-                            saveToStorage();
-                        } else if (typeof serverSave === 'function') {
-                            serverSave();
-                        }
-                    }
-                    
-                    // Sync devices: Update device.location if it matched old nickname
-                    if (oldNickname && newNickname && oldNickname !== newNickname) {
-                        var updatedCount = 0;
-                        if (typeof appState !== 'undefined' && appState.devices) {
-                            appState.devices.forEach(function(device) {
-                                if (device.location === oldNickname) {
-                                    device.location = newNickname;
-                                    updatedCount++;
-                                }
-                            });
-                            if (updatedCount > 0) {
-                                // Use saveToStorage to sync both localStorage and server
-                                if (typeof saveToStorage === 'function') {
-                                    saveToStorage();
-                                } else if (typeof serverSave === 'function') {
-                                    serverSave();
-                                }
-                            }
-                        }
-                        if (updatedCount > 0 && typeof Toast !== 'undefined') {
-                            Toast.success('Room nickname updated! Also updated ' + updatedCount + ' device(s) location.');
-                        } else if (typeof Toast !== 'undefined') {
-                            Toast.success('Room nickname updated!');
-                        }
-                    } else if (typeof Toast !== 'undefined') {
-                        Toast.success('Room nickname updated!');
-                    }
-                    
-                    // Update location select dropdowns
-                    if (typeof updateLocationSelect === 'function') {
-                        updateLocationSelect();
-                    }
-                    
-                    // Refresh floor plan display AND legend
-                    renderRooms();
-                    updateStats();  // This updates the Room Legend sidebar
+                didOpen: function() {
+                    // Apply default filters (Online + Connected)
+                    FloorPlan.applyFilters();
                 }
             });
         } else {
-            Toast.info('Room: ' + room.name + ' - ' + roomDevices.length + ' devices');
+            Toast.info('Room: ' + roomDisplayName + ' - ' + roomDevices.length + ' devices');
         }
+    }
+    
+    // Switch to another room from the dropdown
+    function switchRoom(roomId) {
+        var newRoom = rooms.find(function(r) { return String(r.id) === String(roomId); });
+        if (newRoom) {
+            Swal.close();
+            setTimeout(function() {
+                selectRoom(newRoom);
+                showRoomInfo(newRoom);
+            }, 100);
+        }
+    }
+    
+    // Open device detail - close FloorPlan modal first
+    function openDeviceDetail(deviceId) {
+        Swal.close();
+        setTimeout(function() {
+            if (typeof DeviceDetail !== 'undefined' && DeviceDetail.open) {
+                DeviceDetail.open(deviceId);
+            }
+        }, 100);
+    }
+    
+    // Open Guacamole - keep FloorPlan modal open
+    function openDeviceGuacamole(deviceId, protocol) {
+        if (typeof DeviceDetail !== 'undefined' && DeviceDetail.openGuacamole) {
+            DeviceDetail.openGuacamole(deviceId, protocol);
+        }
+    }
+    
+    // Apply filters in room modal
+    function applyFilters() {
+        var locationFilter = document.getElementById('floorFilterLocation');
+        var groupFilter = document.getElementById('floorFilterGroup');
+        var typeFilter = document.getElementById('floorFilterType');
+        var statusFilter = document.getElementById('floorFilterStatus');
+        var searchFilter = document.getElementById('floorFilterSearch');
+        var connectedFilter = document.getElementById('floorFilterConnected');
+        var countBadge = document.getElementById('floorFilterCount');
+        
+        var location = locationFilter ? locationFilter.value : '';
+        var group = groupFilter ? groupFilter.value : '';
+        var type = typeFilter ? typeFilter.value : '';
+        var status = statusFilter ? statusFilter.value : '';
+        var search = searchFilter ? searchFilter.value.toLowerCase().trim() : '';
+        var connectedOnly = connectedFilter ? connectedFilter.checked : false;
+        
+        // Get connected device IDs
+        var connectedDeviceIds = {};
+        if (typeof appState !== 'undefined' && appState.connections) {
+            appState.connections.forEach(function(c) {
+                connectedDeviceIds[c.from] = true;
+                connectedDeviceIds[c.to] = true;
+            });
+        }
+        
+        var totalVisible = 0;
+        var typeGroups = document.querySelectorAll('.floor-type-group');
+        
+        typeGroups.forEach(function(groupEl) {
+            var groupType = groupEl.getAttribute('data-type');
+            var matchTypeFilter = !type || groupType === type;
+            
+            if (!matchTypeFilter) {
+                groupEl.style.display = 'none';
+                return;
+            }
+            
+            // Check items within this group
+            var items = groupEl.querySelectorAll('.floor-device-item');
+            var visibleCount = 0;
+            
+            items.forEach(function(item) {
+                var itemStatus = item.getAttribute('data-status');
+                var itemName = item.getAttribute('data-name');
+                var itemLocation = item.getAttribute('data-location') || '';
+                var itemGroup = item.getAttribute('data-group') || '';
+                var deviceId = item.getAttribute('data-device-id');
+                
+                var matchStatus = !status || itemStatus === status;
+                var matchSearch = !search || itemName.indexOf(search) >= 0;
+                var matchLocation = !location || itemLocation === location;
+                var matchGroup = !group || itemGroup === group;
+                var matchConnected = !connectedOnly || connectedDeviceIds[deviceId];
+                
+                var show = matchStatus && matchSearch && matchLocation && matchGroup && matchConnected;
+                item.style.display = show ? '' : 'none';
+                if (show) {
+                    visibleCount++;
+                    totalVisible++;
+                }
+            });
+            
+            // Hide entire group if no visible items
+            groupEl.style.display = visibleCount > 0 ? '' : 'none';
+            
+            // Update count badge in group header
+            var groupCountBadge = groupEl.querySelector('.floor-type-count');
+            if (groupCountBadge) groupCountBadge.textContent = visibleCount;
+        });
+        
+        // Update total count badge with filtered/total
+        if (countBadge) {
+            var allItems = document.querySelectorAll('.floor-device-item');
+            var totalItems = allItems.length;
+            if (totalVisible === totalItems) {
+                countBadge.textContent = totalItems + ' devices';
+                countBadge.style.background = '#dbeafe';
+                countBadge.style.color = '#1d4ed8';
+            } else {
+                countBadge.textContent = totalVisible + '/' + totalItems + ' devices';
+                countBadge.style.background = '#fef3c7';
+                countBadge.style.color = '#b45309';
+            }
+        }
+    }
+    
+    // Clear all filters - restore defaults (Online + Connected checked)
+    function clearFilters() {
+        var locationFilter = document.getElementById('floorFilterLocation');
+        var groupFilter = document.getElementById('floorFilterGroup');
+        var typeFilter = document.getElementById('floorFilterType');
+        var statusFilter = document.getElementById('floorFilterStatus');
+        var searchFilter = document.getElementById('floorFilterSearch');
+        var connectedFilter = document.getElementById('floorFilterConnected');
+        
+        if (locationFilter) locationFilter.value = '';
+        if (groupFilter) groupFilter.value = '';
+        if (typeFilter) typeFilter.value = '';
+        if (statusFilter) statusFilter.value = 'active'; // Default to Online
+        if (searchFilter) searchFilter.value = '';
+        if (connectedFilter) connectedFilter.checked = true; // Default to Connected
+        
+        applyFilters();
     }
     
     // Helper function to get device type icon (fallback)
@@ -1214,6 +1340,12 @@ var FloorPlan = (function() {
         updateStats: updateStats,
         setRooms: setRooms,
         getRooms: function() { return rooms; },
-        openRemoteLink: openRemoteLink
+        openRemoteLink: openRemoteLink,
+        // New modal functions
+        switchRoom: switchRoom,
+        openDeviceDetail: openDeviceDetail,
+        openDeviceGuacamole: openDeviceGuacamole,
+        applyFilters: applyFilters,
+        clearFilters: clearFilters
     };
 })();

@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 3.6.030
+ * Version: 3.6.032
  * 
  * Features:
  * - Encapsulated state (appState)
@@ -101,8 +101,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['3.6.030', '3.6.029', '3.6.028', '3.6.026', '3.6.024', '3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '3.6.030';
+var SUPPORTED_VERSIONS = ['3.6.034', '3.6.032', '3.6.031', '3.6.030', '3.6.029', '3.6.028', '3.6.026', '3.6.024', '3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '3.6.034';
 
 /**
  * Valid enum values for schema validation
@@ -111,7 +111,7 @@ var CURRENT_VERSION = '3.6.030';
 var VALID_ENUMS = {
     deviceTypes: ['server', 'switch', 'router', 'firewall', 'workstation', 'laptop', 'phone', 'access_point', 'printer', 'storage', 'nas', 'pdu', 'camera', 'sensor', 'patch_panel', 'patch', 'wifi', 'isp', 'router_wifi', 'modem', 'hub', 'pc', 'ip_phone', 'ups', 'walljack', 'tv', 'display', 'monitor', 'others', 'other'],
     deviceStatus: ['active', 'disabled', 'online', 'offline', 'maintenance', 'warning', 'error'],
-    connectionTypes: ['lan', 'wan', 'dmz', 'trunk', 'management', 'backup', 'fiber', 'wallport', 'walljack', 'external', 'other', 'LAN', 'WAN', 'DMZ', 'Trunk', 'Management', 'Backup', 'Fiber', 'Wall Jack', 'External/ISP'],
+    connectionTypes: ['lan', 'wan', 'dmz', 'vlan', 'trunk', 'vpn', 'cloud', 'management', 'servers', 'iot', 'guest', 'voice', 'backup', 'fiber', 'test', 'wallport', 'walljack', 'external', 'other'],
     connectionStatus: ['active', 'disabled', 'inactive', 'maintenance', 'reserved', 'planned']
 };
 
@@ -301,7 +301,8 @@ var NETWORK_ZONES = [
     { value: 'IoT', label: '📡 IoT' },
     { value: 'Servers', label: '🖥️ Servers' },
     { value: 'Management', label: '⚙️ Mgmt' },
-    { value: 'Voice', label: '📞 Voice' }
+    { value: 'Voice', label: '📞 Voice' },
+    { value: 'Test', label: '🧪 Test' }
 ];
 
 // ============================================================================
@@ -4880,6 +4881,103 @@ function debugFilterStatus() {
         console.warn('    To clear filters, run: clearDeviceFilters(); updateUI();');
     }
 }
+
+// ============================================================================
+// ROOM MAPPER - Communication with iframe
+// ============================================================================
+var RoomMapper = (function() {
+    var pendingCallback = null;
+    
+    // Listen for messages from iframe
+    window.addEventListener('message', function(e) {
+        if (!e.data || !e.data.action) return;
+        
+        if (e.data.action === 'mapperReady') {
+            Debug.log('Room Mapper iframe ready');
+        }
+        
+        if (e.data.action === 'roomsLoaded') {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Rooms Loaded',
+                    text: e.data.count + ' rooms loaded into mapper',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        }
+        
+        if (e.data.action === 'roomsData' && pendingCallback) {
+            pendingCallback(e.data.rooms);
+            pendingCallback = null;
+        }
+    });
+    
+    function loadCurrentRooms() {
+        var iframe = document.getElementById('roomMapperFrame');
+        if (!iframe || !iframe.contentWindow) {
+            alert('Room Mapper not loaded');
+            return;
+        }
+        
+        // Get rooms from appState
+        var rooms = appState.rooms || [];
+        iframe.contentWindow.postMessage({ action: 'loadRooms', rooms: rooms }, '*');
+    }
+    
+    function saveRooms() {
+        var iframe = document.getElementById('roomMapperFrame');
+        if (!iframe || !iframe.contentWindow) {
+            alert('Room Mapper not loaded');
+            return;
+        }
+        
+        // Request rooms from iframe
+        pendingCallback = function(rooms) {
+            if (!rooms || rooms.length === 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Rooms',
+                        text: 'No rooms to save. Draw some rooms first!'
+                    });
+                }
+                return;
+            }
+            
+            // Update appState
+            appState.rooms = rooms;
+            
+            // Save to server
+            if (typeof saveToStorage === 'function') {
+                saveToStorage();
+            }
+            
+            // Update FloorPlan if visible
+            if (typeof FloorPlan !== 'undefined' && FloorPlan.refresh) {
+                FloorPlan.refresh();
+            }
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Rooms Saved',
+                    html: '<b>' + rooms.length + '</b> rooms saved successfully!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        };
+        
+        iframe.contentWindow.postMessage({ action: 'getRooms' }, '*');
+    }
+    
+    return {
+        loadCurrentRooms: loadCurrentRooms,
+        saveRooms: saveRooms
+    };
+})();
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {

@@ -14,7 +14,8 @@
         {
           "network": "10.10.100.220",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -57,7 +58,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 2,
@@ -73,7 +75,8 @@
         {
           "network": "10.12.107.89",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -96,7 +99,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 3,
@@ -110,7 +114,8 @@
         {
           "network": "80.18.165.233/29",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "Gw il collegamento in fibra, acesso esclusivo da parte di Telecom",
@@ -177,7 +182,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 4,
@@ -193,7 +199,8 @@
         {
           "network": "151.13.131.1/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -231,7 +238,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 5,
@@ -247,7 +255,8 @@
         {
           "network": "10.10.254.254",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -310,7 +319,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 6,
@@ -446,7 +456,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 7,
@@ -462,7 +473,8 @@
         {
           "network": "10.10.100.221",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -540,7 +552,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 8,
@@ -556,12 +569,14 @@
         {
           "network": "151.13.131.2/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         },
         {
           "network": "172.24.254.11/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -619,7 +634,8 @@
           "status": "active"
         }
       ],
-      "notes": "Accesso rete Wind FWA"
+      "notes": "Accesso rete Wind FWA",
+      "_isExternal": false
     },
     {
       "id": 9,
@@ -635,7 +651,8 @@
         {
           "network": "151.13.131.5/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [],
@@ -767,7 +784,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 10,
@@ -932,7 +950,8 @@
         }
       ],
       "notes": "Collegamento Switch D-link (vecchi 2 Elba) Rack-Network-02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 11,
@@ -948,12 +967,14 @@
         {
           "network": "80.18.165.234/29",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         },
         {
           "network": "172.24.254.10",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -991,7 +1012,8 @@
           "status": "active"
         }
       ],
-      "notes": "Gestione Telecamera di sicurezza sistema 80.18.165.238"
+      "notes": "Gestione Telecamera di sicurezza sistema 80.18.165.238",
+      "_isExternal": false
     },
     {
       "id": 12,
@@ -1062,7 +1084,8 @@
         }
       ],
       "notes": "Usato per Luciano L.",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 13,
@@ -1076,7 +1099,8 @@
         {
           "network": "80.18.165.235/29",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "OpenVPN",
@@ -1108,7 +1132,8 @@
         }
       ],
       "notes": "Gestione VPN per Tiesse",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 14,
@@ -1243,7 +1268,8 @@
         }
       ],
       "notes": "Patch Panel 01 - Rack-Network-02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 15,
@@ -1378,7 +1404,8 @@
         }
       ],
       "notes": "Patch Panel 02 - Rack-Network-02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 16,
@@ -1394,7 +1421,8 @@
         {
           "network": "10.10.100.202",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -1677,7 +1705,8 @@
           "status": "active"
         }
       ],
-      "notes": "Le 4 ultime porte (45,46,47,48) appartengono a un'altra rete.Questo Dlink ha sostituito due switch Elba."
+      "notes": "Le 4 ultime porte (45,46,47,48) appartengono a un'altra rete.Questo Dlink ha sostituito due switch Elba.",
+      "_isExternal": false
     },
     {
       "id": 17,
@@ -1747,7 +1776,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 18,
@@ -1761,7 +1791,8 @@
         {
           "network": "172.25.100.6/29",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "",
@@ -1833,7 +1864,8 @@
         }
       ],
       "notes": "Eolo",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 19,
@@ -1914,7 +1946,8 @@
         }
       ],
       "notes": "Eolo?",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 20,
@@ -1928,7 +1961,8 @@
         {
           "network": "172.25.100.1/29",
           "ip": "172.24.254.15/24",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "GW rete Lottomatica",
@@ -1960,7 +1994,8 @@
         }
       ],
       "notes": "Accesso rete Lottomatica",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 21,
@@ -1975,7 +2010,8 @@
         {
           "network": "172.25.100.2/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "",
@@ -2022,7 +2058,8 @@
         }
       ],
       "notes": "è Morto?",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 22,
@@ -2036,7 +2073,8 @@
         {
           "network": "172.25.100.3/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "lottomatica",
@@ -2108,7 +2146,8 @@
         }
       ],
       "notes": "Accesso rete Lottomatica",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 23,
@@ -2122,7 +2161,8 @@
         {
           "network": "172.25.100.4",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "Lottomatica",
@@ -2194,7 +2234,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 25,
@@ -2210,7 +2251,8 @@
         {
           "network": "88.18.165.238",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [],
@@ -2222,7 +2264,8 @@
           "status": "active"
         }
       ],
-      "notes": "TVCC - DVR"
+      "notes": "TVCC - DVR",
+      "_isExternal": false
     },
     {
       "id": 27,
@@ -2236,7 +2279,8 @@
         {
           "network": "10.10.0.0/16",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "",
@@ -2373,7 +2417,8 @@
         }
       ],
       "notes": "",
-      "location": "ICT - G.Cappai/R.Russo"
+      "location": "ICT - G.Cappai/R.Russo",
+      "_isExternal": false
     },
     {
       "id": 28,
@@ -2455,7 +2500,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 29,
@@ -2600,7 +2646,8 @@
         }
       ],
       "notes": "Rete Localport - 151.13.131.0/24",
-      "location": "ICT - G.Cappai/R.Russo"
+      "location": "ICT - G.Cappai/R.Russo",
+      "_isExternal": false
     },
     {
       "id": 30,
@@ -2695,7 +2742,8 @@
         }
       ],
       "notes": "",
-      "location": "ICT - G.Cappai/R.Russo"
+      "location": "ICT - G.Cappai/R.Russo",
+      "_isExternal": false
     },
     {
       "id": 31,
@@ -2790,7 +2838,8 @@
         }
       ],
       "notes": "",
-      "location": "ICT - G.Cappai/R.Russo"
+      "location": "ICT - G.Cappai/R.Russo",
+      "_isExternal": false
     },
     {
       "id": 32,
@@ -2885,7 +2934,8 @@
         }
       ],
       "notes": "",
-      "location": "ICT - G.Cappai/R.Russo"
+      "location": "ICT - G.Cappai/R.Russo",
+      "_isExternal": false
     },
     {
       "id": 33,
@@ -2901,7 +2951,8 @@
         {
           "network": "10.10.254.1",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -2969,7 +3020,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 34,
@@ -3015,7 +3067,8 @@
         }
       ],
       "notes": "POWERFAIL",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 35,
@@ -3151,7 +3204,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 36,
@@ -3247,7 +3301,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 37,
@@ -3263,7 +3318,8 @@
         {
           "network": "10.10.100.41",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3296,7 +3352,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 38,
@@ -3311,7 +3368,8 @@
         {
           "network": "10.10.50.1",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -3338,7 +3396,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 39,
@@ -3353,7 +3412,8 @@
         {
           "network": "10.10.50.2",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "Hypervisor Proxmox",
@@ -3380,7 +3440,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 40,
@@ -3396,7 +3457,8 @@
         {
           "network": "10.10.100.4",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3429,7 +3491,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 41,
@@ -3445,7 +3508,8 @@
         {
           "network": "10.10.100.45",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3478,7 +3542,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 42,
@@ -3494,7 +3559,8 @@
         {
           "network": "10.10.56.1",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3532,7 +3598,8 @@
           "status": "active"
         }
       ],
-      "notes": "k8s-worker-01"
+      "notes": "k8s-worker-01",
+      "_isExternal": false
     },
     {
       "id": 43,
@@ -3548,7 +3615,8 @@
         {
           "network": "10.10.55.2",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3586,7 +3654,8 @@
           "status": "active"
         }
       ],
-      "notes": "K8S-WORKER-02"
+      "notes": "K8S-WORKER-02",
+      "_isExternal": false
     },
     {
       "id": 44,
@@ -3602,7 +3671,8 @@
         {
           "network": "10.10.50.12",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3640,7 +3710,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 45,
@@ -3656,7 +3727,8 @@
         {
           "network": "10.10.55.1",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3694,7 +3766,8 @@
           "status": "active"
         }
       ],
-      "notes": "K8S-MASTER-01"
+      "notes": "K8S-MASTER-01",
+      "_isExternal": false
     },
     {
       "id": 46,
@@ -3710,7 +3783,8 @@
         {
           "network": "10.1.10.100/24",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3728,7 +3802,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 47,
@@ -3744,7 +3819,8 @@
         {
           "network": "10.10.50.6",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3762,7 +3838,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 48,
@@ -3778,7 +3855,8 @@
         {
           "network": "10.10.55.100",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3796,7 +3874,8 @@
           "status": "active"
         }
       ],
-      "notes": "Server per tutti Backup Proxmox"
+      "notes": "Server per tutti Backup Proxmox",
+      "_isExternal": false
     },
     {
       "id": 49,
@@ -3812,7 +3891,8 @@
         {
           "network": "10.10.254.3",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -3885,7 +3965,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 50,
@@ -4021,7 +4102,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 51,
@@ -4182,7 +4264,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 52,
@@ -4197,7 +4280,8 @@
         {
           "network": "10.10.100.032",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "IXIA-NETWORK-INTELLIGENCE",
@@ -4329,7 +4413,8 @@
         }
       ],
       "notes": "DESKTOP-60A5T1\\IXIA",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 53,
@@ -4345,7 +4430,8 @@
         {
           "network": "10.10.50.3",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4363,7 +4449,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 54,
@@ -4379,7 +4466,8 @@
         {
           "network": "10.3.10.101",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4397,7 +4485,8 @@
           "status": "active"
         }
       ],
-      "notes": "Bare Metal"
+      "notes": "Bare Metal",
+      "_isExternal": false
     },
     {
       "id": 55,
@@ -4412,7 +4501,8 @@
         {
           "network": "10.71.10.254",
           "ip": "10.84.10.253",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "service": "DSLAM, ADSL/VDSL",
@@ -4464,7 +4554,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 56,
@@ -4480,7 +4571,8 @@
         {
           "network": "10.10.254.250",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4523,7 +4615,8 @@
           "status": "active"
         }
       ],
-      "notes": "Vecchio router per VLAN Distrib/BW/Coltrane"
+      "notes": "Vecchio router per VLAN Distrib/BW/Coltrane",
+      "_isExternal": false
     },
     {
       "id": 57,
@@ -4574,7 +4667,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 58,
@@ -4635,7 +4729,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 61,
@@ -4651,7 +4746,8 @@
         {
           "network": "10.10.4.220",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4669,7 +4765,8 @@
           "status": "active"
         }
       ],
-      "notes": "Stampante Kyocera Centrale"
+      "notes": "Stampante Kyocera Centrale",
+      "_isExternal": false
     },
     {
       "id": 62,
@@ -4685,7 +4782,8 @@
         {
           "network": "10.10.100.146",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4703,7 +4801,8 @@
           "status": "active"
         }
       ],
-      "notes": "Accanto alla stampante"
+      "notes": "Accanto alla stampante",
+      "_isExternal": false
     },
     {
       "id": 63,
@@ -4719,7 +4818,8 @@
         {
           "network": "10.10.100.145",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4731,7 +4831,8 @@
       ],
       "service": "Tiesse-wifi",
       "ports": [],
-      "notes": "Reception (Barbara)"
+      "notes": "Reception (Barbara)",
+      "_isExternal": false
     },
     {
       "id": 64,
@@ -4747,7 +4848,8 @@
         {
           "network": "10.10.50.9",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4770,7 +4872,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 65,
@@ -4786,7 +4889,8 @@
         {
           "network": "10.84.10.230",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4809,7 +4913,8 @@
           "status": "active"
         }
       ],
-      "notes": "Bare Metal"
+      "notes": "Bare Metal",
+      "_isExternal": false
     },
     {
       "id": 66,
@@ -4825,7 +4930,8 @@
         {
           "network": "10.10.50.5",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -4843,7 +4949,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 67,
@@ -4885,7 +4992,8 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA ROSSA"
+      "notes": "HUB POWERFAIL LINEA ROSSA",
+      "_isExternal": false
     },
     {
       "id": 68,
@@ -4927,7 +5035,8 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA BIANCA"
+      "notes": "HUB POWERFAIL LINEA BIANCA",
+      "_isExternal": false
     },
     {
       "id": 69,
@@ -4969,7 +5078,8 @@
           "status": "active"
         }
       ],
-      "notes": "HUB POWERFAIL LINEA VERDE"
+      "notes": "HUB POWERFAIL LINEA VERDE",
+      "_isExternal": false
     },
     {
       "id": 70,
@@ -5015,7 +5125,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL RED TARGET 01",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 71,
@@ -5061,7 +5172,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL LINE RED TARGET 02",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 72,
@@ -5107,7 +5219,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL LINE GREEN TARGET 01",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 73,
@@ -5153,7 +5266,8 @@
         }
       ],
       "notes": "TARGET 01 POWERFAIL - LINE GREEN",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 74,
@@ -5199,7 +5313,8 @@
         }
       ],
       "notes": "ROUTER POWERFAIL - LINE WHITE",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 75,
@@ -5245,7 +5360,8 @@
         }
       ],
       "notes": "TARGET 02 POWERFAIL - LINE WHITE",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 76,
@@ -5416,7 +5532,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 77,
@@ -5432,7 +5549,8 @@
         {
           "network": "192.168.0.240",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [],
@@ -5459,7 +5577,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 78,
@@ -5475,7 +5594,8 @@
         {
           "network": "10.51.10.3",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -5498,7 +5618,8 @@
           "status": "active"
         }
       ],
-      "notes": "IP: 151.13.131.13: REPLICA DI SRV-PROD-02"
+      "notes": "IP: 151.13.131.13: REPLICA DI SRV-PROD-02",
+      "_isExternal": false
     },
     {
       "id": 79,
@@ -5514,7 +5635,8 @@
         {
           "network": "10.51.10.2",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -5537,7 +5659,8 @@
           "status": "active"
         }
       ],
-      "notes": "IP: 151.13.131.13: SERVER MASTER"
+      "notes": "IP: 151.13.131.13: SERVER MASTER",
+      "_isExternal": false
     },
     {
       "id": 80,
@@ -5553,7 +5676,8 @@
         {
           "network": "151.13.131.155",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -5576,7 +5700,8 @@
           "status": "active"
         }
       ],
-      "notes": "Hypervisor per tutti i server su rete 151.13.131.0/24"
+      "notes": "Hypervisor per tutti i server su rete 151.13.131.0/24",
+      "_isExternal": false
     },
     {
       "id": 81,
@@ -5592,7 +5717,8 @@
         {
           "network": "10.51.10.100",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -5610,7 +5736,8 @@
           "status": "active"
         }
       ],
-      "notes": "Quorum per Proxmox SRV-PROD*"
+      "notes": "Quorum per Proxmox SRV-PROD*",
+      "_isExternal": false
     },
     {
       "id": 82,
@@ -5626,7 +5753,8 @@
         {
           "network": "10.10.254.114",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -5694,7 +5822,8 @@
           "status": "active"
         }
       ],
-      "notes": "MICROLYS-GATEWAY"
+      "notes": "MICROLYS-GATEWAY",
+      "_isExternal": false
     },
     {
       "id": 83,
@@ -5710,7 +5839,8 @@
         {
           "network": "151.13.131.13",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -5753,7 +5883,8 @@
           "status": "active"
         }
       ],
-      "notes": "Router per Collegamento VPN (Magazzino via Torino)"
+      "notes": "Router per Collegamento VPN (Magazzino via Torino)",
+      "_isExternal": false
     },
     {
       "id": 84,
@@ -5889,7 +6020,8 @@
         }
       ],
       "notes": "",
-      "location": "Sala Server"
+      "location": "Sala Server",
+      "_isExternal": false
     },
     {
       "id": 85,
@@ -5905,7 +6037,8 @@
         {
           "network": "10.10.100.144",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -5917,7 +6050,8 @@
       ],
       "service": "Tiesse-wifi",
       "ports": [],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 120,
@@ -5933,7 +6067,8 @@
         {
           "network": "10.10.254.121",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6021,7 +6156,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 121,
@@ -6037,7 +6173,8 @@
         {
           "network": "10.10.100.210",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [],
@@ -6049,7 +6186,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 122,
@@ -6065,7 +6203,8 @@
         {
           "network": "10.10.10.16",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [],
@@ -6077,7 +6216,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 123,
@@ -6134,7 +6274,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 124,
@@ -6191,7 +6332,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 125,
@@ -6207,7 +6349,8 @@
         {
           "network": "10.10.254.120",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6260,7 +6403,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 126,
@@ -6276,7 +6420,8 @@
         {
           "network": "10.10.254.102",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6329,7 +6474,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 127,
@@ -6345,7 +6491,8 @@
         {
           "network": "10.10.254.106",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6398,7 +6545,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 128,
@@ -6414,7 +6562,8 @@
         {
           "network": "10.10.254.108",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6467,7 +6616,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 129,
@@ -6483,7 +6633,8 @@
         {
           "network": "10.10.254.109",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6536,7 +6687,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 130,
@@ -6552,7 +6704,8 @@
         {
           "network": "10.10.254.107",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6605,7 +6758,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 131,
@@ -6621,7 +6775,8 @@
         {
           "network": "10.10.254.113",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6674,7 +6829,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 132,
@@ -6690,7 +6846,8 @@
         {
           "network": "10.10.254.115",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6743,7 +6900,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 133,
@@ -6759,7 +6917,8 @@
         {
           "network": "10.10.254.105",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6812,7 +6971,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 134,
@@ -6828,7 +6988,8 @@
         {
           "network": "10.10.254.112",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6840,7 +7001,8 @@
       ],
       "service": "Router GW Area QA - M.Masri",
       "ports": [],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 135,
@@ -6856,7 +7018,8 @@
         {
           "network": "10.10.254.104",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6909,7 +7072,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 136,
@@ -6925,7 +7089,8 @@
         {
           "network": "10.10.254.103",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -6978,7 +7143,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 137,
@@ -6994,7 +7160,8 @@
         {
           "network": "10.10.254.110",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -7047,7 +7214,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 138,
@@ -7063,7 +7231,8 @@
         {
           "network": "10.10.254.114",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [
@@ -7116,7 +7285,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     },
     {
       "id": 139,
@@ -7127,12 +7297,13 @@
       "brandModel": "",
       "type": "router",
       "status": "active",
-      "location": "Via Asti 8",
+      "location": "ICT - G.Cappai/R.Russo",
       "addresses": [
         {
           "network": "88.46.97.73",
           "ip": "",
-          "vlan": null
+          "vlan": null,
+          "zone": ""
         }
       ],
       "links": [],
@@ -7179,7 +7350,8 @@
           "status": "active"
         }
       ],
-      "notes": ""
+      "notes": "",
+      "_isExternal": false
     }
   ],
   "connections": [
@@ -8514,723 +8686,6 @@
       "roomId": null
     }
   ],
-  "rooms": [
-    {
-      "id": "0",
-      "name": "0",
-      "nickname": "Sala Server",
-      "type": "office",
-      "area": 47142,
-      "capacity": 10,
-      "description": "0 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 525,
-          "y": 463
-        },
-        {
-          "x": 768,
-          "y": 463
-        },
-        {
-          "x": 768,
-          "y": 657
-        },
-        {
-          "x": 525,
-          "y": 657
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "1",
-      "name": "1",
-      "nickname": "Amministrazione",
-      "type": "office",
-      "area": 154806,
-      "capacity": 10,
-      "description": "1 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 6,
-          "y": 971
-        },
-        {
-          "x": 538,
-          "y": 970
-        },
-        {
-          "x": 537,
-          "y": 1107
-        },
-        {
-          "x": 510,
-          "y": 1108
-        },
-        {
-          "x": 511,
-          "y": 1273
-        },
-        {
-          "x": 17,
-          "y": 1272
-        },
-        {
-          "x": 16,
-          "y": 1272
-        },
-        {
-          "x": 17,
-          "y": 1263
-        },
-        {
-          "x": 14,
-          "y": 1266
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "2",
-      "name": "2",
-      "nickname": "F.Montefiori",
-      "type": "office",
-      "area": 64484,
-      "capacity": 10,
-      "description": "2 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 6,
-          "y": 623
-        },
-        {
-          "x": 194,
-          "y": 623
-        },
-        {
-          "x": 194,
-          "y": 966
-        },
-        {
-          "x": 6,
-          "y": 966
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "3",
-      "name": "3",
-      "nickname": "L.Ciofalo",
-      "type": "office",
-      "area": 56181,
-      "capacity": 10,
-      "description": "3 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 11,
-          "y": 312
-        },
-        {
-          "x": 194,
-          "y": 312
-        },
-        {
-          "x": 194,
-          "y": 619
-        },
-        {
-          "x": 11,
-          "y": 619
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "4",
-      "name": "4",
-      "nickname": "L.Lucrezia",
-      "type": "office",
-      "area": 78300,
-      "capacity": 10,
-      "description": "4 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 5,
-          "y": 4
-        },
-        {
-          "x": 266,
-          "y": 4
-        },
-        {
-          "x": 266,
-          "y": 304
-        },
-        {
-          "x": 5,
-          "y": 304
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "5",
-      "name": "5",
-      "nickname": "Sala Riunioni",
-      "type": "office",
-      "area": 90480,
-      "capacity": 10,
-      "description": "5 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 272,
-          "y": 5
-        },
-        {
-          "x": 512,
-          "y": 5
-        },
-        {
-          "x": 512,
-          "y": 382
-        },
-        {
-          "x": 272,
-          "y": 382
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "6",
-      "name": "6",
-      "nickname": "E.Saroglia/E.Zanellato/F.Lucrezia",
-      "type": "office",
-      "area": 90896,
-      "capacity": 10,
-      "description": "6 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 517,
-          "y": 5
-        },
-        {
-          "x": 767,
-          "y": 5
-        },
-        {
-          "x": 767,
-          "y": 379
-        },
-        {
-          "x": 517,
-          "y": 379
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "7",
-      "name": "7",
-      "nickname": "O.Miraglio",
-      "type": "office",
-      "area": 69542,
-      "capacity": 10,
-      "description": "7 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 774,
-          "y": 8
-        },
-        {
-          "x": 992,
-          "y": 8
-        },
-        {
-          "x": 992,
-          "y": 327
-        },
-        {
-          "x": 774,
-          "y": 327
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "8",
-      "name": "8",
-      "nickname": "L.Corfiati/R.Belletti",
-      "type": "office",
-      "area": 145644,
-      "capacity": 10,
-      "description": "08 - L.Corfiati/R.Belletti",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 1000,
-          "y": 10
-        },
-        {
-          "x": 1458,
-          "y": 10
-        },
-        {
-          "x": 1458,
-          "y": 328
-        },
-        {
-          "x": 1000,
-          "y": 328
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "9",
-      "name": "9",
-      "nickname": "QA",
-      "type": "office",
-      "area": 490253,
-      "capacity": 10,
-      "description": "9 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 1926,
-          "y": 3
-        },
-        {
-          "x": 2494,
-          "y": 5
-        },
-        {
-          "x": 2496,
-          "y": 635
-        },
-        {
-          "x": 2456,
-          "y": 637
-        },
-        {
-          "x": 2456,
-          "y": 844
-        },
-        {
-          "x": 1865,
-          "y": 856
-        },
-        {
-          "x": 1862,
-          "y": 409
-        },
-        {
-          "x": 1943,
-          "y": 409
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "10",
-      "name": "10",
-      "nickname": "C.Frigiolini",
-      "type": "office",
-      "area": 49400,
-      "capacity": 10,
-      "description": "10 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 2503,
-          "y": 12
-        },
-        {
-          "x": 2763,
-          "y": 12
-        },
-        {
-          "x": 2763,
-          "y": 202
-        },
-        {
-          "x": 2503,
-          "y": 202
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "11",
-      "name": "11",
-      "nickname": "E. Avanzi",
-      "type": "office",
-      "area": 36778,
-      "capacity": 10,
-      "description": "11 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 2504,
-          "y": 213
-        },
-        {
-          "x": 2763,
-          "y": 213
-        },
-        {
-          "x": 2763,
-          "y": 355
-        },
-        {
-          "x": 2504,
-          "y": 355
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "12",
-      "name": "12",
-      "nickname": "ICT - G.Cappai/R.Russo",
-      "type": "office",
-      "area": 69402,
-      "capacity": 10,
-      "description": "12 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 2505,
-          "y": 366
-        },
-        {
-          "x": 2763,
-          "y": 366
-        },
-        {
-          "x": 2763,
-          "y": 635
-        },
-        {
-          "x": 2505,
-          "y": 635
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "13",
-      "name": "13",
-      "nickname": "EPA - Riparazioni",
-      "type": "office",
-      "area": 404915,
-      "capacity": 10,
-      "description": "13 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 1937,
-          "y": 955
-        },
-        {
-          "x": 1942,
-          "y": 863
-        },
-        {
-          "x": 2461,
-          "y": 851
-        },
-        {
-          "x": 2460,
-          "y": 643
-        },
-        {
-          "x": 2764,
-          "y": 641
-        },
-        {
-          "x": 2767,
-          "y": 1271
-        },
-        {
-          "x": 1948,
-          "y": 1267
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "14",
-      "name": "14",
-      "nickname": "S.Rotondo",
-      "type": "office",
-      "area": 64310,
-      "capacity": 10,
-      "description": "14 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 1725,
-          "y": 968
-        },
-        {
-          "x": 1943,
-          "y": 968
-        },
-        {
-          "x": 1943,
-          "y": 1263
-        },
-        {
-          "x": 1725,
-          "y": 1263
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "15",
-      "name": "15",
-      "nickname": "Imballo/Etichettatura",
-      "type": "office",
-      "area": 149725,
-      "capacity": 10,
-      "description": "15 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 1453,
-          "y": 704
-        },
-        {
-          "x": 1718,
-          "y": 704
-        },
-        {
-          "x": 1718,
-          "y": 1269
-        },
-        {
-          "x": 1453,
-          "y": 1269
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "16",
-      "name": "16",
-      "nickname": "Hardware",
-      "type": "office",
-      "area": 286242,
-      "capacity": 10,
-      "description": "16 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 910,
-          "y": 690
-        },
-        {
-          "x": 1441,
-          "y": 693
-        },
-        {
-          "x": 1446,
-          "y": 1274
-        },
-        {
-          "x": 987,
-          "y": 1267
-        },
-        {
-          "x": 984,
-          "y": 976
-        },
-        {
-          "x": 911,
-          "y": 969
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "17",
-      "name": "17",
-      "nickname": "G.Deiaco",
-      "type": "office",
-      "area": 62964,
-      "capacity": 10,
-      "description": "17 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 772,
-          "y": 974
-        },
-        {
-          "x": 984,
-          "y": 974
-        },
-        {
-          "x": 984,
-          "y": 1271
-        },
-        {
-          "x": 772,
-          "y": 1271
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "18",
-      "name": "18",
-      "nickname": "Sala Riunioni II",
-      "type": "office",
-      "area": 70042,
-      "capacity": 10,
-      "description": "18 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 543,
-          "y": 971
-        },
-        {
-          "x": 768,
-          "y": 972
-        },
-        {
-          "x": 764,
-          "y": 1267
-        },
-        {
-          "x": 520,
-          "y": 1266
-        },
-        {
-          "x": 515,
-          "y": 1116
-        },
-        {
-          "x": 538,
-          "y": 1112
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "19",
-      "name": "19",
-      "nickname": "Reception",
-      "type": "office",
-      "area": 18404,
-      "capacity": 10,
-      "description": "19 - Mapeado",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 404,
-          "y": 459
-        },
-        {
-          "x": 520,
-          "y": 459
-        },
-        {
-          "x": 520,
-          "y": 656
-        },
-        {
-          "x": 404,
-          "y": 656
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    },
-    {
-      "id": "20",
-      "name": "20",
-      "nickname": "BigOne",
-      "type": "office",
-      "area": 148230,
-      "capacity": 10,
-      "description": "20 - BigOne",
-      "color": "rgba(59,130,246,0.15)",
-      "polygon": [
-        {
-          "x": 910,
-          "y": 333
-        },
-        {
-          "x": 1459,
-          "y": 333
-        },
-        {
-          "x": 1459,
-          "y": 603
-        },
-        {
-          "x": 910,
-          "y": 603
-        }
-      ],
-      "devices": [],
-      "notes": "",
-      "floor": 0
-    }
-  ],
   "sites": [
     {
       "id": "main",
@@ -9420,48 +8875,764 @@
       "color": "#7c3aed"
     },
     {
+      "id": "loc-20",
+      "siteId": "main",
       "code": "20",
-      "name": "BigOne",
+      "name": "Zone Test - Arcipelago 01",
       "type": "mapped",
-      "id": "loc-20"
+      "roomRef": "20",
+      "color": "#7c3aed"
     },
     {
       "id": "loc-21",
       "siteId": "main",
       "code": "21",
-      "name": "Via Asti 8",
-      "type": "custom",
-      "roomRef": null,
-      "color": "#f97316"
-    },
-    {
-      "id": "loc-22",
-      "siteId": "main",
-      "code": "22",
-      "name": "Torino",
-      "type": "custom",
-      "roomRef": null,
-      "color": "#f97316"
-    },
-    {
-      "id": "loc-23",
-      "siteId": "main",
-      "code": "23",
-      "name": "Roma",
-      "type": "custom",
-      "roomRef": null,
-      "color": "#f97316"
-    },
-    {
-      "id": "loc-24",
-      "siteId": "main",
-      "code": "24",
-      "name": "Avezzano",
-      "type": "custom",
-      "roomRef": null,
-      "color": "#f97316"
+      "name": "Zone Test - Arcipelago 02",
+      "type": "mapped",
+      "roomRef": "21",
+      "color": "#7c3aed"
     }
   ],
   "nextDeviceId": 140,
-  "nextLocationId": 25
+  "nextLocationId": 22,
+  "rooms": [
+    {
+      "id": "0",
+      "name": "0",
+      "nickname": "Sala Server",
+      "type": "office",
+      "area": 47142,
+      "capacity": 10,
+      "description": "Sala Server - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 525,
+          "y": 463
+        },
+        {
+          "x": 768,
+          "y": 463
+        },
+        {
+          "x": 768,
+          "y": 657
+        },
+        {
+          "x": 525,
+          "y": 657
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "1",
+      "name": "1",
+      "nickname": "Amministrazione",
+      "type": "office",
+      "area": 154806,
+      "capacity": 10,
+      "description": "Amministrazione - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 6,
+          "y": 971
+        },
+        {
+          "x": 538,
+          "y": 970
+        },
+        {
+          "x": 537,
+          "y": 1107
+        },
+        {
+          "x": 510,
+          "y": 1108
+        },
+        {
+          "x": 511,
+          "y": 1273
+        },
+        {
+          "x": 17,
+          "y": 1272
+        },
+        {
+          "x": 16,
+          "y": 1272
+        },
+        {
+          "x": 17,
+          "y": 1263
+        },
+        {
+          "x": 14,
+          "y": 1266
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "2",
+      "name": "2",
+      "nickname": "F.Montefiori",
+      "type": "office",
+      "area": 64484,
+      "capacity": 10,
+      "description": "F.Montefiori - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 6,
+          "y": 623
+        },
+        {
+          "x": 194,
+          "y": 623
+        },
+        {
+          "x": 194,
+          "y": 966
+        },
+        {
+          "x": 6,
+          "y": 966
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "3",
+      "name": "3",
+      "nickname": "L.Ciofalo",
+      "type": "office",
+      "area": 56181,
+      "capacity": 10,
+      "description": "L.Ciofalo - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 11,
+          "y": 312
+        },
+        {
+          "x": 194,
+          "y": 312
+        },
+        {
+          "x": 194,
+          "y": 619
+        },
+        {
+          "x": 11,
+          "y": 619
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "4",
+      "name": "4",
+      "nickname": "L.Lucrezia",
+      "type": "office",
+      "area": 78300,
+      "capacity": 10,
+      "description": "L.Lucrezia - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 5,
+          "y": 4
+        },
+        {
+          "x": 266,
+          "y": 4
+        },
+        {
+          "x": 266,
+          "y": 304
+        },
+        {
+          "x": 5,
+          "y": 304
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "5",
+      "name": "5",
+      "nickname": "Sala Riunioni",
+      "type": "office",
+      "area": 90480,
+      "capacity": 10,
+      "description": "Sala Riunioni - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 272,
+          "y": 5
+        },
+        {
+          "x": 512,
+          "y": 5
+        },
+        {
+          "x": 512,
+          "y": 382
+        },
+        {
+          "x": 272,
+          "y": 382
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "6",
+      "name": "6",
+      "nickname": "E.Saroglia/E.Zanellato/F.Lucrezia",
+      "type": "office",
+      "area": 93500,
+      "capacity": 10,
+      "description": "E.Saroglia/E.Zanellato/F.Lucrezia - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 517,
+          "y": 5
+        },
+        {
+          "x": 767,
+          "y": 5
+        },
+        {
+          "x": 767,
+          "y": 379
+        },
+        {
+          "x": 517,
+          "y": 379
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "7",
+      "name": "7",
+      "nickname": "O.Miraglio",
+      "type": "office",
+      "area": 69542,
+      "capacity": 10,
+      "description": "O.Miraglio - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 774,
+          "y": 8
+        },
+        {
+          "x": 992,
+          "y": 8
+        },
+        {
+          "x": 992,
+          "y": 327
+        },
+        {
+          "x": 774,
+          "y": 327
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "8",
+      "name": "8",
+      "nickname": "L.Corfiati/R.Belletti",
+      "type": "office",
+      "area": 145644,
+      "capacity": 10,
+      "description": "L.Corfiati/R.Belletti - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 1000,
+          "y": 10
+        },
+        {
+          "x": 1458,
+          "y": 10
+        },
+        {
+          "x": 1458,
+          "y": 328
+        },
+        {
+          "x": 1000,
+          "y": 328
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "9",
+      "name": "9",
+      "nickname": "QA",
+      "type": "office",
+      "area": 373165,
+      "capacity": 10,
+      "description": "QA - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 2495,
+          "y": 0
+        },
+        {
+          "x": 2499,
+          "y": 638
+        },
+        {
+          "x": 1865,
+          "y": 638
+        },
+        {
+          "x": 1865,
+          "y": 404
+        },
+        {
+          "x": 1936,
+          "y": 404
+        },
+        {
+          "x": 1940,
+          "y": 2
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "10",
+      "name": "10",
+      "nickname": "C.Frigiolini",
+      "type": "office",
+      "area": 49400,
+      "capacity": 10,
+      "description": "C.Frigiolini - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 2503,
+          "y": 12
+        },
+        {
+          "x": 2763,
+          "y": 12
+        },
+        {
+          "x": 2763,
+          "y": 202
+        },
+        {
+          "x": 2503,
+          "y": 202
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "11",
+      "name": "11",
+      "nickname": "E. Avanzi",
+      "type": "office",
+      "area": 36778,
+      "capacity": 10,
+      "description": "E. Avanzi - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 2504,
+          "y": 213
+        },
+        {
+          "x": 2763,
+          "y": 213
+        },
+        {
+          "x": 2763,
+          "y": 355
+        },
+        {
+          "x": 2504,
+          "y": 355
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "12",
+      "name": "12",
+      "nickname": "ICT - G.Cappai/R.Russo",
+      "type": "office",
+      "area": 69402,
+      "capacity": 10,
+      "description": "ICT - G.Cappai/R.Russo - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 2505,
+          "y": 366
+        },
+        {
+          "x": 2763,
+          "y": 366
+        },
+        {
+          "x": 2763,
+          "y": 635
+        },
+        {
+          "x": 2505,
+          "y": 635
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "13",
+      "name": "13",
+      "nickname": "EPA - Riparazioni",
+      "type": "office",
+      "area": 404915,
+      "capacity": 10,
+      "description": "EPA - Riparazioni - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 1937,
+          "y": 955
+        },
+        {
+          "x": 1942,
+          "y": 863
+        },
+        {
+          "x": 2461,
+          "y": 851
+        },
+        {
+          "x": 2460,
+          "y": 643
+        },
+        {
+          "x": 2764,
+          "y": 641
+        },
+        {
+          "x": 2767,
+          "y": 1271
+        },
+        {
+          "x": 1948,
+          "y": 1267
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "14",
+      "name": "14",
+      "nickname": "S.Rotondo",
+      "type": "office",
+      "area": 64310,
+      "capacity": 10,
+      "description": "S.Rotondo - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 1725,
+          "y": 968
+        },
+        {
+          "x": 1943,
+          "y": 968
+        },
+        {
+          "x": 1943,
+          "y": 1263
+        },
+        {
+          "x": 1725,
+          "y": 1263
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "15",
+      "name": "15",
+      "nickname": "Imballo/Etichettatura",
+      "type": "office",
+      "area": 149725,
+      "capacity": 10,
+      "description": "Imballo/Etichettatura - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 1453,
+          "y": 704
+        },
+        {
+          "x": 1718,
+          "y": 704
+        },
+        {
+          "x": 1718,
+          "y": 1269
+        },
+        {
+          "x": 1453,
+          "y": 1269
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "16",
+      "name": "16",
+      "nickname": "Hardware",
+      "type": "office",
+      "area": 286242,
+      "capacity": 10,
+      "description": "Hardware - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 910,
+          "y": 690
+        },
+        {
+          "x": 1441,
+          "y": 693
+        },
+        {
+          "x": 1446,
+          "y": 1274
+        },
+        {
+          "x": 987,
+          "y": 1267
+        },
+        {
+          "x": 984,
+          "y": 976
+        },
+        {
+          "x": 911,
+          "y": 969
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "17",
+      "name": "17",
+      "nickname": "G.Deiaco",
+      "type": "office",
+      "area": 62964,
+      "capacity": 10,
+      "description": "G.Deiaco - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 772,
+          "y": 974
+        },
+        {
+          "x": 984,
+          "y": 974
+        },
+        {
+          "x": 984,
+          "y": 1271
+        },
+        {
+          "x": 772,
+          "y": 1271
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "18",
+      "name": "18",
+      "nickname": "Sala Riunioni II",
+      "type": "office",
+      "area": 70042,
+      "capacity": 10,
+      "description": "Sala Riunioni II - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 543,
+          "y": 971
+        },
+        {
+          "x": 768,
+          "y": 972
+        },
+        {
+          "x": 764,
+          "y": 1267
+        },
+        {
+          "x": 520,
+          "y": 1266
+        },
+        {
+          "x": 515,
+          "y": 1116
+        },
+        {
+          "x": 538,
+          "y": 1112
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "19",
+      "name": "19",
+      "nickname": "Reception",
+      "type": "office",
+      "area": 22852,
+      "capacity": 10,
+      "description": "Reception - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 404,
+          "y": 459
+        },
+        {
+          "x": 520,
+          "y": 459
+        },
+        {
+          "x": 520,
+          "y": 656
+        },
+        {
+          "x": 404,
+          "y": 656
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "20",
+      "name": "20",
+      "nickname": "Zone Test - Arcipelago 01",
+      "type": "office",
+      "area": 148230,
+      "capacity": 10,
+      "description": "Zone Test - Arcipelago 01 - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 910,
+          "y": 333
+        },
+        {
+          "x": 1459,
+          "y": 333
+        },
+        {
+          "x": 1459,
+          "y": 603
+        },
+        {
+          "x": 910,
+          "y": 603
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    },
+    {
+      "id": "21",
+      "name": "21",
+      "nickname": "Zone Test - Arcipelago 02",
+      "type": "office",
+      "area": 124940,
+      "capacity": 10,
+      "description": "Zone Test - Arcipelago 02 - Mapped",
+      "color": "rgba(59,130,246,0.15)",
+      "polygon": [
+        {
+          "x": 1860,
+          "y": 641
+        },
+        {
+          "x": 2455,
+          "y": 641
+        },
+        {
+          "x": 2453,
+          "y": 846
+        },
+        {
+          "x": 1858,
+          "y": 856
+        }
+      ],
+      "devices": [],
+      "notes": "",
+      "floor": 0
+    }
+  ]
 }

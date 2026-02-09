@@ -1,6 +1,6 @@
 # 🏢 Room & Location Data Structure
 
-**Version:** 3.6.028  
+**Version:** 3.6.032  
 **Date:** February 9, 2026
 **Note:** Room & Location structures have been stable since v3.6.026. This documentation remains accurate for current implementation.
 
