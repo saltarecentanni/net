@@ -44,59 +44,65 @@
             overflow-x: auto;
         }
         .nav-tab {
-            padding: 16px 24px;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            color: #64748b;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-            white-space: nowrap;
-        }
-        .nav-tab:hover {
-            background: #e2e8f0;
-            color: #334155;
-        }
-        .nav-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-            background: white;
-        }
-        .content {
-            padding: 40px;
-            max-height: calc(100vh - 300px);
-            overflow-y: auto;
-        }
-        .tab-pane {
-            display: none;
-            animation: fadeIn 0.3s;
-        }
-        .tab-pane.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        h2 {
-            color: #1e293b;
-            font-size: 2rem;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 3px solid #667eea;
-        }
-        h3 {
-            color: #334155;
-            font-size: 1.5rem;
-            margin-top: 32px;
-            margin-bottom: 16px;
-        }
-        h4 {
-            color: #475569;
-            font-size: 1.2rem;
-            margin-top: 24px;
+                <pre>Matrix/
+├── 📄 index.html           # Pagina principale del sistema
+├── 📄 server.js            # Server Node.js (sviluppo)
+├── 📄 data.php             # Endpoint PHP (produzione)
+├── 📄 package.json         # Dipendenze NPM
+├── 🔐 .env                 # Configurazioni sensibili
+├── 📖 README.md            # Documentazione principale
+│
+├── 📁 api/                 # Endpoint PHP
+│   ├── auth.php           # Autenticazione
+│   ├── editlock.php       # Edit lock multi-utente
+│   └── guacamole.php      # Proxy Guacamole (opzionale)
+│
+├── 📁 js/                  # Scripts JavaScript
+│   ├── app.js             # Applicazione principale
+│   ├── auth.js            # Autenticazione frontend
+│   ├── ui-updates.js      # Interface e rendering
+│   ├── device-detail.js   # Modal dettagli dispositivo
+│   ├── dashboard.js       # Dashboard
+│   ├── floorplan.js       # Floor plan
+│   ├── features.js        # Topologia ed export
+│   ├── json-validator.js  # Validazione import/export
+│   ├── editlock.js        # Edit lock
+│   └── icons.js           # Icone SVG
+│
+├── 📁 css/                 # Fogli di stile
+│   └── styles.css         # Stili principali
+│
+├── 📁 data/                # 💾 DATI
+│   ├── network_manager.json   # Database principale
+│   └── online_users.json      # Utenti attivi
+│
+├── 📁 backup/              # ⏰ Backup automatici
+│   ├── network_manager_YYYYMMDD_HHMMSS.json
+│   └── ...
+│
+├── 📁 config/              # Configurazioni
+│   ├── config.php         # Config server
+│   └── guacamole.json     # Config Guacamole
+│
+├── 📁 assets/              # Risorse statiche
+│   ├── img/               # Immagini
+│   └── icons/             # Icone
+│
+├── 📁 doc/                 # Documentazione tecnica
+│   ├── README.md
+│   ├── BLUEPRINT.md
+│   ├── QUICK_REFERENCE.md
+│   ├── GUACAMOLE_SETUP.md
+│   ├── VALIDATION_TESTING_GUIDE.md
+│   └── ROOM_STRUCTURE.md
+│
+├── 📁 tests/               # Test automatizzati
+│   └── ...
+│
+└── 📁 scripts/             # Script ausiliari
+    ├── backup.sh
+    └── ...
+</pre>
             margin-bottom: 12px;
         }
         p {
@@ -251,7 +257,7 @@
     <div class="container">
         <div class="header">
             <h1>📡 TIESSE Matrix Network</h1>
-            <p class="version">Documentazione Completa del Sistema | Versione 3.6.034 | Febbraio 2026</p>
+            <p class="version">Documentazione Completa del Sistema | Versione 3.6.032 | Febbraio 2026</p>
         </div>
 
         <div class="nav-tabs">
@@ -305,8 +311,13 @@
                         </tr>
                         <tr>
                             <td><strong>Node.js</strong></td>
-                            <td>v14.0 o superiore</td>
+                            <td>v16.0 o superiore</td>
                             <td>v18.0 LTS o superiore</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Apache + PHP (alternativa)</strong></td>
+                            <td>Apache 2.4 + PHP 8.3</td>
+                            <td>Apache 2.4 + PHP 8.3</td>
                         </tr>
                         <tr>
                             <td><strong>RAM</strong></td>
@@ -337,7 +348,7 @@
                 </table>
 
                 <div class="alert alert-info">
-                    <strong>ℹ️ Nota:</strong> Il sistema funziona al 100% nel browser (frontend) con server Node.js minimalista per API e autenticazione.
+                    <strong>ℹ️ Nota:</strong> Il sistema funziona al 100% nel browser. In produzione puoi usare Node.js oppure Apache 2.4 + PHP 8.3.
                 </div>
 
                 <h3 id="pre-req">🔧 Pre-requisiti</h3>
@@ -389,9 +400,9 @@ cd net/Matrix</pre>
 
                 <div class="step">
                     <span class="step-number">3</span>
-                    <strong>Configurare le variabili d'ambiente:</strong>
-                    <pre>cp .env.example .env</pre>
-                    <p>Modificare il file <code>.env</code> secondo necessità (dettagli nella scheda "Configurazione")</p>
+                    <strong>Configurare le variabili d'ambiente (opzionale):</strong>
+                    <pre>nano .env</pre>
+                    <p>Impostare <code>PORT</code> e <code>DATA_FILE</code> solo se necessario (vedi scheda "Configurazione").</p>
                 </div>
 
                 <div class="step">
@@ -400,7 +411,8 @@ cd net/Matrix</pre>
                     <p>Alla prima esecuzione, il sistema crea automaticamente:</p>
                     <ul>
                         <li><code>data/network_manager.json</code> - Database principale</li>
-                        <li><code>data/users.json</code> - Utenti del sistema</li>
+                        <li><code>data/online_users.json</code> - Tracking utenti attivi</li>
+                        <li><code>config/config.php</code> - Credenziali admin (configurazione)</li>
                         <li><code>backup/</code> - Cartella per backup automatici</li>
                     </ul>
                 </div>
@@ -431,7 +443,8 @@ cd net/Matrix</pre>
                     <li>✅ La porta 3000 è accessibile (o la porta configurata)</li>
                     <li>✅ L'interfaccia si carica nel browser</li>
                     <li>✅ Il file <code>data/network_manager.json</code> esiste</li>
-                    <li>✅ Il file <code>data/users.json</code> esiste</li>
+                    <li>✅ Il file <code>data/online_users.json</code> esiste</li>
+                    <li>✅ Il file <code>config/config.php</code> esiste</li>
                     <li>✅ Console del browser senza errori critici (F12)</li>
                 </ul>
 
@@ -482,7 +495,7 @@ taskkill /PID [numero_del_pid] /F</pre>
                 <div class="alert alert-danger">
                     <strong>Errore:</strong> <code>SyntaxError: Unexpected token</code>
                 </div>
-                <p><strong>Soluzione:</strong> Aggiornare Node.js a v14+ o usare NVM:</p>
+                <p><strong>Soluzione:</strong> Aggiornare Node.js a v16+ o usare NVM:</p>
                 <pre># Installare NVM
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 
@@ -540,14 +553,14 @@ chmod 755 backup/</pre>
                             <td><strong>Principale</strong> - Variabili d'ambiente</td>
                         </tr>
                         <tr>
-                            <td><code>.env.example</code></td>
-                            <td><code>/Matrix/.env.example</code></td>
-                            <td>Template di configurazione</td>
+                            <td><code>config/config.php</code></td>
+                            <td><code>/Matrix/config/config.php</code></td>
+                            <td>Configurazioni server (PHP)</td>
                         </tr>
                         <tr>
-                            <td><code>config/config.js</code></td>
-                            <td><code>/Matrix/config/config.js</code></td>
-                            <td>Configurazioni del frontend</td>
+                            <td><code>config/guacamole.json</code></td>
+                            <td><code>/Matrix/config/guacamole.json</code></td>
+                            <td>Configurazione proxy Guacamole</td>
                         </tr>
                         <tr>
                             <td><code>server.js</code></td>
@@ -560,50 +573,33 @@ chmod 755 backup/</pre>
                             <td>Database principale (JSON)</td>
                         </tr>
                         <tr>
-                            <td><code>users.json</code></td>
-                            <td><code>/Matrix/data/users.json</code></td>
-                            <td>Utenti e credenziali</td>
+                            <td><code>online_users.json</code></td>
+                            <td><code>/Matrix/data/online_users.json</code></td>
+                            <td>Tracking utenti attivi</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <h3 id="variaveis-env">🔐 Variabili d'Ambiente (.env)</h3>
 
-                <p>Il file <code>.env</code> contiene configurazioni sensibili. <strong>MAI</strong> condividere questo file pubblicamente.</p>
+                <p>Il file <code>.env</code> contiene configurazioni opzionali per il server Node.js. <strong>Non condividerlo pubblicamente.</strong></p>
 
                 <h4>Struttura del .env</h4>
-                <pre># Porta del server HTTP
-PORT=3000
+                <pre>PORT=3000
+DATA_FILE=data/network_manager.json
+DEBUG_MODE=false
+CORS_ORIGINS=http://localhost:3000
+</pre>
 
-# Chiave segreta per le sessioni (cambiarla con qualcosa di unico!)
-SESSION_SECRET=la_tua_chiave_segreta_molto_forte_123456
-
-# Ambiente: development | production
-NODE_ENV=production
-
-# Abilitare log di debug
-DEBUG=false
-
-# Timeout di sessione (in minuti)
-SESSION_TIMEOUT=120
-
-# Utente amministratore predefinito
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=Matrix@2026!
-
-# Integrazione Guacamole
-GUACAMOLE_URL=http://localhost:8080/guacamole
-GUACAMOLE_ENABLED=true</pre>
-
-                <h4>Detalhamento das Variáveis</h4>
+                <h4>Dettaglio delle Variabili</h4>
 
                 <table>
                     <thead>
                         <tr>
-                            <th>Variável</th>
+                            <th>Variabile</th>
                             <th>Tipo</th>
-                            <th>Padrão</th>
-                            <th>Descrição</th>
+                            <th>Default</th>
+                            <th>Descrizione</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -611,121 +607,96 @@ GUACAMOLE_ENABLED=true</pre>
                             <td><code>PORT</code></td>
                             <td>Number</td>
                             <td>3000</td>
-                            <td>Porta onde o servidor escuta</td>
+                            <td>Porta di ascolto del server</td>
                         </tr>
                         <tr>
-                            <td><code>SESSION_SECRET</code></td>
+                            <td><code>DATA_FILE</code></td>
                             <td>String</td>
-                            <td>(obrigatório)</td>
-                            <td>Chave de criptografia para sessões. Use 32+ caracteres aleatórios.</td>
+                            <td>data/network_manager.json</td>
+                            <td>Percorso del file dati JSON</td>
                         </tr>
                         <tr>
-                            <td><code>NODE_ENV</code></td>
-                            <td>String</td>
-                            <td>production</td>
-                            <td><code>development</code> ou <code>production</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>DEBUG</code></td>
+                            <td><code>DEBUG_MODE</code></td>
                             <td>Boolean</td>
                             <td>false</td>
-                            <td>Ativa logs detalhados no console</td>
+                            <td>Abilita log di debug</td>
                         </tr>
                         <tr>
-                            <td><code>SESSION_TIMEOUT</code></td>
-                            <td>Number</td>
-                            <td>120</td>
-                            <td>Tempo em minutos até expirar sessão inativa</td>
-                        </tr>
-                        <tr>
-                            <td><code>ADMIN_USERNAME</code></td>
+                            <td><code>CORS_ORIGINS</code></td>
                             <td>String</td>
-                            <td>admin</td>
-                            <td>Nome de usuário do administrador inicial</td>
-                        </tr>
-                        <tr>
-                            <td><code>ADMIN_PASSWORD</code></td>
-                            <td>String</td>
-                            <td>(obrigatório)</td>
-                            <td>Senha do admin. <strong>Mude imediatamente!</strong></td>
-                        </tr>
-                        <tr>
-                            <td><code>GUACAMOLE_URL</code></td>
-                            <td>String</td>
-                            <td>-</td>
-                            <td>URL do servidor Apache Guacamole (acesso remoto)</td>
-                        </tr>
-                        <tr>
-                            <td><code>GUACAMOLE_ENABLED</code></td>
-                            <td>Boolean</td>
-                            <td>false</td>
-                            <td>Habilita botões de acesso remoto via Guacamole</td>
+                            <td>http://localhost:3000</td>
+                            <td>Origini consentite per CORS (se necessario)</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="alert alert-danger">
-                    <strong>🔒 SEGURANÇA CRÍTICA:</strong>
+                    <strong>🔒 SICUREZZA:</strong>
                     <ul>
-                        <li>Mude <code>SESSION_SECRET</code> para valor único e complexo</li>
-                        <li>Mude <code>ADMIN_PASSWORD</code> imediatamente após instalação</li>
-                        <li>Use senhas fortes: 12+ caracteres, maiúsculas, minúsculas, números e símbolos</li>
-                        <li>Adicione <code>.env</code> ao <code>.gitignore</code> (já está por padrão)</li>
+                        <li>Proteggi <code>.env</code> e non committarlo in repository pubblici</li>
+                        <li>Configura credenziali admin in <code>config/config.php</code></li>
+                        <li>Limita i permessi del file (<code>chmod 600 .env</code>)</li>
                     </ul>
                 </div>
 
                 <h3 id="estrutura-pastas">📂 Estrutura de Pastas</h3>
 
                 <pre>Matrix/
-├── 📄 index.html           # Página principal do sistema
-├── 📄 server.js            # Servidor Node.js (backend)
-├── 📄 package.json         # Dependências NPM
-├── 🔐 .env                 # Configurações sensíveis
-├── 📖 README.md            # Documentação resumida
+├── 📄 index.html           # Pagina principale del sistema
+├── 📄 server.js            # Server Node.js (sviluppo)
+├── 📄 data.php             # Endpoint PHP (produzione)
+├── 📄 package.json         # Dipendenze NPM
+├── 🔐 .env                 # Configurazioni sensibili
+├── 📖 README.md            # Documentazione principale
 │
-├── 📁 api/                 # Endpoints da API
-│   ├── data.js            # Manipulação de dados
-│   ├── auth.js            # Autenticação
-│   └── backup.js          # Sistema de backup
+├── 📁 api/                 # Endpoint PHP
+│   ├── auth.php           # Autenticazione
+│   ├── editlock.php       # Edit lock multi-utente
+│   └── guacamole.php      # Proxy Guacamole (opzionale)
 │
 ├── 📁 js/                  # Scripts JavaScript
-│   ├── app.js             # Aplicação principal
-│   ├── ui-updates.js      # Interface e renderização
-│   ├── device-detail.js   # Modal de detalhes
-│   ├── dashboard.js       # Dashboard inicial
-│   ├── floorplan.js       # Topologia visual
-│   ├── auth.js            # Autenticação frontend
-│   ├── features.js        # Funcionalidades extras
-│   └── ...
+│   ├── app.js             # Applicazione principale
+│   ├── auth.js            # Autenticazione frontend
+│   ├── ui-updates.js      # Interface e rendering
+│   ├── device-detail.js   # Modal dettagli dispositivo
+│   ├── dashboard.js       # Dashboard
+│   ├── floorplan.js       # Floor plan
+│   ├── features.js        # Topologia ed export
+│   ├── json-validator.js  # Validazione import/export
+│   ├── editlock.js        # Edit lock
+│   └── icons.js           # Icone SVG
 │
-├── 📁 css/                 # Folhas de estilo
-│   ├── styles.css         # Estilos principais
-│   └── tailwind.min.css   # Framework CSS
+├── 📁 css/                 # Fogli di stile
+│   └── styles.css         # Stili principali
 │
-├── 📁 data/                # 💾 BANCO DE DADOS
-│   ├── network_manager.json   # TODOS os dados
-│   └── users.json              # Usuários cadastrados
+├── 📁 data/                # 💾 DATI
+│   ├── network_manager.json   # Database principale
+│   └── online_users.json      # Utenti attivi
 │
-├── 📁 backup/              # ⏰ Backups automáticos
+├── 📁 backup/              # ⏰ Backup automatici
 │   ├── network_manager_YYYYMMDD_HHMMSS.json
 │   └── ...
 │
-├── 📁 config/              # Configurações
-│   └── config.js          # Config do frontend
+├── 📁 config/              # Configurazioni
+│   ├── config.php         # Config server
+│   └── guacamole.json     # Config Guacamole
 │
-├── 📁 assets/              # Recursos estáticos
-│   ├── images/            # Imagens
-│   └── icons/             # Ícones
+├── 📁 assets/              # Risorse statiche
+│   ├── img/               # Immagini
+│   └── icons/             # Icone
 │
-├── 📁 doc/                 # Documentação adicional
-│   ├── API.md
-│   ├── SETUP.md
+├── 📁 doc/                 # Documentazione tecnica
+│   ├── README.md
+│   ├── BLUEPRINT.md
+│   ├── QUICK_REFERENCE.md
+│   ├── GUACAMOLE_SETUP.md
+│   ├── VALIDATION_TESTING_GUIDE.md
+│   └── ROOM_STRUCTURE.md
+│
+├── 📁 tests/               # Test automatizzati
 │   └── ...
 │
-├── 📁 tests/               # Testes automatizados
-│   └── ...
-│
-└── 📁 scripts/             # Scripts auxiliares
+└── 📁 scripts/             # Script ausiliari
     ├── backup.sh
     └── ...
 </pre>
@@ -770,16 +741,16 @@ const CORS_ENABLED = false; // Mude para true se necessário</pre>
 
                 <h4>1. Senhas</h4>
                 <ul>
-                    <li>Senhas são criptografadas com bcrypt (10 rounds)</li>
-                    <li>Nunca são armazenadas em texto plano</li>
-                    <li>Mude senhas padrão imediatamente</li>
+                    <li>Credenziali definite in <code>config/config.php</code></li>
+                    <li>Usa password robuste e uniche</li>
+                    <li>Cambia le credenziali di default immediatamente</li>
                 </ul>
 
                 <h4>2. Sessões</h4>
                 <ul>
-                    <li>Sessões expiram após X minutos de inatividade (<code>SESSION_TIMEOUT</code>)</li>
-                    <li>Token de sessão é HTTP-only (não acessível via JavaScript)</li>
-                    <li>Logout limpa sessão do servidor</li>
+                    <li>Sessione attiva finché il browser resta aperto</li>
+                    <li>Logout termina la sessione</li>
+                    <li>Nessun timeout automatico per default</li>
                 </ul>
 
                 <h4>3. Proteção XSS</h4>
@@ -904,12 +875,12 @@ ipconfig</pre>
 
                 <div class="step">
                     <span class="step-number">1</span>
-                    <strong>Digite o usuário:</strong> <code>admin</code>
+                    <strong>Digite o usuário:</strong> definito in <code>config/config.php</code>
                 </div>
 
                 <div class="step">
                     <span class="step-number">2</span>
-                    <strong>Digite a senha:</strong> <code>Matrix@2026!</code>
+                    <strong>Digite a senha:</strong> definita in <code>config/config.php</code>
                 </div>
 
                 <div class="step">
@@ -927,7 +898,7 @@ ipconfig</pre>
                     <li><strong>🎨 Header Superior:</strong>
                         <ul>
                             <li>Logo "TIESSE Matrix Network"</li>
-                            <li>Versão do sistema (v3.6.034)</li>
+                            <li>Versione del sistema (v3.6.032)</li>
                             <li>Nome do usuário logado</li>
                             <li>Botão "Logout"</li>
                         </ul>
@@ -936,7 +907,7 @@ ipconfig</pre>
                         <ul>
                             <li>Cards de estatísticas (Dispositivos, Conexões, Localizações)</li>
                             <li>Gráficos de distribuição</li>
-                            <li>Alertas (conexões incompletas, dispositivos offline)</li>
+                            <li>Alertas (conexoes incompletas, dispositivos disabled)</li>
                         </ul>
                     </li>
                     <li><strong>🧭 Menu Principal:</strong>
@@ -959,33 +930,25 @@ ipconfig</pre>
                     <strong>✅ Bem-vindo ao Matrix Network!</strong> Vamos te guiar pelos primeiros passos:
                 </div>
 
-                <h4>Passo 1: Configurar sua Senha</h4>
+                <h4>Passo 1: Configurare le credenziali admin</h4>
                 <div class="step">
                     <span class="step-number">1</span>
-                    <p>Clique no seu nome de usuário (canto superior direito)</p>
+                    <p>Apri il file <code>config/config.php</code> sul server</p>
                 </div>
                 <div class="step">
                     <span class="step-number">2</span>
-                    <p>Selecione "Alterar Senha"</p>
+                    <p>Imposta <code>AUTH_USER</code> e <code>AUTH_PASSWORD</code></p>
                 </div>
                 <div class="step">
                     <span class="step-number">3</span>
-                    <p>Digite a senha atual: <code>Matrix@2026!</code></p>
-                </div>
-                <div class="step">
-                    <span class="step-number">4</span>
-                    <p>Digite e confirme a nova senha (mínimo 8 caracteres)</p>
-                </div>
-                <div class="step">
-                    <span class="step-number">5</span>
-                    <p>Clique em "Salvar"</p>
+                    <p>Salva e ricarica la pagina</p>
                 </div>
 
                 <h4>Passo 2: Explorar o Dashboard</h4>
                 <p>O Dashboard mostra uma visão geral do sistema:</p>
                 <ul>
                     <li><strong>Cards de Métricas:</strong> Número de dispositivos, conexões, salas</li>
-                    <li><strong>Dispositivos Offline:</strong> Alertas em vermelho</li>
+                    <li><strong>Dispositivi Disabled:</strong> Alertas em vermelho</li>
                     <li><strong>Conexões Incompletas:</strong> Links que precisam de atenção</li>
                     <li><strong>Distribuição por Tipo:</strong> Quantos switches, roteadores, etc.</li>
                 </ul>
@@ -1134,7 +1097,7 @@ ipconfig</pre>
                 <h4>📋 Activity Logs</h4>
                 <p>Apre la scheda con lo storico completo di tutte le modifiche effettuate nel sistema. Sempre visibile.</p>
 
-                <h4>Versione (es. v3.6.034)</h4>
+                <h4>Versione (es. v3.6.032)</h4>
                 <p>Mostra la versione corrente del sistema. Indica anche se ci sono aggiornamenti disponibili.</p>
 
                 <h3 id="actions-bar">⚡ Barra delle Azioni</h3>
@@ -1548,13 +1511,13 @@ ipconfig</pre>
                             <td><strong>Type</strong></td>
                             <td>Select</td>
                             <td><span class="badge badge-required">SI</span></td>
-                            <td>Tipo dispositivo. Valori: switch, router, firewall, server, pc, printer, phone, camera, wireless, patchpanel, storage, vm, other</td>
+                            <td>Tipo dispositivo. Valori: server, switch, router, router_wifi, firewall, access_point, patch, walljack, workstation, laptop, printer, camera, tv, ups, ip_phone, isp, other</td>
                         </tr>
                         <tr>
                             <td><strong>Status</strong></td>
                             <td>Select</td>
                             <td><span class="badge badge-optional">NO</span></td>
-                            <td>Stato operativo. Valori: active (verde), inactive (rosso), maintenance (giallo), planned (grigio), decommissioned (nero)</td>
+                            <td>Stato operativo. Valori: active (verde), disabled (rosso), maintenance (giallo)</td>
                         </tr>
                         <tr>
                             <td><strong>Service</strong></td>
@@ -1572,7 +1535,7 @@ ipconfig</pre>
                             <td><strong>IP Addresses</strong></td>
                             <td>Multi-input</td>
                             <td><span class="badge badge-optional">NO</span></td>
-                            <td>Lista indirizzi IP. Button "+ Add IP" per aggiungere. Formato: IPv4 (es: 192.168.1.10) o IPv6</td>
+                            <td>Lista indirizzi IP (salvati in <code>addresses[]</code>). Formato: IPv4/IPv6 o CIDR (es: 192.168.1.10/24)</td>
                         </tr>
                         <tr>
                             <td><strong>Ports</strong></td>
@@ -1584,7 +1547,7 @@ ipconfig</pre>
                             <td><strong>Links (SSH/Telnet)</strong></td>
                             <td>Multi-input</td>
                             <td><span class="badge badge-optional">NO</span></td>
-                            <td>Link Guacamole (visibili solo agli admin). Formato: <code>Label|ProtocolID</code></td>
+                            <td>Link rapidi (Guacamole/HTTP). Ogni link include <code>type</code>, <code>url</code>, <code>label</code></td>
                         </tr>
                     </tbody>
                 </table>
@@ -1660,13 +1623,13 @@ ipconfig</pre>
                             <td><strong>Type</strong></td>
                             <td>Select</td>
                             <td><span class="badge badge-optional">NO</span></td>
-                            <td>Tipo connessione: copper (rame-ethernet), fiber (fibra ottica), serial, coaxial, wireless, other</td>
+                            <td>Tipo connessione: lan, wan, dmz, vlan, trunk, vpn, cloud, management, servers, iot, guest, voice, backup, fiber, test, wallport, external, other</td>
                         </tr>
                         <tr>
                             <td><strong>Status</strong></td>
                             <td>Select</td>
                             <td><span class="badge badge-optional">NO</span></td>
-                            <td>Stato: active (verde), inactive (rosso), testing (giallo), planned (grigio)</td>
+                            <td>Stato: active (verde), disabled (rosso), maintenance (giallo)</td>
                         </tr>
                         <tr>
                             <td><strong>Cable Marker</strong></td>
@@ -1951,20 +1914,23 @@ ipconfig</pre>
                 <ol>
                     <li>Clicca <strong>💾 Export JSON</strong></li>
                     <li>File scaricato: <code>matrix-backup-YYYY-MM-DD-HH-MM-SS.json</code></li>
-                    <li>Contiene TUTTI i dati: dispositivi, connessioni, stanze, settings</li>
+                    <li>Contiene TUTTI i dati: dispositivi, connessioni, stanze, sites, locations</li>
                     <li>Include checksum SHA-256 per verifica integrità</li>
                 </ol>
 
                 <p><strong>Struttura JSON:</strong></p>
-                <pre><code>{
-  "version": "3.6.034",
-  "timestamp": "2025-02-09T10:30:00Z",
-  "checksum": "a3f5b8...",
-  "data": {
+                                <pre><code>{
     "devices": [...],
     "connections": [...],
-    "rooms": [...]
-  }
+    "rooms": [...],
+    "sites": [...],
+    "locations": [...],
+    "nextDeviceId": 102,
+    "nextLocationId": 21,
+    "exportedAt": "2026-02-09T10:30:00Z",
+    "version": "3.6.032",
+    "__checksum": "a3f5b8...",
+    "__checksumAlgorithm": "SHA-256"
 }</code></pre>
 
                 <p><strong>Quando usarlo:</strong></p>
@@ -2118,13 +2084,19 @@ ipconfig</pre>
   "enabled": true,
   
   "server": {
-    "baseUrl": "http://guacamole-server:8080/guacamole",
-    "apiPath": "/api"
+        "baseUrl": "http://10.10.225.103:8080/guacamole"
   },
   
   "credentials": {
-    "username": "admin",
-    "password": "password"
+        "_comment": "Admin - usato per creare connessioni",
+        "username": "tiesse",
+        "password": "tiesseadm"
+    },
+  
+    "viewerCredentials": {
+        "_comment": "Viewer - usato per aprire connessioni",
+        "username": "matrix-user",
+        "password": "MatrixSSH2026"
   },
   
   "defaults": {
@@ -2250,69 +2222,73 @@ ipconfig</pre>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><code>/api/data</code></td>
+                            <td><code>/data</code></td>
                             <td>GET</td>
-                            <td>Ottieni tutti i dati (devices, connections, rooms)</td>
+                            <td>Ottieni tutti i dati (devices, connections, rooms, sites, locations)</td>
                         </tr>
                         <tr>
-                            <td><code>/api/data</code></td>
+                            <td><code>/data</code></td>
                             <td>POST</td>
-                            <td>Salva tutti i dati (richiede autenticazione)</td>
+                            <td>Salva tutti i dati (action=save)</td>
                         </tr>
                         <tr>
-                            <td><code>/api/devices</code></td>
+                            <td><code>/data?action=online</code></td>
                             <td>GET</td>
-                            <td>Lista dispositivi</td>
+                            <td>Utenti attivi (viewers/editors)</td>
                         </tr>
                         <tr>
-                            <td><code>/api/connections</code></td>
-                            <td>GET</td>
-                            <td>Lista connessioni</td>
-                        </tr>
-                        <tr>
-                            <td><code>/api/logs</code></td>
-                            <td>GET</td>
-                            <td>Activity logs</td>
-                        </tr>
-                        <tr>
-                            <td><code>/api/validate</code></td>
+                            <td><code>/api/auth.php</code></td>
                             <td>POST</td>
-                            <td>Valida JSON import (richiede autenticazione)</td>
+                            <td>Login/Logout/Session</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/editlock.php</code></td>
+                            <td>POST</td>
+                            <td>Acquire/Release/Heartbeat edit lock</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/guacamole.php</code></td>
+                            <td>GET/POST</td>
+                            <td>Status/Connect/Health Guacamole</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <h4>Esempio Chiamata API</h4>
-                <pre><code>// GET tutti i dati
-fetch('http://localhost:3000/api/data')
-  .then(response => response.json())
-  .then(data => {
-    console.log('Devices:', data.devices.length);
-    console.log('Connections:', data.connections.length);
-  });
+                                <pre><code>// GET tutti i dati
+fetch('http://localhost:3000/data')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Devices:', data.devices.length);
+        console.log('Connections:', data.connections.length);
+    });
 
-// GET solo dispositivi
-fetch('http://localhost:3000/api/devices')
-  .then(response => response.json())
-  .then(devices => {
-    devices.forEach(d => console.log(d.name, d.type));
-  });</code></pre>
+// GET utenti attivi
+fetch('http://localhost:3000/data?action=online')
+    .then(response => response.json())
+    .then(online => {
+        console.log('Viewers:', online.viewers);
+        console.log('Editors:', online.editors);
+    });</code></pre>
 
                 <h4>Autenticazione API</h4>
-                <p>Le operazioni di scrittura (POST) richiedono autenticazione:</p>
-                <pre><code>fetch('http://localhost:3000/api/data', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_TOKEN'
-  },
-  body: JSON.stringify(data)
-})</code></pre>
+                                <p>Le operazioni di scrittura richiedono login e lock attivo:</p>
+                                <pre><code>// Login
+fetch('/api/auth.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'login', username: 'admin', password: 'secure_password' })
+})
+    .then(() => fetch('/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save', data: data })
+    }));</code></pre>
 
                 <h3 id="customization">🎨 Personalizzazione</h3>
 
                 <h4>Temi e Colori</h4>
-                <p>Modifica il file <code>css/style.css</code> per personalizzare l'aspetto:</p>
+                <p>Modifica il file <code>css/styles.css</code> per personalizzare l'aspetto:</p>
                 <ul>
                     <li><strong>Colori primari:</strong> Variabili CSS <code>--primary-color</code>, <code>--secondary-color</code></li>
                     <li><strong>Font:</strong> Famiglia font in <code>body { font-family: ... }</code></li>
@@ -2341,7 +2317,7 @@ fetch('http://localhost:3000/api/devices')
 
 DATE=$(date +%Y-%m-%d)
 BACKUP_DIR="/backups/matrix"
-API_URL="http://localhost:3000/api/data"
+API_URL="http://localhost:3000/data"
 
 mkdir -p "$BACKUP_DIR"
 curl -s "$API_URL" > "$BACKUP_DIR/matrix-$DATE.json"
@@ -2369,25 +2345,28 @@ with open('devices.csv') as f:
             'location': row['Location'],
             'group': row['Group'],
             'order': int(row['Order']),
-            'ip_addresses': [row['IP']],
-            'brand_model': row['Brand'],
+            'addresses': [{'network': row['IP'], 'ip': row['IP']}],
+            'brandModel': row['Brand'],
             'status': 'active'
         }
         devices.append(device)
 
-data = {'devices': devices, 'connections': [], 'rooms': []}
-requests.post('http://localhost:3000/api/data', json=data)</code></pre>
+data = requests.get('http://localhost:3000/data').json()
+data['devices'].extend(devices)
+
+payload = {'action': 'save', 'data': data}
+requests.post('http://localhost:3000/data', json=payload)</code></pre>
 
                 <h4>Monitoring e Alerting</h4>
                 <p>Monitora lo stato del sistema:</p>
                 <pre><code>#!/bin/bash
 # check-devices.sh
 
-INACTIVE=$(curl -s http://localhost:3000/api/devices | \
-  jq '[.[] | select(.status == "inactive")] | length')
+INACTIVE=$(curl -s http://localhost:3000/data | \
+    jq '[.devices[] | select(.status == "disabled")] | length')
 
 if [ $INACTIVE -gt 0 ]; then
-  echo "WARNING: $INACTIVE dispositivi inattivi"
+    echo "WARNING: $INACTIVE dispositivi disabilitati"
   # Invia notifica (email, Slack, ecc.)
 fi</code></pre>
             </div>
@@ -2446,7 +2425,7 @@ fi</code></pre>
                                     <li>✅ Import JSON</li>
                                     <li>✅ Clear All</li>
                                     <li>✅ Vedere Links SSH/Telnet</li>
-                github<li>✅ Accesso Guacamole</li>
+                                    <li>✅ Accesso Guacamole</li>
                                 </ul>
                             </td>
                         </tr>
@@ -2461,7 +2440,7 @@ fi</code></pre>
                     <li>Inserisci le credenziali:
                         <ul>
                             <li><strong>Username:</strong> (default: <code>admin</code>)</li>
-                            <li><strong>Password:</strong> (configurata in <code>config/auth.json</code>)</li>
+                            <li><strong>Password:</strong> (configurata in <code>config/config.php</code>)</li>
                         </ul>
                     </li>
                     <li>Clicca <strong>Login</strong></li>
@@ -2519,45 +2498,15 @@ fi</code></pre>
                 <h3 id="password-change">🔑 Cambio Password</h3>
 
                 <h4>Modifica Manuale</h4>
-                <p>La password è configurata nel file <code>config/auth.json</code>:</p>
-                <ol>
-                    <li>Connetti al server via SSH</li>
-                    <li>Modifica <code>/workspaces/net/Matrix/config/auth.json</code>:</li>
-                </ol>
-                <pre><code>{
-  "users": [
-    {
-      "username": "admin",
-      "password_hash": "your_hashed_password_here",
-      "role": "admin"
-    }
-  ]
-}</code></pre>
-                <ol start="3">
-                    <li>Genera hash password sicuro (es: bcrypt, sha256)</li>
-                    <li>Salva il file</li>
-                    <li>Riavvia server Node.js: <code>pm2 restart matrix</code></li>
-                </ol>
-
-                <h4>Tool Generazione Hash</h4>
-                <p>Script Node.js per generare hash bcrypt:</p>
-                <pre><code>// generate-hash.js
-const bcrypt = require('bcrypt');
-const password = process.argv[2];
-
-if (!password) {
-  console.log('Usage: node generate-hash.js YOUR_PASSWORD');
-  process.exit(1);
-}
-
-bcrypt.hash(password, 10, (err, hash) => {
-  if (err) throw err;
-  console.log('Password hash:', hash);
-});</code></pre>
-
-                <p>Utilizzo:</p>
-                <pre><code>$ node generate-hash.js MySecurePass123
-Password hash: $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p...</code></pre>
+                                <p>Le credenziali sono definite in <code>config/config.php</code>:</p>
+                                <pre><code>define('AUTH_USER', 'admin');
+define('AUTH_PASSWORD', 'secure_password');</code></pre>
+                                <ol>
+                                        <li>Connetti al server via SSH</li>
+                                        <li>Modifica <code>/workspaces/net/Matrix/config/config.php</code></li>
+                                        <li>Salva il file</li>
+                                        <li>Riavvia il server Node.js se in uso: <code>pm2 restart matrix</code></li>
+                                </ol>
 
                 <h4>Best Practices Password</h4>
                 <ul>
@@ -2570,7 +2519,7 @@ Password hash: $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p...</code></pre>
                 </ul>
 
                 <div class="alert alert-danger">
-                    <strong>⚠️ SICUREZZA:</strong> Non memorizzare MAI password in chiaro! Usa sempre hashing (bcrypt raccomandato).
+                    <strong>⚠️ SICUREZZA:</strong> Proteggi le credenziali e limita l'accesso a <code>config/config.php</code>. Per Node.js, usa hashing (bcrypt) quando gestisci password.
                 </div>
             </div>
 
@@ -2595,7 +2544,7 @@ Password hash: $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p...</code></pre>
                 <p><strong>Cause possibili:</strong></p>
                 <ul>
                     <li>Username o password errati (verifica maiuscole/minuscole)</li>
-                    <li>File <code>config/auth.json</code> corrotto o non leggibile</li>
+                    <li>File <code>config/config.php</code> corrotto o non leggibile</li>
                     <li>Hash password non valido</li>
                 </ul>
                 <p><strong>Soluzione:</strong></p>
@@ -2674,7 +2623,7 @@ df -h</code></pre>
                 </ol>
 
                 <h4>Q: Special ports (WAN, SFP) si sovrappongono nel Device Detail</h4>
-                <p><strong>Stato:</strong> Risolto nella v3.6.034</p>
+                <p><strong>Stato:</strong> Risolto nella v3.6.032</p>
                 <p><strong>Soluzione:</strong> Aggiorna a versione latest. Se problema persiste, svuota cache browser (Ctrl+Shift+R).</p>
 
                 <h3 id="prob-topology">🗺️ Problemi Topology/Matrix</h3>
@@ -2694,7 +2643,7 @@ df -h</code></pre>
                 <p><strong>Soluzione:</strong></p>
                 <ol>
                     <li>Refresh pagina (Ctrl+F5 per svuotare cache)</li>
-                    <li>Verifica cache-busting version (deve essere v3.6.034 o superiore)</li>
+                    <li>Verifica cache-busting version (deve essere v3.6.032 o superiore)</li>
                     <li>Se persiste: Export JSON, Clear All, Import JSON</li>
                 </ol>
 
@@ -2750,10 +2699,10 @@ df -h</code></pre>
                 </ul>
 
                 <h4>Q: C'è dark mode?</h4>
-                <p><strong>R:</strong> Non implementato di default. Puoi personalizzare CSS in <code>css/style.css</code> per creare tema dark.</p>
+                <p><strong>R:</strong> Non implementato di default. Puoi personalizzare CSS in <code>css/styles.css</code> per creare tema dark.</p>
 
                 <h4>Q: Integrazione con monitoring tools (Zabbix, Nagios)?</h4>
-                <p><strong>R:</strong> Via API REST. Usa <code>GET /api/devices</code> per ottenere lista dispositivi con IPs, poi integra con monitoring. Script Python examples in <code>scripts/integration/</code>.</p>
+                <p><strong>R:</strong> Via API REST. Usa <code>GET /data</code> e filtra <code>devices</code> per status/addresses, poi integra con monitoring.</p>
 
                 <h4>Q: Come contribuire al progetto?</h4>
                 <p><strong>R:</strong> Matrix Network è progetto privato/interno. Per feature requests, contatta team di sviluppo via issue tracker interno.</p>
@@ -2863,7 +2812,7 @@ RETENTION_DAYS=90
 mkdir -p "$BACKUP_DIR"
 
 # Download da API
-curl -s http://localhost:3000/api/data > "$BACKUP_DIR/matrix_$DATE.json"
+curl -s http://localhost:3000/data > "$BACKUP_DIR/matrix_$DATE.json"
 
 # Verifica file non vuoto
 if [ -s "$BACKUP_DIR/matrix_$DATE.json" ]; then
@@ -2939,8 +2888,8 @@ fi</code></pre>
                         </tr>
                         <tr>
                             <td>Dispositivi inattivi</td>
-                            <td><code>GET /api/devices</code> + filtro status</td>
-                            <td>> 5% dispositivi inactive</td>
+                            <td><code>GET /data</code> + filtro status</td>
+                            <td>> 5% dispositivi disabled</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2959,7 +2908,7 @@ if ! pm2 pid matrix > /dev/null; then
 fi
 
 # Check API responsive
-if ! curl -s http://localhost:3000/api/data > /dev/null; then
+if ! curl -s http://localhost:3000/data > /dev/null; then
     echo "ERROR: API non risponde!"
     ((ERRORS++))
 fi
@@ -3005,7 +2954,7 @@ exit $ERRORS</code></pre>
                     <li>Download nuova versione da repository</li>
                     <li>Stop server: <code>pm2 stop matrix</code></li>
                     <li>Backup vecchia versione: <code>mv Matrix Matrix_old</code></li>
-                    <li>Estrai nuova versione: <code>unzip matrix-v3.6.034.zip</code></li>
+                    <li>Estrai nuova versione: <code>unzip matrix-v3.6.032.zip</code></li>
                     <li>Copia dati vecchi: <code>cp Matrix_old/data/*.json Matrix/data/</code></li>
                     <li>Copia config: <code>cp Matrix_old/config/* Matrix/config/</code></li>
                     <li>Installa dipendenze: <code>cd Matrix && npm install</code></li>
@@ -3017,7 +2966,7 @@ exit $ERRORS</code></pre>
 
                 <h4>Changelog</h4>
                 <p>Consulta <code>RELEASE_NOTES.md</code> per dettagli di ogni versione. Esempio:</p>
-                <pre><code># v3.6.034 (2025-02-08)
+                <pre><code># v3.6.032 (2026-02-09)
 ## Fixes
 - Device Detail: Fixed special ports overlap (WAN, SFP, MGMT)
 - Device table: Made entire row clickable
@@ -3051,7 +3000,7 @@ journalctl --vacuum-time=30d</code></pre>
                     <li>Export JSON</li>
                     <li>Analizza con script: quanti dispositivi? Porte? Connessioni?</li>
                     <li>Considera split per Location (multiple istanze Matrix per sede)</li>
-                    <li>Archivia dispositivi decommissioned (status=decommissioned)</li>
+                    <li>Archivia dispositivi dismessi (status=disabled)</li>
                     <li>Rimuovi dispositivi obsoleti non più utilizzati</li>
                 </ol>
 
@@ -3083,8 +3032,8 @@ journalctl --vacuum-time=30d</code></pre>
                 <h4>Meccanismo Corrente</h4>
                 <p>Matrix Network usa autenticazione semplice username/password:</p>
                 <ul>
-                    <li><strong>Storage:</strong> Credenziali in <code>config/auth.json</code></li>
-                    <li><strong>Hash:</strong> Password salvate come hash bcrypt (NON plaintext)</li>
+                    <li><strong>Storage:</strong> Credenziali in <code>config/config.php</code></li>
+                    <li><strong>Hash (Node.js):</strong> bcrypt consigliato per l'hash delle password</li>
                     <li><strong>Sessione:</strong> Session storage browser (non persistente)</li>
                     <li><strong>Timeout:</strong> Nessun timeout automatico (logout manuale)</li>
                 </ul>
@@ -3094,7 +3043,7 @@ journalctl --vacuum-time=30d</code></pre>
                 <ol>
                     <li><strong>Password forte:</strong> Min 12 caratteri, complessità alta</li>
                     <li><strong>Rotazione:</strong> Cambia password ogni 90 giorni</li>
-                    <li><strong>File permissions:</strong> <code>chmod 600 config/auth.json</code></li>
+                    <li><strong>File permissions:</strong> <code>chmod 600 config/config.php</code></li>
                     <li><strong>No condivisione:</strong> 1 account = 1 persona (no shared admin)</li>
                 </ol>
 
@@ -3406,7 +3355,7 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                 <p><strong>Fase 1 (Immediate):</strong></p>
                 <ol>
                     <li>Password forte e cambio immediato default</li>
-                    <li>File permissions: <code>chmod 600 config/auth.json data/*.json</code></li>
+                    <li>File permissions: <code>chmod 600 config/config.php data/*.json</code></li>
                     <li>Firewall rules: blocca porta 3000 da internet</li>
                     <li>HTTPS con Let's Encrypt + Nginx reverse proxy</li>
                 </ol>
@@ -3450,39 +3399,40 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
 
                 <h4>Directory Tree</h4>
                 <pre><code>/workspaces/net/Matrix/
-├── server.js                 # Server Node.js principale
-├── package.json              # Dipendenze NPM
 ├── index.html                # Frontend principale
 ├── help.html                 # Documentazione (questo file)
+├── server.js                 # Server Node.js (sviluppo)
+├── data.php                  # Endpoint PHP (produzione)
+├── package.json              # Dipendenze NPM
 ├── README.md                 # Documentazione setup
 ├── api/
-│   └── data.php              # API legacy PHP (deprecated)
+│   ├── auth.php              # Autenticazione
+│   ├── editlock.php          # Edit lock multi-utente
+│   └── guacamole.php         # Proxy Guacamole (opzionale)
 ├── assets/
 │   ├── icons/                # Icone SVG dispositivi
 │   └── img/                  # Immagini/loghi
 ├── backup/                   # Backup automatici
 │   └── *.json                # File backup timestamp
 ├── config/
-│   ├── auth.json             # Credenziali autenticazione
-│   ├── guacamole.json        # Config Guacamole (opzionale)
-│   └── settings.json         # Impostazioni globali
+│   ├── config.php            # Configurazione server
+│   └── guacamole.json        # Config Guacamole (opzionale)
 ├── css/
-│   ├── style.css             # Stili globali
-│   └── device-detail.css     # Stili modal device detail
+│   └── styles.css            # Stili globali
 ├── data/
 │   ├── network_manager.json  # DATABASE PRINCIPALE
-│   └── activity_logs.json    # Activity logs
+│   └── online_users.json     # Utenti attivi
 ├── doc/                      # Documentazione tecnica
 ├── js/
 │   ├── app.js                # Core application logic
 │   ├── auth.js               # Gestione autenticazione
-│   ├── connections.js        # Gestione connessioni
 │   ├── dashboard.js          # Dashboard/statistiche
 │   ├── device-detail.js      # Modal dettaglio dispositivo
-│   ├── features.js           # Features/utilities
+│   ├── editlock.js           # Edit lock
+│   ├── features.js           # Topologia/export
 │   ├── floorplan.js          # Floor plan canvas
-│   ├── matrix.js             # Matrix view
-│   ├── topology.js           # Topology canvas
+│   ├── icons.js              # Icone SVG
+│   ├── json-validator.js     # Validazione import/export
 │   └── ui-updates.js         # Rendering UI/tabelle
 ├── scripts/
 │   ├── maintenance/          # Script manutenzione
@@ -3505,13 +3455,13 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                             <td>✅ CRITICO</td>
                         </tr>
                         <tr>
-                            <td><code>data/activity_logs.json</code></td>
-                            <td>Storico modifiche per audit</td>
+                            <td><code>data/online_users.json</code></td>
+                            <td>Tracking utenti attivi</td>
                             <td>✅ Raccomandato</td>
                         </tr>
                         <tr>
-                            <td><code>config/auth.json</code></td>
-                            <td>Credenziali admin</td>
+                            <td><code>config/config.php</code></td>
+                            <td>Credenziali e config server</td>
                             <td>✅ Raccomandato</td>
                         </tr>
                         <tr>
@@ -3524,115 +3474,112 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
 
                 <h3 id="schema-json">📝 Schema JSON</h3>
 
-                <h4>Struttura network_manager.json</h4>
-                <pre><code>{
-  "devices": [
-    {
-      "id": 1,
-      "name": "SW-CORE-01",
-      "type": "switch",
-      "status": "active",
-      "location": "Sala Server",
-      "rackId": "RACK-NETWORK-01",
-      "order": 1,
-      "isRear": false,
-      "brandModel": "Cisco Catalyst 2960-48TT-L",
-      "service": "Core Switch - VLAN Routing",
-      "notes": "Firmware updated 2025-01-15",
-      "addresses": [
+                                <h4>Struttura network_manager.json</h4>
+                                <pre><code>{
+    "devices": [
         {
-          "network": "192.168.1.10",
-          "ip": "",
-          "vlan": 10,
-          "zone": "LAN"
-        },
-        {
-          "network": "10.0.0.1",
-          "ip": "",
-          "vlan": null,
-          "zone": "Management"
+            "id": 1,
+            "name": "SW-CORE-01",
+            "type": "switch",
+            "status": "active",
+            "location": "Sala Server",
+            "rackId": "RACK-NETWORK-01",
+            "order": 1,
+            "isRear": false,
+            "brandModel": "Cisco C9300-48P",
+            "service": "Core Switch",
+            "notes": "Firmware updated 2025-01-15",
+            "addresses": [
+                {
+                    "network": "192.168.1.10/24",
+                    "ip": "",
+                    "vlan": 10,
+                    "zone": "LAN"
+                }
+            ],
+            "ports": [
+                {
+                    "name": "eth01",
+                    "type": "eth",
+                    "status": "active"
+                },
+                {
+                    "name": "sfp01",
+                    "type": "sfp",
+                    "status": "active"
+                }
+            ],
+            "links": [
+                {
+                    "type": "ssh",
+                    "url": "192.168.1.10",
+                    "label": "SSH"
+                },
+                {
+                    "type": "http",
+                    "url": "http://192.168.1.10",
+                    "label": "Web"
+                }
+            ]
         }
-      ],
-      "ports": [
+    ],
+  
+    "connections": [
         {
-          "name": "Gi0/1",
-          "type": "eth",
-          "status": "active"
-        },
-        {
-          "name": "SFP01",
-          "type": "SFP/SFP+",
-          "status": "active"
+            "id": "c-6da15bd9356d",
+            "from": 1,
+            "fromPort": "eth01",
+            "to": 2,
+            "toPort": "eth24",
+            "type": "lan",
+            "status": "active",
+            "cableMarker": "CAB-A001",
+            "cableColor": "#3b82f6",
+            "notes": "Certified Cat6A",
+            "externalDest": "",
+            "isWallJack": false,
+            "roomId": null,
+            "flagged": false,
+            "flagReason": ""
         }
-      ],
-      "links": [
+    ],
+  
+    "rooms": [
         {
-          "type": "ssh",
-          "url": "192.168.1.10",
-          "label": "SSH Root"
-        },
-        {
-          "type": "http",
-          "url": "http://192.168.1.10",
-          "label": "Web Admin"
+            "id": "8",
+            "name": "8",
+            "nickname": "Sala Server",
+            "type": "server",
+            "area": 50,
+            "capacity": 20,
+            "description": "Sala server principale",
+            "color": "rgba(239,68,68,0.15)",
+            "polygon": [
+                {"x": 760, "y": 281},
+                {"x": 1010, "y": 281},
+                {"x": 1010, "y": 521},
+                {"x": 760, "y": 521}
+            ],
+            "notes": ""
         }
-      ],
-      "_isExternal": false
-    }
-  ],
+    ],
   
-  "connections": [
-    {
-      "id": "c-6da15bd9356d",
-      "from": 1,
-      "fromPort": "Gi0/1",
-      "to": 2,
-      "toPort": "Gi0/24",
-      "type": "lan",
-      "status": "active",
-      "cableMarker": "CAB-A001",
-      "cableColor": "#3b82f6",
-      "notes": "Certified Cat6A",
-      "externalDest": "",
-      "isWallJack": false
-    }
-  ],
+    "sites": ["Sede Ivrea"],
   
-  "rooms": [
-    {
-      "id": "room-1",
-      "name": "Datacenter A",
-      "type": "datacenter",
-      "location": "Milan HQ",
-      "x": 50,
-      "y": 50,
-      "width": 200,
-      "height": 150,
-      "color": "#f0f0f0",
-      "path": "M50,50 L250,50 L250,200 L50,200 Z"
-    }
-  ],
+    "locations": [
+        {
+            "id": 1,
+            "siteId": null,
+            "code": "DC01",
+            "name": "Data Center",
+            "type": "site",
+            "roomRef": "8",
+            "color": "#3b82f6"
+        }
+    ],
   
-  "sites": [
-    {
-      "id": "site-1",
-      "name": "HQ Milan",
-      "address": "Via Roma 1, Milano"
-    }
-  ],
-  
-  "locations": [
-    {
-      "id": 1,
-      "name": "Sala Server",
-      "type": "mapped"
-    },
-    {
-      "id": 21,
-      "name": "Piano 2 - Uffici",
-      "type": "custom"
-    }
-  ]
+    "nextDeviceId": 102,
+    "nextLocationId": 21
 }</code></pre>
 
                 <h4>Field Constraints - Devices</h4>
@@ -3668,7 +3615,7 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                             <td>device.status</td>
                             <td>enum</td>
                             <td>❌</td>
-                            <td>active | disabled | online | offline | maintenance | warning | error</td>
+                            <td>active | disabled | maintenance</td>
                         </tr>
                         <tr>
                             <td>device.location</td>
@@ -3730,12 +3677,6 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                             <td>❌</td>
                             <td>Array di {type, url, label}</td>
                         </tr>
-                        <tr>
-                            <td>device._isExternal</td>
-                            <td>boolean</td>
-                            <td>❌</td>
-                            <td>Dispositivo esterno (non gestito)</td>
-                        </tr>
                     </tbody>
                 </table>
 
@@ -3772,7 +3713,7 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                             <td>connection.to</td>
                             <td>integer</td>
                             <td>✅</td>
-                            <td>Device ID destinazione</td>
+                            <td>Device ID destinazione (puo essere <code>null</code>)</td>
                         </tr>
                         <tr>
                             <td>connection.toPort</td>
@@ -3790,7 +3731,7 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                             <td>connection.status</td>
                             <td>enum</td>
                             <td>❌</td>
-                            <td>active | disabled | inactive | maintenance | reserved | planned</td>
+                            <td>active | disabled | maintenance</td>
                         </tr>
                         <tr>
                             <td>connection.cableMarker</td>
@@ -3822,10 +3763,28 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                             <td>❌</td>
                             <td>Connessione a presa murale</td>
                         </tr>
+                        <tr>
+                            <td>connection.roomId</td>
+                            <td>string | number</td>
+                            <td>❌</td>
+                            <td>Room ID per mappatura Floor Plan</td>
+                        </tr>
+                        <tr>
+                            <td>connection.flagged</td>
+                            <td>boolean</td>
+                            <td>❌</td>
+                            <td>Connessione incompleta/da correggere</td>
+                        </tr>
+                        <tr>
+                            <td>connection.flagReason</td>
+                            <td>string</td>
+                            <td>❌</td>
+                            <td>Motivo del flag (testo libero)</td>
+                        </tr>
                     </tbody>
                 </table>
 
-                <h4>Tipi Dispositivo (30)</h4>
+                <h4>Tipi Dispositivo</h4>
                 <table>
                     <thead>
                         <tr>
@@ -3835,40 +3794,27 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>server</td><td>Server fisico/virtuale</td><td>🖥️</td></tr>
+                        <tr><td>server</td><td>Server / host machine</td><td>🖥️</td></tr>
                         <tr><td>switch</td><td>Switch di rete</td><td>🔀</td></tr>
-                        <tr><td>router</td><td>Router</td><td>📡</td></tr>
-                        <tr><td>firewall</td><td>Firewall hardware</td><td>🛡️</td></tr>
-                        <tr><td>workstation</td><td>Workstation</td><td>🖥️</td></tr>
-                        <tr><td>laptop</td><td>Laptop/notebook</td><td>💻</td></tr>
-                        <tr><td>phone</td><td>Smartphone</td><td>📱</td></tr>
-                        <tr><td>access_point</td><td>Access point WiFi</td><td>📶</td></tr>
-                        <tr><td>printer</td><td>Stampante</td><td>🖨️</td></tr>
-                        <tr><td>storage</td><td>Storage/SAN</td><td>💾</td></tr>
-                        <tr><td>nas</td><td>NAS - Network Attached Storage</td><td>🗄️</td></tr>
-                        <tr><td>pdu</td><td>PDU - Power Distribution Unit</td><td>⚡</td></tr>
-                        <tr><td>camera</td><td>Telecamera IP</td><td>📹</td></tr>
-                        <tr><td>sensor</td><td>Sensore IoT</td><td>🌡️</td></tr>
-                        <tr><td>patch_panel</td><td>Patch panel</td><td>🔌</td></tr>
-                        <tr><td>patch</td><td>Patch panel (alias)</td><td>🔌</td></tr>
-                        <tr><td>wifi</td><td>Dispositivo WiFi generico</td><td>📶</td></tr>
-                        <tr><td>isp</td><td>ISP - Provider Internet</td><td>🌐</td></tr>
-                        <tr><td>router_wifi</td><td>Router con WiFi integrato</td><td>📡</td></tr>
-                        <tr><td>modem</td><td>Modem</td><td>📠</td></tr>
-                        <tr><td>hub</td><td>Hub di rete</td><td>🔀</td></tr>
-                        <tr><td>pc</td><td>PC desktop</td><td>🖥️</td></tr>
-                        <tr><td>ip_phone</td><td>Telefono IP/VoIP</td><td>☎️</td></tr>
-                        <tr><td>ups</td><td>UPS - Gruppo di continuità</td><td>🔋</td></tr>
+                        <tr><td>router</td><td>Router / gateway</td><td>📡</td></tr>
+                        <tr><td>router_wifi</td><td>Router WiFi</td><td>📡</td></tr>
+                        <tr><td>firewall</td><td>Firewall / UTM</td><td>🛡️</td></tr>
+                        <tr><td>access_point</td><td>Wireless access point</td><td>📶</td></tr>
+                        <tr><td>patch</td><td>Patch panel</td><td>🔌</td></tr>
                         <tr><td>walljack</td><td>Presa a muro RJ45</td><td>🔲</td></tr>
-                        <tr><td>tv</td><td>Smart TV</td><td>📺</td></tr>
-                        <tr><td>display</td><td>Display/Monitor smart</td><td>🖵</td></tr>
-                        <tr><td>monitor</td><td>Monitor</td><td>🖵</td></tr>
-                        <tr><td>others</td><td>Altro dispositivo</td><td>❓</td></tr>
-                        <tr><td>other</td><td>Altro (alias)</td><td>❓</td></tr>
+                        <tr><td>workstation</td><td>Desktop PC</td><td>🖥️</td></tr>
+                        <tr><td>laptop</td><td>Notebook</td><td>💻</td></tr>
+                        <tr><td>printer</td><td>Stampante / MFP</td><td>🖨️</td></tr>
+                        <tr><td>camera</td><td>IP Camera / CCTV</td><td>📷</td></tr>
+                        <tr><td>tv</td><td>TV / Display</td><td>📺</td></tr>
+                        <tr><td>ups</td><td>UPS / Battery backup</td><td>🔋</td></tr>
+                        <tr><td>ip_phone</td><td>Telefono IP / VoIP</td><td>📞</td></tr>
+                        <tr><td>isp</td><td>ISP Router / Modem</td><td>🌍</td></tr>
+                        <tr><td>other</td><td>Altro</td><td>❓</td></tr>
                     </tbody>
                 </table>
 
-                <h4>Tipi Connessione (19)</h4>
+                <h4>Tipi Connessione</h4>
                 <table>
                     <thead>
                         <tr>
@@ -3894,7 +3840,6 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                         <tr><td>fiber</td><td>Collegamento fibra</td><td style="background:#06b6d4;color:#fff">#06b6d4</td></tr>
                         <tr><td>test</td><td>Rete test/lab</td><td style="background:#ec4899;color:#fff">#ec4899</td></tr>
                         <tr><td>wallport</td><td>Presa a muro</td><td style="background:#64748b;color:#fff">#64748b</td></tr>
-                        <tr><td>walljack</td><td>Presa RJ45 a muro</td><td style="background:#64748b;color:#fff">#64748b</td></tr>
                         <tr><td>external</td><td>Connessione esterna</td><td style="background:#94a3b8;color:#fff">#94a3b8</td></tr>
                         <tr><td>other</td><td>Altro tipo</td><td style="background:#64748b;color:#fff">#64748b</td></tr>
                     </tbody>
@@ -3927,72 +3872,52 @@ gpg network_manager.json.gpg  # Decrypt</code></pre>
                     </tbody>
                 </table>
 
-                <h3 id="env-vars">⚙️ Variabili d'Ambiente</h3>
+                                <h3 id="env-vars">⚙️ Variabili d'Ambiente</h3>
 
-                <h4>File .env (Opzionale)</h4>
-                <p>Crea file <code>.env</code> nella root per configurazione:</p>
-                <pre><code># Server Configuration
-PORT=3000
-HOST=0.0.0.0
-NODE_ENV=production
+                                <h4>File .env (Opzionale)</h4>
+                                <p>Per il server Node.js puoi definire queste variabili:</p>
+                                <pre><code>PORT=3000
+DATA_FILE=data/network_manager.json
+DEBUG_MODE=false
+CORS_ORIGINS=http://localhost:3000</code></pre>
 
-# Paths
-DATA_DIR=./data
-BACKUP_DIR=./backup
-LOG_DIR=./logs
-
-# Security
-SESSION_SECRET=your_random_secret_here
-JWT_SECRET=your_jwt_secret_here
-
-# Features
-ENABLE_GUACAMOLE=true
-GUACAMOLE_URL=http://localhost:8080/guacamole
-
-# Logging
-LOG_LEVEL=info  # debug|info|warn|error
-LOG_FILE=matrix.log
-
-# Backup
-AUTO_BACKUP=true
-BACKUP_RETENTION_DAYS=30
-
-# Performance
-MAX_DEVICES=10000
-MAX_CONNECTIONS=10000
-CACHE_TIMEOUT=300  # seconds</code></pre>
-
-                <h4>Utilizzo nel Codice</h4>
-                <pre><code>// server.js
+                                <h4>Utilizzo nel Codice</h4>
+                                <pre><code>// server.js
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = process.env.DATA_DIR || './data';
-
-if (process.env.ENABLE_GUACAMOLE === 'true') {
-  // Enable Guacamole integration
-}</code></pre>
+const DATA_FILE = process.env.DATA_FILE || 'data/network_manager.json';
+const DEBUG_MODE = process.env.DEBUG_MODE === 'true';</code></pre>
 
                 <h3 id="api-ref">🗋️ Riferimento API</h3>
 
-                <h4>GET /api/data</h4>
+                                <h4>GET /data</h4>
                 <p><strong>Descrizione:</strong> Ottieni tutti i dati (devices, connections, rooms)</p>
                 <p><strong>Autenticazione:</strong> Nessuna (pubblico)</p>
                 <p><strong>Response:</strong></p>
                 <pre><code>{
-  "version": "3.6.034",
-  "timestamp": "2025-02-09T10:30:00.000Z",
-  "devices": [...],
-  "connections": [...],
-  "rooms": [...]
+    "devices": [...],
+    "connections": [...],
+    "rooms": [...],
+    "sites": [...],
+    "locations": [...],
+    "version": "3.6.032",
+    "checksum": "sha256hash"
 }</code></pre>
 
-                <h4>POST /api/data</h4>
+                                <h4>POST /data</h4>
                 <p><strong>Descrizione:</strong> Salva tutti i dati</p>
-                <p><strong>Autenticazione:</strong> Richiesta (Bearer token)</p>
+                                <p><strong>Autenticazione:</strong> Richiesta (sessione attiva)</p>
                 <p><strong>Request Body:</strong></p>
                 <pre><code>{
-  "devices": [...],
-  "connections": [...],
-  "rooms": [...]
+    "action": "save",
+    "data": {
+        "devices": [...],
+        "connections": [...],
+        "rooms": [...],
+        "sites": [...],
+        "locations": [...],
+        "nextDeviceId": 102,
+        "nextLocationId": 21
+    }
 }</code></pre>
                 <p><strong>Response:</strong></p>
                 <pre><code>{
@@ -4001,30 +3926,52 @@ if (process.env.ENABLE_GUACAMOLE === 'true') {
   "backup_file": "backup/matrix_20250209_103000.json"
 }</code></pre>
 
-                <h4>GET /api/devices</h4>
-                <p><strong>Descrizione:</strong> Lista solo dispositivi</p>
-                <p><strong>Query params:</strong> <code>?location=Milan%20HQ&type=switch&status=active</code></p>
-
-                <h4>GET /api/connections</h4>
-                <p><strong>Descrizione:</strong> Lista solo connessioni</p>
-                <p><strong>Query params:</strong> <code>?status=active&type=fiber</code></p>
-
-                <h4>GET /api/logs</h4>
-                <p><strong>Descrizione:</strong> Activity logs</p>
-                <p><strong>Query params:</strong> <code>?limit=100&offset=0&user=admin</code></p>
-
-                <h4>POST /api/validate</h4>
-                <p><strong>Descrizione:</strong> Valida JSON prima di import</p>
-                <p><strong>Request:</strong> Multipart form-data con file JSON</p>
-                <p><strong>Response:</strong></p>
-                <pre><code>{
-  "valid": true,
-  "version": "3.6.034",
-  "devices_count": 150,
-  "connections_count": 300,
-  "errors": [],
-  "warnings": ["Device 'SW-01' has no IP address"]
+                                <h4>GET /data?action=online</h4>
+                                <p><strong>Descrizione:</strong> Utenti attivi (viewers/editors)</p>
+                                <p><strong>Response:</strong></p>
+                                <pre><code>{
+    "viewers": 3,
+    "editors": 1,
+    "users": [
+        {"name": "admin", "role": "editor", "lastActive": "2026-02-08T14:32:00Z"}
+    ]
 }</code></pre>
+
+                                <h4>POST /api/auth.php</h4>
+                                <p><strong>Descrizione:</strong> Login/Logout/Session</p>
+                                <pre><code>// Login
+fetch('/api/auth.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'login', username: 'admin', password: 'secure_password' })
+})
+
+// Logout
+fetch('/api/auth.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'logout' })
+})
+
+// Check session
+fetch('/api/auth.php?check=1')</code></pre>
+
+                                <h4>POST /api/editlock.php</h4>
+                                <p><strong>Descrizione:</strong> Acquire/Release/Heartbeat edit lock</p>
+                                <pre><code>// Acquire
+fetch('/api/editlock.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'acquire', username: 'admin' })
+})
+
+// Release
+fetch('/api/editlock.php', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'release' })
+})</code></pre>
+
+                                <h4>GET/POST /api/guacamole.php</h4>
+                                <p><strong>Descrizione:</strong> Proxy Guacamole (status/connect/health)</p>
+                                <pre><code>GET /api/guacamole.php?action=status
+POST /api/guacamole.php</code></pre>
 
                 <h3 id="glossario">📚 Glossario</h3>
 
@@ -4098,7 +4045,7 @@ if (process.env.ENABLE_GUACAMOLE === 'true') {
                         </tr>
                         <tr>
                             <td><strong>Cache Busting</strong></td>
-                            <td>URL versioning per forzare reload file JS/CSS (es: ?v=3.6.034)</td>
+                            <td>URL versioning per forzare reload file JS/CSS (es: ?v=3.6.032)</td>
                         </tr>
                     </tbody>
                 </table>

@@ -2,7 +2,7 @@
 
 Web-based network infrastructure documentation and visualization tool.
 
-**Version:** 3.6.032  
+**Version:** 3.6.035  
 **Date:** February 9, 2026  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
 
@@ -30,9 +30,9 @@ This is a **documentation tool**, NOT a monitoring system:
 
 ---
 
-## 🆕 What's New in v3.6.032
+## 🆕 What's New in v3.6.035
 
-### 🎯 v3.6.032 - Device Detail Modal & Zone System (Current)
+### 🎯 v3.6.035 - Documentation Cleanup & Version Alignment (Current)
 
 #### 🎨 Device Detail Modal Redesign
 - **RJ45-style ports**: Realistic hardware appearance with LED indicators
@@ -143,13 +143,13 @@ Matrix/
 │   ├── README.md               # This file (complete guide)
 │   ├── BLUEPRINT.md            # Technical specification
 │   ├── QUICK_REFERENCE.md      # Quick command reference
-│   ├── GUACAMOLE_SETUP.md      # Guacamole proxy configuration
+│   ├── GUACAMOLE_SETUP.md      # Guacamole remote access setup
+│   ├── ROOM_STRUCTURE.md       # Room & location data schema
 │   ├── VALIDATION_TESTING_GUIDE.md  # Testing data integrity
-│   └── ROOM_STRUCTURE.md       # JSON data schema
+│   └── RELEASE_NOTES_v3.6.032.md   # Current release notes
 │
 └── tests/
-    ├── e2e-tests.js            # End-to-end tests
-    └── frontend-tests.js       # UI tests
+    └── run-all-tests.sh        # Test runner script
 ```
 
 ---
@@ -417,9 +417,10 @@ CORS_ORIGINS=http://localhost:3000
 
 - [BLUEPRINT.md](BLUEPRINT.md) - Complete technical specification & architecture
 - [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Command & endpoint reference
-- [GUACAMOLE_SETUP.md](GUACAMOLE_SETUP.md) - Remote access proxy configuration
+- [GUACAMOLE_SETUP.md](GUACAMOLE_SETUP.md) - Remote access setup (Docker, security, API)
+- [ROOM_STRUCTURE.md](ROOM_STRUCTURE.md) - Room & location data schema
 - [VALIDATION_TESTING_GUIDE.md](VALIDATION_TESTING_GUIDE.md) - Data integrity testing procedures
-- [ROOM_STRUCTURE.md](ROOM_STRUCTURE.md) - Detailed JSON schema documentation
+- [RELEASE_NOTES_v3.6.032.md](RELEASE_NOTES_v3.6.032.md) - Current version release notes
 
 ---
 
@@ -458,7 +459,7 @@ For issues or feature requests:
 
 ---
 
-**Version:** 3.6.032  
+**Version:** 3.6.035  
 **Last Updated:** February 9, 2026  
 **Status:** ✅ Production Ready  
 **© Tiesse S.P.A.**

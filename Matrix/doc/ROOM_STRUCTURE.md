@@ -1,8 +1,8 @@
 # 🏢 Room & Location Data Structure
 
-**Version:** 3.6.032  
-**Date:** February 9, 2026
-**Note:** Room & Location structures have been stable since v3.6.026. This documentation remains accurate for current implementation.
+**Version:** 3.6.035  
+**Date:** February 9, 2026  
+**Note:** Room & Location structures have been stable since v3.6.026. This documentation remains accurate for the current implementation.
 
 ---
 
@@ -11,22 +11,22 @@
 The location management system is divided into two levels:
 
 ### 1.1 Rooms (Floor Plan)
-Le stanze (rooms) nel Floor Plan permettono di:
-- Mappare aree fisiche sulla pianta
-- Associare dispositivi alle stanze
-- Visualizzare statistiche per stanza
-- Gestire nickname per identificazione facile
+Rooms in the Floor Plan allow you to:
+- Map physical areas on the building plan
+- Associate devices with rooms
+- View per-room statistics
+- Manage nicknames for easy identification
 
 ### 1.2 Locations (v3.5.005+)
-Il sistema locations permette di:
-- **Mapped Locations** (0-19): Collegati alle stanze del Floor Plan
-- **Custom Locations** (21+): Locations personalizzate non mappate
-- Persistenza indipendente delle locations
-- Gestione tramite Location Manager
+The location system allows:
+- **Mapped Locations** (0-19): Linked to Floor Plan rooms
+- **Custom Locations** (21+): User-defined locations not mapped to a room
+- Independent location persistence
+- Management via Location Manager
 
 ---
 
-## 2. Struttura Dati Completa
+## 2. Data Structure
 
 ### 2.1 Room Object (Floor Plan Geometry)
 
@@ -38,7 +38,7 @@ Il sistema locations permette di:
   "type": "server",
   "area": 50,
   "capacity": 20,
-  "description": "Sala server principale con rack e apparecchiature di rete",
+  "description": "Main server room with racks and network equipment",
   "color": "rgba(239,68,68,0.15)",
   "polygon": [
     {"x": 760, "y": 281},
@@ -46,24 +46,24 @@ Il sistema locations permette di:
     {"x": 1010, "y": 521},
     {"x": 760, "y": 521}
   ],
-  "notes": "Temperatura controllata, accesso ristretto"
+  "notes": "Temperature controlled, restricted access"
 }
 ```
 
-### 2.2 Campi
+### 2.2 Room Fields
 
-| Campo | Tipo | Obbligatorio | Descrizione |
-|-------|------|--------------|-------------|
-| `id` | string | ✅ | ID univoco della stanza |
-| `name` | string | ✅ | Nome originale/numero |
-| `nickname` | string | ❌ | Nome descrittivo (es. "Sala Server") |
-| `type` | string | ❌ | Tipo di stanza (vedi sezione 3) |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | ✅ | Unique room identifier |
+| `name` | string | ✅ | Original name/number |
+| `nickname` | string | ❌ | Descriptive name (e.g., "Sala Server") |
+| `type` | string | ❌ | Room type (see section 3) |
 | `area` | number | ❌ | Area in m² |
-| `capacity` | number | ❌ | Capacità dispositivi |
-| `description` | string | ❌ | Descrizione dettagliata |
-| `color` | string | ❌ | Colore RGBA del poligono |
-| `polygon` | array | ❌ | Coordinate vertici [{x,y}] |
-| `notes` | string | ❌ | Note aggiuntive |
+| `capacity` | number | ❌ | Device capacity |
+| `description` | string | ❌ | Detailed description |
+| `color` | string | ❌ | Polygon RGBA color |
+| `polygon` | array | ❌ | Vertex coordinates [{x,y}] |
+| `notes` | string | ❌ | Additional notes |
 
 ### 2.3 Location Object (v3.5.005+)
 
@@ -79,58 +79,58 @@ Il sistema locations permette di:
 }
 ```
 
-| Campo | Tipo | Obbligatorio | Descrizione |
-|-------|------|--------------|-------------|
-| `id` | number | ✅ | ID univoco (0-19=mapped, 21+=custom) |
-| `siteId` | number | ❌ | Riferimento sito (futuro) |
-| `code` | string | ✅ | Codice breve univoco |
-| `name` | string | ✅ | Nome descrittivo |
-| `type` | string | ❌ | Tipo location |
-| `roomRef` | string | ❌ | Riferimento room.id se mapped |
-| `color` | string | ❌ | Colore hex personalizzato |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | number | ✅ | Unique ID (0-19=mapped, 21+=custom) |
+| `siteId` | number | ❌ | Site reference (future use) |
+| `code` | string | ✅ | Unique short code |
+| `name` | string | ✅ | Descriptive name |
+| `type` | string | ❌ | Location type |
+| `roomRef` | string | ❌ | Reference to room.id if mapped |
+| `color` | string | ❌ | Custom hex color |
 
-### 2.4 Differenza Rooms vs Locations
+### 2.4 Rooms vs Locations
 
-| Aspetto | Rooms | Locations |
-|---------|-------|-----------|
-| **Scopo** | Geometria Floor Plan | Organizzazione logica |
-| **ID Range** | String (qualsiasi) | 0-19 mapped, 21+ custom |
-| **Persistenza** | `appState.rooms` | `appState.locations` |
-| **Visuale** | Poligoni su pianta | Dropdown/filtri |
+| Aspect | Rooms | Locations |
+|--------|-------|-----------|
+| **Purpose** | Floor Plan geometry | Logical organization |
+| **ID Range** | String (any) | 0-19 mapped, 21+ custom |
+| **Storage** | `appState.rooms` | `appState.locations` |
+| **Visual** | Polygons on floor plan | Dropdowns/filters |
 | **Editing** | Floor Plan Mode | Location Manager |
 
 ---
 
-## 3. Tipi di Stanza
+## 3. Room Types
 
-| Tipo | Label | Colore Default |
-|------|-------|----------------|
-| `server` | Sala Server | `rgba(239,68,68,0.15)` (rosso) |
-| `office` | Ufficio | `rgba(59,130,246,0.15)` (blu) |
-| `storage` | Magazzino | `rgba(34,197,94,0.15)` (verde) |
-| `meeting` | Sala Riunioni | `rgba(168,85,247,0.15)` (viola) |
-| `production` | Produzione | `rgba(249,115,22,0.15)` (arancio) |
-| `datacenter` | Data Center | `rgba(185,28,28,0.15)` (rosso scuro) |
-| `network` | Sala Rete | `rgba(6,182,212,0.15)` (ciano) |
-| `other` | Altro | `rgba(107,114,128,0.15)` (grigio) |
+| Type | Label | Default Color |
+|------|-------|---------------|
+| `server` | Server Room | `rgba(239,68,68,0.15)` (red) |
+| `office` | Office | `rgba(59,130,246,0.15)` (blue) |
+| `storage` | Storage | `rgba(34,197,94,0.15)` (green) |
+| `meeting` | Meeting Room | `rgba(168,85,247,0.15)` (purple) |
+| `production` | Production | `rgba(249,115,22,0.15)` (orange) |
+| `datacenter` | Data Center | `rgba(185,28,28,0.15)` (dark red) |
+| `network` | Network Room | `rgba(6,182,212,0.15)` (cyan) |
+| `other` | Other | `rgba(107,114,128,0.15)` (gray) |
 
 ---
 
-## 4. Associazione Dispositivo-Stanza
+## 4. Device-Room Association
 
-### 4.1 Come Funziona
+### 4.1 How It Works
 
-I dispositivi sono associati alle stanze tramite il campo `location`:
+Devices are associated with rooms via the `location` field:
 
 ```
-Device.location ←→ Room.nickname (o Room.name)
+Device.location ←→ Room.nickname (or Room.name)
 ```
 
-**Esempio:**
-- Stanza: `{ id: "8", nickname: "Sala Server" }`
-- Dispositivo: `{ location: "Sala Server" }` → Appartiene alla stanza
+**Example:**
+- Room: `{ id: "8", nickname: "Sala Server" }`
+- Device: `{ location: "Sala Server" }` → belongs to that room
 
-### 4.2 Funzione Helper
+### 4.2 Helper Function
 
 ```javascript
 function deviceBelongsToRoom(device, room) {
@@ -144,22 +144,22 @@ function deviceBelongsToRoom(device, room) {
 }
 ```
 
-**Caratteristiche:**
+**Behavior:**
 - Case-insensitive ("Sala Server" = "sala server")
-- Ignora spazi extra ("Sala  Server" = "SalaServer")
-- Fallback: nickname → name → id
+- Ignores extra whitespace ("Sala  Server" = "SalaServer")
+- Fallback chain: nickname → name → id
 
-### 4.3 Funzioni Utili
+### 4.3 Utility Functions
 
 ```javascript
-// Conta dispositivi in una stanza
+// Count devices in a room
 function countDevicesInRoom(room) {
     return appState.devices.filter(function(d) {
         return deviceBelongsToRoom(d, room);
     }).length;
 }
 
-// Ottieni tutti i dispositivi di una stanza
+// Get all devices in a room
 function getDevicesInRoom(room) {
     return appState.devices.filter(function(d) {
         return deviceBelongsToRoom(d, room);
@@ -169,16 +169,16 @@ function getDevicesInRoom(room) {
 
 ---
 
-## 5. Sincronizzazione Nickname
+## 5. Nickname Synchronization
 
-Quando il nickname di una stanza viene modificato, tutti i dispositivi associati vengono aggiornati automaticamente:
+When a room's nickname is changed, all associated devices are updated automatically:
 
 ```javascript
-// Nel salvataggio del nickname
+// On nickname save
 var oldNickname = room.nickname || room.name;
 var newNickname = input.value.trim();
 
-// Aggiorna location di tutti i dispositivi
+// Update location for all associated devices
 appState.devices.forEach(function(device) {
     if (deviceBelongsToRoom(device, { nickname: oldNickname, name: room.name })) {
         device.location = newNickname;
@@ -190,80 +190,80 @@ room.nickname = newNickname;
 
 ---
 
-## 6. Modal Info Stanza
+## 6. Room Info Modal
 
-Quando si clicca su una stanza nel Floor Plan, appare un modal con:
+Clicking a room on the Floor Plan shows a modal with:
 
 ### 6.1 Header
-- Nome stanza (nickname o name)
-- Badge tipo stanza
+- Room name (nickname or name)
+- Room type badge
 
-### 6.2 Statistiche
-| Statistica | Descrizione |
-|------------|-------------|
-| 📊 Total Devices | Numero dispositivi nella stanza |
-| 🔗 Connections | Numero connessioni dei dispositivi |
-| 📦 Capacity | Capacità configurata |
-| ⚠️ Errors | Dispositivi con problemi (se presenti) |
+### 6.2 Statistics
+| Statistic | Description |
+|-----------|-------------|
+| 📊 Total Devices | Number of devices in the room |
+| 🔗 Connections | Number of device connections |
+| 📦 Capacity | Configured capacity |
+| ⚠️ Errors | Devices with issues (if any) |
 | 📍 Area | Area in m² |
 
-### 6.3 Lista Dispositivi
-Per ogni dispositivo:
-- Icona SVG del tipo
-- Nome dispositivo
-- Badge stato (Active/Disabled)
-- Link (se presenti)
-- Info rack/position
+### 6.3 Device List
+For each device:
+- SVG icon by type
+- Device name
+- Status badge (Active/Disabled)
+- Links (if any)
+- Rack/position info
 
-### 6.4 Campo Nickname
-- Input editabile
-- Salvataggio con Enter o blur
-- Sincronizza automaticamente i dispositivi
+### 6.4 Nickname Field
+- Editable input
+- Save on Enter or blur
+- Automatically syncs device locations
 
 ---
 
 ## 7. Floor Plan API
 
-### 7.1 Inizializzazione
+### 7.1 Initialization
 
 ```javascript
-FloorPlan.init();  // Carica stanze da appState.rooms
+FloorPlan.init();  // Loads rooms from appState.rooms
 ```
 
-### 7.2 Gestione Stanze
+### 7.2 Room Management
 
 ```javascript
-// Imposta stanze (per import)
+// Set rooms (for import)
 FloorPlan.setRooms(newRoomsArray);
 
-// Ottieni stanze
+// Get rooms
 var rooms = FloorPlan.getRooms();
 
-// Salva stanze
-saveRoomsData();  // Interno, chiama serverSave()
+// Save rooms
+saveRoomsData();  // Internal, calls serverSave()
 ```
 
-### 7.3 Zoom e Navigazione
+### 7.3 Zoom & Navigation
 
 ```javascript
 FloorPlan.zoom(0.1);    // Zoom in
 FloorPlan.zoom(-0.1);   // Zoom out
-FloorPlan.resetZoom();  // Reset al default
+FloorPlan.resetZoom();  // Reset to default
 ```
 
 ### 7.4 Export
 
 ```javascript
-FloorPlan.exportToPNG();  // Esporta come immagine PNG
+FloorPlan.exportToPNG();  // Export as PNG image
 ```
 
 ---
 
-## 8. Persistenza
+## 8. Persistence
 
-### 8.1 Dove Viene Salvato
+### 8.1 Storage Location
 
-Le stanze sono salvate in `network_manager.json`:
+Rooms are stored in `network_manager.json`:
 
 ```json
 {
@@ -274,10 +274,10 @@ Le stanze sono salvate in `network_manager.json`:
 }
 ```
 
-### 8.2 Flusso di Salvataggio
+### 8.2 Save Flow
 
 ```
-User modifica stanza
+User edits room
        ↓
 saveRoomsData()
        ↓
@@ -285,10 +285,10 @@ appState.rooms = rooms
        ↓
 serverSave()  →  POST /data
        ↓
-network_manager.json aggiornato
+network_manager.json updated
 ```
 
-### 8.3 Flusso di Caricamento
+### 8.3 Load Flow
 
 ```
 Page load
@@ -308,7 +308,7 @@ renderRooms()
 
 ### 9.1 JSON Export
 
-Le stanze sono incluse nell'export JSON:
+Rooms are included in JSON exports:
 
 ```json
 {
@@ -323,16 +323,16 @@ Le stanze sono incluse nell'export JSON:
 
 ### 9.2 JSON Import
 
-L'import valida le stanze:
+Import validates rooms:
 
 ```javascript
-// Validazione
+// Validation
 if (data.rooms && !Array.isArray(data.rooms)) {
     Toast.error('Invalid JSON: "rooms" must be an array');
     return;
 }
 
-// Validazione singola stanza
+// Per-room validation
 for (var r = 0; r < data.rooms.length; r++) {
     var room = data.rooms[r];
     if (!room.id || !room.name) {
@@ -344,7 +344,7 @@ for (var r = 0; r < data.rooms.length; r++) {
 // Import
 appState.rooms = data.rooms || [];
 
-// Sincronizza FloorPlan
+// Sync Floor Plan
 if (FloorPlan.setRooms) {
     FloorPlan.setRooms(appState.rooms);
 }
@@ -352,28 +352,28 @@ if (FloorPlan.setRooms) {
 
 ### 9.3 Excel Export
 
-Le stanze hanno un foglio dedicato:
+Rooms have a dedicated worksheet:
 
-| Colonna | Descrizione |
-|---------|-------------|
-| ID | ID univoco |
-| Name | Nome originale |
-| Nickname | Nome descrittivo |
-| Width | Larghezza |
-| Height | Altezza |
-| X | Coordinata X |
-| Y | Coordinata Y |
-| Color | Colore RGBA |
-| Devices | Numero dispositivi |
-| Notes | Note |
+| Column | Description |
+|--------|-------------|
+| ID | Unique identifier |
+| Name | Original name |
+| Nickname | Descriptive name |
+| Width | Width |
+| Height | Height |
+| X | X coordinate |
+| Y | Y coordinate |
+| Color | RGBA color |
+| Devices | Device count |
+| Notes | Notes |
 
 ---
 
-## 10. Polygon (Poligono)
+## 10. Polygon
 
-### 10.1 Formato
+### 10.1 Format
 
-Array di punti {x, y} che definiscono i vertici:
+Array of {x, y} points defining the vertices:
 
 ```json
 "polygon": [
@@ -384,35 +384,35 @@ Array di punti {x, y} che definiscono i vertici:
 ]
 ```
 
-### 10.2 Sistema di Coordinate
+### 10.2 Coordinate System
 
-- Origine (0,0): angolo superiore sinistro
-- X: cresce verso destra
-- Y: cresce verso il basso
-- ViewBox SVG: dipende dalla pianta
+- Origin (0,0): top-left corner
+- X: increases to the right
+- Y: increases downward
+- SVG ViewBox: depends on the floor plan image
 
-### 10.3 Tool di Mappatura
+### 10.3 Mapping Tool
 
-Usa `/draw-rooms-v2.html` per creare poligoni:
-1. Carica la pianta
-2. Clicca per aggiungere punti
-3. Chiudi il poligono
-4. Esporta le coordinate
+Use `/draw-rooms-v2.html` to create polygons:
+1. Load the floor plan image
+2. Click to add vertices
+3. Close the polygon
+4. Export the coordinates
 
 ---
 
 ## 11. Location System (v3.5.005+)
 
-### 11.1 Migrazione Automatica
+### 11.1 Automatic Migration
 
-All'avvio, il sistema verifica se esistono locations. Se assenti, esegue migrazione:
+On startup, the system checks if locations exist. If absent, it runs migration:
 
 ```javascript
 function migrateToNewLocationSystem() {
     if (!appState.locations) appState.locations = [];
     if (appState.locations.length > 0) return;
     
-    // Crea locations da rooms esistenti (ID 0-19)
+    // Create locations from existing rooms (ID 0-19)
     if (appState.rooms && appState.rooms.length > 0) {
         appState.rooms.forEach(function(room, index) {
             if (index < 20) {
@@ -429,7 +429,7 @@ function migrateToNewLocationSystem() {
         });
     }
     
-    // Imposta nextLocationId per custom locations
+    // Set nextLocationId for custom locations
     if (!appState.nextLocationId) {
         appState.nextLocationId = 21;
     }
@@ -442,14 +442,14 @@ function migrateToNewLocationSystem() {
 var LocationFilter = {
     init: function() { /* Setup dropdown */ },
     getLocations: function() { return appState.locations || []; },
-    filterDevices: function(locationId) { /* Filtra devices per location */ },
-    syncWithRooms: function() { /* Sincronizza mapped locations */ }
+    filterDevices: function(locationId) { /* Filter devices by location */ },
+    syncWithRooms: function() { /* Sync mapped locations */ }
 };
 ```
 
 ### 11.3 Custom Locations
 
-Le custom locations (ID ≥ 21) permettono di creare posizioni non mappate nel Floor Plan:
+Custom locations (ID ≥ 21) allow creating positions not mapped on the Floor Plan:
 
 ```javascript
 function createCustomLocation(name, code, type) {
@@ -469,34 +469,26 @@ function createCustomLocation(name, code, type) {
 
 ---
 
-## 13. Statistiche Attuali
+## 12. Current Statistics
 
-| Statistica | Valore |
-|------------|--------|
-| Stanze totali | 20 |
-| Dispositivi totali | 81 |
-| Dispositivi in "Sala Server" | 75 |
-| Dispositivi in "Ufficio12" | 6 |
-
-### Stanze con Nickname
-
-| ID | Nickname |
-|----|----------|
-| 1 | Amministrazione |
-| 8 | Sala Server |
-| ... | ... |
+| Statistic | Value |
+|-----------|-------|
+| Total rooms | 20 |
+| Total devices | 81 |
+| Devices in "Sala Server" | 75 |
+| Devices in "Ufficio12" | 6 |
 
 ---
 
-## 14. Esempi
+## 13. Examples
 
-### 12.1 Creare una Nuova Stanza
+### 13.1 Create a New Room
 
 ```javascript
 var newRoom = {
     id: "new-" + Date.now(),
-    name: "Nuova Stanza",
-    nickname: "Sala Riunioni 1",
+    name: "New Room",
+    nickname: "Meeting Room 1",
     type: "meeting",
     color: "rgba(168,85,247,0.15)",
     polygon: [],
@@ -506,31 +498,31 @@ appState.rooms.push(newRoom);
 saveRoomsData();
 ```
 
-### 12.2 Modificare Nickname
+### 13.2 Change Nickname
 
 ```javascript
 var room = appState.rooms.find(r => r.id === "8");
 var oldNickname = room.nickname;
 
-// Aggiorna dispositivi
+// Update associated devices
 appState.devices.forEach(function(d) {
     if (d.location === oldNickname) {
-        d.location = "Nuovo Nome";
+        d.location = "New Name";
     }
 });
 
-room.nickname = "Nuovo Nome";
+room.nickname = "New Name";
 saveRoomsData();
 ```
 
-### 12.3 Contare Dispositivi
+### 13.3 Count Devices
 
 ```javascript
 var room = appState.rooms.find(r => r.nickname === "Sala Server");
 var count = countDevicesInRoom(room);
-console.log("Dispositivi in Sala Server:", count);
+console.log("Devices in Sala Server:", count);
 ```
 
 ---
 
-**© 2026 Tiesse S.P.A. - Tutti i diritti riservati**
+**© 2026 Tiesse S.P.A. - All rights reserved**

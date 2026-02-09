@@ -1,111 +1,119 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mapeador de Salas</title>
+    <title>Room Mapper</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         #canvas { border: 2px solid #3b82f6; background: white; overflow: hidden; cursor: crosshair; }
         #canvas.panning { cursor: grab !important; }
         #canvas.panning:active { cursor: grabbing !important; }
-        .room-shape { fill: rgba(59,130,246,0.2); stroke: #3b82f6; stroke-width: 6; cursor: pointer; }
+        .room-shape { fill: rgba(59,130,246,0.2); stroke: #3b82f6; stroke-width: 2; cursor: pointer; }
         .room-shape:hover { fill: rgba(59,130,246,0.4); }
-        .room-shape.overlapping { fill: rgba(239,68,68,0.3); stroke: #dc2626; stroke-width: 8; }
-        .room-shape.selected { fill: rgba(34,197,94,0.3); stroke: #16a34a; stroke-width: 8; }
-        .room-label { font-size: 32px; font-weight: bold; fill: #1e40af; pointer-events: none; text-anchor: middle; }
-        .preview { stroke: #ef4444; stroke-width: 6; fill: rgba(239,68,68,0.2); stroke-dasharray: 5,5; }
-        .point { fill: #ef4444; stroke: white; stroke-width: 6; }
+        .room-shape.overlapping { fill: rgba(239,68,68,0.3); stroke: #dc2626; stroke-width: 3; }
+        .room-shape.selected { fill: rgba(34,197,94,0.3); stroke: #16a34a; stroke-width: 3; }
+        .room-label { font-size: 24px; font-weight: bold; fill: #1e40af; pointer-events: none; text-anchor: middle; dominant-baseline: middle; }
+        .preview { stroke: #ef4444; stroke-width: 2; fill: rgba(239,68,68,0.2); stroke-dasharray: 5,5; }
+        .point { fill: #ef4444; stroke: white; stroke-width: 2; }
         #bg { opacity: 0.3; pointer-events: none; }
     </style>
 </head>
 <body class="bg-slate-900 text-white p-4">
     <div class="max-w-full mx-auto px-2">
-        <h1 class="text-xl font-bold mb-2">🎨 Mapeador de Salas</h1>
+        <h1 class="text-xl font-bold mb-2">🏗️ Room Mapper</h1>
         
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-2">
-            <!-- Painel -->
+            <!-- Panel -->
             <div class="bg-slate-800 p-3 rounded-lg">
-                <h2 class="text-base font-semibold mb-2">Controles</h2>
+                <h2 class="text-base font-semibold mb-2">Controls</h2>
                 
                 <div id="modeIndicator" class="mb-3 p-3 rounded-lg text-center font-bold bg-blue-600">
-                    🔲 RETÂNGULO
+                    🔲 RECTANGLE
                 </div>
                 
                 <div class="space-y-2">
                     <div>
-                        <label class="text-sm font-semibold">Modo:</label>
+                        <label class="text-sm font-semibold">Mode:</label>
                         <select id="mode" class="w-full mt-1 px-2 py-2 bg-slate-700 rounded text-sm">
-                            <option value="rect">Retângulo</option>
-                            <option value="poly">Polígono</option>
-                            <option value="edit">✏️ Editar/Mover Sala</option>
+                            <option value="rect">Rectangle</option>
+                            <option value="poly">Polygon</option>
+                            <option value="edit">✏️ Edit/Move Room</option>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="text-sm font-semibold">Tipo:</label>
+                        <label class="text-sm font-semibold">Type:</label>
                         <select id="type" class="w-full mt-1 px-2 py-2 bg-slate-700 rounded text-sm">
-                            <option value="office">Sala</option>
-                            <option value="corridor">Corredor</option>
-                            <option value="stairs">Escada</option>
-                            <option value="bathroom">Banheiro</option>
+                            <option value="office">Room</option>
+                            <option value="corridor">Corridor</option>
+                            <option value="stairs">Stairs</option>
+                            <option value="bathroom">Bathroom</option>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="text-sm font-semibold">Nome (opcional):</label>
-                        <input type="text" id="name" placeholder="Ex: TI, RH..." 
+                        <label class="text-sm font-semibold">Name (optional):</label>
+                        <input type="text" id="name" placeholder="Ex: IT, HR..." 
                                class="w-full mt-1 px-2 py-2 bg-slate-700 rounded text-sm">
                     </div>
                     
                     <div>
-                        <label class="text-sm font-semibold">Opacidade: <span id="opVal">30%</span></label>
+                        <label class="text-sm font-semibold">Opacity: <span id="opVal">30%</span></label>
                         <input type="range" id="opacity" min="0" max="100" value="30" class="w-full">
                     </div>
                     
                     <div class="border-t border-slate-700 pt-3">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm font-semibold">Salas:</span>
-                            <span id="count" class="text-sm text-green-400">0</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-semibold">Rooms: <span id="count" class="text-green-400">0</span></span>
+                            <div class="flex gap-1">
+                                <button onclick="sortByName()" class="px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-xs" title="Sort A-Z">A-Z</button>
+                                <button onclick="sortById()" class="px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-xs" title="Sort by ID">ID</button>
+                            </div>
                         </div>
-                        <div id="list" class="space-y-1 text-xs max-h-48 overflow-y-auto"></div>
+                        <div id="list" class="space-y-1 text-xs max-h-64 overflow-y-auto"></div>
+                    </div>
+                    
+                    <div class="border-t border-slate-700 pt-2">
+                        <label class="text-xs font-semibold">Import JSON:</label>
+                        <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" class="w-full mt-1 text-xs bg-slate-700 rounded p-1">
                     </div>
                     
                     <div id="warn" class="hidden bg-red-900/50 p-2 rounded text-xs">
-                        <div class="font-semibold">⚠️ Sobreposições</div>
+                        <div class="font-semibold">⚠️ Overlaps</div>
                         <div id="warnList"></div>
                     </div>
                     
                     <div id="moveControls" class="hidden space-y-2 border-t border-slate-700 pt-2 mb-2">
-                        <div class="text-xs text-center font-semibold">Mover Sala Selecionada</div>
+                        <div class="text-xs text-center font-semibold">Move Selected Room</div>
                         <div class="grid grid-cols-3 gap-1">
                             <div></div>
-                            <button onclick="moveRoom(0,-1)" class="px-2 py-1 bg-blue-600 rounded text-xs">↑</button>
+                            <button onclick="moveRoom(0,-5)" class="px-2 py-1 bg-blue-600 rounded text-xs">↑</button>
                             <div></div>
-                            <button onclick="moveRoom(-1,0)" class="px-2 py-1 bg-blue-600 rounded text-xs">←</button>
+                            <button onclick="moveRoom(-5,0)" class="px-2 py-1 bg-blue-600 rounded text-xs">←</button>
                             <button onclick="moveRoom(0,0)" class="px-2 py-1 bg-gray-600 rounded text-xs">•</button>
-                            <button onclick="moveRoom(1,0)" class="px-2 py-1 bg-blue-600 rounded text-xs">→</button>
+                            <button onclick="moveRoom(5,0)" class="px-2 py-1 bg-blue-600 rounded text-xs">→</button>
                             <div></div>
-                            <button onclick="moveRoom(0,1)" class="px-2 py-1 bg-blue-600 rounded text-xs">↓</button>
+                            <button onclick="moveRoom(0,5)" class="px-2 py-1 bg-blue-600 rounded text-xs">↓</button>
                             <div></div>
                         </div>
-                        <button onclick="deselectRoom()" class="w-full px-3 py-2 bg-gray-600 rounded text-sm">✓ Desselecionar</button>
+                        <button onclick="deselectRoom()" class="w-full px-3 py-2 bg-gray-600 rounded text-sm">✓ Deselect</button>
                     </div>
                     
                     <div class="space-y-2 border-t border-slate-700 pt-2">
                         <button onclick="finish()" id="finishBtn" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 rounded text-sm font-semibold hidden">
-                            ✓ Finalizar Polígono
+                            ✓ Finish Polygon
                         </button>
                         <button onclick="undo()" class="w-full px-3 py-2 bg-orange-600 hover:bg-orange-700 rounded text-sm">
-                            ↶ Desfazer Ponto
+                            ↶ Undo Point
                         </button>
                         <button onclick="cancel()" class="w-full px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-sm">
-                            ✕ Cancelar Desenho
+                            ✕ Cancel Drawing
                         </button>
                         <button onclick="check()" class="w-full px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-sm">
-                            🔍 Verificar
+                            🔍 Check Overlaps
                         </button>
                         <button onclick="save()" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm font-semibold">
-                            💾 Exportar JSON
+                            💾 Export JSON
                         </button>
                     </div>
                 </div>
@@ -141,31 +149,34 @@
         <!-- Modal -->
         <div id="modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center">
             <div class="bg-slate-800 rounded-lg p-6 max-w-md">
-                <h2 class="text-lg font-bold mb-4">Editar</h2>
+                <h2 class="text-lg font-bold mb-4">Edit Room</h2>
                 <div class="space-y-3">
                     <div>
-                        <label class="text-sm">Nome:</label>
+                        <label class="text-sm">Name:</label>
                         <input type="text" id="eName" class="w-full mt-1 px-2 py-2 bg-slate-700 rounded">
                     </div>
                     <div>
-                        <label class="text-sm">Tipo:</label>
+                        <label class="text-sm">Type:</label>
                         <select id="eType" class="w-full mt-1 px-2 py-2 bg-slate-700 rounded">
-                            <option value="office">Sala</option>
-                            <option value="corridor">Corredor</option>
-                            <option value="stairs">Escada</option>
-                            <option value="bathroom">Banheiro</option>
+                            <option value="office">Room</option>
+                            <option value="corridor">Corridor</option>
+                            <option value="stairs">Stairs</option>
+                            <option value="bathroom">Bathroom</option>
                         </select>
                     </div>
                 </div>
                 <div class="flex gap-2 mt-4">
-                    <button onclick="saveEdit()" class="flex-1 px-4 py-2 bg-green-600 rounded">Salvar</button>
-                    <button onclick="closeEdit()" class="flex-1 px-4 py-2 bg-gray-600 rounded">Cancelar</button>
+                    <button onclick="saveEdit()" class="flex-1 px-4 py-2 bg-green-600 rounded">Save</button>
+                    <button onclick="closeEdit()" class="flex-1 px-4 py-2 bg-gray-600 rounded">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
+        // ============================================
+        // STATE
+        // ============================================
         var state = {
             mode: 'rect',
             type: 'office',
@@ -183,14 +194,26 @@
             panY: 0,
             current: null,
             selected: null,
-            counter: {office: 1, corridor: 1, stairs: 1, bathroom: 1}
+            counter: {office: 1, corridor: 1, stairs: 1, bathroom: 1},
+            lastClickTime: 0,
+            clickDebounce: 250
         };
         
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
         var svg = document.getElementById('svg');
         var canvas = document.getElementById('canvas');
         var roomsG = document.getElementById('rooms');
         var previewG = document.getElementById('preview');
         
+        if (!svg || !canvas || !roomsG || !previewG) {
+            console.error('Required DOM elements not found');
+        }
+        
+        // ============================================
+        // EVENT HANDLERS - Controls
+        // ============================================
         document.getElementById('mode').onchange = function() {
             state.mode = this.value;
             cancel();
@@ -204,11 +227,21 @@
         };
         
         document.getElementById('opacity').oninput = function() {
-            document.getElementById('bg').style.opacity = this.value / 100;
+            var bgEl = document.getElementById('bg');
+            if (bgEl) {
+                bgEl.style.opacity = this.value / 100;
+            }
             document.getElementById('opVal').textContent = this.value + '%';
         };
         
+        // ============================================
+        // EVENT HANDLERS - SVG Mouse Events
+        // ============================================
         svg.onmousedown = function(e) {
+            if (e.target.classList && e.target.classList.contains('room-shape')) {
+                return; // Let room-shape handle its own click
+            }
+            
             if (state.panMode) {
                 state.panning = true;
                 state.panX = e.clientX - state.tx;
@@ -226,6 +259,8 @@
                 state.current.classList.add('preview');
                 state.current.setAttribute('x', pt.x);
                 state.current.setAttribute('y', pt.y);
+                state.current.setAttribute('width', 0);
+                state.current.setAttribute('height', 0);
                 previewG.appendChild(state.current);
             }
         };
@@ -262,12 +297,12 @@
                 state.drawing = false;
                 
                 if (state.current) {
-                    var w = parseFloat(state.current.getAttribute('width'));
-                    var h = parseFloat(state.current.getAttribute('height'));
+                    var w = parseFloat(state.current.getAttribute('width')) || 0;
+                    var h = parseFloat(state.current.getAttribute('height')) || 0;
                     
-                    if (w > 5 && h > 5) {
-                        var x = parseFloat(state.current.getAttribute('x'));
-                        var y = parseFloat(state.current.getAttribute('y'));
+                    if (w > 10 && h > 10) {
+                        var x = parseFloat(state.current.getAttribute('x')) || 0;
+                        var y = parseFloat(state.current.getAttribute('y')) || 0;
                         addRoom('rect', {x: x, y: y, w: w, h: h});
                     }
                     cancel();
@@ -275,35 +310,33 @@
             }
         };
         
-        svg.ondblclick = function(e) {
-            if (state.mode === 'poly' && state.points.length >= 3) {
+        // FIX BUG 1: Use single click handler with debounce for double-click detection
+        svg.onclick = function(e) {
+            if (e.target.classList && e.target.classList.contains('room-shape')) {
+                return; // Let room-shape handle its own click
+            }
+            
+            if (state.panMode || state.panning || state.drawing) return;
+            
+            var now = Date.now();
+            var timeDiff = now - state.lastClickTime;
+            state.lastClickTime = now;
+            
+            // Double-click detection (< 300ms between clicks)
+            if (timeDiff < 300 && state.mode === 'poly' && state.points.length >= 3) {
+                // Remove the last point that was just added by the first click of the double-click
+                if (state.points.length > 3) {
+                    state.points.pop();
+                }
                 addRoom('poly', {pts: state.points.slice()});
                 cancel();
+                return;
             }
-        };
-        
-        svg.onclick = function(e) {
-            if (state.panMode || state.panning) return;
             
             var pt = getPoint(e);
             
             if (state.mode === 'edit') {
-                // Procurar sala clicada
-                var clickedRoom = null;
-                for (var i = 0; i < state.rooms.length; i++) {
-                    var poly = state.rooms[i].shape === 'rect' ? 
-                        [{x: state.rooms[i].data.x, y: state.rooms[i].data.y},
-                         {x: state.rooms[i].data.x + state.rooms[i].data.w, y: state.rooms[i].data.y},
-                         {x: state.rooms[i].data.x + state.rooms[i].data.w, y: state.rooms[i].data.y + state.rooms[i].data.h},
-                         {x: state.rooms[i].data.x, y: state.rooms[i].data.y + state.rooms[i].data.h}] :
-                        state.rooms[i].data.pts;
-                    
-                    if (inside(pt, poly)) {
-                        clickedRoom = i;
-                        break;
-                    }
-                }
-                
+                var clickedRoom = findRoomAt(pt);
                 if (clickedRoom !== null) {
                     select(clickedRoom);
                     document.getElementById('moveControls').classList.remove('hidden');
@@ -315,6 +348,9 @@
             }
         };
         
+        // Remove ondblclick - handled in onclick with debounce
+        svg.ondblclick = null;
+        
         svg.onwheel = function(e) {
             e.preventDefault();
             var d = e.deltaY > 0 ? -0.1 : 0.1;
@@ -323,11 +359,16 @@
             document.getElementById('zoom').textContent = Math.round(state.scale * 100) + '%';
         };
         
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
         function getPoint(e) {
             var pt = svg.createSVGPoint();
             pt.x = e.clientX;
             pt.y = e.clientY;
-            var t = pt.matrixTransform(svg.getScreenCTM().inverse());
+            var ctm = svg.getScreenCTM();
+            if (!ctm) return {x: 0, y: 0};
+            var t = pt.matrixTransform(ctm.inverse());
             return {x: Math.round(t.x), y: Math.round(t.y)};
         }
         
@@ -336,6 +377,19 @@
             svg.style.transformOrigin = '0 0';
         }
         
+        function findRoomAt(pt) {
+            for (var i = state.rooms.length - 1; i >= 0; i--) {
+                var poly = getPoly(state.rooms[i]);
+                if (inside(pt, poly)) {
+                    return i;
+                }
+            }
+            return null;
+        }
+        
+        // ============================================
+        // DRAWING FUNCTIONS
+        // ============================================
         function drawPoly() {
             previewG.innerHTML = '';
             if (state.points.length > 0) {
@@ -345,33 +399,33 @@
                 poly.setAttribute('points', str);
                 previewG.appendChild(poly);
                 
-                state.points.forEach(function(p) {
+                state.points.forEach(function(p, idx) {
                     var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                     c.classList.add('point');
                     c.setAttribute('cx', p.x);
                     c.setAttribute('cy', p.y);
-                    c.setAttribute('r', 3);
+                    c.setAttribute('r', 5);
                     previewG.appendChild(c);
                 });
             }
         }
         
         function addRoom(shape, data) {
-            var nick = document.getElementById('name').value.trim();
-            var names = {office: 'Sala', corridor: 'Corredor', stairs: 'Escada', bathroom: 'Banheiro'};
+            if (!data) return;
             
-            var name, id;
+            var nick = document.getElementById('name').value.trim();
+            var names = {office: 'Room', corridor: 'Corridor', stairs: 'Stairs', bathroom: 'Bathroom'};
+            
+            var name;
             if (nick) {
                 name = nick;
-                id = state.type + '-' + nick.toLowerCase().replace(/\s+/g, '-');
             } else {
                 name = names[state.type] + ' ' + state.counter[state.type];
-                id = state.type + '-' + state.counter[state.type];
                 state.counter[state.type]++;
             }
             
             var room = {
-                id: id,
+                id: state.rooms.length,
                 name: name,
                 nick: nick,
                 type: state.type,
@@ -386,40 +440,59 @@
         
         function render() {
             roomsG.innerHTML = '';
+            
             state.rooms.forEach(function(room, i) {
+                if (!room || !room.data) return;
+                
                 var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 g.setAttribute('data-i', i);
                 
                 var shape, cx, cy;
                 
-                if (room.shape === 'rect') {
+                if (room.shape === 'rect' && room.data.w && room.data.h) {
                     shape = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    shape.setAttribute('x', room.data.x);
-                    shape.setAttribute('y', room.data.y);
+                    shape.setAttribute('x', room.data.x || 0);
+                    shape.setAttribute('y', room.data.y || 0);
                     shape.setAttribute('width', room.data.w);
                     shape.setAttribute('height', room.data.h);
-                    cx = room.data.x + room.data.w / 2;
-                    cy = room.data.y + room.data.h / 2;
-                } else {
+                    cx = (room.data.x || 0) + room.data.w / 2;
+                    cy = (room.data.y || 0) + room.data.h / 2;
+                } else if (room.shape === 'poly' && room.data.pts && room.data.pts.length > 0) {
                     shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                    var str = room.data.pts.map(function(p) { return p.x + ',' + p.y; }).join(' ');
+                    var pts = room.data.pts;
+                    var str = pts.map(function(p) { return (p.x || 0) + ',' + (p.y || 0); }).join(' ');
                     shape.setAttribute('points', str);
                     
-                    var xs = room.data.pts.map(function(p) { return p.x; });
-                    var ys = room.data.pts.map(function(p) { return p.y; });
-                    cx = xs.reduce(function(a,b) { return a+b; }, 0) / xs.length;
-                    cy = ys.reduce(function(a,b) { return a+b; }, 0) / ys.length;
+                    var sumX = 0, sumY = 0;
+                    pts.forEach(function(p) {
+                        sumX += (p.x || 0);
+                        sumY += (p.y || 0);
+                    });
+                    cx = sumX / pts.length;
+                    cy = sumY / pts.length;
+                } else {
+                    return; // Invalid room data
                 }
                 
                 shape.classList.add('room-shape');
-                shape.onclick = function() { select(i); };
+                shape.setAttribute('data-room-index', i);
+                
+                // FIX BUG 2: Stop event propagation
+                shape.onclick = function(e) {
+                    e.stopPropagation();
+                    select(i);
+                    if (state.mode === 'edit') {
+                        document.getElementById('moveControls').classList.remove('hidden');
+                    }
+                };
+                
                 g.appendChild(shape);
                 
                 var txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 txt.classList.add('room-label');
                 txt.setAttribute('x', cx);
                 txt.setAttribute('y', cy);
-                txt.textContent = room.name;
+                txt.textContent = room.name || '';
                 g.appendChild(txt);
                 
                 roomsG.appendChild(g);
@@ -428,45 +501,161 @@
             updateList();
         }
         
+        // ============================================
+        // SELECTION & LIST FUNCTIONS
+        // ============================================
         function select(i) {
+            if (typeof i !== 'number' || i < 0 || i >= state.rooms.length) return;
+            
             state.selected = i;
             document.querySelectorAll('.room-shape').forEach(function(s) {
                 s.classList.remove('selected');
             });
+            
             var g = document.querySelector('g[data-i="' + i + '"]');
-            if (g) g.querySelector('.room-shape').classList.add('selected');
+            if (g) {
+                var shapeEl = g.querySelector('.room-shape');
+                if (shapeEl) shapeEl.classList.add('selected');
+            }
         }
         
         function updateList() {
             var list = document.getElementById('list');
-            document.getElementById('count').textContent = state.rooms.length;
+            var countEl = document.getElementById('count');
+            
+            if (countEl) countEl.textContent = state.rooms.length;
+            if (!list) return;
             
             list.innerHTML = state.rooms.map(function(room, i) {
-                return '<div class="flex justify-between p-2 bg-slate-700 rounded hover:bg-slate-600">' +
-                    '<div onclick="select(' + i + ')" class="flex-1 cursor-pointer">' +
-                    '<div class="font-semibold">' + (i+1) + '. ' + room.name + '</div>' +
+                if (!room) return '';
+                var isFirst = (i === 0);
+                var isLast = (i === state.rooms.length - 1);
+                return '<div class="flex items-center p-1.5 bg-slate-700 rounded hover:bg-slate-600 gap-1" data-index="' + i + '">' +
+                    '<div class="flex flex-col gap-0.5">' +
+                    '<button onclick="moveUp(' + i + ')" class="px-1 py-0 text-xs ' + (isFirst ? 'text-slate-500 cursor-not-allowed' : 'text-green-400 hover:text-green-300') + '" ' + (isFirst ? 'disabled' : '') + '>▲</button>' +
+                    '<button onclick="moveDown(' + i + ')" class="px-1 py-0 text-xs ' + (isLast ? 'text-slate-500 cursor-not-allowed' : 'text-green-400 hover:text-green-300') + '" ' + (isLast ? 'disabled' : '') + '>▼</button>' +
                     '</div>' +
-                    '<div class="flex gap-1">' +
-                    '<button onclick="edit(' + i + ')" class="text-blue-400 px-2">✏️</button>' +
-                    '<button onclick="del(' + i + ')" class="text-red-400 px-2">✕</button>' +
+                    '<div onclick="select(' + i + ')" class="flex-1 cursor-pointer">' +
+                    '<div class="font-semibold text-xs">' + i + '. ' + escapeHtml(room.name) + '</div>' +
+                    '</div>' +
+                    '<div class="flex gap-0.5">' +
+                    '<button onclick="edit(' + i + ')" class="text-blue-400 px-1">✏️</button>' +
+                    '<button onclick="del(' + i + ')" class="text-red-400 px-1">✕</button>' +
                     '</div></div>';
             }).join('');
         }
         
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        
+        // ============================================
+        // SORTING & REORDERING FUNCTIONS
+        // ============================================
+        function moveUp(i) {
+            if (i <= 0 || i >= state.rooms.length) return;
+            var temp = state.rooms[i];
+            state.rooms[i] = state.rooms[i - 1];
+            state.rooms[i - 1] = temp;
+            render();
+            select(i - 1);
+        }
+        
+        function moveDown(i) {
+            if (i < 0 || i >= state.rooms.length - 1) return;
+            var temp = state.rooms[i];
+            state.rooms[i] = state.rooms[i + 1];
+            state.rooms[i + 1] = temp;
+            render();
+            select(i + 1);
+        }
+        
+        function sortByName() {
+            state.rooms.sort(function(a, b) {
+                var nameA = (a.name || '').toLowerCase();
+                var nameB = (b.name || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+            render();
+        }
+        
+        function sortById() {
+            state.rooms.sort(function(a, b) {
+                var numA = parseInt((a.name || '0').match(/\d+/) || [0]);
+                var numB = parseInt((b.name || '0').match(/\d+/) || [0]);
+                return numA - numB;
+            });
+            render();
+        }
+        
+        function importJSON(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = JSON.parse(e.target.result);
+                    if (!Array.isArray(data)) {
+                        alert('Invalid JSON: expected an array of rooms');
+                        return;
+                    }
+                    
+                    state.rooms = [];
+                    state.counter = {office: 1, corridor: 1, stairs: 1, bathroom: 1};
+                    
+                    data.forEach(function(r, idx) {
+                        if (r.polygon && Array.isArray(r.polygon) && r.polygon.length > 0) {
+                            state.rooms.push({
+                                id: idx,
+                                name: r.nickname || r.name || String(idx),
+                                nick: r.nickname || '',
+                                type: r.type || 'office',
+                                shape: 'poly',
+                                data: {
+                                    pts: r.polygon.map(function(p) {
+                                        return { x: p.x || 0, y: p.y || 0 };
+                                    })
+                                }
+                            });
+                        }
+                    });
+                    
+                    render();
+                    alert('Imported ' + state.rooms.length + ' rooms');
+                } catch (err) {
+                    alert('Error parsing JSON: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+        
+        // ============================================
+        // EDIT MODAL FUNCTIONS
+        // ============================================
         function edit(i) {
+            if (typeof i !== 'number' || i < 0 || i >= state.rooms.length) return;
+            
             state.selected = i;
             var room = state.rooms[i];
-            document.getElementById('eName').value = room.name;
-            document.getElementById('eType').value = room.type;
+            if (!room) return;
+            
+            document.getElementById('eName').value = room.name || '';
+            document.getElementById('eType').value = room.type || 'office';
             document.getElementById('modal').classList.remove('hidden');
         }
         
         function saveEdit() {
-            if (state.selected !== null) {
+            if (state.selected !== null && state.selected >= 0 && state.selected < state.rooms.length) {
                 var room = state.rooms[state.selected];
-                room.name = document.getElementById('eName').value.trim();
-                room.type = document.getElementById('eType').value;
-                render();
+                if (room) {
+                    var newName = document.getElementById('eName').value.trim();
+                    room.name = newName || room.name || 'Room';
+                    room.type = document.getElementById('eType').value || 'office';
+                    render();
+                }
             }
             closeEdit();
         }
@@ -477,12 +666,21 @@
         }
         
         function del(i) {
-            if (confirm('Deletar ' + state.rooms[i].name + '?')) {
+            if (typeof i !== 'number' || i < 0 || i >= state.rooms.length) return;
+            
+            var room = state.rooms[i];
+            if (!room) return;
+            
+            if (confirm('Delete "' + (room.name || 'Room') + '"?')) {
                 state.rooms.splice(i, 1);
+                state.selected = null;
                 render();
             }
         }
         
+        // ============================================
+        // DRAWING CONTROL FUNCTIONS
+        // ============================================
         function undo() {
             if (state.mode === 'poly' && state.points.length > 0) {
                 state.points.pop();
@@ -509,6 +707,8 @@
         
         function updateFinishBtn() {
             var btn = document.getElementById('finishBtn');
+            if (!btn) return;
+            
             if (state.mode === 'poly' && state.points.length >= 3) {
                 btn.classList.remove('hidden');
             } else {
@@ -516,17 +716,26 @@
             }
         }
         
+        // ============================================
+        // MOVE ROOM FUNCTIONS
+        // ============================================
         function moveRoom(dx, dy) {
-            if (state.selected === null) return;
+            // FIX BUG 3 & 5: Complete validation
+            if (state.selected === null || typeof state.selected !== 'number') return;
+            if (state.selected < 0 || state.selected >= state.rooms.length) return;
             
             var room = state.rooms[state.selected];
+            if (!room || !room.data) return;
+            
             if (room.shape === 'rect') {
-                room.data.x += dx;
-                room.data.y += dy;
-            } else {
+                room.data.x = (room.data.x || 0) + dx;
+                room.data.y = (room.data.y || 0) + dy;
+            } else if (room.shape === 'poly' && room.data.pts && Array.isArray(room.data.pts)) {
                 room.data.pts.forEach(function(p) {
-                    p.x += dx;
-                    p.y += dy;
+                    if (p) {
+                        p.x = (p.x || 0) + dx;
+                        p.y = (p.y || 0) + dy;
+                    }
                 });
             }
             render();
@@ -541,63 +750,80 @@
             document.getElementById('moveControls').classList.add('hidden');
         }
         
+        // ============================================
+        // MODE UI FUNCTIONS
+        // ============================================
         function updateModeUI() {
             var indicator = document.getElementById('modeIndicator');
             var info = document.getElementById('info');
+            
+            if (!indicator || !info) return;
             
             indicator.className = 'mb-3 p-3 rounded-lg text-center font-bold';
             
             if (state.mode === 'rect') {
                 indicator.classList.add('bg-blue-600');
-                indicator.innerHTML = '🔲 MODO: RETÂNGULO';
-                info.innerHTML = 'Clique e <b>ARRASTE</b> para desenhar retângulo';
+                indicator.innerHTML = '🔲 MODE: RECTANGLE';
+                info.innerHTML = 'Click and <b>DRAG</b> to draw rectangle';
             } else if (state.mode === 'poly') {
                 indicator.classList.add('bg-purple-600');
-                indicator.innerHTML = '🔷 MODO: POLÍGONO';
-                info.innerHTML = 'Clique em <b>3+ pontos</b>, depois <b>duplo-clique</b> ou botão Finalizar';
+                indicator.innerHTML = '🔷 MODE: POLYGON';
+                info.innerHTML = 'Click <b>3+ points</b>, then <b>double-click</b> or Finish button';
             } else if (state.mode === 'edit') {
                 indicator.classList.add('bg-yellow-600');
-                indicator.innerHTML = '✏️ MODO: EDITAR';
-                info.innerHTML = 'Clique em uma <b>SALA</b> para selecionar e mover';
+                indicator.innerHTML = '✏️ MODE: EDIT';
+                info.innerHTML = 'Click a <b>ROOM</b> to select and move';
             }
         }
         
+        // ============================================
+        // OVERLAP CHECK FUNCTIONS
+        // ============================================
         function check() {
             var overlaps = [];
             
             for (var i = 0; i < state.rooms.length; i++) {
                 for (var j = i + 1; j < state.rooms.length; j++) {
-                    if (overlap(state.rooms[i], state.rooms[j])) {
+                    if (checkOverlap(state.rooms[i], state.rooms[j])) {
                         if (overlaps.indexOf(i) === -1) overlaps.push(i);
                         if (overlaps.indexOf(j) === -1) overlaps.push(j);
                     }
                 }
             }
             
-            document.querySelectorAll('.room-shape').forEach(function(s, idx) {
+            document.querySelectorAll('.room-shape').forEach(function(s) {
                 s.classList.remove('overlapping');
-                if (overlaps.indexOf(idx) > -1) s.classList.add('overlapping');
+                var idx = parseInt(s.getAttribute('data-room-index'), 10);
+                if (!isNaN(idx) && overlaps.indexOf(idx) > -1) {
+                    s.classList.add('overlapping');
+                }
             });
             
             var warn = document.getElementById('warn');
             if (overlaps.length > 0) {
                 warn.classList.remove('hidden');
                 document.getElementById('warnList').innerHTML = overlaps.map(function(i) {
-                    return state.rooms[i].name;
+                    return escapeHtml(state.rooms[i] ? state.rooms[i].name : '?');
                 }).join(', ');
             } else {
                 warn.classList.add('hidden');
-                alert('Nenhuma sobreposicao!');
+                alert('No overlaps found!');
             }
         }
         
-        function overlap(r1, r2) {
+        function checkOverlap(r1, r2) {
+            if (!r1 || !r2) return false;
+            
             var poly1 = getPoly(r1);
             var poly2 = getPoly(r2);
             
+            if (poly1.length < 3 || poly2.length < 3) return false;
+            
+            // Check if any vertex of poly1 is inside poly2
             for (var i = 0; i < poly1.length; i++) {
                 if (inside(poly1[i], poly2)) return true;
             }
+            // Check if any vertex of poly2 is inside poly1
             for (var i = 0; i < poly2.length; i++) {
                 if (inside(poly2[i], poly1)) return true;
             }
@@ -605,31 +831,54 @@
         }
         
         function getPoly(room) {
+            if (!room || !room.data) return [];
+            
             if (room.shape === 'rect') {
+                var x = room.data.x || 0;
+                var y = room.data.y || 0;
+                var w = room.data.w || 0;
+                var h = room.data.h || 0;
                 return [
-                    {x: room.data.x, y: room.data.y},
-                    {x: room.data.x + room.data.w, y: room.data.y},
-                    {x: room.data.x + room.data.w, y: room.data.y + room.data.h},
-                    {x: room.data.x, y: room.data.y + room.data.h}
+                    {x: x, y: y},
+                    {x: x + w, y: y},
+                    {x: x + w, y: y + h},
+                    {x: x, y: y + h}
                 ];
             }
-            return room.data.pts;
+            
+            if (room.shape === 'poly' && room.data.pts && Array.isArray(room.data.pts)) {
+                return room.data.pts.filter(function(p) { return p && typeof p.x === 'number' && typeof p.y === 'number'; });
+            }
+            
+            return [];
         }
         
         function inside(pt, poly) {
+            if (!pt || typeof pt.x !== 'number' || typeof pt.y !== 'number') return false;
+            if (!poly || !Array.isArray(poly) || poly.length < 3) return false;
+            
             var c = false;
             for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-                if (((poly[i].y > pt.y) !== (poly[j].y > pt.y)) &&
-                    (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)) {
+                var pi = poly[i];
+                var pj = poly[j];
+                if (!pi || !pj) continue;
+                
+                if (((pi.y > pt.y) !== (pj.y > pt.y)) &&
+                    (pt.x < (pj.x - pi.x) * (pt.y - pi.y) / (pj.y - pi.y) + pi.x)) {
                     c = !c;
                 }
             }
             return c;
         }
         
+        // ============================================
+        // PAN & ZOOM FUNCTIONS
+        // ============================================
         function pan() {
             state.panMode = !state.panMode;
             var btn = document.getElementById('panBtn');
+            if (!btn) return;
+            
             if (state.panMode) {
                 canvas.classList.add('panning');
                 btn.classList.remove('bg-purple-600');
@@ -663,31 +912,36 @@
             document.getElementById('zoom').textContent = '100%';
         }
         
+        // ============================================
+        // EXPORT FUNCTIONS
+        // ============================================
         function save() {
             if (state.rooms.length === 0) {
-                alert('Nenhuma sala!');
+                alert('No rooms to export!');
                 return;
             }
             
-            var output = state.rooms.map(function(room) {
+            var output = state.rooms.map(function(room, idx) {
+                if (!room) return null;
+                
                 var poly = getPoly(room);
                 var area = calcArea(poly);
                 
                 return {
-                    id: room.id,
-                    name: room.name,
-                    nickname: room.nick || '',
-                    type: room.type,
+                    id: String(idx),
+                    name: String(idx),
+                    nickname: room.name || '',
+                    type: room.type || 'office',
                     area: Math.round(area),
                     capacity: room.type === 'office' ? 10 : 0,
-                    description: room.name + ' - Mapeado',
+                    description: (room.name || idx) + ' - Mapped',
                     color: getColor(room.type),
-                    polygon: poly,
+                    polygon: poly.map(function(p) { return {x: Math.round(p.x || 0), y: Math.round(p.y || 0)}; }),
                     devices: [],
                     notes: '',
                     floor: 0
                 };
-            });
+            }).filter(function(r) { return r !== null; });
             
             var blob = new Blob([JSON.stringify(output, null, 2)], {type: 'application/json'});
             var url = URL.createObjectURL(blob);
@@ -696,30 +950,106 @@
             a.download = 'rooms.json';
             a.click();
             URL.revokeObjectURL(url);
-            alert('Exportado: ' + state.rooms.length + ' salas');
+            alert('Exported: ' + output.length + ' rooms');
         }
         
         function calcArea(poly) {
-            if (poly.length < 3) return 0;
+            if (!poly || !Array.isArray(poly) || poly.length < 3) return 0;
+            
             var area = 0;
             for (var i = 0; i < poly.length; i++) {
                 var j = (i + 1) % poly.length;
-                area += poly[i].x * poly[j].y;
-                area -= poly[j].x * poly[i].y;
+                var pi = poly[i];
+                var pj = poly[j];
+                if (!pi || !pj) continue;
+                
+                area += (pi.x || 0) * (pj.y || 0);
+                area -= (pj.x || 0) * (pi.y || 0);
             }
-            return Math.round(Math.abs(area / 2));
+            return Math.abs(area / 2);
         }
         
         function getColor(type) {
-            var c = {
+            var colors = {
                 office: 'rgba(59,130,246,0.15)',
                 corridor: 'rgba(107,114,128,0.15)',
                 stairs: 'rgba(249,115,22,0.15)',
                 bathroom: 'rgba(6,182,212,0.15)'
             };
-            return c[type] || 'rgba(107,114,128,0.15)';
+            return colors[type] || colors.office;
         }
         
+        // ============================================
+        // POSTMESSAGE API (for iframe communication)
+        // ============================================
+        window.addEventListener('message', function(e) {
+            if (!e.data || typeof e.data !== 'object' || !e.data.action) return;
+            
+            try {
+                if (e.data.action === 'loadRooms' && Array.isArray(e.data.rooms)) {
+                    state.rooms = [];
+                    state.counter = {office: 1, corridor: 1, stairs: 1, bathroom: 1};
+                    
+                    e.data.rooms.forEach(function(r, idx) {
+                        if (r && r.polygon && Array.isArray(r.polygon) && r.polygon.length > 0) {
+                            state.rooms.push({
+                                id: idx,
+                                name: r.nickname || r.name || String(idx),
+                                nick: r.nickname || '',
+                                type: r.type || 'office',
+                                shape: 'poly',
+                                data: {
+                                    pts: r.polygon.map(function(p) {
+                                        return { x: p.x || 0, y: p.y || 0 };
+                                    })
+                                }
+                            });
+                        }
+                    });
+                    render();
+                    
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ action: 'roomsLoaded', count: state.rooms.length }, '*');
+                    }
+                }
+                
+                if (e.data.action === 'getRooms') {
+                    var rooms = state.rooms.map(function(room, idx) {
+                        if (!room) return null;
+                        
+                        var poly = getPoly(room);
+                        var area = calcArea(poly);
+                        return {
+                            id: String(idx),
+                            name: String(idx),
+                            nickname: room.name || '',
+                            type: room.type || 'office',
+                            area: Math.round(area),
+                            capacity: room.type === 'office' ? 10 : 0,
+                            description: (room.name || idx) + ' - Mapped',
+                            color: getColor(room.type),
+                            polygon: poly.map(function(p) { return { x: Math.round(p.x || 0), y: Math.round(p.y || 0) }; }),
+                            devices: [],
+                            notes: '',
+                            floor: 0
+                        };
+                    }).filter(function(r) { return r !== null; });
+                    
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ action: 'roomsData', rooms: rooms }, '*');
+                    }
+                }
+            } catch (err) {
+                console.error('PostMessage handler error:', err);
+            }
+        });
+        
+        // Notify parent when ready
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ action: 'mapperReady' }, '*');
+        }
+        
+        // Initialize
         updateModeUI();
     </script>
 </body>

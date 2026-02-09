@@ -25,30 +25,58 @@ fi
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📋 Running Backend API Tests (test-suite-v2.sh)..."
+echo "📋 Running JSON Data Audit..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-./tests/test-suite-v2.sh
-BACKEND_RESULT=$?
+node ./scripts/audit-json.js
+JSON_RESULT=$?
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📋 Running End-to-End Tests (e2e-tests.js)..."
+echo "📋 Running Code Audit..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-node ./tests/e2e-tests.js
-E2E_RESULT=$?
+node ./scripts/audit-code.js
+CODE_RESULT=$?
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📋 Running API Tests..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+API_RESULT=0
+# Test GET /data
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/data)
+if [ "$STATUS" = "200" ]; then
+    echo "  ✅ GET /data → 200 OK"
+else
+    echo "  ❌ GET /data → $STATUS"
+    API_RESULT=1
+fi
+# Test GET /data?action=online
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/data?action=online)
+if [ "$STATUS" = "200" ]; then
+    echo "  ✅ GET /data?action=online → 200 OK"
+else
+    echo "  ❌ GET /data?action=online → $STATUS"
+    API_RESULT=1
+fi
+# Test static files
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/)
+if [ "$STATUS" = "200" ]; then
+    echo "  ✅ GET / (index.html) → 200 OK"
+else
+    echo "  ❌ GET / → $STATUS"
+    API_RESULT=1
+fi
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📋 FINAL SUMMARY"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-if [ $BACKEND_RESULT -eq 0 ] && [ $E2E_RESULT -eq 0 ]; then
+TOTAL_FAIL=$((JSON_RESULT + CODE_RESULT + API_RESULT))
+if [ $TOTAL_FAIL -eq 0 ]; then
     echo "🎉 ALL TEST SUITES PASSED!"
     exit 0
-elif [ $BACKEND_RESULT -eq 0 ] || [ $E2E_RESULT -eq 0 ]; then
-    echo "⚠️  SOME TEST SUITES HAD ISSUES"
-    exit 0
 else
-    echo "❌ TEST SUITES FAILED"
+    echo "⚠️  SOME TESTS HAD ISSUES (see above)"
     exit 1
 fi

@@ -1,10 +1,10 @@
 /**
  * TIESSE Matrix Network - Node.js Server
- * Version: 3.6.034 - UI Improvements & Help Documentation
+ * Version: 3.6.035 - UI Improvements & Help Documentation
  * Run: node server.js
  * Access: http://localhost:3000/ or http://YOUR-IP:3000/
  * 
- * Features (v3.6.034):
+ * Features (v3.6.035):
  * - Device Detail: Fixed special ports overlap (WAN, SFP, MGMT)
  * - Device Table: Clickable rows to open device modal
  * - Links Column: Hidden from public (admin-only)
@@ -899,7 +899,7 @@ const server = http.createServer(requestHandler);
 server.listen(PORT, HOST, () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════════════╗');
-    console.log('║     TIESSE Matrix Network Server v3.6.034                  ║');
+    console.log('║     TIESSE Matrix Network Server v3.6.035                  ║');
     console.log('║              🏢 Internal/Intranet Use Only                 ║');
     console.log('╠════════════════════════════════════════════════════════════╣');
     console.log(`║  Local:    http://localhost:${PORT}/                          ║`);

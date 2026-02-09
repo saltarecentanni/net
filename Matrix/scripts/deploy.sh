@@ -1,7 +1,7 @@
 #!/bin/bash
 # =================================================================
 # TIESSE Matrix Network - Deploy Script for Ubuntu/Apache
-# Version: 3.6.030
+# Version: 3.6.035
 # =================================================================
 # This script deploys the application to /var/www/html/matrix
 # Run with sudo: sudo bash deploy.sh
@@ -63,6 +63,8 @@ cp -r "${SOURCE_DIR}/index.html" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/data.php" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/package.json" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/js" "${DEPLOY_DIR}/"
+cp -r "${SOURCE_DIR}/css" "${DEPLOY_DIR}/"
+cp -r "${SOURCE_DIR}/assets" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/api" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/config" "${DEPLOY_DIR}/"
 cp -r "${SOURCE_DIR}/data" "${DEPLOY_DIR}/"

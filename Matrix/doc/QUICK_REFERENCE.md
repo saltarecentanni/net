@@ -1,6 +1,6 @@
 # ⚡ Quick Reference - TIESSE Matrix Network
 
-**Version:** 3.6.032  
+**Version:** 3.6.035  
 **Date:** February 9, 2026
 
 ---
@@ -38,7 +38,7 @@ Retrieve all network data (JSON format)
   "rooms": [...],
   "sites": [...],
   "locations": [...],
-  "version": "3.6.032",
+  "version": "3.6.035",
   "checksum": "sha256hash"
 }
 ```
@@ -542,6 +542,6 @@ console.log(appState.checksum);
 
 ---
 
-**System:** TIESSE Matrix Network v3.6.032  
+**System:** TIESSE Matrix Network v3.6.035  
 **Status:** ✅ Production Ready
 

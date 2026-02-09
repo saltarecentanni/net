@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Technical Blueprint
 
-**Version:** 3.6.032  
+**Version:** 3.6.035  
 **Date:** February 9, 2026  
 **Author:** Tiesse S.P.A.  
 **Environment:** Ubuntu 24.04 LTS + Node.js 16+ (or Apache 2.4 + PHP 8.3)
@@ -32,7 +32,16 @@ A comprehensive web-based network infrastructure documentation system for enterp
 
 ## 2. VERSION TIMELINE
 
-### v3.6.032 (Current) - February 9, 2026 - Device Detail Modal & Zone System
+### v3.6.035 (Current) - February 9, 2026 - Documentation Cleanup & Version Alignment
+
+#### Documentation
+- Unified help.html into Help tab in index.html (21 sections)
+- Added Guacamole section (section 20) to Help tab
+- Translated all /doc/ files to English (consistent language)
+- Cleaned up obsolete scripts and files
+- Version alignment across all files
+
+### v3.6.032 - February 9, 2026 - Device Detail Modal & Zone System
 
 #### 🎨 Device Detail Modal Redesign
 - NEW: RJ45-style port visualization with realistic hardware appearance
@@ -225,7 +234,7 @@ appState = {
         type: "site|mapped|custom"
     }],
     
-    version: "3.6.032",
+    version: "3.6.035",
     lastModified: "2026-02-09T14:00:00Z",
     checksum: "sha256..."               // Data integrity
 }
@@ -251,7 +260,7 @@ appState = {
 **Key Constants:**
 ```javascript
 var SUPPORTED_VERSIONS = ['3.6.032', '3.6.031', '3.6.030', ...];
-var CURRENT_VERSION = '3.6.032';
+var CURRENT_VERSION = '3.6.035';
 
 var VALID_ENUMS = {
     deviceTypes: ['server', 'switch', 'router', 'firewall', ...],
@@ -639,6 +648,7 @@ See `doc/GUACAMOLE_SETUP.md` for complete setup instructions.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 3.6.035 | Feb 9, 2026 | Documentation cleanup, version alignment, Help unification |
 | 3.6.032 | Feb 9, 2026 | Device Detail redesign, Zone system expansion |
 | 3.6.030 | Feb 8, 2026 | Topology improvements |
 | 3.6.028 | Feb 8, 2026 | Data integrity & validation |
@@ -647,7 +657,7 @@ See `doc/GUACAMOLE_SETUP.md` for complete setup instructions.
 
 ---
 
-**Document Version:** 3.6.032  
+**Document Version:** 3.6.035  
 **Last Updated:** February 9, 2026  
 **Status:** Production Ready
 

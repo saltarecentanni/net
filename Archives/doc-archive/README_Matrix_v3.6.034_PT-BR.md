@@ -1,6 +1,6 @@
 # TIESSE Matrix Network - Sistema de Gerenciamento de Rede
 
-**Versão**: 3.6.035  
+**Versão**: 3.6.034  
 **Última Atualização**: 9 de fevereiro de 2026  
 **Status**: ✅ Sistema Íntegro (Auditado)
 
@@ -22,9 +22,17 @@ TIESSE Matrix Network é uma aplicação completa de gerenciamento e visualizaç
 
 ---
 
-## 🆕 Novidades v3.6.035
+## 🆕 Novidades v3.6.034
 
-### Device Detail Modal Redesign
+### UI/UX Improvements
+- **Device Detail Modal**: Fixed special ports (WAN, SFP, MGMT) overlap with improved layout (gap: 16px, align: flex-start)
+- **Device Table**: Entire rows now clickable to open device detail modal
+- **Links Column**: Hidden from public view (visible only to authenticated admins)
+- **Help Documentation**: Complete 14-tab Italian documentation system with comprehensive guides
+
+### Previous Updates (v3.6.032)
+
+#### Device Detail Modal Redesign
 - **RJ45-Style Ports**: Realistic hardware visualization with LEDs
 - **Smart Layout**: LAN ports (left) vs Special ports (right) with labels
 - **Improved Tooltips**: Only show destination, no tooltip on disconnected ports

@@ -2,12 +2,12 @@
 # =============================================================================
 # TIESSE Matrix Network - Version Update Script
 # Updates version in ALL files that need it
-# Usage: ./update-version.sh 3.5.041
+# Usage: ./update-version.sh <new_version>
 # =============================================================================
 
 if [ -z "$1" ]; then
     echo "❌ Usage: $0 <new_version>"
-    echo "   Example: $0 3.5.041"
+    echo "   Example: $0 3.6.036"
     exit 1
 fi
 
@@ -37,7 +37,6 @@ FILES=(
     "server.js"
     "data.php"
     "index.html"
-    "help.html"
     "package.json"
     ".env.example"
     "README.md"
