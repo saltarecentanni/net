@@ -348,6 +348,7 @@ var DeviceDetail = (function() {
 
     /**
      * Build port visualization - estilo RJ45 real
+     * Auto-sizes: shrinks panel for devices with few ports
      */
     function buildPortVisualization(device, ports, connections) {
         // Separar portas por tipo - lógica melhorada
@@ -395,11 +396,22 @@ var DeviceDetail = (function() {
         var hasSpecialPorts = specialPorts.wan.length > 0 || specialPorts.sfp.length > 0 || 
                               specialPorts.mgmt.length > 0 || specialPorts.console.length > 0;
         
+        // Auto-size: for few ports, shrink panel to fit content instead of full width
+        var isCompact = totalPorts < 6;
+        var wrapperStyle = isCompact ? 'text-align:center;' : '';
+        var panelStyle = 'background:linear-gradient(180deg,#374151,#1f2937);border-radius:10px;padding:12px;border:2px solid #4b5563;';
+        if (isCompact) {
+            panelStyle += 'display:inline-block;text-align:left;';
+        }
+        
+        // Wrapper for centering compact panels
+        var html = isCompact ? '<div style="' + wrapperStyle + '">' : '';
+        
         // Container do switch
-        var html = '<div style="background:linear-gradient(180deg,#374151,#1f2937);border-radius:10px;padding:12px;border:2px solid #4b5563;">';
+        html += '<div style="' + panelStyle + '">';
         
         // Brand label (sem PWR/SYS)
-        html += '<div style="margin-bottom:8px;">';
+        html += '<div style="margin-bottom:10px;">';
         html += '<span style="color:#94a3b8;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">' + 
                 escapeHtml(device.brandModel || device.type || 'Network Device') + '</span>';
         html += '</div>';
@@ -411,8 +423,8 @@ var DeviceDetail = (function() {
         if (lanPorts.length > 0) {
             html += '<div style="flex:1;">';
             
-            // Layout em 2 linhas para switches maiores (como D-Link 24/48 portas)
-            if (lanPorts.length > 12) {
+            // Layout em 2 linhas só para switches muito grandes (>48 LAN ports)
+            if (lanPorts.length > 48) {
                 // Linha superior (portas ímpares 1,3,5...)
                 html += '<div style="display:flex;gap:2px;margin-bottom:2px;">';
                 for (var i = 0; i < lanPorts.length; i += 2) {
@@ -427,7 +439,7 @@ var DeviceDetail = (function() {
                 }
                 html += '</div>';
             } else {
-                // Linha única para poucos portas
+                // Linha única (16, 24 etc cabem numa linha)
                 html += '<div style="display:flex;gap:2px;flex-wrap:wrap;">';
                 lanPorts.forEach(function(port) {
                     html += buildRJ45Port(port, connections);
@@ -438,7 +450,7 @@ var DeviceDetail = (function() {
             html += '</div>';
         }
         
-        // Special ports section (à direita, separado) - LAYOUT ORGANIZADO
+        // Special ports section (à direita, separado)
         if (hasSpecialPorts) {
             html += '<div style="flex-shrink:0;padding-left:12px;border-left:2px solid #4b5563;">';
             
@@ -494,6 +506,9 @@ var DeviceDetail = (function() {
         }
         
         html += '</div></div>';
+        
+        // Close compact wrapper
+        if (isCompact) html += '</div>';
         
         return html;
     }
@@ -576,24 +591,24 @@ var DeviceDetail = (function() {
         // LED de atividade - VERDE = conectado, VERMELHO = desconectado
         var ledColor = isDisabled ? '#374151' : (hasConnection ? '#22c55e' : '#ef4444');
         
-        // Visual RJ45 style - TAMANHO GRANDE
+        // Visual RJ45 style
         var html = '<div class="port-rj45" data-port="' + escapeHtml(port.name) + '" ';
         html += 'style="position:relative;cursor:pointer;transition:transform 0.15s;" ';
         html += 'title="' + tooltip + '" ';
         html += 'onclick="DeviceDetail.showPortDetail(\'' + escapeHtml(port.name) + '\')">'; 
         
-        // LED indicator - GRANDE E VISÍVEL
+        // LED indicator
         html += '<div style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:' + ledColor + ';';
         if (!isDisabled) html += 'box-shadow:0 0 8px ' + ledColor + ';';
         html += '"></div>';
         
-        // RJ45 body - formato de T invertido - TAMANHO GRANDE (26x34)
+        // RJ45 body - formato de T invertido (26x34)
         html += '<div style="width:26px;height:34px;position:relative;">';
         
         // Tab superior (clip do RJ45)
         html += '<div style="position:absolute;top:0;left:4px;right:4px;height:9px;background:' + portColor + ';border-radius:3px 3px 0 0;opacity:0.7;"></div>';
         
-        // Corpo principal - mostrar número APENAS se existir, fonte menor
+        // Corpo principal
         html += '<div style="position:absolute;top:8px;left:0;right:0;bottom:0;background:' + portColor + ';border-radius:3px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.2);">';
         if (portNum) {
             html += '<span style="color:white;font-size:8px;font-weight:600;text-shadow:0 1px 1px rgba(0,0,0,0.5);">' + portNum + '</span>';
@@ -630,7 +645,7 @@ var DeviceDetail = (function() {
         // LED indicator
         html += '<div style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:' + ledColor + ';box-shadow:0 0 8px ' + ledColor + ';"></div>';
         
-        // SFP cage style - GRANDE - número pequeno apenas se existir
+        // SFP cage style (36x26)
         html += '<div style="width:36px;height:26px;background:#1f2937;border:2px solid ' + color + ';border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative;">';
         // Inner slot
         html += '<div style="width:24px;height:14px;background:' + color + ';border-radius:2px;opacity:0.3;"></div>';
@@ -654,7 +669,7 @@ var DeviceDetail = (function() {
         html += 'title="' + tooltip + '" ';
         html += 'onclick="DeviceDetail.showPortDetail(\'' + escapeHtml(port.name) + '\')">';
         
-        // RJ45 console style (azul) - GRANDE
+        // RJ45 console style (azul) (30x26)
         html += '<div style="width:30px;height:26px;background:#0369a1;border-radius:4px;display:flex;align-items:center;justify-content:center;">';
         html += '<span style="color:white;font-size:9px;font-weight:700;">CON</span>';
         html += '</div></div>';
