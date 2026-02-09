@@ -950,7 +950,41 @@ var DeviceDetail = (function() {
                 return r.json();
             }).then(function(data) {
                 if (data.success && data.url) {
-                    window.open(data.url, '_blank');
+                    // Abrir em popup com tamanho adequado para cada protocolo
+                    var width, height, windowName;
+                    
+                    if (protocol === 'ssh' || protocol === 'telnet') {
+                        // Terminal: janela estilo CMD/terminal
+                        width = 900;
+                        height = 600;
+                        windowName = 'guac_terminal_' + deviceId;
+                    } else if (protocol === 'rdp') {
+                        // RDP: tela grande (quase fullscreen)
+                        width = Math.min(1920, screen.width - 100);
+                        height = Math.min(1080, screen.height - 100);
+                        windowName = 'guac_rdp_' + deviceId;
+                    } else if (protocol === 'vnc') {
+                        // VNC: tela média-grande
+                        width = Math.min(1280, screen.width - 100);
+                        height = Math.min(900, screen.height - 100);
+                        windowName = 'guac_vnc_' + deviceId;
+                    } else {
+                        // HTTP/outros: aba normal
+                        window.open(data.url, '_blank');
+                        return;
+                    }
+                    
+                    // Calcular posição central
+                    var left = Math.max(0, (screen.width - width) / 2);
+                    var top = Math.max(0, (screen.height - height) / 2);
+                    
+                    // Abrir popup com características de janela
+                    var features = 'width=' + width + ',height=' + height + 
+                                   ',left=' + left + ',top=' + top +
+                                   ',menubar=no,toolbar=no,location=no,status=no' +
+                                   ',resizable=yes,scrollbars=no';
+                    
+                    window.open(data.url, windowName, features);
                 } else if (data.error) {
                     if (typeof Toast !== 'undefined') {
                         Toast.error('❌ Guacamole: ' + data.error, 6000);
