@@ -919,33 +919,47 @@ var DeviceDetail = (function() {
             return;
         }
         
-        // Try to use Guacamole API
-        var apiPaths = ['/guacamole/api', '/api/guacamole', '/Matrix/api/guacamole'];
+        // Try to use Guacamole API - endpoint correto conforme doc
+        var apiPaths = ['/api/guacamole.php', './api/guacamole.php', 'api/guacamole.php'];
         
         function tryApi(pathIndex) {
             if (pathIndex >= apiPaths.length) {
                 // Guacamole não disponível - mostrar erro
                 if (typeof Toast !== 'undefined') {
-                    Toast.error('❌ Guacamole integration not available.\n\nProtocol: ' + protocol.toUpperCase() + '\nIP: ' + ip + '\n\nPlease configure Guacamole in server.js and ensure the API is running.', 8000);
+                    Toast.error('❌ Guacamole integration not available.\n\nProtocol: ' + protocol.toUpperCase() + '\nIP: ' + ip + '\n\nPlease configure Guacamole:\n1. Check /config/guacamole.json\n2. Verify Guacamole is running on port 8080\n3. See /doc/GUACAMOLE_SETUP.md', 10000);
                 } else {
                     alert('Guacamole integration not available.\n\nProtocol: ' + protocol.toUpperCase() + '\nIP: ' + ip + '\n\nPlease configure Guacamole.');
                 }
                 return;
             }
             
-            fetch(apiPaths[pathIndex] + '/connection', {
+            fetch(apiPaths[pathIndex], {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ device: { ip: ip }, protocol: protocol })
+                body: JSON.stringify({ 
+                    action: 'connect',
+                    device: { 
+                        ip: ip,
+                        name: device.name || 'Device'
+                    },
+                    ip: ip,  // Compatibilidade com guacamole.php (Apache)
+                    protocol: protocol,
+                    deviceName: device.name || 'Device'  // Compatibilidade com guacamole.php
+                })
             }).then(function(r) {
                 return r.json();
             }).then(function(data) {
-                if (data.url) {
+                if (data.success && data.url) {
                     window.open(data.url, '_blank');
+                } else if (data.error) {
+                    if (typeof Toast !== 'undefined') {
+                        Toast.error('❌ Guacamole: ' + data.error, 6000);
+                    }
+                    tryApi(pathIndex + 1);
                 } else {
                     tryApi(pathIndex + 1);
                 }
-            }).catch(function() {
+            }).catch(function(err) {
                 tryApi(pathIndex + 1);
             });
         }
