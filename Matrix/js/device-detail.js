@@ -924,14 +924,12 @@ var DeviceDetail = (function() {
         
         function tryApi(pathIndex) {
             if (pathIndex >= apiPaths.length) {
-                // Fallback - open direct protocol
-                var protocolUrls = {
-                    'ssh': 'ssh://' + ip,
-                    'rdp': 'rdp://' + ip,
-                    'vnc': 'vnc://' + ip,
-                    'telnet': 'telnet://' + ip
-                };
-                window.open(protocolUrls[protocol] || 'http://' + ip, '_blank');
+                // Guacamole não disponível - mostrar erro
+                if (typeof Toast !== 'undefined') {
+                    Toast.error('❌ Guacamole integration not available.\n\nProtocol: ' + protocol.toUpperCase() + '\nIP: ' + ip + '\n\nPlease configure Guacamole in server.js and ensure the API is running.', 8000);
+                } else {
+                    alert('Guacamole integration not available.\n\nProtocol: ' + protocol.toUpperCase() + '\nIP: ' + ip + '\n\nPlease configure Guacamole.');
+                }
                 return;
             }
             

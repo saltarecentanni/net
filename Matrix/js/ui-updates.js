@@ -587,7 +587,7 @@ function updateDevicesListTable(cont) {
         html += '<td class="p-2 text-center">' + (totalConnections === 0 ? (isWirelessDevice ? '<span class="text-cyan-600 font-semibold">📶</span>' : '<span class="text-orange-600 font-semibold">0 ⚠</span>') : '<span class="text-slate-700">' + totalConnections + '</span>') + '</td>';
         // Links column - only for admins (legacy)
         if (isAdmin) {
-            var linksHtml = (typeof DeviceLinks !== 'undefined' && d.links && d.links.length) ? DeviceLinks.renderLinks(d.links) : '-';
+            var linksHtml = (typeof DeviceLinks !== 'undefined' && d.links && d.links.length) ? DeviceLinks.renderLinks(d.links, d.id) : '-';
             html += '<td class="p-2 text-center">' + linksHtml + '</td>';
         }
         html += '<td class="p-2 text-center whitespace-nowrap" onclick="event.stopPropagation()">';

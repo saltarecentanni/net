@@ -4328,7 +4328,7 @@ var DeviceLinks = (function() {
         });
     }
     
-    function renderLinks(links) {
+    function renderLinks(links, deviceId) {
         if (!links || !links.length) return '';
         
         return links.map(function(link, idx) {
@@ -4344,11 +4344,12 @@ var DeviceLinks = (function() {
                     typeInfo.icon + ' ' + safeLabel + '</a>';
             }
             
-            // Protocolos especiais (SSH, RDP, VNC, Telnet) - tenta abrir nativo, fallback copia
+            // Protocolos especiais (SSH, RDP, VNC, Telnet) - SEMPRE via Guacamole
             if (link.url.match(/^(ssh|rdp|vnc|smb|nfs|telnet):\/\//i) || link.type === 'ssh' || link.type === 'rdp' || link.type === 'vnc' || link.type === 'smb' || link.type === 'telnet' || link.type === 'nfs') {
-                var protocolUrl = buildProtocolUrl(link.type, link.url);
-                return '<a href="javascript:void(0)" data-protocol-url="' + escapeHtml(protocolUrl) + '" data-copy-url="' + safeUrl + '" onclick="openProtocolLink(this)" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="🔗 Click to open: ' + safeUrl + '">' +
-                    typeInfo.icon + ' ' + safeLabel + '</a>';
+                var protocolType = link.type || detectLinkType(link.url);
+                var deviceIdAttr = deviceId ? ' data-device-id="' + deviceId + '"' : '';
+                return '<a href="javascript:void(0)" data-protocol="' + protocolType + '"' + deviceIdAttr + ' onclick="openProtocolLink(this)" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer" title="🔗 Open via Guacamole: ' + safeUrl + '">' +
+                    typeInfo.icon + ' ' + safeLabel + ' 🌐</a>';
             }
             
             return '<span class="inline-flex items-center gap-1 text-xs text-slate-600" title="' + safeUrl + '">' +
@@ -4677,46 +4678,31 @@ function fallbackCopyToClipboard(text) {
  * Estratégia: SEMPRE copia primeiro, depois tenta abrir como bônus
  */
 function openProtocolLink(element) {
-    var protocolUrl = element.getAttribute('data-protocol-url');
-    var copyUrl = element.getAttribute('data-copy-url');
-    var linkType = detectLinkType(protocolUrl);
+    var protocol = element.getAttribute('data-protocol');
+    var deviceId = element.getAttribute('data-device-id');
     
-    if (!copyUrl) return;
+    if (!protocol) {
+        if (typeof Toast !== 'undefined') {
+            Toast.error('Protocol not specified');
+        }
+        return;
+    }
     
-    // PASSO 1: SEMPRE copiar primeiro (garantido)
-    copyTextToClipboard(copyUrl, false).then(function(copied) {
-        
-        // PASSO 2: Tratamento específico por protocolo
-        if (linkType === 'rdp') {
-            // RDP: Oferece download de arquivo .rdp
-            handleRdpLink(copyUrl, copied);
-        } else if (linkType === 'ssh') {
-            // SSH: Tenta abrir protocolo + copia
-            handleSshLink(protocolUrl, copyUrl, copied);
-        } else if (linkType === 'vnc') {
-            // VNC: Tenta abrir protocolo
-            handleVncLink(protocolUrl, copyUrl, copied);
-        } else if (linkType === 'telnet') {
-            // Telnet: Tenta abrir protocolo
-            handleTelnetLink(protocolUrl, copyUrl, copied);
-        } else {
-            // Outros protocolos: tenta abrir
-            handleGenericProtocol(protocolUrl, copyUrl, copied);
+    if (!deviceId) {
+        if (typeof Toast !== 'undefined') {
+            Toast.error('Device ID not found');
         }
-    }).catch(function(error) {
-        // Se clipboard falhar, ainda tenta abrir o protocolo
-        if (linkType === 'rdp') {
-            handleRdpLink(copyUrl, false);
-        } else if (linkType === 'ssh') {
-            handleSshLink(protocolUrl, copyUrl, false);
-        } else if (linkType === 'vnc') {
-            handleVncLink(protocolUrl, copyUrl, false);
-        } else if (linkType === 'telnet') {
-            handleTelnetLink(protocolUrl, copyUrl, false);
-        } else {
-            handleGenericProtocol(protocolUrl, copyUrl, false);
+        return;
+    }
+    
+    // SEMPRE usar Guacamole - chamar função de device-detail.js se disponível
+    if (typeof DeviceDetail !== 'undefined' && DeviceDetail.openGuacamole) {
+        DeviceDetail.openGuacamole(deviceId, protocol);
+    } else {
+        if (typeof Toast !== 'undefined') {
+            Toast.error('Guacamole integration not loaded. Please ensure device-detail.js is loaded.');
         }
-    });
+    }
 }
 
 /**
