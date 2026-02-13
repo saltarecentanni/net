@@ -1186,8 +1186,8 @@ var DeviceDetail = (function() {
             var interval = parseInt(document.getElementById('deviceInterval').value) || 300000;
             var threshold = parseInt(document.getElementById('deviceThreshold').value) || 60000;
             portMonitorV3.setMonitoring(currentDevice.id, checkbox.checked, {
-                checkInterval: interval,
-                alertThreshold: threshold
+                interval: interval,
+                threshold: threshold
             });
             // Start monitoring if enabled
             if (checkbox.checked && !portMonitorV3.isMonitoring) {
@@ -1206,8 +1206,8 @@ var DeviceDetail = (function() {
             var threshold = parseInt(document.getElementById('deviceThreshold').value) || 60000;
             
             portMonitorV3.setMonitoring(currentDevice.id, enabled, {
-                checkInterval: interval,
-                alertThreshold: threshold
+                interval: interval,
+                threshold: threshold
             });
         }
     }
@@ -1228,8 +1228,8 @@ var DeviceDetail = (function() {
         
         portMonitorV3.scanDeviceNow(currentDevice.id).then(function(result) {
             // Update status display
-            var status = result.currentStatus === 'online' ? '🟢 Online' : 
-                        result.currentStatus === 'offline' ? '🔴 Offline' : '⚪ Unknown';
+            var status = result.status === 'online' ? '🟢 Online' : 
+                        result.status === 'offline' ? '🔴 Offline' : '⚪ Unknown';
             var statusEl = document.getElementById('monitorStatus');
             if (statusEl) {
                 statusEl.textContent = status;
@@ -1237,7 +1237,7 @@ var DeviceDetail = (function() {
             
             var lastCheckEl = document.getElementById('monitorLastCheck');
             if (lastCheckEl) {
-                lastCheckEl.textContent = new Date(result.lastCheck).toLocaleTimeString();
+                lastCheckEl.textContent = new Date().toLocaleTimeString();
             }
             
             // Re-enable button
