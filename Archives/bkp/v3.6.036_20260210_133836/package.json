@@ -1,0 +1,22 @@
+{
+  "name": "matrix",
+  "version": "3.6.036",
+  "description": "TIESSE Matrix Network - Data Management System v3.6.036",
+  "main": "server.js",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3"
+  }
+}

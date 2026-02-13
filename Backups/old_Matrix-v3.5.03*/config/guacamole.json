@@ -1,0 +1,59 @@
+{
+    "_comment": "Guacamole Integration Configuration - TIESSE Matrix Network",
+    "_instructions": "Edit this file to change Guacamole connection settings",
+    
+    "enabled": true,
+    
+    "server": {
+        "_comment": "Guacamole server URL (change IP/port if needed)",
+        "baseUrl": "http://10.10.225.103:8080/guacamole",
+        "apiPath": "/api"
+    },
+    
+    "credentials": {
+        "_comment": "Admin user - used for all operations",
+        "username": "tiesse",
+        "password": "tiesseadm"
+    },
+    
+    "defaults": {
+        "_comment": "Default settings for new connections",
+        "ssh": {
+            "port": 22,
+            "colorScheme": "green-black",
+            "fontSize": 14,
+            "terminalWidth": 100,
+            "terminalHeight": 30
+        },
+        "rdp": {
+            "port": 3389,
+            "security": "any",
+            "ignoreCert": true,
+            "width": 1920,
+            "height": 1080
+        },
+        "vnc": {
+            "port": 5900,
+            "colorDepth": 24
+        },
+        "telnet": {
+            "port": 23,
+            "colorScheme": "green-black",
+            "fontSize": 14,
+            "terminalWidth": 100,
+            "terminalHeight": 30
+        }
+    },
+    
+    "connectionGroup": {
+        "_comment": "Group name for Matrix-created connections in Guacamole",
+        "name": "Matrix Network Devices",
+        "id": null
+    },
+    
+    "ui": {
+        "_comment": "UI settings for Matrix",
+        "openInNewTab": true,
+        "showProtocolButtons": ["ssh", "rdp", "vnc", "telnet"]
+    }
+}
