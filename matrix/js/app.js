@@ -3024,8 +3024,28 @@ function toggleDhcpFields() {
 function onDeviceTypeChange() {
     var type = document.getElementById('deviceType').value;
     var prefixField = document.getElementById('devicePrefix');
+    var prefix = getDefaultPrefix(type);
+    
     if (prefixField) {
-        prefixField.value = getDefaultPrefix(type);
+        prefixField.value = prefix;
+    }
+    
+    // Show/hide the purple prefix badge
+    var badge = document.getElementById('hostnamePrefixBadge');
+    if (badge) {
+        if (prefix) {
+            badge.textContent = prefix;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    
+    // Clear hostname field and focus it
+    var nameField = document.getElementById('deviceName');
+    if (nameField) {
+        nameField.value = '';
+        nameField.focus();
     }
 }
 
