@@ -9,6 +9,9 @@
 var DeviceDetail = (function() {
     'use strict';
 
+    // Track currently open device for monitoring functions
+    var currentDevice = null;
+
     // VLAN color palette - cores inspiradas no D-Link switch
     var vlanColors = {
         100: { color: '#22c55e', label: 'Management' },  // Verde
@@ -310,6 +313,14 @@ var DeviceDetail = (function() {
         }
         
         html += '</div></div>';
+        
+        // ========== MONITORING SECTION ==========
+        html += '<div style="margin-top:16px;border-top:2px solid #e2e8f0;padding-top:16px;">';
+        html += '<div style="font-weight:600;color:#334155;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:6px;">';
+        html += '📡 Port Monitoring';
+        html += '</div>';
+        html += buildMonitoringSection(device);
+        html += '</div>';
         
         // Port detail bar
         html += '<div id="portDetailBar" style="display:none;margin-top:12px;padding:10px 12px;background:#f1f5f9;border-radius:8px;font-size:12px;color:#475569;"></div>';
@@ -1079,6 +1090,174 @@ var DeviceDetail = (function() {
     }
 
     /**
+     * Build monitoring section HTML
+     */
+    function buildMonitoringSection(device) {
+        if (!device.monitoring) {
+            device.monitoring = {
+                enabled: false,
+                checkInterval: 10 * 60 * 1000,
+                alertThreshold: 1 * 60 * 60 * 1000,
+                lastCheck: 0,
+                currentStatus: 'unknown'
+            };
+        }
+
+        var mon = device.monitoring;
+        var status = mon.currentStatus === 'online' ? '🟢 Online' : 
+                     mon.currentStatus === 'offline' ? '🔴 Offline' : '⚪ Unknown';
+        var lastCheckText = mon.lastCheck > 0 ? new Date(mon.lastCheck).toLocaleTimeString() : 'Never';
+
+        var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+
+        // Left: Enable/Disable + Config
+        html += '<div style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;padding:12px;">';
+        
+        html += '<label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;">';
+        html += '<input type="checkbox" id="deviceMonitor" ' + (mon.enabled ? 'checked' : '') + ' onchange="DeviceDetail.toggleMonitoring()" style="width:18px;height:18px;cursor:pointer;">';
+        html += '<span style="font-weight:600;font-size:12px;color:#1e293b;">Enable Monitoring</span>';
+        html += '</label>';
+
+        html += '<div id="monitor-config" style="display:' + (mon.enabled ? 'block' : 'none') + ';space-y:8px;">';
+
+        // Intervalo
+        html += '<div style="margin-bottom:8px;">';
+        html += '<label style="display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">Check Interval:</label>';
+        html += '<select id="deviceInterval" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;font-size:11px;" onchange="DeviceDetail.updateMonitoring()">';
+        html += '<option value="300000"' + (mon.checkInterval === 300000 ? ' selected' : '') + '>5 minutes</option>';
+        html += '<option value="600000"' + (mon.checkInterval === 600000 ? ' selected' : '') + '>10 minutes</option>';
+        html += '<option value="1800000"' + (mon.checkInterval === 1800000 ? ' selected' : '') + '>30 minutes</option>';
+        html += '<option value="3600000"' + (mon.checkInterval === 3600000 ? ' selected' : '') + '>1 hour</option>';
+        html += '<option value="21600000"' + (mon.checkInterval === 21600000 ? ' selected' : '') + '>6 hours</option>';
+        html += '<option value="86400000"' + (mon.checkInterval === 86400000 ? ' selected' : '') + '>24 hours</option>';
+        html += '</select>';
+        html += '</div>';
+
+        // Threshold
+        html += '<div style="margin-bottom:8px;">';
+        html += '<label style="display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">Alert After Offline:</label>';
+        html += '<select id="deviceThreshold" style="width:100%;padding:6px;border:1px solid #cbd5e1;border-radius:6px;font-size:11px;" onchange="DeviceDetail.updateMonitoring()">';
+        html += '<option value="60000"' + (mon.alertThreshold === 60000 ? ' selected' : '') + '>1 minute</option>';
+        html += '<option value="300000"' + (mon.alertThreshold === 300000 ? ' selected' : '') + '>5 minutes</option>';
+        html += '<option value="600000"' + (mon.alertThreshold === 600000 ? ' selected' : '') + '>10 minutes</option>';
+        html += '<option value="1800000"' + (mon.alertThreshold === 1800000 ? ' selected' : '') + '>30 minutes</option>';
+        html += '<option value="3600000"' + (mon.alertThreshold === 3600000 ? ' selected' : '') + '>1 hour</option>';
+        html += '</select>';
+        html += '<small style="font-size:10px;color:#94a3b8;display:block;margin-top:4px;">Only alerts if offline longer than this</small>';
+        html += '</div>';
+
+        html += '</div>';
+        html += '</div>';
+
+        // Right: Status + Scan Button
+        html += '<div style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;padding:12px;">';
+        
+        html += '<div style="margin-bottom:10px;">';
+        html += '<div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">Status:</div>';
+        html += '<div id="monitorStatus" style="font-size:13px;font-weight:600;color:#1e293b;">' + status + '</div>';
+        html += '</div>';
+
+        html += '<div style="margin-bottom:10px;">';
+        html += '<div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">Last Check:</div>';
+        html += '<div id="monitorLastCheck" style="font-size:11px;color:#475569;">' + lastCheckText + '</div>';
+        html += '</div>';
+
+        html += '<button id="scanNowBtn" onclick="DeviceDetail.scanNow()" style="width:100%;padding:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white;border:none;border-radius:6px;font-weight:600;font-size:11px;cursor:pointer;transition:transform 0.1s;">';
+        html += '🔍 Scan Now';
+        html += '</button>';
+        html += '<small style="font-size:10px;color:#94a3b8;display:block;margin-top:4px;">Scans slowly without freezing network</small>';
+
+        html += '</div>';
+        html += '</div>';
+
+        return html;
+    }
+
+    /**
+     * Toggle monitoring enable/disable
+     */
+    function toggleMonitoring() {
+        var checkbox = document.getElementById('deviceMonitor');
+        var config = document.getElementById('monitor-config');
+        config.style.display = checkbox.checked ? 'block' : 'none';
+        
+        // Update monitoring state
+        if (currentDevice && typeof portMonitorV3 !== 'undefined') {
+            var interval = parseInt(document.getElementById('deviceInterval').value) || 300000;
+            var threshold = parseInt(document.getElementById('deviceThreshold').value) || 60000;
+            portMonitorV3.setMonitoring(currentDevice.id, checkbox.checked, {
+                checkInterval: interval,
+                alertThreshold: threshold
+            });
+            // Start monitoring if enabled
+            if (checkbox.checked && !portMonitorV3.isMonitoring) {
+                portMonitorV3.startMonitoring();
+            }
+        }
+    }
+
+    /**
+     * Update monitoring config (interval/threshold changes)
+     */
+    function updateMonitoring() {
+        if (currentDevice && typeof portMonitorV3 !== 'undefined') {
+            var enabled = document.getElementById('deviceMonitor').checked;
+            var interval = parseInt(document.getElementById('deviceInterval').value) || 300000;
+            var threshold = parseInt(document.getElementById('deviceThreshold').value) || 60000;
+            
+            portMonitorV3.setMonitoring(currentDevice.id, enabled, {
+                checkInterval: interval,
+                alertThreshold: threshold
+            });
+        }
+    }
+
+    /**
+     * Scan device immediately (manual scan)
+     */
+    function scanNow() {
+        if (!currentDevice || typeof portMonitorV3 === 'undefined') {
+            return;
+        }
+        
+        var button = document.getElementById('scanNowBtn');
+        if (button) {
+            button.disabled = true;
+            button.textContent = '⏳ Scanning...';
+        }
+        
+        portMonitorV3.scanDeviceNow(currentDevice.id).then(function(result) {
+            // Update status display
+            var status = result.currentStatus === 'online' ? '🟢 Online' : 
+                        result.currentStatus === 'offline' ? '🔴 Offline' : '⚪ Unknown';
+            var statusEl = document.getElementById('monitorStatus');
+            if (statusEl) {
+                statusEl.textContent = status;
+            }
+            
+            var lastCheckEl = document.getElementById('monitorLastCheck');
+            if (lastCheckEl) {
+                lastCheckEl.textContent = new Date(result.lastCheck).toLocaleTimeString();
+            }
+            
+            // Re-enable button
+            if (button) {
+                button.disabled = false;
+                button.textContent = '🔍 Scan Now';
+            }
+        }).catch(function(err) {
+            console.error('Scan error:', err);
+            if (button) {
+                button.disabled = false;
+                button.textContent = '🔍 Scan Now (Error)';
+                setTimeout(function() {
+                    button.textContent = '🔍 Scan Now';
+                }, 2000);
+            }
+        });
+    }
+
+    /**
      * Bind port hover/click events
      */
     function bindPortEvents() {
@@ -1127,7 +1306,10 @@ var DeviceDetail = (function() {
         copyToClipboard: copyToClipboard,
         editDevice: editDevice,
         openGuacamole: openGuacamole,
-        goToFloorPlan: goToFloorPlan
+        goToFloorPlan: goToFloorPlan,
+        toggleMonitoring: toggleMonitoring,
+        updateMonitoring: updateMonitoring,
+        scanNow: scanNow
     };
 
 })();

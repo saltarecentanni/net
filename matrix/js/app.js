@@ -6365,6 +6365,12 @@ function initApp() {
     // Initialize online users tracker
     OnlineTracker.init();
     
+    // Initialize port monitoring (PHASE 6 v3)
+    if (typeof portMonitorV3 !== 'undefined') {
+        portMonitorV3.init();
+        portMonitorV3.startMonitoring();
+    }
+    
     // Initialize device prefix selector (v4.0.000)
     populatePrefixSelect('router');
     
