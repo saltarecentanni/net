@@ -155,15 +155,14 @@ var CURRENT_VERSION = '4.1.006';
 // Example: "PoE - Building A", "SW - Core-01", "FW - Main Gateway"
 //
 // Benefits:
-// ✓ Visual identification: PREFIX in PURPLE (bold), Name in BLACK
-// ✓ Auto-complete: When selecting device type, hostname auto-fills with "PREFIX - "
-// ✓ Consistent display: Applied everywhere via getDeviceDisplayNameHtml()
+// ✓ Standardized naming: All devices follow "PREFIX - CustomName" pattern
+// ✓ Type identification: Prefix clearly shows device type
+// ✓ Consistent display: Applied everywhere via getDeviceDisplayName()
 // ✓ Easy parsing: Prefix easily separated from custom name
 //
 // Implementation:
-// • onDeviceTypeChange() - auto-fills "PREFIX - " in hostname field
-// • getDeviceDisplayName() - formats as "PREFIX Name"
-// • getDeviceDisplayNameHtml() - renders as <span CLASS="purple">PREFIX</span> Name
+// • onDeviceTypeChange() - auto-fills "PREFIX - " in hostname field when type selected
+// • getDeviceDisplayName() - formats as "PREFIX Name" for display
 // • getDeviceRawName() - extracts just the custom name without prefix
 // ============================================================================
 // ============================================================================
@@ -3028,75 +3027,9 @@ function onDeviceTypeChange() {
     if (prefixField) {
         prefixField.value = getDefaultPrefix(type);
     }
-    
-    // Auto-fill hostname/device name with prefix + " - " pattern
-    // This creates a standardized naming convention: "PREFIX - CustomName"
-    // Example: Select "PoE" → hostname becomes "PoE - " for user to complete
-    var nameField = document.getElementById('deviceName');
-    if (nameField) {
-        var currentValue = nameField.value.trim();
-        var prefixCode = getDefaultPrefix(type);
-        
-        // Only auto-fill if field is empty or contains only the old prefix
-        if (!currentValue) {
-            // Empty field: set "PREFIX - "
-            nameField.value = prefixCode + ' - ';
-            nameField.focus();
-            // Position cursor after " - " for user to start typing
-            nameField.setSelectionRange(nameField.value.length, nameField.value.length);
-        } else if (currentValue && currentValue.match(/^[A-Z0-9]+\s-\s*$/)) {
-            // Field has only old prefix format "PREFIX - ", replace prefix
-            nameField.value = prefixCode + ' - ';
-            nameField.setSelectionRange(nameField.value.length, nameField.value.length);
-        }
-    }
-    
-    // Update the visual preview with the selected prefix in violet color
-    updateDeviceNamePreview();
 }
 
-/**
- * Updates the visual preview of the device name showing prefix in violet + custom name in black
- * Called when type changes or when user types in the hostname field
- * Shows: <PREFIX (purple)> - <custom name (black)>
- */
-function updateDeviceNamePreview() {
-    var nameField = document.getElementById('deviceName');
-    var preview = document.getElementById('deviceNamePreview');
-    var previewPrefix = document.getElementById('previewPrefix');
-    
-    if (!nameField || !preview || !previewPrefix) return;
-    
-    var type = document.getElementById('deviceType').value;
-    var prefix = getDefaultPrefix(type);
-    var fullName = nameField.value.trim();
-    
-    if (!prefix || !fullName) {
-        // Hide preview if no prefix or no input
-        preview.style.display = 'none';
-        return;
-    }
-    
-    // Extract the custom name part (everything after "PREFIX - ")
-    // Pattern: "PREFIX - CustomName"
-    var separatorIndex = fullName.indexOf(' - ');
-    var customName = '';
-    
-    if (separatorIndex !== -1) {
-        customName = fullName.substring(separatorIndex + 3).trim();
-    } else {
-        // If pattern not found, show what user typed
-        customName = fullName.replace(new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*'), '').trim();
-    }
-    
-    // Show preview with prefix in violet and custom name in black
-    preview.style.display = 'block';
-    var html = '<span class="text-purple-600 font-bold">' + escapeHtml(prefix) + '</span>';
-    if (customName) {
-        html += '<span class="text-purple-600"> - </span><span class="text-slate-900">' + escapeHtml(customName) + '</span>';
-    }
-    preview.innerHTML = html;
-}
+
 
 /**
  * Populates the prefix select dropdown (kept for backward compatibility)
