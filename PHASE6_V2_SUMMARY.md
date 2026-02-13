@@ -5,7 +5,7 @@
 
 ---
 
-## 📋 O que Mudou (v1 → v2)
+## 📋 O que Mudou (v1 → v2 → v2.1)
 
 ### ❌ Problema v1
 ```
@@ -17,59 +17,85 @@
 
 ### ✅ Solução v2
 
-| Feature | v1 | v2 |
-|---------|----|----|
-| **Monitoramento** | 🔴 Todos os devices | 🟢 Só ativados (checkbox) |
-| **Intervalo** | 🔴 Global (10 min para todos) | 🟢 Por device (5m-24h) |
-| **Alerta** | 🔴 Instantâneo (ao descer) | 🟢 Por threshold (após 6h, por exemplo) |
-| **Tráfego** | 🔴 ~259 KB/dia | 🟢 ~86 KB/dia (⬇️ 67%) |
-| **Modal** | 🔴 Só dados device | 🟢 Completo com monitoring + conexões |
-| **Controle** | 🔴 0 | 🟢 Granular por device |
+| Feature | v1 | v2 | v2.1 |
+|---------|----|----|------|
+| **Monitoramento** | 🔴 Todos os devices | 🟢 Só ativados | 🟢 Só ativados |
+| **Intervalo** | 🔴 Global (10 min) | 🟢 Por device (presets) | 🟢 Por device + customizado |
+| **Threshold** | 🔴 Instantâneo | 🔴 Só por tempo | 🟢 3 modos: instant/time/failures |
+| **Tráfego** | 🔴 ~259 KB/dia | 🟢 ~86 KB/dia (⬇️ 67%) | 🟢 ~86 KB/dia (⬇️ 67%) |
+| **Modal** | 🔴 Só dados | 🟢 Completo | 🟢 Completo |
+| **Controle** | 🔴 0 | 🟢 Granular | 🟢 Ultra granular |
 
 ---
 
 ## 🎯 As 3 Principais Melhorias
 
-### 1️⃣ Checkbox "Monitorar" Existente + Configuração
+### 1️⃣ Intervalo Customizável POR DEVICE
 
 **Antes:**
 ```
 Device Modal → dados → fecha
 ```
 
-**Depois:**
+**Agora:**
 ```
 Device Modal
-├─ checkbox "Monitorar este dispositivo"
+├─ Checkbox "Monitorar este dispositivo"
 └─ Se marcado, aparece:
-   ├─ Intervalo: [5m / 10m / 30m / 1h / 6h / 24h]
-   ├─ Threshold: [1m / 10m / 30m / 1h / 6h / 24h]
+   ├─ Intervalo (presets + INPUT CUSTOMIZADO):
+   │  ├─ Presets: 5m / 10m / 30m / 1h / 6h / 1 dia
+   │  └─ Ou: Input numérico + unidade (seg/min/hora)
+   ├─ Threshold (veja abaixo)
    └─ Notas (opcional)
+```
+
+**Customização:**
+```
+Quer check a cada 15 min? → Input "15" + "minutos"
+Quer check a cada 3 horas? → Input "3" + "horas"
+Quer check a cada 2 dias? → Input "48" + "horas"
 ```
 
 **Exemplo:**
 ```
-SW - Core-01: 5 min + 1 min = Alerta rápido
-SRV - Backup: 30 min + 6h = Menos alertas
+SW - Core-01: 5 min + ⚡ Instantâneo = Detecção imediata
+SRV - Database: 10 min + 🕐 1 hora = Alerta após 1h
+SRV - Backup: 10 min + 🔄 3 falhas = Alerta após ~30 min
+Printer-01: 1 dia + 🕐 24h = Check diário
 SRV - Dev: Desativado = 0 tráfego
 ```
 
-### 2️⃣ Threshold de Alerta
+### 2️⃣ Threshold de Alerta - AGORA COM 3 MODOS
 
 **Antes:** Alerta ao primeiro PING falhar
 ```
-14:00 → Failed PING → ⚠️ Alerta
-(Pode ser problema de rede, firewall, etc)
+14:00 → Failed PING → ⚠️ Alerta (pode ser firewall/glitch)
 ```
 
-**Depois:** Alerta após X horas offline
+**v2:** Alerta após X horas offline
 ```
 14:00 → Failed PING (não alerta)
-14:10 → Failed PING (não alerta)
 ...
-20:00 → Ainda offline + 6h > threshold → ⚠️ Alerta
+20:00 → Ainda offline + 6h → ⚠️ Alerta (é problema real)
+```
 
-(Garante que é realmente um problema, não glitch)
+**v2.1 (NOVO!):** 3 MODOS únicos
+
+```
+Modo 1️⃣: ⚡ INSTANTÂNEO
+└─ Alerta no próximo check (zero delay)
+└─ Para: Core switches, rotas críticas
+└─ Exemplo: Core switch com check 5 min = alerta em ~5 min
+
+Modo 2️⃣: 🕐 TEMPO
+└─ Alerta após X minutos/horas offline
+└─ Para: Database, servidores críticos
+└─ Exemplo: DB com 1h threshold = alerta após 1 hora
+
+Modo 3️⃣: 🔄 FALHAS CONSECUTIVAS
+└─ Alerta após N falhas de PING (evita glitches)
+└─ Para: Backup, secundários, IoT
+└─ Exemplo: Backup com 3 falhas = alerta após ~30 min
 ```
 
 ### 3️⃣ Modal Melhorado

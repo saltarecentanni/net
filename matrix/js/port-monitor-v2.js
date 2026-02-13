@@ -22,6 +22,13 @@ const portMonitorV2 = {
   lastScanTime: 0,
   scanQueue: [],                        // Devices to scan
   
+  // Threshold modes: 'instant', 'time', 'failures'
+  thresholdModes: {
+    INSTANT: 'instant',        // Alert immediately when goes offline
+    TIME: 'time',              // Alert after X milliseconds offline
+    FAILURES: 'failures'       // Alert after N consecutive failures
+  },
+  
   // ==================== INITIALIZATION ====================
   
   init() {
@@ -49,7 +56,13 @@ const portMonitorV2 = {
         device.monitoring = {
           enabled: false,
           checkInterval: 10 * 60 * 1000,      // Default: 10 min
-          threshold: 1 * 60 * 60 * 1000,      // Default: 1 hour
+          
+          // Threshold configuration
+          thresholdMode: 'time',              // 'instant' | 'time' | 'failures'
+          timeThreshold: 1 * 60 * 60 * 1000,  // For 'time' mode: 1 hour
+          failureThreshold: 3,                // For 'failures' mode: 3 failures
+          
+          // Internal state
           notes: '',
           lastCheck: 0,
           currentStatus: 'unknown',
@@ -280,37 +293,75 @@ const portMonitorV2 = {
   
   /**
    * Check if alert threshold exceeded
-   * key logic: only alert if OFFLINE time > threshold
+   * Supports 3 modes: instant, time-based, failures-based
    */
   checkThreshold(device, conn, oldStatus, newStatus) {
-    const threshold = device.monitoring.threshold || 1 * 60 * 60 * 1000;
+    const thresholdMode = device.monitoring.thresholdMode || 'time';
     const portData = appState.portMonitor.portStatus[conn.id];
+    
+    console.log(`  [THRESHOLD] Mode: ${thresholdMode}, Status: ${oldStatus}→${newStatus}, Device: ${device.name}`);
     
     if (newStatus === 'offline') {
       if (oldStatus !== 'offline') {
         // Device just went offline - start timer
         portData.firstFailTime = Date.now();
+        device.monitoring.consecutiveFailures = 1;
         device.monitoring.alertSent = false;
-      } else {
-        // Already offline - check if passed threshold
-        const timeOffline = Date.now() - (portData.firstFailTime || Date.now());
         
-        if (timeOffline > threshold && !device.monitoring.alertSent) {
-          this.sendThresholdAlert(device, conn, timeOffline, threshold);
+        // MODE: INSTANT - Alert immediately
+        if (thresholdMode === 'instant') {
+          this.sendThresholdAlert(device, conn, 0, 'instant');
           device.monitoring.alertSent = true;
+          return;
+        }
+      } else {
+        // Already offline - check threshold
+        device.monitoring.consecutiveFailures++;
+        
+        // MODE: TIME - Check if passed time threshold
+        if (thresholdMode === 'time') {
+          const timeOffline = Date.now() - (portData.firstFailTime || Date.now());
+          const threshold = device.monitoring.timeThreshold || 1 * 60 * 60 * 1000;
+          
+          if (timeOffline > threshold && !device.monitoring.alertSent) {
+            this.sendThresholdAlert(device, conn, timeOffline, 'time');
+            device.monitoring.alertSent = true;
+          }
+        }
+        
+        // MODE: FAILURES - Check if passed failure threshold
+        if (thresholdMode === 'failures') {
+          const failureThreshold = device.monitoring.failureThreshold || 3;
+          
+          if (device.monitoring.consecutiveFailures >= failureThreshold && !device.monitoring.alertSent) {
+            const failureTime = device.monitoring.consecutiveFailures * device.monitoring.checkInterval;
+            this.sendThresholdAlert(device, conn, failureTime, 'failures');
+            device.monitoring.alertSent = true;
+          }
         }
       }
     } else if (newStatus === 'online') {
       if (oldStatus === 'offline') {
         // Coming back online
         const timeOffline = Date.now() - (portData.firstFailTime || Date.now());
+        const threshold = device.monitoring.timeThreshold || 1 * 60 * 60 * 1000;
         
-        // Only send recovery alert if was offline longer than threshold
-        if (timeOffline > threshold) {
+        // Send recovery alert based on threshold mode
+        if (thresholdMode === 'instant') {
+          // Instant mode: always notify on recovery
+          this.sendRecoveryAlert(device, conn, timeOffline);
+        } else if (thresholdMode === 'time') {
+          // Time mode: only if was offline longer than threshold
+          if (timeOffline > threshold) {
+            this.sendRecoveryAlert(device, conn, timeOffline);
+          }
+        } else if (thresholdMode === 'failures') {
+          // Failures mode: always notify on recovery
           this.sendRecoveryAlert(device, conn, timeOffline);
         }
         
         portData.firstFailTime = null;
+        device.monitoring.consecutiveFailures = 0;
         device.monitoring.alertSent = false;
       }
     }
@@ -318,19 +369,33 @@ const portMonitorV2 = {
   
   // ==================== ALERTS ====================
   
-  sendThresholdAlert(device, conn, timeOffline, threshold) {
-    const minutes = Math.floor(timeOffline / 60000);
-    const hours = Math.floor(minutes / 60);
-    const timeStr = hours >= 1 ? `${hours}h ${minutes % 60}m` : `${minutes}m`;
+  sendThresholdAlert(device, conn, timeOffline, mode) {
+    let message = '';
     
-    const message = `⚠️ ${device.name} offline por ${timeStr} (limite: ${this.formatTime(threshold)})`;
+    if (mode === 'instant') {
+      message = `⚡ ${device.name} OFFLINE - Alerta Instantâneo!`;
+    } else if (mode === 'time') {
+      const minutes = Math.floor(timeOffline / 60000);
+      const hours = Math.floor(minutes / 60);
+      const timeStr = hours >= 1 ? `${hours}h ${minutes % 60}m` : `${minutes}m`;
+      const threshold = device.monitoring.timeThreshold;
+      const thresholdStr = this.formatTime(threshold);
+      message = `⚠️ ${device.name} offline por ${timeStr} (limite: ${thresholdStr})`;
+    } else if (mode === 'failures') {
+      const failures = device.monitoring.consecutiveFailures;
+      const failureThreshold = device.monitoring.failureThreshold;
+      const threshold = failureThreshold * device.monitoring.checkInterval;
+      const thresholdStr = this.formatTime(threshold);
+      message = `🔄 ${device.name} falhou ${failures}/${failureThreshold} vezes (após ${thresholdStr})`;
+    }
     
-    console.warn(`\n🔴 ALERT: ${message}`);
+    console.warn(`\n🔴 ALERT [${mode.toUpperCase()}]: ${message}`);
     
     // Show toast notification
     if (typeof Swal !== 'undefined') {
+      const iconMap = { instant: 'error', time: 'warning', failures: 'warning' };
       Swal.fire({
-        icon: 'warning',
+        icon: iconMap[mode],
         title: '⚠️ Threshold Exceeded',
         text: message,
         toast: true,
@@ -345,11 +410,11 @@ const portMonitorV2 = {
     appState.portMonitor.alerts.push({
       id: this._generateId(),
       type: 'threshold_exceeded',
-      severity: 'warning',
+      severity: mode === 'instant' ? 'critical' : 'warning',
+      thresholdMode: mode,
       device: device.name,
       connection: conn.id,
-      threshold: threshold,
-      actualDowntime: timeOffline,
+      actualTime: timeOffline,
       timestamp: Date.now(),
       message: message,
       read: false
@@ -448,7 +513,7 @@ const portMonitorV2 = {
   },
   
   /**
-   * Enable/disable monitoring for a device
+   * Enable/disable monitoring for a device with full configuration
    */
   setDeviceMonitoring(deviceId, enabled, config = {}) {
     const device = appState.devices.find(d => d.id === deviceId);
@@ -456,17 +521,32 @@ const portMonitorV2 = {
     
     device.monitoring.enabled = enabled;
     
+    // Check interval configuration
     if (config.interval) {
       device.monitoring.checkInterval = config.interval;
     }
-    if (config.threshold) {
-      device.monitoring.threshold = config.threshold;
+    
+    // Threshold configuration
+    if (config.thresholdMode) {
+      device.monitoring.thresholdMode = config.thresholdMode;
+    }
+    if (config.timeThreshold) {
+      device.monitoring.timeThreshold = config.timeThreshold;
+    }
+    if (config.failureThreshold) {
+      device.monitoring.failureThreshold = config.failureThreshold;
     }
     if (config.notes) {
       device.monitoring.notes = config.notes;
     }
     
-    console.log(`⚙️  Device ${device.name} monitoring: ${enabled ? '✅ Enabled' : '❌ Disabled'}`);
+    const modeStr = device.monitoring.thresholdMode === 'instant' 
+      ? '⚡ Instantâneo'
+      : device.monitoring.thresholdMode === 'failures'
+      ? `🔄 ${device.monitoring.failureThreshold} falhas`
+      : `🕐 ${this.formatTime(device.monitoring.timeThreshold)}`;
+    
+    console.log(`⚙️  Device ${device.name} - Monitoring: ${enabled ? '✅' : '❌'} | Mode: ${modeStr}`);
   },
   
   /**

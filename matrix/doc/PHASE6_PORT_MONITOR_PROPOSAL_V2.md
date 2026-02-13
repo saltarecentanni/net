@@ -80,29 +80,73 @@
   <!-- Intervalo de verificação -->
   <div class="mb-4">
     <label class="block font-bold mb-2">Intervalo de Verificação</label>
-    <select id="checkInterval" class="w-full p-2 border rounded">
-      <option value="300000">5 minutos (mais tráfego)</option>
-      <option value="600000" selected>10 minutos (recomendado)</option>
-      <option value="1800000">30 minutos</option>
-      <option value="3600000">1 hora</option>
-      <option value="21600000">6 horas</option>
-      <option value="86400000">24 horas</option>
-    </select>
-    <small class="text-gray-600">Quanto mais frequente, mais alertas rápidos mas mais tráfego</small>
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <button type="button" class="interval-preset" data-value="300000">5 min</button>
+      <button type="button" class="interval-preset" data-value="600000">10 min ⭐</button>
+      <button type="button" class="interval-preset" data-value="1800000">30 min</button>
+      <button type="button" class="interval-preset" data-value="3600000">1 hora</button>
+      <button type="button" class="interval-preset" data-value="21600000">6 horas</button>
+      <button type="button" class="interval-preset" data-value="86400000">1 dia</button>
+    </div>
+    <div class="flex gap-2 mb-3">
+      <input type="number" id="customInterval" placeholder="Valor customizado" class="flex-1 p-2 border rounded" min="1">
+      <select id="intervalUnit" class="p-2 border rounded">
+        <option value="1000">segundos</option>
+        <option value="60000">minutos</option>
+        <option value="3600000" selected>horas</option>
+      </select>
+      <button type="button" onclick="applyCustomInterval()" class="px-3 bg-blue-500 text-white rounded">OK</button>
+    </div>
+    <p class="text-sm font-bold">Intervalo atual: <span id="interval-display">10 min</span></p>
+    <small class="text-gray-600">Quanto mais frequente = mais alertas rápidos + mais tráfego</small>
   </div>
   
   <!-- Threshold de alerta -->
   <div class="mb-4">
-    <label class="block font-bold mb-2">Avisar se Offline por:</label>
-    <select id="alertThreshold" class="w-full p-2 border rounded">
-      <option value="60000">1 minuto (muito sensível)</option>
-      <option value="600000">10 minutos</option>
-      <option value="1800000">30 minutos</option>
-      <option value="3600000" selected>1 hora</option>
-      <option value="21600000">6 horas (menos alarmes)</option>
-      <option value="86400000">24 horas</option>
-    </select>
-    <small class="text-gray-600">Só alerta se o tempo offline ultrapassar este limite</small>
+    <label class="block font-bold mb-2">⚠️ Quando Alertar?</label>
+    
+    <!-- Modo de threshold -->
+    <div class="mb-3">
+      <label class="font-semibold mb-2 block">Tipo de Alerta:</label>
+      <div class="space-y-2">
+        <label class="flex items-center">
+          <input type="radio" name="thresholdMode" value="instant" class="mr-2">
+          ⚡ <span class="ml-1"><strong>Instantâneo</strong> - Alerta quando descer (sensível)</span>
+        </label>
+        <label class="flex items-center">
+          <input type="radio" name="thresholdMode" value="time" checked class="mr-2">
+          ⏱️ <span class="ml-1"><strong>Após X tempo</strong> - Alerta se ficar offline por</span>
+        </label>
+        <label class="flex items-center">
+          <input type="radio" name="thresholdMode" value="failures" class="mr-2">
+          🔄 <span class="ml-1"><strong>X falhas consecutivas</strong> - Alerta após N falhas de PING</span>
+        </label>
+      </div>
+    </div>
+    
+    <!-- Sub-options para cada modo -->
+    <div id="threshold-time-options" class="mb-4 p-3 bg-blue-50 rounded border-l-4 border-blue-500">
+      <label class="block font-bold mb-2">Após quanto tempo offline?</label>
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <button type="button" class="time-preset" data-value="60000">1 min</button>
+        <button type="button" class="time-preset" data-value="300000">5 min</button>
+        <button type="button" class="time-preset" data-value="600000">10 min</button>
+        <button type="button" class="time-preset" data-value="1800000">30 min</button>
+        <button type="button" class="time-preset" data-value="3600000" selected>1 hora</button>
+        <button type="button" class="time-preset" data-value="21600000">6 horas</button>
+      </div>
+      <p class="text-sm">Selecionado: <span id="time-threshold-display">1 hora</span></p>
+    </div>
+    
+    <div id="threshold-failures-options" class="mb-4 p-3 bg-yellow-50 rounded border-l-4 border-yellow-500" style="display:none">
+      <label class="block font-bold mb-2">Após quantas falhas?</label>
+      <div class="flex gap-2">
+        <input type="number" id="failureCount" class="w-24 p-2 border rounded" value="3" min="1" max="10">
+        <span class="flex items-center">da 10 min</span>
+      </div>
+      <small class="text-gray-600 block mt-2">Ex: 3 falhas = 3 × 10min = 30min até alerta</small>
+      <p class="text-sm mt-2">Selecionado: <span id="failures-threshold-display">3 falhas</span></p>
+    </div>
   </div>
   
   <!-- Notas -->
@@ -127,24 +171,59 @@ document.getElementById('deviceMonitor').addEventListener('change', (e) => {
   document.getElementById('monitoring-config').style.display = e.target.checked ? 'block' : 'none';
 });
 
-// Atualizar display de intervalo
-document.getElementById('checkInterval').addEventListener('change', (e) => {
-  const mins = e.target.value / 60000;
-  const hours = mins / 60;
-  const display = hours >= 1 ? `${hours}h` : `${mins}m`;
-  document.getElementById('interval-display').textContent = display;
+// Presets de intervalo
+document.querySelectorAll('.interval-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = btn.dataset.value;
+    const ms = parseInt(value);
+    const mins = ms / 60000;
+    const hours = mins / 60;
+    const display = hours >= 1 ? `${hours}h` : `${mins}m`;
+    document.getElementById('interval-display').textContent = display;
+    // Limpar input customizado
+    document.getElementById('customInterval').value = '';
+  });
 });
 
-// Atualizar display de threshold
-document.getElementById('alertThreshold').addEventListener('change', (e) => {
-  const mins = e.target.value / 60000;
-  const hours = mins / 60;
-  const days = hours / 24;
-  let display;
-  if (days >= 1) display = `${days}h`;
-  else if (hours >= 1) display = `${hours}h`;
-  else display = `${mins}m`;
-  document.getElementById('threshold-display').textContent = display;
+// Custom interval
+function applyCustomInterval() {
+  const value = document.getElementById('customInterval').value;
+  const unit = parseInt(document.getElementById('intervalUnit').value);
+  if (value && unit) {
+    const ms = value * unit;
+    const mins = ms / 60000;
+    const hours = mins / 60;
+    let display;
+    if (hours >= 24) display = `${Math.floor(hours / 24)}d`;
+    else if (hours >= 1) display = `${hours}h`;
+    else display = `${mins}m`;
+    document.getElementById('interval-display').textContent = display;
+  }
+}
+
+// Threshold mode switching
+document.querySelectorAll('input[name="thresholdMode"]').forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    document.getElementById('threshold-time-options').style.display = e.target.value === 'time' ? 'block' : 'none';
+    document.getElementById('threshold-failures-options').style.display = e.target.value === 'failures' ? 'block' : 'none';
+  });
+});
+
+// Presets de tempo
+document.querySelectorAll('.time-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = btn.dataset.value;
+    const ms = parseInt(value);
+    const mins = ms / 60000;
+    const hours = mins / 60;
+    const display = hours >= 1 ? `${hours}h` : `${mins}m`;
+    document.getElementById('time-threshold-display').textContent = display;
+  });
+});
+
+// Failures count
+document.getElementById('failureCount')?.addEventListener('change', (e) => {
+  document.getElementById('failures-threshold-display').textContent = `${e.target.value} falhas`;
 });
 </script>
 ```
