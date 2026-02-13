@@ -3050,6 +3050,52 @@ function onDeviceTypeChange() {
             nameField.setSelectionRange(nameField.value.length, nameField.value.length);
         }
     }
+    
+    // Update the visual preview with the selected prefix in violet color
+    updateDeviceNamePreview();
+}
+
+/**
+ * Updates the visual preview of the device name showing prefix in violet + custom name in black
+ * Called when type changes or when user types in the hostname field
+ * Shows: <PREFIX (purple)> - <custom name (black)>
+ */
+function updateDeviceNamePreview() {
+    var nameField = document.getElementById('deviceName');
+    var preview = document.getElementById('deviceNamePreview');
+    var previewPrefix = document.getElementById('previewPrefix');
+    
+    if (!nameField || !preview || !previewPrefix) return;
+    
+    var type = document.getElementById('deviceType').value;
+    var prefix = getDefaultPrefix(type);
+    var fullName = nameField.value.trim();
+    
+    if (!prefix || !fullName) {
+        // Hide preview if no prefix or no input
+        preview.style.display = 'none';
+        return;
+    }
+    
+    // Extract the custom name part (everything after "PREFIX - ")
+    // Pattern: "PREFIX - CustomName"
+    var separatorIndex = fullName.indexOf(' - ');
+    var customName = '';
+    
+    if (separatorIndex !== -1) {
+        customName = fullName.substring(separatorIndex + 3).trim();
+    } else {
+        // If pattern not found, show what user typed
+        customName = fullName.replace(new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*'), '').trim();
+    }
+    
+    // Show preview with prefix in violet and custom name in black
+    preview.style.display = 'block';
+    var html = '<span class="text-purple-600 font-bold">' + escapeHtml(prefix) + '</span>';
+    if (customName) {
+        html += '<span class="text-purple-600"> - </span><span class="text-slate-900">' + escapeHtml(customName) + '</span>';
+    }
+    preview.innerHTML = html;
 }
 
 /**

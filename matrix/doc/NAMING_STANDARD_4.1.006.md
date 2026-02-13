@@ -48,7 +48,48 @@ PREFIX - CustomName
 4. Cursor movido para posição final
 ```
 
-### 3. **Renderização Visual - Padronização em TODO o Sistema**
+### 3. **Renderização Visual - Live Preview no Formulário**
+
+Enquanto você preenche o formulário, uma **preview visual** mostra exatamente como o dispositivo será exibido:
+
+```
+📟 Hostname:
+┌──────────────────────────────┐
+│ POE - Main Building          │  ← Input do usuário
+└──────────────────────────────┘
+
+┌──────────────────────────────────┐
+│ POE - Main Building              │  ← Preview (violet + black)
+└──────────────────────────────────┘
+```
+
+**Como funciona:**
+1. Usuário seleciona tipo → Input auto-preenche com "PREFIX - "
+2. Usuário digita o nome customizado
+3. Preview atualiza em TEMPO REAL mostrando:
+   - Prefixo em **violeta (text-purple-600)**
+   - Hyphen em **violeta**
+   - Nome customizado em **preto (text-slate-900)**
+4. Usuário vê exatamente como ficará em todo o sistema
+
+**Exemplo:**
+```
+Seleciona: "PoE" → Input: "PoE - " → Digita: "PoE - Building A"
+Preview mostra:
+┌────────────────────────────────────┐
+│ PoE - Building A                   │  (PoE violeta, "- Building A" preto)
+└────────────────────────────────────┘
+```
+
+**Funciona com:**
+- ✅ Todos os 24 prefixos built-in
+- ✅ Prefixos customizados via Type Manager
+- ✅ Atualiza ao digitar e ao mudar tipo
+- ✅ Previne erros de naming antes de salvar
+
+---
+
+### 4. **Renderização Visual - Padronização em TODO o Sistema**
 
 **POR TIPO:**
 - **Prefixo (violet text-purple-600):** Identificador device type
@@ -81,6 +122,7 @@ PREFIX - CustomName
 | `getDeviceDisplayNameHtml(device)` | HTML formatado com cor | HTML (prefixo em violeta) |
 | `getDeviceRawName(device)` | Apenas nome sem prefixo | String (ex: "Building A") |
 | `onDeviceTypeChange()` | Handler de mudança de tipo | void (efeito: auto-fill) |
+| `updateDeviceNamePreview()` | Atualiza preview visual em tempo real | void (efeito: atualiza preview) |
 
 ### Estrutura de Dados
 
@@ -221,12 +263,19 @@ appState.customPrefixes.push({
 
 ---
 
-## 📊 Compatibilidade
+## 📊 Compatibilidade & Novidades
 
-- ✅ v4.1.006 (atual)
+**v4.1.006 - Novidades:**
+- ✨ **Live Preview Visual** — Veja em tempo real como o prefixo e nome aparecem
+- ✨ **Auto-fill Inteligente** — Hostname pré-preenchido ao escolher tipo
+- ✨ **Custom Types** — Type Manager para adicionar tipos customizados com prefixos
+- ✨ **XSS Protection** — HTML escapado para máxima segurança
+
+**Compatibilidade:**
 - ✅ Backward compatible com v4.1.001 e anteriores
 - ✅ Import/Export preserva nomes completos
 - ✅ Migração automática ao carregar dados antigos
+- ✅ Funciona com tipos custom adicionados via Type Manager
 
 ---
 

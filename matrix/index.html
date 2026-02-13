@@ -315,9 +315,15 @@
                         <!-- Hostname -->
                         <div class="col-span-2">
                             <label class="text-xs text-slate-600 mb-1 block" for="deviceName" title="Nome identificativo del dispositivo nella rete">📟 Hostname <span class="text-red-500 text-sm font-bold">*</span></label>
-                            <input type="text" id="deviceName" placeholder="SW-Core-01, FW-GW-Main" 
-                                maxlength="120" required
-                                class="w-full px-2 py-1.5 border-2 border-blue-400 rounded-lg text-xs font-mono font-semibold">
+                            <div class="relative">
+                                <input type="text" id="deviceName" placeholder="SW-Core-01, FW-GW-Main" 
+                                    maxlength="120" required oninput="updateDeviceNamePreview()"
+                                    class="w-full px-2 py-1.5 border-2 border-blue-400 rounded-lg text-xs font-mono font-semibold">
+                                <!-- Preview colorido do prefixo -->
+                                <div id="deviceNamePreview" class="text-xs font-mono font-semibold mt-1 px-2 py-1 rounded-md bg-purple-50 border-l-4 border-purple-600 min-h-5" style="display:none;">
+                                    <span class="text-purple-600 font-bold" id="previewPrefix"></span><span class="text-purple-600"> - </span>
+                                </div>
+                            </div>
                         </div>
                         <!-- Brand / Model -->
                         <div class="col-span-2">
