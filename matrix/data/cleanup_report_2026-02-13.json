@@ -1,0 +1,537 @@
+{
+  "startTime": "2026-02-13T14:51:12.878Z",
+  "issues": {
+    "missingX": [],
+    "missingY": [],
+    "duplicateIds": [],
+    "duplicateNames": [
+      {
+        "name": "Switch D-Link /24",
+        "count": 2,
+        "devices": [
+          {
+            "id": 6,
+            "name": "Switch D-Link /24",
+            "index": 5
+          },
+          {
+            "id": 35,
+            "name": "Switch D-Link /24",
+            "index": 32
+          }
+        ]
+      },
+      {
+        "name": "Switch Elba",
+        "count": 3,
+        "devices": [
+          {
+            "id": 10,
+            "name": "Switch Elba",
+            "index": 9
+          },
+          {
+            "id": 51,
+            "name": "Switch Elba",
+            "index": 48
+          },
+          {
+            "id": 76,
+            "name": "Switch Elba",
+            "index": 71
+          }
+        ]
+      },
+      {
+        "name": "Patch Panel 01",
+        "count": 2,
+        "devices": [
+          {
+            "id": 14,
+            "name": "Patch Panel 01",
+            "index": 13
+          },
+          {
+            "id": 30,
+            "name": "Patch Panel 01",
+            "index": 27
+          }
+        ]
+      },
+      {
+        "name": "Patch Panel 02",
+        "count": 2,
+        "devices": [
+          {
+            "id": 15,
+            "name": "Patch Panel 02",
+            "index": 14
+          },
+          {
+            "id": 31,
+            "name": "Patch Panel 02",
+            "index": 28
+          }
+        ]
+      },
+      {
+        "name": "Switch Cisco",
+        "count": 2,
+        "devices": [
+          {
+            "id": 27,
+            "name": "Switch Cisco",
+            "index": 24
+          },
+          {
+            "id": 29,
+            "name": "Switch Cisco",
+            "index": 26
+          }
+        ]
+      },
+      {
+        "name": "IRA-Nord07",
+        "count": 2,
+        "devices": [
+          {
+            "id": 82,
+            "name": "IRA-Nord07",
+            "index": 77
+          },
+          {
+            "id": 138,
+            "name": "IRA-Nord07",
+            "index": 99
+          }
+        ]
+      },
+      {
+        "name": "Switch D-Link",
+        "count": 3,
+        "devices": [
+          {
+            "id": 84,
+            "name": "Switch D-Link",
+            "index": 79
+          },
+          {
+            "id": 123,
+            "name": "Switch D-Link",
+            "index": 84
+          },
+          {
+            "id": 124,
+            "name": "Switch D-Link",
+            "index": 85
+          }
+        ]
+      }
+    ],
+    "orphanConnections": [],
+    "invalidConnections": [
+      {
+        "index": 7,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 10,
+          "fromPort": "eth11",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z4 - Sala Reunioni",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A96",
+          "cableColor": "#6b7280",
+          "notes": "PRESA LAN, SALA RIUNIONI - Z4",
+          "id": "c-67068ff12606",
+          "roomId": null
+        }
+      },
+      {
+        "index": 13,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 10,
+          "fromPort": "eth02",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z2 - Ufficio Luciano",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A95",
+          "cableColor": "#6b7280",
+          "notes": "PRESA LAN, UFFICIO DI LUCIANO - Z2",
+          "id": "c-d263bec655b8",
+          "roomId": null
+        }
+      },
+      {
+        "index": 16,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 15,
+          "fromPort": "eth19",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z3 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "",
+          "cableColor": "#ffffff",
+          "notes": "PRESA LAN, SALA SERVER - Z3",
+          "id": "c-3115176b9637",
+          "roomId": null
+        }
+      },
+      {
+        "index": 19,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 15,
+          "fromPort": "eth20",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z15 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "",
+          "cableColor": "#ffffff",
+          "notes": "PRESA LAN, SALA SERVER - Z15",
+          "id": "c-cb369b808f6e",
+          "roomId": null
+        }
+      },
+      {
+        "index": 29,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 50,
+          "fromPort": "eth01",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z1 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A94",
+          "cableColor": "#3b82f6",
+          "notes": "PRESA LAN, SALA SERVER - Z1",
+          "id": "c-5685f9a538d3",
+          "roomId": null
+        }
+      },
+      {
+        "index": 40,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 51,
+          "fromPort": "eth21",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z5 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A98",
+          "cableColor": "#6b7280",
+          "notes": "PRESA LAN, SALA SERVER - Z5",
+          "id": "c-7021d56b0124",
+          "roomId": null
+        }
+      },
+      {
+        "index": 41,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 61,
+          "fromPort": "eth01",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z6 - Presa sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A92",
+          "cableColor": "#ffffff",
+          "notes": "PRESA LAN, SALA SERVER - Z6",
+          "id": "c-5d01aad97214",
+          "roomId": null
+        }
+      },
+      {
+        "index": 43,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 51,
+          "fromPort": "eth22",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z7 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A88",
+          "cableColor": "#6b7280",
+          "notes": "PRESA LAN, SALA SERVER - Z7",
+          "id": "c-df427dce1d4b",
+          "roomId": null
+        }
+      },
+      {
+        "index": 44,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 76,
+          "fromPort": "eth24",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z8 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A89",
+          "cableColor": "#3b82f6",
+          "notes": "PRESA LAN, SALA SERVER - Z8",
+          "id": "c-163a9dcface5",
+          "roomId": null
+        }
+      },
+      {
+        "index": 50,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 84,
+          "fromPort": "eth02",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z10 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A91",
+          "cableColor": "#eab308",
+          "notes": "PRESA LAN, SALA SERVER - Z10",
+          "id": "c-a487a2b3a38f",
+          "roomId": null
+        }
+      },
+      {
+        "index": 58,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 82,
+          "fromPort": "eth07",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z11 - Presa Sala server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A90",
+          "cableColor": "#ef4444",
+          "notes": "PRESA LAN, SALA SERVER - Z11",
+          "id": "c-f9a839974562",
+          "roomId": null
+        }
+      },
+      {
+        "index": 60,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 67,
+          "fromPort": "eth01",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z9 - Presa sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A1",
+          "cableColor": "#6b7280",
+          "notes": "PRESA LAN, SALA SERVER - Z9",
+          "id": "c-534938475f1c",
+          "roomId": null
+        }
+      },
+      {
+        "index": 72,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 39,
+          "fromPort": "eth03",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z13 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A87",
+          "cableColor": "#6b7280",
+          "notes": "PRESA LAN, SALA SERVER - Z13",
+          "id": "c-43a9789923dd",
+          "roomId": null
+        }
+      },
+      {
+        "index": 73,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 35,
+          "fromPort": "eth02",
+          "to": null,
+          "toPort": "",
+          "externalDest": "Z12 - Presa Sala Server",
+          "isWallJack": true,
+          "type": "wallport",
+          "status": "active",
+          "cableMarker": "A86",
+          "cableColor": "#ef4444",
+          "notes": "PRESA LAN, SALA SERVER - Z12",
+          "id": "c-ea189f16c388",
+          "roomId": null
+        }
+      },
+      {
+        "index": 87,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 3,
+          "fromPort": "WAN04",
+          "to": null,
+          "toPort": "",
+          "externalDest": "TIMxxxx",
+          "isWallJack": false,
+          "type": "wan",
+          "status": "active",
+          "cableMarker": "",
+          "cableColor": "#dc2626",
+          "notes": "Fiber TIM",
+          "id": "c-9dea25f2ec1f",
+          "flagged": true,
+          "flagReason": "Incomplete: missing destination (to=None)",
+          "roomId": null
+        }
+      },
+      {
+        "index": 88,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 4,
+          "fromPort": "WAN01",
+          "to": null,
+          "toPort": "",
+          "externalDest": "WIND",
+          "isWallJack": false,
+          "type": "wan",
+          "status": "active",
+          "cableMarker": "A5",
+          "cableColor": "#ef4444",
+          "notes": "POE WIND FWA",
+          "id": "c-ffea2a59092e",
+          "flagged": true,
+          "flagReason": "Incomplete: missing destination (to=None)",
+          "roomId": 0
+        }
+      },
+      {
+        "index": 89,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 28,
+          "fromPort": "others01",
+          "to": null,
+          "toPort": "",
+          "externalDest": "ISP",
+          "isWallJack": false,
+          "type": "lan",
+          "status": "active",
+          "cableMarker": "A1",
+          "cableColor": "#3b82f6",
+          "notes": "",
+          "id": "c-07d7c8a0998c",
+          "flagged": true,
+          "flagReason": "Incomplete: missing destination (to=None)",
+          "roomId": null
+        }
+      },
+      {
+        "index": 90,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 55,
+          "fromPort": "eth04",
+          "to": null,
+          "toPort": "",
+          "externalDest": "BIG ONE - Laboratorio di Prove",
+          "isWallJack": false,
+          "type": "lan",
+          "status": "active",
+          "cableMarker": "AA0",
+          "cableColor": "#ffffff",
+          "notes": "IXIA",
+          "id": "c-0164266aa413",
+          "flagged": true,
+          "flagReason": "Incomplete: missing destination (to=None)",
+          "roomId": 8
+        }
+      },
+      {
+        "index": 91,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 55,
+          "fromPort": "eth03",
+          "to": null,
+          "toPort": "",
+          "externalDest": "BIG ONE - Laboratorio di Prove",
+          "isWallJack": false,
+          "type": "lan",
+          "status": "active",
+          "cableMarker": "AA1",
+          "cableColor": "#ffffff",
+          "notes": "",
+          "id": "c-8129a6d35713",
+          "flagged": true,
+          "flagReason": "Incomplete: missing destination (to=None)",
+          "roomId": 8
+        }
+      },
+      {
+        "index": 92,
+        "reason": "missing from/to",
+        "conn": {
+          "from": 58,
+          "fromPort": "eth03",
+          "to": null,
+          "toPort": "",
+          "externalDest": "BIG ONE - Laboratorio di Prove",
+          "isWallJack": false,
+          "type": "lan",
+          "status": "active",
+          "cableMarker": "AA2",
+          "cableColor": "#ffffff",
+          "notes": "",
+          "id": "c-13e92871614d",
+          "flagged": true,
+          "flagReason": "Incomplete: missing destination (to=None)",
+          "roomId": null
+        }
+      }
+    ],
+    "missingFields": []
+  },
+  "fixes": {
+    "xAssigned": 0,
+    "yAssigned": 0,
+    "duplicatesRemoved": 0,
+    "orphansRemoved": 20,
+    "fieldsAdded": 0
+  },
+  "endTime": "2026-02-13T14:51:12.895Z",
+  "duration": 0.017
+}

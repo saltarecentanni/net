@@ -1,0 +1,15 @@
+
+================================================================================
+VERSION 4.1.005
+Released: 2026-02-12 12:25:45 UTC
+================================================================================
+
+MAJOR CHANGES:
+- Complete multi-cycle validation audit (6 cycles, 0 critical errors)
+- AREA group reorganization (10 location-specific groups)
+- ENDPOINTS group reorganization (3 location-specific groups)
+- Wall Jacks as real devices (14 devices, single group, Sala Server)
+- Externals as real devices (4 devices, single group, Sala Server)
+- Full data integrity verification
+- Production deployment ready
+

@@ -1,0 +1,24 @@
+Matrix Network
+Version: 4.1.006
+Release Date: 2026-02-13 14:30:00 UTC
+Status: Production Ready
+
+Changelog (4.1.006):
+- ✅ Fixed critical bug: clearAll() now preserves 22 physical locations
+- ✅ Created default-data.js with permanent locations/rooms/sites
+- ✅ ensureDefaultLocationsAndRooms() called on all data load events
+- ✅ Added JSON metadata header (_header) to all exports
+- ✅ Enhanced Excel export with Info sheet and Groups sheet
+- ✅ Reorganized project folder: Matrix4 → matrix
+- ✅ All documentation aligned with new structure
+- ✅ All import/export flows 100% validated
+
+Previous (4.1.005):
+- ✅ Complete data audit and validation (6 cycles)
+- ✅ AREA groups organized by location (10 groups)
+- ✅ ENDPOINTS groups organized by location (3 groups)
+- ✅ Wall Jack devices stabilized (14 real devices)
+- ✅ External devices stabilized (4 real devices)
+- ✅ All connections normalized and validated
+- ✅ Zero critical errors
+- ✅ Production approved

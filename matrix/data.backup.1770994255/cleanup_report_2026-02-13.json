@@ -1,0 +1,441 @@
+{
+  "startTime": "2026-02-13T14:45:54.578Z",
+  "issues": {
+    "missingX": [
+      "IMOLAIPQ-GW-WIFI (Tiesse-Wifi)",
+      "TSQ8-02",
+      "Huawei TIM",
+      "TIESSE_IVREA_FWA",
+      "IMOLA7-GLOBAL-GW (LAN Tiesse)",
+      "Switch D-Link /24",
+      "GW-WIFI-GUEST",
+      "IMOLA-SGR-FWA-WIND (Wind)",
+      "Firewall Fortinet",
+      "Switch Elba",
+      "IMOLA-LX-GW-TLC-FO (Fibra-TIM)",
+      "Imola7",
+      "OVP-Tiesse-TWO",
+      "Patch Panel 01",
+      "Patch Panel 02",
+      "Switch D-Link /48",
+      "MikroTik Router Board",
+      "Imola 5873 - Eolo",
+      "Imola 5860",
+      "Imola-LX-SED-GW",
+      "Imola FASTWEB8/36-ADSL",
+      "Imola L.W.A2-02-Z",
+      "Imola 5873-TLC",
+      "DVR/NVR",
+      "Switch Cisco",
+      "Imola6 LX5272",
+      "Switch Cisco",
+      "Patch Panel 01",
+      "Patch Panel 02",
+      "Patch Panel 03",
+      "RT-GW-ts-server",
+      "Imola 5272",
+      "Switch D-Link /24",
+      "Switch D-Link /16",
+      "NAS-VM-BK",
+      "SRV-VM-01",
+      "SRV-VM-02",
+      "SERVER SAP",
+      "NAS-VM-VOLUMES",
+      "SRV-K8S-WORKER-01",
+      "SRV-K8S-WORKER-02",
+      "SRV-VM-12",
+      "SRV-K8S-MASTER-01",
+      "SRV-VM-11",
+      "SRV-VM-06",
+      "SRV-K8S-BACKUP",
+      "GW-SwDevelop",
+      "Switch D-link /24",
+      "Switch Elba",
+      "IXIA",
+      "SRV-VM-03",
+      "FAIAL",
+      "APARRECHIATURA CENTRALE DI TEST",
+      "RT-PowerFailTwo",
+      "Imola6 5272 ADSL (BIG ONE)",
+      "Imola6  5272(BIG ONE)",
+      "Kyocera Printer",
+      "Access Point Mesh (Controller - Corridoio Centrale)",
+      "Access Point Mesh (Sud - Reception)",
+      "SRV-VM-09",
+      "Dizzy",
+      "SRV-VM-05",
+      "HUB POWERFAIL - LINE RED",
+      "HUB POWERFAIL - LINE WHITE",
+      "HUB POWERFAIL - LINE GREEN",
+      "TARGET 01 POWER FAIL - LINE RED",
+      "TARGET 02 POWER FAIL - LINE RED",
+      "TARGET 01 POWERFAIL - LINE GREEN",
+      "TARGET 02 POWERFAIL - LINE GREEN",
+      "TARGET 01 POWERFAIL - LINE WHITE",
+      "TARGET 02 POWERFAIL - LINE WHITE",
+      "Switch Elba",
+      "SAP MICROLYS",
+      "SRV-PROD-01",
+      "SRV-PROD-02",
+      "SRV-VM-08",
+      "Quorum Device",
+      "IRA-Nord07",
+      "Prod-CLS-01",
+      "Switch D-Link",
+      "Access Point Mesh (Nord - QA/ICT)",
+      "IRA-NORD01",
+      "Telefono Voip R.Russo",
+      "Telefono Voip G.Cappai",
+      "Switch D-Link",
+      "Switch D-Link",
+      "IRA-AreaEPA",
+      "IRA-Ovest2",
+      "IRA-Est03",
+      "IRA-Ovest06",
+      "IRA-Cesanelli",
+      "IRA-Ovest05",
+      "IRA-Nord06",
+      "IRA-Nord8",
+      "IRA-Est04",
+      "IRA-Nord02",
+      "IRA-Ovest04",
+      "IRA-Ovest03",
+      "IRA-Carmine",
+      "IRA-Nord07",
+      "GW (Via Asti 8)",
+      "BIG ONE - Laboratorio di Prove",
+      "ISP",
+      "TIMxxxx",
+      "WIND"
+    ],
+    "missingY": [
+      "IMOLAIPQ-GW-WIFI (Tiesse-Wifi)",
+      "TSQ8-02",
+      "Huawei TIM",
+      "TIESSE_IVREA_FWA",
+      "IMOLA7-GLOBAL-GW (LAN Tiesse)",
+      "Switch D-Link /24",
+      "GW-WIFI-GUEST",
+      "IMOLA-SGR-FWA-WIND (Wind)",
+      "Firewall Fortinet",
+      "Switch Elba",
+      "IMOLA-LX-GW-TLC-FO (Fibra-TIM)",
+      "Imola7",
+      "OVP-Tiesse-TWO",
+      "Patch Panel 01",
+      "Patch Panel 02",
+      "Switch D-Link /48",
+      "MikroTik Router Board",
+      "Imola 5873 - Eolo",
+      "Imola 5860",
+      "Imola-LX-SED-GW",
+      "Imola FASTWEB8/36-ADSL",
+      "Imola L.W.A2-02-Z",
+      "Imola 5873-TLC",
+      "DVR/NVR",
+      "Switch Cisco",
+      "Imola6 LX5272",
+      "Switch Cisco",
+      "Patch Panel 01",
+      "Patch Panel 02",
+      "Patch Panel 03",
+      "RT-GW-ts-server",
+      "Imola 5272",
+      "Switch D-Link /24",
+      "Switch D-Link /16",
+      "NAS-VM-BK",
+      "SRV-VM-01",
+      "SRV-VM-02",
+      "SERVER SAP",
+      "NAS-VM-VOLUMES",
+      "SRV-K8S-WORKER-01",
+      "SRV-K8S-WORKER-02",
+      "SRV-VM-12",
+      "SRV-K8S-MASTER-01",
+      "SRV-VM-11",
+      "SRV-VM-06",
+      "SRV-K8S-BACKUP",
+      "GW-SwDevelop",
+      "Switch D-link /24",
+      "Switch Elba",
+      "IXIA",
+      "SRV-VM-03",
+      "FAIAL",
+      "APARRECHIATURA CENTRALE DI TEST",
+      "RT-PowerFailTwo",
+      "Imola6 5272 ADSL (BIG ONE)",
+      "Imola6  5272(BIG ONE)",
+      "Kyocera Printer",
+      "Access Point Mesh (Controller - Corridoio Centrale)",
+      "Access Point Mesh (Sud - Reception)",
+      "SRV-VM-09",
+      "Dizzy",
+      "SRV-VM-05",
+      "HUB POWERFAIL - LINE RED",
+      "HUB POWERFAIL - LINE WHITE",
+      "HUB POWERFAIL - LINE GREEN",
+      "TARGET 01 POWER FAIL - LINE RED",
+      "TARGET 02 POWER FAIL - LINE RED",
+      "TARGET 01 POWERFAIL - LINE GREEN",
+      "TARGET 02 POWERFAIL - LINE GREEN",
+      "TARGET 01 POWERFAIL - LINE WHITE",
+      "TARGET 02 POWERFAIL - LINE WHITE",
+      "Switch Elba",
+      "SAP MICROLYS",
+      "SRV-PROD-01",
+      "SRV-PROD-02",
+      "SRV-VM-08",
+      "Quorum Device",
+      "IRA-Nord07",
+      "Prod-CLS-01",
+      "Switch D-Link",
+      "Access Point Mesh (Nord - QA/ICT)",
+      "IRA-NORD01",
+      "Telefono Voip R.Russo",
+      "Telefono Voip G.Cappai",
+      "Switch D-Link",
+      "Switch D-Link",
+      "IRA-AreaEPA",
+      "IRA-Ovest2",
+      "IRA-Est03",
+      "IRA-Ovest06",
+      "IRA-Cesanelli",
+      "IRA-Ovest05",
+      "IRA-Nord06",
+      "IRA-Nord8",
+      "IRA-Est04",
+      "IRA-Nord02",
+      "IRA-Ovest04",
+      "IRA-Ovest03",
+      "IRA-Carmine",
+      "IRA-Nord07",
+      "GW (Via Asti 8)",
+      "BIG ONE - Laboratorio di Prove",
+      "ISP",
+      "TIMxxxx",
+      "WIND"
+    ],
+    "duplicateIds": [],
+    "duplicateNames": [
+      {
+        "name": "Switch D-Link /24",
+        "count": 2,
+        "devices": [
+          {
+            "id": 6,
+            "name": "Switch D-Link /24",
+            "index": 5
+          },
+          {
+            "id": 35,
+            "name": "Switch D-Link /24",
+            "index": 32
+          }
+        ]
+      },
+      {
+        "name": "Switch Elba",
+        "count": 3,
+        "devices": [
+          {
+            "id": 10,
+            "name": "Switch Elba",
+            "index": 9
+          },
+          {
+            "id": 51,
+            "name": "Switch Elba",
+            "index": 48
+          },
+          {
+            "id": 76,
+            "name": "Switch Elba",
+            "index": 71
+          }
+        ]
+      },
+      {
+        "name": "Patch Panel 01",
+        "count": 2,
+        "devices": [
+          {
+            "id": 14,
+            "name": "Patch Panel 01",
+            "index": 13
+          },
+          {
+            "id": 30,
+            "name": "Patch Panel 01",
+            "index": 27
+          }
+        ]
+      },
+      {
+        "name": "Patch Panel 02",
+        "count": 2,
+        "devices": [
+          {
+            "id": 15,
+            "name": "Patch Panel 02",
+            "index": 14
+          },
+          {
+            "id": 31,
+            "name": "Patch Panel 02",
+            "index": 28
+          }
+        ]
+      },
+      {
+        "name": "Switch Cisco",
+        "count": 2,
+        "devices": [
+          {
+            "id": 27,
+            "name": "Switch Cisco",
+            "index": 24
+          },
+          {
+            "id": 29,
+            "name": "Switch Cisco",
+            "index": 26
+          }
+        ]
+      },
+      {
+        "name": "IRA-Nord07",
+        "count": 2,
+        "devices": [
+          {
+            "id": 82,
+            "name": "IRA-Nord07",
+            "index": 77
+          },
+          {
+            "id": 138,
+            "name": "IRA-Nord07",
+            "index": 99
+          }
+        ]
+      },
+      {
+        "name": "Switch D-Link",
+        "count": 3,
+        "devices": [
+          {
+            "id": 84,
+            "name": "Switch D-Link",
+            "index": 79
+          },
+          {
+            "id": 123,
+            "name": "Switch D-Link",
+            "index": 84
+          },
+          {
+            "id": 124,
+            "name": "Switch D-Link",
+            "index": 85
+          }
+        ]
+      }
+    ],
+    "orphanConnections": [
+      {
+        "from": 10,
+        "to": 148,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 10,
+        "to": 146,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 15,
+        "to": 147,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 15,
+        "to": 145,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 50,
+        "to": 140,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 51,
+        "to": 149,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 61,
+        "to": 150,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 51,
+        "to": 151,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 76,
+        "to": 152,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 84,
+        "to": 141,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 82,
+        "to": 142,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 67,
+        "to": 153,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 39,
+        "to": 144,
+        "fromExists": true,
+        "toExists": false
+      },
+      {
+        "from": 35,
+        "to": 143,
+        "fromExists": true,
+        "toExists": false
+      }
+    ],
+    "invalidConnections": [],
+    "missingFields": []
+  },
+  "fixes": {
+    "xAssigned": 105,
+    "yAssigned": 105,
+    "duplicatesRemoved": 0,
+    "orphansRemoved": 14,
+    "fieldsAdded": 0
+  },
+  "endTime": "2026-02-13T14:45:54.603Z",
+  "duration": 0.025
+}
