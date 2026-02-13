@@ -4264,7 +4264,9 @@ docker logs guacd -f</pre>
             
             var origUpdateDevList = window.updateDevicesList;
             window.updateDevicesList = function() {
-                origUpdateDevList.apply(this, arguments);
+                if (typeof origUpdateDevList === 'function') {
+                    origUpdateDevList.apply(this, arguments);
+                }
                 // Update location filter
                 if (typeof LocationFilter !== 'undefined') {
                     LocationFilter.update();

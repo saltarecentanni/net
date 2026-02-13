@@ -1237,18 +1237,6 @@ var SVGMatrix = (function() {
                 }
             }
         }
-                    // Cable marker - official pill style with black border
-                    if (extConn.cableMarker) {
-                        var markerText = extConn.cableMarker.toUpperCase().substring(0,4);
-                        var cableColor = extConn.cableColor || 'var(--color-warning)';
-                        var isLightColor = cableColor === '#ffffff' || cableColor === '#eab308' || cableColor === 'var(--color-text-inverse)' || cableColor === '' || cableColor === 'var(--color-warning)';
-                        var markerTextColor = isLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
-                        html += '<rect x="' + (extX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
-                        html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+80) + '" fill="' + markerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(markerText) + '</text>';
-                    }
-                }
-            }
-        }
         
         // Draw explicit grid lines for all rows and columns to ensure borders are always visible
         // Horizontal lines (including top and bottom)
