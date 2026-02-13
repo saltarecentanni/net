@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Floor Plan Module
- * Version: 4.1.006
+ * Version: 4.1.007
  * 
  * Interactive floor plan visualization with:
  * - SVG rendering and manipulation

@@ -1,6 +1,6 @@
 /**
  * Device Detail Modal - TIESSE Matrix Network
- * Version: 4.1.006
+ * Version: 4.1.007
  * 
  * Modal de detalhes do dispositivo no padrão visual do Floor Plan
  * com visualização de portas estilo switch real (RJ45)

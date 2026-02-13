@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - UI Update Functions
- * Version: 4.1.006
+ * Version: 4.1.007
  * 
  * Contains UI rendering functions:
  * - Device list (cards and table views)
@@ -2554,7 +2554,7 @@ function exportExcel() {
             { 'Field': 'Application', 'Value': 'Tiesse Matrix Network' },
             { 'Field': 'Developer', 'Value': 'Rafael Russo' },
             { 'Field': 'Export Date', 'Value': new Date().toISOString().slice(0, 10) },
-            { 'Field': 'Version', 'Value': typeof CURRENT_VERSION !== 'undefined' ? CURRENT_VERSION : '4.1.006' },
+            { 'Field': 'Version', 'Value': typeof CURRENT_VERSION !== 'undefined' ? CURRENT_VERSION : '4.1.007' },
             { 'Field': '', 'Value': '' },
             { 'Field': 'Devices', 'Value': appState.devices.length },
             { 'Field': 'Connections', 'Value': appState.connections.length },

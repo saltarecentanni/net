@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Application Core
- * Version: 4.1.006
+ * Version: 4.1.007
  * 
  * Bug Fixes (3.6.036):
  * - SECURITY: Use crypto.getRandomValues() for secure ID generation (replaces Math.random())
@@ -140,8 +140,8 @@ async function sha256(message) {
 /**
  * Supported versions for import (current + backward compatible)
  */
-var SUPPORTED_VERSIONS = ['4.1.006', '4.1.001', '4.1.000', '4.0.000', '3.6.037', '3.6.036', '3.6.035', '3.6.032', '3.6.031', '3.6.030', '3.6.029', '3.6.028', '3.6.026', '3.6.024', '3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
-var CURRENT_VERSION = '4.1.006';
+var SUPPORTED_VERSIONS = ['4.1.007', '4.1.001', '4.1.000', '4.0.000', '3.6.037', '3.6.036', '3.6.035', '3.6.032', '3.6.031', '3.6.030', '3.6.029', '3.6.028', '3.6.026', '3.6.024', '3.6.022', '3.5.050', '3.5.049', '3.5.048', '3.5.047', '3.5.045', '3.5.044', '3.5.043', '3.5.042', '3.5.041', '3.5.040', '3.5.037', '3.5.036', '3.5.035', '3.5.034', '3.5.030', '3.5.029', '3.5.014', '3.5.011', '3.5.009', '3.5.008', '3.5.005', '3.5.001', '3.4.5', '3.4.2', '3.4.1', '3.4.0', '3.3.1', '3.3.0', '3.2.2', '3.2.1', '3.2.0', '3.1.3'];
+var CURRENT_VERSION = '4.1.007';
 
 // ============================================================================
 // DEVICE PREFIX SYSTEM (v4.0.000)
@@ -149,7 +149,7 @@ var CURRENT_VERSION = '4.1.006';
 // Each prefix maps to a device type and includes an English tooltip.
 // Users can add custom prefixes via appState.customPrefixes[].
 //
-// STANDARDIZED NAMING CONVENTION (v4.1.006):
+// STANDARDIZED NAMING CONVENTION (v4.1.007):
 // ──────────────────────────────────────────
 // All device names follow the pattern: "PREFIX - CustomName"
 // Example: "PoE - Building A", "SW - Core-01", "FW - Main Gateway"

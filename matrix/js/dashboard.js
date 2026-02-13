@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Dashboard Module
- * Version: 4.1.006
+ * Version: 4.1.007
  * 
  * Features:
  * - Donut charts for device statistics

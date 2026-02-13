@@ -1,6 +1,6 @@
 /**
  * TIESSE Matrix Network - Edit Lock Module
- * Version: 4.1.006
+ * Version: 4.1.007
  * 
  * Bug Fix: Use crypto.getRandomValues() for secure editor name generation
  * 
