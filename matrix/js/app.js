@@ -148,6 +148,24 @@ var CURRENT_VERSION = '4.1.006';
 // Standard prefixes prepended to device names for universal identification.
 // Each prefix maps to a device type and includes an English tooltip.
 // Users can add custom prefixes via appState.customPrefixes[].
+//
+// STANDARDIZED NAMING CONVENTION (v4.1.006):
+// ──────────────────────────────────────────
+// All device names follow the pattern: "PREFIX - CustomName"
+// Example: "PoE - Building A", "SW - Core-01", "FW - Main Gateway"
+//
+// Benefits:
+// ✓ Visual identification: PREFIX in PURPLE (bold), Name in BLACK
+// ✓ Auto-complete: When selecting device type, hostname auto-fills with "PREFIX - "
+// ✓ Consistent display: Applied everywhere via getDeviceDisplayNameHtml()
+// ✓ Easy parsing: Prefix easily separated from custom name
+//
+// Implementation:
+// • onDeviceTypeChange() - auto-fills "PREFIX - " in hostname field
+// • getDeviceDisplayName() - formats as "PREFIX Name"
+// • getDeviceDisplayNameHtml() - renders as <span CLASS="purple">PREFIX</span> Name
+// • getDeviceRawName() - extracts just the custom name without prefix
+// ============================================================================
 // ============================================================================
 var DEVICE_PREFIXES = [
     { code: 'MOD',    type: 'modem',       labelIt: 'Modem / Fibra',             tooltip: 'Modem or fiber optic terminal (ONT/ONU) — ISP entry point' },
@@ -3009,6 +3027,28 @@ function onDeviceTypeChange() {
     var prefixField = document.getElementById('devicePrefix');
     if (prefixField) {
         prefixField.value = getDefaultPrefix(type);
+    }
+    
+    // Auto-fill hostname/device name with prefix + " - " pattern
+    // This creates a standardized naming convention: "PREFIX - CustomName"
+    // Example: Select "PoE" → hostname becomes "PoE - " for user to complete
+    var nameField = document.getElementById('deviceName');
+    if (nameField) {
+        var currentValue = nameField.value.trim();
+        var prefixCode = getDefaultPrefix(type);
+        
+        // Only auto-fill if field is empty or contains only the old prefix
+        if (!currentValue) {
+            // Empty field: set "PREFIX - "
+            nameField.value = prefixCode + ' - ';
+            nameField.focus();
+            // Position cursor after " - " for user to start typing
+            nameField.setSelectionRange(nameField.value.length, nameField.value.length);
+        } else if (currentValue && currentValue.match(/^[A-Z0-9]+\s-\s*$/)) {
+            // Field has only old prefix format "PREFIX - ", replace prefix
+            nameField.value = prefixCode + ' - ';
+            nameField.setSelectionRange(nameField.value.length, nameField.value.length);
+        }
     }
 }
 

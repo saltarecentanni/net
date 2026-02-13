@@ -495,7 +495,7 @@ function updateDevicesListCards(cont) {
             '<span class="text-xs px-1.5 py-0.5 rounded-full text-white ' + statusClass + '">' + statusText + '</span>' +
             dhcpBadge + monitorBadge +
             '</div>' +
-            '<div class="font-bold text-base text-slate-800 truncate hover:text-blue-600">' + (disabled ? '<span class="text-red-500" title="Disabled">✗</span> ' : '') + getDeviceDisplayName(d) + '</div>' +
+            '<div class="font-bold text-base text-slate-800 truncate hover:text-blue-600">' + (disabled ? '<span class="text-red-500" title="Disabled">✗</span> ' : '') + getDeviceDisplayNameHtml(d) + '</div>' +
             brandModelText +
             '<div class="text-xs text-slate-400">' + formatLabel(d.type) + '</div>' +
             locationText +
