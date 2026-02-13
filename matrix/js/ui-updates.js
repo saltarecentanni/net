@@ -1100,31 +1100,16 @@ var SVGMatrix = (function() {
             return;
         }
         
+        // ═════════════════════════════════════════════════════════════════════
+        // PHASE 5: All devices in standard grid - no special WJ/External columns
+        // WallJack and External are regular device types, not special cases
+        // ═════════════════════════════════════════════════════════════════════
+        
         var deviceCount = sorted.length;
         var filteredDeviceIds = {};
         sorted.forEach(function(d) { filteredDeviceIds[d.id] = true; });
         
-        // Check for special columns
-        var hasWallJack = false;
-        var hasExternal = false;
-        var wallJackConns = [];
-        var externalConns = [];
-        
-        appState.connections.forEach(function(c, idx) {
-            if (!filteredDeviceIds[c.from]) return;
-            if (c.to === null || c.to === undefined) {
-                if (c.isWallJack || c.type === 'wallport') {
-                    hasWallJack = true;
-                    wallJackConns.push({ conn: c, idx: idx });
-                } else if (c.externalDest || c.type === 'wan' || c.type === 'external') {
-                    hasExternal = true;
-                    externalConns.push({ conn: c, idx: idx });
-                }
-            }
-        });
-        
-        var extraCols = (hasWallJack ? 1 : 0) + (hasExternal ? 1 : 0);
-        var totalCols = deviceCount + extraCols;
+        var totalCols = deviceCount;  // Standard grid: devices × devices
         var contentWidth = totalCols * cellSize;
         var contentHeight = deviceCount * cellSize;
         
@@ -1152,20 +1137,6 @@ var SVGMatrix = (function() {
                 '<div style="font-size:8px;color:var(--matrix-col-location);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(d.location || '-') + '</div>' +
                 '<div style="font-size:9px;font-weight:bold;color:' + (isDisabled ? 'var(--color-text-light)' : 'var(--color-text-inverse)') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;' + (isDisabled ? 'text-decoration:line-through;' : '') + '">' + posNum + '-' + escapeXml(getDeviceDisplayName(d)) + '</div>' +
                 '<div style="font-size:8px;font-weight:600;color:' + rackColor + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;">' + escapeXml(d.rackId || '-') + '</div>' +
-                '</div>';
-        }
-        
-        // Special column headers
-        if (hasWallJack) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-warning-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
-                '<div style="font-size:20px;">🔌</div>' +
-                '<div style="font-size:9px;font-weight:600;color:var(--color-primary-light);">Wall Jack</div>' +
-                '</div>';
-        }
-        if (hasExternal) {
-            html += '<div style="width:' + cellSize + 'px;min-width:' + cellSize + 'px;height:100%;background:' + colors.headerBg + ';border-left:3px solid var(--color-danger);display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
-                '<div style="font-size:20px;">🌐</div>' +
-                '<div style="font-size:9px;font-weight:600;color:var(--color-danger-light);">External</div>' +
                 '</div>';
         }
         
@@ -1265,78 +1236,7 @@ var SVGMatrix = (function() {
                     }
                 }
             }
-            
-            // Wall Jack column
-            if (hasWallJack) {
-                var wjX = deviceCount * cellSize;
-                var wjConn = null, wjConnIdx = -1;
-                var wjCountForRow = 0;
-                for (var wj = 0; wj < wallJackConns.length; wj++) {
-                    if (wallJackConns[wj].conn.from === row.id) {
-                        wjCountForRow++;
-                        if (!wjConn) { wjConn = wallJackConns[wj].conn; wjConnIdx = wallJackConns[wj].idx; }
-                    }
-                }
-                html += '<rect x="' + wjX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-accent-light)" stroke="var(--color-accent)"/>';
-                if (wjConn) {
-                    var portFrom = wjConn.fromPort || '-';
-                    var externalDest = wjConn.externalDest || 'WJ';
-                    var wjTypeTag = (wjConn.wallJackType === 'rj11') ? ' ☎' : '';
-                    
-                    // Main cell with rounded corners - solid flat color
-                    html += '<rect class="matrix-cell-clickable" x="' + (wjX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="var(--color-accent)" style="cursor:pointer" data-conn-idx="' + wjConnIdx + '" data-row="' + r + '" data-col="' + deviceCount + '"/>';
-                    
-                    // Top port (TO/wall jack destination) - clean flat style
-                    var wjDisplayText = (externalDest).substring(0,6) + wjTypeTag + (wjCountForRow > 1 ? ' +' + (wjCountForRow - 1) : '');
-                    html += '<rect x="' + (wjX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(255,255,255,0.2)" style="pointer-events:none"/>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml(wjDisplayText) + '</text>';
-                    
-                    // Connection arrow/indicator
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.6)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
-                    
-                    // Bottom port (FROM/ROW) - clean flat style
-                    html += '<rect x="' + (wjX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(0,0,0,0.15)" style="pointer-events:none"/>';
-                    html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom).substring(0,8)) + '</text>';
-                    
-                    // Cable marker - official pill style with black border
-                    if (wjConn.cableMarker) {
-                        var markerText = wjConn.cableMarker.toUpperCase().substring(0,4);
-                        var cableColor = wjConn.cableColor || 'var(--color-warning)';
-                        var isLightColor = cableColor === '#ffffff' || cableColor === '#eab308' || cableColor === 'var(--color-text-inverse)' || cableColor === '' || cableColor === 'var(--color-warning)';
-                        var markerTextColor = isLightColor ? 'var(--color-text)' : 'var(--color-text-inverse)';
-                        html += '<rect x="' + (wjX+cellSize/2-16) + '" y="' + (y+70) + '" width="32" height="14" rx="7" fill="' + cableColor + '" stroke="var(--color-text)" stroke-width="1.5" style="pointer-events:none"/>';
-                        html += '<text x="' + (wjX+cellSize/2) + '" y="' + (y+80) + '" fill="' + markerTextColor + '" font-size="8" font-weight="bold" text-anchor="middle" style="pointer-events:none">' + escapeXml(markerText) + '</text>';
-                    }
-                }
-            }
-            
-            // External column
-            if (hasExternal) {
-                var extX = deviceCount * cellSize + (hasWallJack ? cellSize : 0);
-                var extConn = null, extConnIdx = -1;
-                for (var ex = 0; ex < externalConns.length; ex++) {
-                    if (externalConns[ex].conn.from === row.id) { extConn = externalConns[ex].conn; extConnIdx = externalConns[ex].idx; break; }
-                }
-                html += '<rect x="' + extX + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" fill="var(--color-danger-lightest)" stroke="var(--color-danger-light)"/>';
-                if (extConn) {
-                    var portFrom = extConn.fromPort || '-';
-                    var externalDest = extConn.externalDest || 'EXT';
-                    var extColIdx = deviceCount + (hasWallJack ? 1 : 0);
-                    
-                    // Main cell with rounded corners - solid flat color
-                    html += '<rect class="matrix-cell-clickable" x="' + (extX+4) + '" y="' + (y+4) + '" width="' + (cellSize-8) + '" height="' + (cellSize-8) + '" rx="6" fill="var(--color-danger)" style="cursor:pointer" data-conn-idx="' + extConnIdx + '" data-row="' + r + '" data-col="' + extColIdx + '"/>';
-                    
-                    // Top port (TO/external destination) - clean flat style
-                    html += '<rect x="' + (extX+12) + '" y="' + (y+12) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(255,255,255,0.2)" style="pointer-events:none"/>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+25) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((externalDest).substring(0,8)) + '</text>';
-                    
-                    // Connection arrow/indicator
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+43) + '" fill="rgba(255,255,255,0.6)" font-size="12" font-weight="bold" text-anchor="middle" style="pointer-events:none">⇅</text>';
-                    
-                    // Bottom port (FROM/ROW) - clean flat style
-                    html += '<rect x="' + (extX+12) + '" y="' + (y+48) + '" width="' + (cellSize-24) + '" height="18" rx="4" fill="rgba(0,0,0,0.15)" style="pointer-events:none"/>';
-                    html += '<text x="' + (extX+cellSize/2) + '" y="' + (y+61) + '" fill="white" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" style="pointer-events:none">' + escapeXml((portFrom).substring(0,8)) + '</text>';
-                    
+        }
                     // Cable marker - official pill style with black border
                     if (extConn.cableMarker) {
                         var markerText = extConn.cableMarker.toUpperCase().substring(0,4);
@@ -1465,18 +1365,9 @@ var SVGMatrix = (function() {
             filteredDeviceIds[sorted[fd].id] = true;
         }
         
-        // Detect special columns (Wall Jack / External)
-        var hasWallJack = false, hasExternal = false;
-        appState.connections.forEach(function(c) {
-            if (!filteredDeviceIds[c.from]) return;
-            if (c.to === null || c.to === undefined) {
-                if (c.isWallJack || c.type === 'wallport') hasWallJack = true;
-                else if (c.externalDest || c.type === 'wan' || c.type === 'external') hasExternal = true;
-            }
-        });
-        
-        var extraCols = (hasWallJack ? 1 : 0) + (hasExternal ? 1 : 0);
-        var totalCols = deviceCount + extraCols;
+        // PHASE 5: Standard grid - no special columns for WallJack/External
+        // All devices in normal m×n grid (m rows = devices, n cols = devices)
+        var totalCols = deviceCount;
         
         // Calculate full dimensions
         var contentWidth = totalCols * cellSize;
@@ -1562,7 +1453,7 @@ var SVGMatrix = (function() {
         exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 - 8, 'TO →', 'var(--color-info)', '10', {fontWeight: 'bold'}));
         exportSvg.appendChild(createSvgText(headerWidth/2, headerHeight/2 + 8, 'FROM ↓', 'var(--color-warning)', '10', {fontWeight: 'bold'}));
         
-        // Column headers
+        // Column headers - standard grid (no special columns)
         for (var i = 0; i < sorted.length; i++) {
             var d = sorted[i];
             var x = headerWidth + i * cellSize;
@@ -1580,24 +1471,6 @@ var SVGMatrix = (function() {
             exportSvg.appendChild(nameText);
             
             exportSvg.appendChild(createSvgText(x + cellSize/2, 70, d.rackId || '-', rackColor, '8', {fontWeight: 'bold'}));
-        }
-        
-        // Wall Jack header
-        if (hasWallJack) {
-            var wjX = headerWidth + deviceCount * cellSize;
-            exportSvg.appendChild(createSvgRect(wjX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(wjX, 0, 3, headerHeight, 'var(--color-accent)'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 40, '🔌', 'var(--color-accent)', '20'));
-            exportSvg.appendChild(createSvgText(wjX + cellSize/2, 65, 'Wall Jack', 'var(--color-accent)', '9', {fontWeight: '600'}));
-        }
-        
-        // External header
-        if (hasExternal) {
-            var extX = headerWidth + deviceCount * cellSize + (hasWallJack ? cellSize : 0);
-            exportSvg.appendChild(createSvgRect(extX, 0, cellSize, headerHeight, colors.headerBg));
-            exportSvg.appendChild(createSvgRect(extX, 0, 3, headerHeight, 'var(--color-danger)'));
-            exportSvg.appendChild(createSvgText(extX + cellSize/2, 40, '🌐', 'var(--color-danger-light)', '20'));
-            exportSvg.appendChild(createSvgText(extX + cellSize/2, 65, 'ISP', 'var(--color-danger-light)', '9', {fontWeight: '600'}));
         }
         
         // Row headers

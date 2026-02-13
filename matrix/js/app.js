@@ -1337,33 +1337,40 @@ var config = {
  * Matches against room id, name, or nickname (case-insensitive, ignoring spaces)
  */
 function deviceBelongsToRoom(device, room) {
-    if (!device.location) return false;
+    // PHASE 5: Updated to use locationId reference (preferred) + backward compatibility
     
-    // Normalize function: lowercase + remove all spaces
-    function normalize(str) {
-        return (str || '').toLowerCase().replace(/\s+/g, '');
+    if (!device.locationId && !device.location) return false;
+    
+    // Primary: Use locationId (clean reference-based matching)
+    if (device.locationId) {
+        // locationId should match room.id
+        return device.locationId === room.id || String(device.locationId) === String(room.id);
     }
     
-    var locRaw = device.location;
-    var locNorm = normalize(locRaw);
-    
-    // Exact matches first
-    if (locRaw === room.id || locRaw === room.name || locRaw === room.nickname) {
-        return true;
+    // Fallback: String-based matching for backward compatibility with old data
+    if (device.location) {
+        // Normalize function: lowercase + remove all spaces
+        function normalize(str) {
+            return (str || '').toLowerCase().replace(/\s+/g, '');
+        }
+        
+        var locRaw = device.location;
+        var locNorm = normalize(locRaw);
+        
+        // Exact matches first
+        if (locRaw === room.id || locRaw === room.name || locRaw === room.nickname) {
+            return true;
+        }
+        
+        // Normalized matches (ignoring spaces and case)
+        var roomIdNorm = normalize(room.id);
+        var roomNameNorm = normalize(room.name);
+        var roomNicknameNorm = normalize(room.nickname);
+        
+        if (locNorm === roomIdNorm || locNorm === roomNameNorm || locNorm === roomNicknameNorm) {
+            return true;
+        }
     }
-    
-    // Normalized matches (ignoring spaces and case)
-    var roomIdNorm = normalize(room.id);
-    var roomNameNorm = normalize(room.name);
-    var roomNicknameNorm = normalize(room.nickname);
-    
-    // Match: "Ufficio12" == normalize("Ufficio 12") or "ufficio 12" == normalize("Ufficio12")
-    if (locNorm === roomIdNorm || locNorm === roomNameNorm || locNorm === roomNicknameNorm) {
-        return true;
-    }
-    
-    // Also check if room nickname/name contains room id pattern
-    // e.g., nickname "Ufficio 12" should match location "Ufficio12" or "ufficio12"
     
     return false;
 }
