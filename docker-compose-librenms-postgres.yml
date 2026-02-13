@@ -27,7 +27,7 @@ services:
       - ./librenms-rrd:/opt/librenms/rrd
       - ./librenms-data:/opt/librenms/data
     networks:
-      - guacamole_default  # Usar rede do Guacamole
+      - guacamole_guacamole-net  # Usar rede do Guacamole
     depends_on:
       - librenms-redis
     healthcheck:
@@ -43,7 +43,7 @@ services:
     volumes:
       - ./redis-data:/data
     networks:
-      - guacamole_default
+      - guacamole_guacamole-net
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -52,7 +52,7 @@ services:
 
 networks:
   # Conectar à rede existente do Guacamole
-  guacamole_default:
+  guacamole_guacamole-net:
     external: true
 
 volumes:
