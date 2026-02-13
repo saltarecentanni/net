@@ -9,13 +9,16 @@ services:
       - "8000:8000"
     environment:
       - TZ=America/Sao_Paulo
-      - LIBRENMS_DB_HOST=postgres
-      - LIBRENMS_DB_USER=librenms
-      - LIBRENMS_DB_PASSWORD=librenms_password
+      # Conectar ao PostgreSQL do Guacamole (mesmos usuário/senha)
+      - LIBRENMS_DB_HOST=guacamole-db
+      - LIBRENMS_DB_USER=tiesse
+      - LIBRENMS_DB_PASSWORD=tiesseadm
       - LIBRENMS_DB_NAME=librenms
       - LIBRENMS_DB_PORT=5432
-      - REDIS_HOST=redis
+      # Redis local
+      - REDIS_HOST=librenms-redis
       - REDIS_PORT=6379
+      # Admin credentials
       - LIBRENMS_ADMIN_USER=admin
       - LIBRENMS_ADMIN_PASS=admin
       - LIBRENMS_ADMIN_EMAIL=admin@example.com
@@ -24,60 +27,36 @@ services:
       - ./librenms-rrd:/opt/librenms/rrd
       - ./librenms-data:/opt/librenms/data
     networks:
-      - librenms-net
+      - guacamole_default  # Usar rede do Guacamole
     depends_on:
-      - postgres
-      - redis
+      - librenms-redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v0/system"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  redis:
+  librenms-redis:
     image: redis:latest
     container_name: librenms-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - ./redis-data:/data
     networks:
-      - librenms-net
+      - guacamole_default
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
 
-  postgres:
-    image: postgres:15
-    container_name: librenms-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=librenms
-      - POSTGRES_PASSWORD=librenms_password
-      - POSTGRES_DB=librenms
-      - TZ=America/Sao_Paulo
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    networks:
-      - librenms-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U librenms"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
 networks:
-  librenms-net:
-    driver: bridge
+  # Conectar à rede existente do Guacamole
+  guacamole_default:
+    external: true
 
 volumes:
   librenms-logs:
   librenms-rrd:
   librenms-data:
   redis-data:
-  postgres-data:
