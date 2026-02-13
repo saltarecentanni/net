@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Network — Icon Picker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 8px; font-size: 1.8rem; color: #38bdf8; }
+        .subtitle { text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: 0.9rem; }
+        
+        /* Current types */
+        .current-section { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 2px solid #3b82f6; }
+        .current-section h2 { color: #60a5fa; margin-bottom: 12px; font-size: 1.2rem; }
+        .current-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+        .current-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #0f172a; border-radius: 8px; font-size: 0.85rem; }
+        .current-item .emoji { font-size: 1.5rem; min-width: 32px; text-align: center; }
+        .current-item .code { color: #a78bfa; font-family: monospace; font-weight: bold; }
+        .current-item .type { color: #94a3b8; }
+
+        /* Picker sections */
+        .section { margin-bottom: 24px; }
+        .section h2 { color: #f59e0b; margin-bottom: 12px; font-size: 1.1rem; border-bottom: 1px solid #334155; padding-bottom: 6px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
+        .icon-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 12px 6px; background: #1e293b; border-radius: 8px; cursor: pointer;
+            border: 2px solid transparent; transition: all 0.15s;
+            user-select: none; position: relative;
+        }
+        .icon-card:hover { border-color: #3b82f6; background: #1e3a5f; transform: scale(1.05); }
+        .icon-card:active { transform: scale(0.95); }
+        .icon-card .emoji { font-size: 2rem; margin-bottom: 4px; }
+        .icon-card .name { font-size: 0.65rem; color: #94a3b8; text-align: center; line-height: 1.2; }
+        .icon-card .unicode { font-size: 0.6rem; color: #475569; font-family: monospace; }
+        .icon-card.copied { border-color: #22c55e !important; background: #14532d !important; }
+        .icon-card.copied::after {
+            content: '✓ Copiado!'; position: absolute; top: 2px; right: 4px;
+            font-size: 0.55rem; color: #22c55e; font-weight: bold;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #22c55e; color: #fff; padding: 12px 24px; border-radius: 8px;
+            font-weight: bold; font-size: 1rem; display: none; z-index: 999;
+            box-shadow: 0 4px 20px rgba(34,197,94,0.4);
+        }
+
+        /* Search */
+        .search-bar { display: flex; justify-content: center; margin-bottom: 20px; gap: 12px; align-items: center; }
+        .search-bar input {
+            padding: 10px 16px; border-radius: 8px; border: 2px solid #334155;
+            background: #1e293b; color: #e2e8f0; font-size: 1rem; width: 400px;
+            outline: none;
+        }
+        .search-bar input:focus { border-color: #3b82f6; }
+        .search-bar .hint { color: #64748b; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<h1>🎨 Matrix Network — Icon Picker</h1>
+<p class="subtitle">Clique em qualquer ícone para copiar • Use no chat para me informar qual quer usar</p>
+
+<div class="search-bar">
+    <input type="text" id="search" placeholder="🔍 Buscar ícone... (ex: phone, network, plug)" oninput="filterIcons()">
+    <span class="hint">Filtra por nome</span>
+</div>
+
+<!-- CURRENT DEVICE TYPES -->
+<div class="current-section">
+    <h2>📋 Ícones Atuais (25 tipos)</h2>
+    <div class="current-grid" id="currentGrid"></div>
+</div>
+
+<!-- PICKER SECTIONS -->
+<div id="sections"></div>
+
+<div id="toast"></div>
+
+<script>
+// Current device type icons
+var currentTypes = [
+    { emoji: '📡', code: 'RT', type: 'router' },
+    { emoji: '🔀', code: 'SW', type: 'switch' },
+    { emoji: '📌', code: 'PP', type: 'patch' },
+    { emoji: '🔌', code: 'WJ', type: 'walljack (RJ45)' },
+    { emoji: '�', code: 'WJ-TEL', type: 'walljack_tel (RJ11)' },
+    { emoji: '🧱', code: 'FW', type: 'firewall' },
+    { emoji: '🖥️', code: 'SRV', type: 'server' },
+    { emoji: '📶', code: 'AP', type: 'wifi' },
+    { emoji: '🌐', code: 'ISP', type: 'isp' },
+    { emoji: '📶', code: 'RTW', type: 'router_wifi' },
+    { emoji: '📠', code: 'MOD', type: 'modem' },
+    { emoji: '🔘', code: 'HUB', type: 'hub' },
+    { emoji: '⚡', code: 'POE', type: 'poe' },
+    { emoji: '💻', code: 'PC', type: 'pc' },
+    { emoji: '📱', code: 'TAB', type: 'tablet' },
+    { emoji: '☎️', code: 'IP-PHO', type: 'ip_phone' },
+    { emoji: '🖨️', code: 'PRN', type: 'printer' },
+    { emoji: '🧰', code: 'NAS', type: 'nas' },
+    { emoji: '📹', code: 'CAM', type: 'camera' },
+    { emoji: '📼', code: 'DVR', type: 'dvr' },
+    { emoji: '🔋', code: 'UPS', type: 'ups' },
+    { emoji: '🌡️', code: 'IOT', type: 'iot' },
+    { emoji: '🧪', code: 'TST', type: 'tst' },
+    { emoji: '📺', code: 'TV', type: 'tv' },
+    { emoji: '📦', code: 'GEN', type: 'others' }
+];
+
+// All available icons organized by category
+var categories = [
+    {
+        name: '🔌 Rede / Network / Conectores',
+        icons: [
+            { emoji: '🔌', name: 'plug' },
+            { emoji: '🔗', name: 'link' },
+            { emoji: '🌐', name: 'globe' },
+            { emoji: '📡', name: 'satellite/antenna' },
+            { emoji: '📶', name: 'signal/wifi' },
+            { emoji: '🛜', name: 'wifi (new)' },
+            { emoji: '🔀', name: 'shuffle/switch' },
+            { emoji: '🔁', name: 'repeat/cycle' },
+            { emoji: '🔃', name: 'arrows/sync' },
+            { emoji: '⚡', name: 'lightning/power' },
+            { emoji: '🔘', name: 'radio button' },
+            { emoji: '⭕', name: 'circle' },
+            { emoji: '🟢', name: 'green circle' },
+            { emoji: '🔴', name: 'red circle' },
+            { emoji: '🟡', name: 'yellow circle' },
+            { emoji: '🔵', name: 'blue circle' },
+            { emoji: '⬛', name: 'black square' },
+            { emoji: '🟦', name: 'blue square' },
+            { emoji: '🟧', name: 'orange square' },
+            { emoji: '🔲', name: 'button square' },
+            { emoji: '📌', name: 'pin/patch' },
+            { emoji: '📍', name: 'location pin' },
+            { emoji: '🧲', name: 'magnet' },
+            { emoji: '🏷️', name: 'label/tag' },
+            { emoji: '🪝', name: 'hook' }
+        ]
+    },
+    {
+        name: '📞 Telefone / Comunicação',
+        icons: [
+            { emoji: '📞', name: 'telephone' },
+            { emoji: '☎️', name: 'telephone (classic)' },
+            { emoji: '📱', name: 'mobile phone' },
+            { emoji: '📲', name: 'phone incoming' },
+            { emoji: '🤙', name: 'call me hand' },
+            { emoji: '📳', name: 'vibration' },
+            { emoji: '📴', name: 'phone off' },
+            { emoji: '💬', name: 'speech bubble' },
+            { emoji: '🗣️', name: 'speaking head' },
+            { emoji: '📠', name: 'fax machine' },
+            { emoji: '📟', name: 'pager' },
+            { emoji: '🔔', name: 'bell' },
+            { emoji: '🔕', name: 'bell off' },
+            { emoji: '🎙️', name: 'microphone' },
+            { emoji: '🎤', name: 'microphone alt' },
+            { emoji: '📢', name: 'loudspeaker' },
+            { emoji: '📣', name: 'megaphone' },
+            { emoji: '🔊', name: 'volume up' }
+        ]
+    },
+    {
+        name: '🖥️ Computadores / Hardware',
+        icons: [
+            { emoji: '🖥️', name: 'desktop/server' },
+            { emoji: '💻', name: 'laptop' },
+            { emoji: '🖱️', name: 'mouse' },
+            { emoji: '⌨️', name: 'keyboard' },
+            { emoji: '🖨️', name: 'printer' },
+            { emoji: '🖲️', name: 'trackball' },
+            { emoji: '💾', name: 'floppy disk' },
+            { emoji: '💿', name: 'CD/optical' },
+            { emoji: '📀', name: 'DVD' },
+            { emoji: '🗄️', name: 'file cabinet/NAS' },
+            { emoji: '📱', name: 'mobile/tablet' },
+            { emoji: '⌚', name: 'watch' },
+            { emoji: '📸', name: 'camera (photo)' },
+            { emoji: '📹', name: 'video camera' },
+            { emoji: '🎥', name: 'movie camera' },
+            { emoji: '📺', name: 'TV/display' },
+            { emoji: '📻', name: 'radio' },
+            { emoji: '🎮', name: 'game controller' },
+            { emoji: '🕹️', name: 'joystick' },
+            { emoji: '🔌', name: 'power plug' }
+        ]
+    },
+    {
+        name: '🛡️ Segurança / Proteção',
+        icons: [
+            { emoji: '🛡️', name: 'shield/firewall' },
+            { emoji: '🔒', name: 'lock' },
+            { emoji: '🔓', name: 'unlock' },
+            { emoji: '🔐', name: 'locked key' },
+            { emoji: '🔑', name: 'key' },
+            { emoji: '🗝️', name: 'old key' },
+            { emoji: '👁️', name: 'eye/surveillance' },
+            { emoji: '👁️‍🗨️', name: 'eye speech' },
+            { emoji: '🚨', name: 'alarm/alert' },
+            { emoji: '⚠️', name: 'warning' },
+            { emoji: '🚫', name: 'prohibited' },
+            { emoji: '❌', name: 'cross/error' },
+            { emoji: '✅', name: 'check/ok' },
+            { emoji: '🔥', name: 'fire/firewall' },
+            { emoji: '🧱', name: 'brick/wall' },
+            { emoji: '🛑', name: 'stop' }
+        ]
+    },
+    {
+        name: '🔋 Energia / Power / UPS',
+        icons: [
+            { emoji: '🔋', name: 'battery full' },
+            { emoji: '🪫', name: 'battery low' },
+            { emoji: '⚡', name: 'lightning/power' },
+            { emoji: '🔌', name: 'plug' },
+            { emoji: '💡', name: 'light bulb' },
+            { emoji: '🔦', name: 'flashlight' },
+            { emoji: '☀️', name: 'sun/solar' },
+            { emoji: '⚙️', name: 'gear' },
+            { emoji: '🔧', name: 'wrench' },
+            { emoji: '🛠️', name: 'hammer wrench' },
+            { emoji: '🏗️', name: 'construction' }
+        ]
+    },
+    {
+        name: '🌡️ IoT / Sensores / Smart',
+        icons: [
+            { emoji: '🌡️', name: 'thermometer' },
+            { emoji: '💧', name: 'water drop' },
+            { emoji: '🌊', name: 'wave' },
+            { emoji: '🌬️', name: 'wind/fan' },
+            { emoji: '🧭', name: 'compass' },
+            { emoji: '🌍', name: 'globe europe' },
+            { emoji: '🌎', name: 'globe americas' },
+            { emoji: '🌏', name: 'globe asia' },
+            { emoji: '🤖', name: 'robot' },
+            { emoji: '🧠', name: 'brain/AI' },
+            { emoji: '📊', name: 'chart/data' },
+            { emoji: '📈', name: 'chart up' },
+            { emoji: '🏠', name: 'house/smart home' },
+            { emoji: '🏢', name: 'office' },
+            { emoji: '🏭', name: 'factory/industrial' },
+            { emoji: '🎛️', name: 'control knobs' },
+            { emoji: '🕐', name: 'clock' },
+            { emoji: '⏱️', name: 'stopwatch' }
+        ]
+    },
+    {
+        name: '📼 Vídeo / CCTV / DVR',
+        icons: [
+            { emoji: '📹', name: 'video camera' },
+            { emoji: '🎥', name: 'movie camera' },
+            { emoji: '📷', name: 'camera' },
+            { emoji: '📸', name: 'camera flash' },
+            { emoji: '📼', name: 'videocassette/DVR' },
+            { emoji: '🎬', name: 'clapperboard' },
+            { emoji: '📺', name: 'television' },
+            { emoji: '🖥️', name: 'monitor' },
+            { emoji: '🔍', name: 'magnifier' },
+            { emoji: '🔎', name: 'magnifier right' },
+            { emoji: '👁️', name: 'eye' }
+        ]
+    },
+    {
+        name: '🧪 Lab / Teste / Manutenção',
+        icons: [
+            { emoji: '🧪', name: 'test tube' },
+            { emoji: '🔬', name: 'microscope' },
+            { emoji: '🧫', name: 'petri dish' },
+            { emoji: '🧬', name: 'DNA' },
+            { emoji: '⚗️', name: 'alembic' },
+            { emoji: '🛠️', name: 'tools' },
+            { emoji: '🔧', name: 'wrench' },
+            { emoji: '🔩', name: 'nut and bolt' },
+            { emoji: '⚙️', name: 'gear' },
+            { emoji: '🏷️', name: 'tag/label' },
+            { emoji: '📋', name: 'clipboard' },
+            { emoji: '📝', name: 'memo/notes' },
+            { emoji: '✏️', name: 'pencil' },
+            { emoji: '🗂️', name: 'file dividers' },
+            { emoji: '📁', name: 'folder' },
+            { emoji: '📂', name: 'folder open' }
+        ]
+    },
+    {
+        name: '📦 Outros / Genéricos',
+        icons: [
+            { emoji: '📦', name: 'package/generic' },
+            { emoji: '🗃️', name: 'card box' },
+            { emoji: '🪧', name: 'placard/sign' },
+            { emoji: '🏴', name: 'flag black' },
+            { emoji: '🚩', name: 'flag red' },
+            { emoji: '🏁', name: 'checkered flag' },
+            { emoji: '🪪', name: 'ID card' },
+            { emoji: '💳', name: 'credit card' },
+            { emoji: '🎫', name: 'ticket' },
+            { emoji: '🧩', name: 'puzzle piece' },
+            { emoji: '♻️', name: 'recycle' },
+            { emoji: '🏠', name: 'house' },
+            { emoji: '🏢', name: 'office building' },
+            { emoji: '🏗️', name: 'building construction' },
+            { emoji: '🗺️', name: 'world map' },
+            { emoji: '🧰', name: 'toolbox' },
+            { emoji: '📎', name: 'paperclip' },
+            { emoji: '🖇️', name: 'linked paperclips' },
+            { emoji: '✂️', name: 'scissors' },
+            { emoji: '📏', name: 'ruler' },
+            { emoji: '📐', name: 'triangle ruler' },
+            { emoji: '💎', name: 'diamond/gem' },
+            { emoji: '🔶', name: 'orange diamond' },
+            { emoji: '🔷', name: 'blue diamond' },
+            { emoji: '🔸', name: 'small orange diamond' },
+            { emoji: '🔹', name: 'small blue diamond' },
+            { emoji: '▶️', name: 'play' },
+            { emoji: '⏹️', name: 'stop' },
+            { emoji: '⏺️', name: 'record' },
+            { emoji: '❤️', name: 'heart' },
+            { emoji: '⭐', name: 'star' },
+            { emoji: '🌟', name: 'glowing star' },
+            { emoji: '💫', name: 'dizzy star' },
+            { emoji: '🏆', name: 'trophy' }
+        ]
+    }
+];
+
+// Render current types
+var currentGrid = document.getElementById('currentGrid');
+currentTypes.forEach(function(t) {
+    var div = document.createElement('div');
+    div.className = 'current-item';
+    div.innerHTML = '<span class="emoji">' + t.emoji + '</span><span class="code">' + t.code + '</span><span class="type">' + t.type + '</span>';
+    div.onclick = function() { copyEmoji(t.emoji, div); };
+    div.style.cursor = 'pointer';
+    currentGrid.appendChild(div);
+});
+
+// Render picker sections
+var sectionsDiv = document.getElementById('sections');
+categories.forEach(function(cat) {
+    var section = document.createElement('div');
+    section.className = 'section';
+    
+    var h2 = document.createElement('h2');
+    h2.textContent = cat.name;
+    section.appendChild(h2);
+    
+    var grid = document.createElement('div');
+    grid.className = 'grid';
+    
+    cat.icons.forEach(function(icon) {
+        var card = document.createElement('div');
+        card.className = 'icon-card';
+        card.setAttribute('data-name', icon.name.toLowerCase());
+        card.innerHTML = '<span class="emoji">' + icon.emoji + '</span>' +
+            '<span class="name">' + icon.name + '</span>';
+        card.onclick = function() { copyEmoji(icon.emoji, card); };
+        grid.appendChild(card);
+    });
+    
+    section.appendChild(grid);
+    sectionsDiv.appendChild(section);
+});
+
+function copyEmoji(emoji, element) {
+    navigator.clipboard.writeText(emoji).then(function() {
+        // Visual feedback
+        element.classList.add('copied');
+        setTimeout(function() { element.classList.remove('copied'); }, 1500);
+        
+        // Toast
+        var toast = document.getElementById('toast');
+        toast.textContent = '✓ Copiado: ' + emoji;
+        toast.style.display = 'block';
+        setTimeout(function() { toast.style.display = 'none'; }, 2000);
+    });
+}
+
+function filterIcons() {
+    var query = document.getElementById('search').value.toLowerCase().trim();
+    var cards = document.querySelectorAll('.icon-card');
+    cards.forEach(function(card) {
+        var name = card.getAttribute('data-name') || '';
+        card.style.display = (query === '' || name.includes(query)) ? '' : 'none';
+    });
+}
+</script>
+
+</body>
+</html>
