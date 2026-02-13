@@ -13,7 +13,7 @@
  * @date 2026-02-13
  */
 
-const portMonitorV3 = {
+window.portMonitorV3 = {
   
   // ==================== CONFIGURATION ====================
   
@@ -483,10 +483,8 @@ const portMonitorV3 = {
 // Wait for appState to be ready
 if (typeof window !== 'undefined') {
   window.addEventListener('load', () => {
-    if (typeof appState !== 'undefined') {
-      setTimeout(() => {
-        portMonitorV3.init();
-      }, 1000);
-    }
+    // Auto-init is now handled by app.js in initApp()
+    // No need to initialize here as it would be redundant
+    console.log('✅ portMonitorV3 ready for use');
   });
-}
+};
